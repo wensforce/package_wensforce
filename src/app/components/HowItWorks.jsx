@@ -1,7 +1,34 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Gem, Lock, Phone, Car, CheckCircle2 } from 'lucide-react';
+import Link from 'next/link';
+
+const STEPS = [
+  {
+    num: '01',
+    title: 'Choose & Activate',
+    time: '60 seconds',
+    description:
+      'Select your tier, complete a quick KYC, and make a single secure annual payment. Your membership activates instantly.',
+    color: '#C9A24B',
+  },
+  {
+    num: '02',
+    title: 'Onboard & Personalise',
+    time: 'Within 2 hours',
+    description:
+      'Your dedicated concierge calls to set vehicle preferences, security needs, travel patterns, and pilgrimage wishes.',
+    color: '#0B1E3F',
+  },
+  {
+    num: '03',
+    title: 'Travel & Enjoy',
+    time: 'Anytime, all year',
+    description:
+      'Call, WhatsApp, or app — your vehicle and bodyguard are ready in under 12 minutes, any time you need them.',
+    color: '#2F855A',
+  },
+];
 
 export default function HowItWorks() {
   const [isVisible, setIsVisible] = useState(false);
@@ -17,140 +44,83 @@ export default function HowItWorks() {
       },
       { threshold: 0.15 }
     );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
+    if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
-  const steps = [
-    {
-      number: '01',
-      title: 'Choose Your Plan',
-      description: 'Select from 5 carefully crafted membership tiers based on your travel frequency and security needs.',
-      icon: Gem,
-      color: 'from-blue-600 to-cyan-500',
-    },
-    {
-      number: '02',
-      title: 'Secure Payment',
-      description: 'One annual payment through our secure gateway. No hidden charges, no surprises.',
-      icon: Lock,
-      color: 'from-purple-600 to-pink-500',
-    },
-    {
-      number: '03',
-      title: 'Onboarding Call',
-      description: 'Your dedicated concierge calls within 2 hours to set preferences and answer questions.',
-      icon: Phone,
-      color: 'from-orange-600 to-red-500',
-    },
-    {
-      number: '04',
-      title: 'Book & Travel',
-      description: 'Call 24/7 to book. Your luxury vehicle and protection arrive within 10 minutes.',
-      icon: Car,
-      color: 'from-green-600 to-emerald-500',
-    },
-    {
-      number: '05',
-      title: 'Enjoy & Rate',
-      description: 'Experience premium service. Share feedback to help us serve you even better.',
-      icon: CheckCircle2,
-      color: 'from-indigo-600 to-blue-500',
-    },
-  ];
-
   return (
-    <section id="how-it-works" ref={sectionRef} className="py-20 px-6 relative overflow-hidden">
-      {/* Background elements */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute top-40 left-0 w-80 h-80 bg-[#BF9F00]/3 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-20 w-96 h-96 bg-blue-500/2 rounded-full blur-3xl" />
-      </div>
+    <section id="how-it-works" ref={sectionRef} className="py-20 px-6 bg-white">
+      <div className="max-w-5xl mx-auto">
 
-      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
-          <p className="text-[#BF9F00] text-xs tracking-[0.3em] uppercase font-semibold mb-3">
+          <p className="text-[#C9A24B] text-[10px] tracking-[0.4em] uppercase font-semibold mb-3">
             Simple Process
           </p>
-          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4 max-w-2xl mx-auto">
-            5 Steps to Membership
+          <h2 className="font-serif-display text-3xl sm:text-4xl font-bold text-[#0B1E3F] mb-3">
+            From Selection to First Trip in 3 Steps
           </h2>
-          <p className="text-gray-500 text-lg max-w-xl mx-auto font-light">
-            From selection to your first trip — we make the journey smooth and hassle-free.
+          <p className="text-gray-500 text-base font-light max-w-md mx-auto">
+            Most members are fully onboarded within 4 hours of payment.
           </p>
         </div>
 
-        {/* Timeline */}
-        <div className="relative">
-          {/* Connection Line */}
-          <div className="hidden lg:block absolute top-28 left-1/2 transform -translate-x-1/2 w-1 h-[calc(100%-120px)] bg-gradient-to-b from-[#BF9F00] via-[#BF9F00]/50 to-transparent" />
+        {/* Steps */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 relative">
+          {/* Gold connector line (desktop) */}
+          <div
+            className="hidden lg:block absolute top-16 left-[calc(16.67%+20px)] right-[calc(16.67%+20px)] h-0.5 z-0"
+            style={{ background: 'linear-gradient(90deg, #C9A24B, #0B1E3F, #2F855A)' }}
+          />
 
-          {/* Steps */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-0">
-            {steps.map((step, idx) => {
-              const StepIcon = step.icon;
-              const isAnimated = isVisible;
+          {STEPS.map((step, idx) => (
+            <div
+              key={idx}
+              className={`relative flex flex-col items-center text-center px-8 transition-all duration-700 ${
+                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              }`}
+              style={{ transitionDelay: isVisible ? `${idx * 180}ms` : '0ms' }}
+            >
+              {/* Number badge */}
+              <div
+                className="relative z-10 w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold text-white mb-6 shadow-lg"
+                style={{ backgroundColor: step.color }}
+              >
+                {idx + 1}
+              </div>
 
-              return (
-                <div
-                  key={idx}
-                  className={`relative transition-all duration-700 transform ${
-                    isAnimated ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                  }`}
-                  style={{
-                    transitionDelay: isAnimated ? `${idx * 120}ms` : '0ms',
-                  }}
-                >
-                  {/* Desktop line connector */}
-                  {idx < steps.length - 1 && (
-                    <div className="hidden lg:block absolute top-28 left-[calc(100%-20px)] w-12 h-1 bg-gradient-to-r from-[#BF9F00]/30 to-transparent" />
-                  )}
+              {/* Time badge */}
+              <span
+                className="text-[10px] font-semibold tracking-widest uppercase px-3 py-1 rounded-full mb-4"
+                style={{ backgroundColor: `${step.color}18`, color: step.color }}
+              >
+                {step.time}
+              </span>
 
-                  {/* Step card */}
-                  <div className="flex flex-col items-center text-center lg:px-3">
-                    {/* Icon circle */}
-                    <div className={`relative w-20 h-20 rounded-2xl bg-gradient-to-br ${step.color} mb-6 flex items-center justify-center shadow-lg ring-4 ring-white transform transition-all hover:scale-110 cursor-pointer`}>
-                      <StepIcon size={32} className="text-white" strokeWidth={1.5} />
-                      <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white border-2 border-gray-900 flex items-center justify-center">
-                        <span className="text-sm font-bold text-gray-900">{idx + 1}</span>
-                      </div>
-                    </div>
-
-                    {/* Number badge */}
-                    <div className="text-5xl font-bold text-gray-900/10 mb-2">{step.number}</div>
-
-                    {/* Content */}
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">{step.title}</h3>
-                    <p className="text-sm text-gray-600 font-light leading-relaxed">
-                      {step.description}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+              <h3 className="font-serif-display text-xl font-bold text-[#0B1E3F] mb-3">
+                {step.title}
+              </h3>
+              <p className="text-gray-500 text-sm leading-relaxed font-light max-w-xs">
+                {step.description}
+              </p>
+            </div>
+          ))}
         </div>
 
-        {/* Info Box */}
-        <div className="mt-16 p-8 bg-gradient-to-r from-[#BF9F00]/8 to-blue-500/8 border border-[#BF9F00]/20 rounded-2xl">
-          <div className="max-w-3xl mx-auto text-center">
-            <p className="text-gray-700 font-light text-lg mb-3">
-              ✓ No long-term contracts &nbsp; • &nbsp; ✓ 15-day money-back guarantee &nbsp; • &nbsp; ✓ Instant benefits activation
-            </p>
-            <p className="text-gray-600 text-sm">
-              Questions? Call our concierge at{' '}
-              <a href="tel:+917304607954" className="font-semibold text-[#BF9F00] hover:text-[#a88a00]">
-                +91-7304-607954
-              </a>{' '}
-              anytime.
-            </p>
-          </div>
+        {/* CTA */}
+        <div className="mt-14 text-center">
+          <Link
+            href="#plans"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-white text-sm transition-all hover:opacity-90 hover:shadow-lg"
+            style={{ backgroundColor: '#0B1E3F' }}
+          >
+            Start with Step 1 — Choose Your Tier →
+          </Link>
+          <p className="text-gray-400 text-xs mt-4 font-light">
+            ✓ No long-term lock-in &nbsp;·&nbsp; ✓ Instant activation
+          </p>
         </div>
+
       </div>
     </section>
   );

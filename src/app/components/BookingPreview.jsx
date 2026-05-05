@@ -53,7 +53,7 @@ export default function BookingPreview() {
             </div>
 
             {/* Content */}
-            <div className="max-w-3xl">
+            <div className="max-w-xl lg:max-w-[calc(100%-22rem)]">
               <p className="text-[#BF9F00] text-xs tracking-[0.3em] uppercase font-semibold mb-4">
                 Special Offer
               </p>
@@ -97,7 +97,6 @@ export default function BookingPreview() {
                   { Icon: Crown, label: '2,400+', value: 'Active Members' },
                   { Icon: Gem, label: '98.7%', value: 'Satisfaction' },
                   { Icon: Zap, label: '10 min', value: 'Avg Dispatch' },
-                  { Icon: Calendar, label: '15 days', value: 'Money-back' },
                 ].map((stat, i) => (
                   <div key={i} className="text-center">
                     <stat.Icon size={20} className="text-[#BF9F00] mx-auto mb-2" strokeWidth={1.5} />
@@ -129,7 +128,7 @@ export default function BookingPreview() {
 
               {/* Trust signals */}
               <p className="text-sm text-gray-400 mt-8">
-                ✓ Secure payment &nbsp; • &nbsp; ✓ No hidden charges &nbsp; • &nbsp; ✓ 15-day guarantee
+                ✓ Secure payment &nbsp; • &nbsp; ✓ No hidden charges &nbsp; 
               </p>
             </div>
           </div>
@@ -147,7 +146,6 @@ export default function BookingPreview() {
                 'VIP darshan access',
                 'Airport lounge privileges',
                 'Priority 24/7 concierge',
-                '15-day money-back guarantee',
                 'Family-transferable access',
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-3 text-sm text-gray-300 font-light">

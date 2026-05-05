@@ -12,18 +12,17 @@ export const plans = [
     trips: 3,
     validity: '12 Months',
     perTripCost: 8333,
-    freePerksWorth: 8000,
+    freePerksWorth: 9000,
     isPopular: false,
     isBestValue: false,
     isDecoy: false,
     isAnchor: false,
     highlight: false,
     tag: null,
-    spotsLeft: 18,
     privileges: [
       {
         title: '1× VIP Darshan Voucher',
-        desc: 'Siddhivinayak (Mumbai), Mahalakshmi, ISKCON, or local equivalent',
+        desc: 'at any 1 partner temple — Siddhivinayak (Mumbai), Mahalakshmi, ISKCON, or local equivalent',
         worth: 4000,
         icon: '🛕',
       },
@@ -40,10 +39,10 @@ export const plans = [
         icon: '📞',
       },
       {
-        title: 'In-car Wi-Fi, Charger, Mineral Water & Tissue',
+        title: 'In-car Charger, Mineral Water & Tissue',
         desc: 'Complimentary on every trip',
         worth: null,
-        icon: '🛜',
+        icon: '🔋', // water 
       },
       {
         title: 'Trip-Type Flexibility',
@@ -95,19 +94,18 @@ export const plans = [
     trips: 4,
     validity: '12 Months',
     perTripCost: 12500,
-    freePerksWorth: 18000,
+    freePerksWorth: 37500,
     isPopular: true,
     isBestValue: false,
     isDecoy: false,
     isAnchor: false,
     highlight: false,
     tag: 'MOST POPULAR',
-    spotsLeft: 11,
     privileges: [
       {
         title: '2× VIP Darshan Vouchers',
         desc: 'Ujjain, Tirupati, Shirdi Sai, Siddhivinayak, Mahalaxmi, DagduShet, Khatu Shyam, Salasar Balaji',
-        worth: 15000,
+        worth: 10000,
         icon: '🛕',
       },
       {
@@ -135,10 +133,10 @@ export const plans = [
         icon: '📞',
       },
       {
-        title: 'In-car Wi-Fi, Charger, Mineral Water & Tissue',
+        title: 'In-car Charger, Mineral Water & Tissue',
         desc: 'Complimentary on every trip',
         worth: null,
-        icon: '🛜',
+        icon: '🔋', // water 
       },
       {
         title: 'Family-Transferable',
@@ -184,19 +182,18 @@ export const plans = [
     trips: 5,
     validity: '12 Months',
     perTripCost: 15000,
-    freePerksWorth: 28000,
+    freePerksWorth: 53000,
     isPopular: false,
     isBestValue: false,
     isDecoy: true,
     isAnchor: false,
     highlight: false,
-    tag: null,
-    spotsLeft: 8,
+    tag: null,   
     privileges: [
       {
         title: '3× VIP Darshan Vouchers',
         desc: 'Ujjain Mahakaleshwar, Khatu Shyam, Salasar Balaji, DagduShet, Siddhivinayak, Mahalaxmi, ISKCON, Shirdi Sai',
-        worth: 25000,
+        worth: 20000,
         icon: '🛕',
       },
       {
@@ -279,14 +276,13 @@ export const plans = [
     trips: 5,
     validity: '12 Months',
     perTripCost: 20000,
-    freePerksWorth: 45000,
+    freePerksWorth: 95000,
     isPopular: false,
     isBestValue: true,
     isDecoy: false,
     isAnchor: false,
     highlight: true,
-    tag: 'BEST VALUE',
-    spotsLeft: 5,
+    tag: 'BEST VALUE',   
     privileges: [
       {
         title: '5× Premium VIP Darshan Vouchers',
@@ -384,14 +380,13 @@ export const plans = [
     trips: 5,
     validity: '12 Months',
     perTripCost: 40000,
-    freePerksWorth: 95000,
+    freePerksWorth: 200000,
     isPopular: false,
     isBestValue: false,
     isDecoy: false,
     isAnchor: true,
     highlight: false,
-    tag: 'ULTRA EXCLUSIVE',
-    spotsLeft: 3,
+    tag: 'ULTRA EXCLUSIVE',   
     privileges: [
       {
         title: 'Unlimited VIP Darshan Privileges',

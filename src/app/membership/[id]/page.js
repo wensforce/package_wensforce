@@ -1,15 +1,32 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import {
+  ArrowLeft, Check, ChevronRight,
   Car, Users, ShieldCheck, Gem, Crown,
-  Navigation, Shield, Calendar, Plane,
-  Building2, Landmark, Sparkles, Utensils,
-  Gift, Phone, Zap, Wifi, RefreshCw, Flame,
-  UserCheck, CheckCircle, BadgeCheck,
-  MapPin, Clock, ArrowLeft,
+  Navigation, Shield, Building2, Plane, Landmark,
+  Sparkles, Utensils, Gift, Phone, Zap, Wifi,
+  RefreshCw, Flame, UserCheck, CheckCircle,
 } from 'lucide-react';
 import { plans, getPlanById } from '../../data/plans';
-import CountdownTimer from '../../components/CountdownTimer';
+
+const INR = (n) => '₹' + Number(n).toLocaleString('en-IN');
+const WA_NUMBER = '917304607954';
+
+const ANCHOR_PRICES = {
+  essential: 34999,
+  executive: 64999,
+  premium: 99999,
+  elite: 130000,
+  sovereign: 250000,
+};
+
+const FOUNDING_SPOTS = {
+  essential: 82,
+  executive: 71,
+  premium: 58,
+  elite: 73,
+  sovereign: 41,
+};
 
 const TIER_ICONS = {
   essential: Car,
@@ -20,32 +37,139 @@ const TIER_ICONS = {
 };
 
 const PRIV_ICONS = {
-  '🛕': Building2,
-  '✈️': Plane,
-  '🏛️': Landmark,
-  '🛡️': ShieldCheck,
-  '💆': Sparkles,
-  '🍽️': Utensils,
-  '🎁': Gift,
-  '📞': Phone,
-  '⚡': Zap,
-  '🚗': Car,
-  '🛜': Wifi,
-  '🔄': RefreshCw,
-  '👨‍👩‍👧': Users,
-  '🪔': Flame,
-  '🤵': UserCheck,
-  '✅': CheckCircle,
-  '🏎️': Car,
+  '🛕': Building2, '✈️': Plane, '🏛️': Landmark, '🛡️': ShieldCheck,
+  '💆': Sparkles, '🍽️': Utensils, '🎁': Gift, '📞': Phone,
+  '⚡': Zap, '🚗': Car, '🛜': Wifi, '🔄': RefreshCw,
+  '👨‍👩‍👧': Users, '🪔': Flame, '🤵': UserCheck, '✅': CheckCircle,
+  '🏎️': Car, '🔋': Zap,
 };
 
-function PrivIcon({ emoji, size = 16, className = '' }) {
-  const Icon = PRIV_ICONS[emoji];
-  if (!Icon) return <span style={{ fontSize: size }}>{emoji}</span>;
-  return <Icon size={size} className={className} />;
-}
+const NOT_INCLUDED = {
+  essential: ['Armed Bodyguard', 'International Lounge Access', 'Heritage Fast-Track Pass', 'Spa / Wellness', 'Fine Dining', 'Dedicated Relationship Manager', 'Security Risk Assessment'],
+  executive: ['Armed Bodyguard', 'International Lounge Access', 'Spa / Wellness', 'Fine Dining', 'Dedicated Relationship Manager', 'Security Risk Assessment'],
+  premium: ['3× International Lounge Access', 'Fine Dining Voucher', 'Same-Day SUV Upgrade', 'Personalised Gift Delivery'],
+  elite: ['Bhasm Aarti VVIP Booking at Ujjain (Sovereign exclusive)', 'Unlimited VIP Darshan', 'Airport Concierge Service', '4× Spa Sessions', 'Family Extension Booking Line'],
+  sovereign: [],
+};
 
-const INR = (n) => '₹' + Number(n).toLocaleString('en-IN');
+const TIER_THEMES = {
+  essential: {
+    headerGrad: 'from-slate-700 via-slate-600 to-slate-800',
+    accentColor: '#475569',
+    orb1: 'bg-slate-400/25 -top-16 -right-16 w-64 h-64',
+    orb2: 'bg-blue-400/10 bottom-0 left-4 w-40 h-40',
+    numColor: 'text-white/[0.07]',
+    badge: null,
+    nameTxt: 'text-white',
+    taglineTxt: 'text-slate-300/70',
+    priceTxt: 'text-white',
+    priceSubTxt: 'text-slate-300/55',
+    perksTxt: 'text-slate-300/70',
+    chipBg: 'bg-white/10 border-white/20 text-white/80',
+    bodyBg: 'bg-white',
+    darkBody: false,
+    checkBg: 'bg-slate-50 border-slate-100',
+    checkColor: 'text-slate-500',
+    privTitle: 'text-gray-900',
+    privNote: 'text-slate-400',
+    summaryBorder: 'rgba(0,0,0,0.06)',
+    btnBg: 'bg-slate-800 hover:bg-slate-900 text-white',
+    noteBg: 'bg-slate-50 border-slate-200',
+  },
+  executive: {
+    headerGrad: 'from-blue-900 via-indigo-800 to-blue-950',
+    accentColor: '#1d4ed8',
+    orb1: 'bg-blue-400/25 -top-16 -right-16 w-64 h-64',
+    orb2: 'bg-indigo-300/15 bottom-0 left-4 w-44 h-44',
+    numColor: 'text-white/[0.07]',
+    badge: { label: 'Most Popular', cls: 'bg-white/15 border border-white/20 text-white' },
+    nameTxt: 'text-white',
+    taglineTxt: 'text-blue-200/70',
+    priceTxt: 'text-white',
+    priceSubTxt: 'text-blue-200/55',
+    perksTxt: 'text-blue-200/80',
+    chipBg: 'bg-white/10 border-white/20 text-white/80',
+    bodyBg: 'bg-white',
+    darkBody: false,
+    checkBg: 'bg-blue-50 border-blue-100',
+    checkColor: 'text-blue-500',
+    privTitle: 'text-gray-900',
+    privNote: 'text-blue-400',
+    summaryBorder: 'rgba(0,0,0,0.06)',
+    btnBg: 'bg-blue-800 hover:bg-blue-900 text-white',
+    noteBg: 'bg-blue-50 border-blue-100',
+  },
+  premium: {
+    headerGrad: 'from-gray-800 via-gray-700 to-gray-900',
+    accentColor: '#374151',
+    orb1: 'bg-gray-400/15 -top-16 -right-16 w-64 h-64',
+    orb2: 'bg-red-400/8 bottom-0 left-4 w-40 h-40',
+    numColor: 'text-white/[0.06]',
+    badge: null,
+    nameTxt: 'text-white',
+    taglineTxt: 'text-gray-300/65',
+    priceTxt: 'text-white',
+    priceSubTxt: 'text-gray-300/55',
+    perksTxt: 'text-gray-300/75',
+    chipBg: 'bg-white/10 border-white/20 text-white/80',
+    bodyBg: 'bg-white',
+    darkBody: false,
+    checkBg: 'bg-gray-50 border-gray-100',
+    checkColor: 'text-gray-500',
+    privTitle: 'text-gray-900',
+    privNote: 'text-gray-400',
+    summaryBorder: 'rgba(0,0,0,0.06)',
+    btnBg: 'bg-gray-900 hover:bg-black text-white',
+    noteBg: 'bg-gray-50 border-gray-200',
+  },
+  elite: {
+    headerGrad: 'from-[#2a1c00] via-[#6b4800] to-[#1a1000]',
+    accentColor: '#C9A24B',
+    orb1: 'bg-[#C9A24B]/35 -top-16 -right-16 w-64 h-64',
+    orb2: 'bg-yellow-400/15 bottom-0 left-4 w-44 h-44',
+    numColor: 'text-[#C9A24B]/[0.13]',
+    badge: { label: '◆ Best Value — 6 in 10 choose this', cls: 'shimmer-bg text-black font-extrabold' },
+    nameTxt: 'text-[#f0c940]',
+    taglineTxt: 'text-[#C9A24B]/65',
+    priceTxt: 'text-[#f0c940]',
+    priceSubTxt: 'text-[#C9A24B]/55',
+    perksTxt: 'text-[#C9A24B]/80',
+    chipBg: 'bg-[#C9A24B]/15 border-[#C9A24B]/25 text-[#C9A24B]/90',
+    bodyBg: 'bg-[#0d0800]',
+    darkBody: true,
+    checkBg: 'bg-[#C9A24B]/10 border-[#C9A24B]/20',
+    checkColor: 'text-[#C9A24B]',
+    privTitle: 'text-white/85',
+    privNote: 'text-[#C9A24B]/55',
+    summaryBorder: 'rgba(201,162,75,0.12)',
+    btnBg: 'bg-[#C9A24B] hover:bg-[#a88000] text-black font-extrabold',
+    noteBg: 'bg-[#C9A24B]/8 border-[#C9A24B]/20',
+  },
+  sovereign: {
+    headerGrad: 'from-[#080808] via-[#2a2a2a] to-[#080808]',
+    headerStyle: { background: 'linear-gradient(135deg, #050505 0%, #0e0e0e 25%, #272727 48%, #2e2e2e 52%, #252525 56%, #0e0e0e 75%, #050505 100%)' },
+    accentColor: '#C0C0C0',
+    orb1: 'bg-[#C0C0C0]/8 -top-16 -right-16 w-64 h-64',
+    orb2: 'bg-[#B8B9BC]/5 bottom-0 left-4 w-40 h-40',
+    numColor: 'text-white/[0.04]',
+    badge: { label: 'Ultra Exclusive', cls: 'border border-[#C0C0C0]/30 text-[#C0C0C0]/70 bg-[#C0C0C0]/8' },
+    nameTxt: 'text-white',
+    taglineTxt: 'text-white/35',
+    priceTxt: 'text-white',
+    priceSubTxt: 'text-white/30',
+    perksTxt: 'text-white/40',
+    chipBg: 'bg-[#C0C0C0]/6 border-[#C0C0C0]/12 text-white/60',
+    bodyBg: 'bg-[#080808]',
+    darkBody: true,
+    checkBg: 'bg-white/5 border-white/10',
+    checkColor: 'text-white/45',
+    privTitle: 'text-white/80',
+    privNote: 'text-white/30',
+    summaryBorder: 'rgba(192,192,192,0.10)',
+    btnBg: 'bg-white hover:bg-gray-100 text-black font-extrabold',
+    noteBg: 'bg-[#C0C0C0]/5 border-[#C0C0C0]/12',
+  },
+};
 
 export async function generateStaticParams() {
   return plans.map((p) => ({ id: p.id }));
@@ -56,8 +180,8 @@ export async function generateMetadata({ params }) {
   const plan = getPlanById(id);
   if (!plan) return {};
   return {
-    title: `${plan.name} — WENS Force Membership`,
-    description: `${plan.tagline}. ${plan.trips} trips/year. ${plan.vehicle}. ${plan.bodyguard}. From ${INR(plan.price)}/year.`,
+    title: `${plan.name} Membership — WENS Force`,
+    description: `${plan.tagline}. ${plan.trips} curated journeys/year · ${plan.vehicleType}. From ${INR(plan.price)}/year.`,
   };
 }
 
@@ -66,412 +190,478 @@ export default async function PlanDetailPage({ params }) {
   const plan = getPlanById(id);
   if (!plan) notFound();
 
-  const isElite = plan.highlight;
-  const isSovereign = plan.isAnchor;
-  const otherPlans = plans.filter((p) => p.id !== plan.id);
-  const totalWorth = plan.privileges.filter((p) => p.worth).reduce((s, p) => s + p.worth, 0);
+  const theme = TIER_THEMES[plan.id];
   const TierIcon = TIER_ICONS[plan.id] || Car;
+  const anchorPrice = ANCHOR_PRICES[plan.id];
+  const foundingSpots = FOUNDING_SPOTS[plan.id];
+  const notIncluded = NOT_INCLUDED[plan.id] || [];
+  const otherPlans = plans.filter((p) => p.id !== plan.id).slice(0, 4);
 
-  const specs = [
-    { label: 'Vehicle', value: plan.vehicle, Icon: Car },
-    { label: 'Security', value: plan.bodyguard, Icon: Shield },
-    { label: 'Trips / Year', value: `${plan.trips} trips`, Icon: Navigation },
-    { label: 'Validity', value: plan.validity, Icon: Clock },
-  ];
+  const waMsg = `Hi WENS Force, I'm interested in the ${plan.name} membership (${INR(plan.price)}/yr). Can you help me get started?`;
+  const waUrl = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(waMsg)}`;
 
   return (
-    <div className="min-h-screen bg-[#F1F3F5]">
+    <div className="min-h-screen">
 
-      {/* Top bar */}
-      <div className="bg-black text-white py-2.5 px-6 text-center">
-        <div className="max-w-5xl mx-auto flex items-center justify-center gap-3 text-xs flex-wrap">
-          <span className="text-gray-400">Pricing valid until June 1, 2026</span>
-          <span className="text-gray-600">—</span>
-          <CountdownTimer targetDate="2026-06-01T00:00:00" />
-        </div>
-      </div>
-
-      {/* Breadcrumb */}
-      <div className="max-w-5xl mx-auto px-6 pt-7 pb-3">
-        <nav className="flex items-center gap-2 text-xs text-gray-400">
-          <Link href="/" className="hover:text-[#BF9F00] transition-colors flex items-center gap-1">
-            <ArrowLeft size={11} />
-            Membership Plans
+      {/* ── STICKY HEADER ── */}
+      <header className="sticky top-0 z-40 border-b border-white/8" style={{ backgroundColor: '#0B1E3F' }}>
+        <div className="max-w-6xl mx-auto px-6 py-3.5 flex items-center justify-between">
+          <Link
+            href="/#plans"
+            className="flex items-center gap-2 text-white/60 hover:text-white text-sm transition-colors"
+          >
+            <ArrowLeft size={15} />
+            All Plans
           </Link>
-          <span className="text-gray-200">›</span>
-          <span className="text-gray-500">{plan.name}</span>
-        </nav>
-      </div>
-
-      {/* Plan header */}
-      <section className="max-w-5xl mx-auto px-6 pb-8">
-        <div
-          className={[
-            'rounded-2xl overflow-hidden',
-            isElite ? 'ring-1 ring-[#BF9F00]/40 shadow-[0_8px_40px_rgba(191,159,0,0.10)]' : 'border border-gray-200 shadow-sm',
-          ].join(' ')}
-        >
-          {/* Dark header */}
-          <div className="bg-black px-8 sm:px-10 pt-10 pb-8 relative overflow-hidden">
-            {/* Dot grid */}
-            <div
-              className="absolute inset-0 opacity-[0.025]"
-              style={{
-                backgroundImage: 'radial-gradient(circle at 1px 1px, #BF9F00 1px, transparent 0)',
-                backgroundSize: '32px 32px',
-              }}
-            />
-            {/* Watermark tier icon */}
-            <div className="absolute right-10 bottom-4 opacity-[0.06] pointer-events-none">
-              <TierIcon size={140} />
-            </div>
-
-            {isElite && (
-              <div className="absolute top-5 right-6">
-                <span className="shimmer-bg text-black text-[10px] font-bold px-4 py-1.5 rounded-full tracking-[0.12em] uppercase">
-                  Best Value
-                </span>
-              </div>
-            )}
-            {plan.isPopular && (
-              <div className="absolute top-5 right-6">
-                <span className="bg-emerald-600 text-white text-[10px] font-bold px-4 py-1.5 rounded-full tracking-[0.12em] uppercase">
-                  Most Popular
-                </span>
-              </div>
-            )}
-            {isSovereign && (
-              <div className="absolute top-5 right-6">
-                <span className="bg-white/8 border border-white/15 text-white/50 text-[10px] font-semibold px-4 py-1.5 rounded-full tracking-[0.12em] uppercase">
-                  Ultra Exclusive
-                </span>
-              </div>
-            )}
-
-            <div className="relative">
-              {/* Tier icon badge */}
-              <div className={[
-                'inline-flex items-center justify-center w-10 h-10 rounded-xl mb-4 border',
-                isElite ? 'bg-[#BF9F00]/15 border-[#BF9F00]/30 text-[#BF9F00]' :
-                isSovereign ? 'bg-white/5 border-white/10 text-white/50' :
-                'bg-white/8 border-white/12 text-white/60',
-              ].join(' ')}>
-                <TierIcon size={18} />
-              </div>
-              <div className="text-[10px] font-semibold tracking-[0.3em] text-white/25 uppercase mb-2">
-                Package {plan.packageNo}
-              </div>
-              <h1 className={['text-4xl sm:text-5xl font-bold tracking-wide mb-2', isElite ? 'text-[#BF9F00]' : 'text-white'].join(' ')}>
-                {plan.name}
-              </h1>
-              <p className="text-white/40 text-sm font-light">{plan.tagline}</p>
-
-              <div className="flex flex-col sm:flex-row sm:items-end gap-6 mt-8">
-                <div>
-                  <div className={['text-4xl sm:text-5xl font-bold', isElite ? 'text-[#BF9F00]' : 'text-white'].join(' ')}>
-                    {INR(plan.price)}
-                  </div>
-                  <div className="text-white/30 text-sm mt-1 font-light">
-                    per year &nbsp;·&nbsp; {INR(plan.perMonth)}/month &nbsp;·&nbsp; all-inclusive
-                  </div>
-                  <div className={['text-sm mt-2 font-medium', isElite ? 'text-[#BF9F00]/70' : 'text-white/40'].join(' ')}>
-                    ₹{plan.freePerksWorth.toLocaleString('en-IN')} in privileges included
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="flex items-center gap-2 text-white/50 text-xs hidden sm:flex">
+            <span className="text-[#C9A24B] font-bold tracking-widest text-[10px] uppercase">WENS Force</span>
+            <span>/</span>
+            <span>{plan.name}</span>
           </div>
-
-          {/* Specs strip */}
-          <div className="bg-white grid grid-cols-2 sm:grid-cols-4 border-b border-gray-100">
-            {specs.map(({ label, value, Icon }, i) => (
-              <div key={label} className={['p-5 text-center', i < 3 ? 'sm:border-r border-gray-100' : '', i < 2 ? 'border-b sm:border-b-0 border-gray-100' : ''].join(' ')}>
-                <div className={[
-                  'inline-flex items-center justify-center w-8 h-8 rounded-lg mb-2',
-                  isElite ? 'bg-[#BF9F00]/10 text-[#BF9F00]' : 'bg-gray-50 text-gray-400',
-                ].join(' ')}>
-                  <Icon size={14} />
-                </div>
-                <div className="text-[9px] font-semibold tracking-[0.25em] text-gray-300 uppercase mb-1">
-                  {label}
-                </div>
-                <div className={['font-semibold text-sm leading-snug', isElite ? 'text-[#BF9F00]' : 'text-gray-800'].join(' ')}>
-                  {value}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* CTA strip */}
-          <div className="bg-white px-8 py-5 flex flex-col sm:flex-row items-center gap-4">
-            <div className="flex-1">
-              <div className="font-semibold text-sm text-gray-900">Ready to get started?</div>
-              <div className="text-xs text-gray-400 mt-0.5 font-light">Concierge onboarding within 2 hours · 24×7 support</div>
-            </div>
-            <button
-              className={[
-                'py-3.5 px-8 rounded-xl font-semibold text-sm transition-all w-full sm:w-auto',
-                isElite ? 'bg-[#BF9F00] text-black hover:bg-[#a88a00] pulse-ring' :
-                isSovereign ? 'bg-gray-900 text-white hover:bg-black' :
-                'bg-gray-900 text-white hover:bg-black',
-              ].join(' ')}
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/booking/${plan.id}`}
+              className="flex items-center gap-2 py-2 px-5 rounded-full font-bold text-black text-xs transition-all hover:opacity-90 hover:shadow-lg pulse-ring"
+              style={{ background: 'linear-gradient(135deg,#C9A24B,#f0c940)', boxShadow: '0 4px 16px rgba(201,162,75,0.4)' }}
             >
-              {isElite ? 'Claim This Membership' : isSovereign ? 'Enquire About Sovereign' : `Get ${plan.name} Plan`}
-            </button>
+              {plan.id === 'elite' && <Gem size={12} strokeWidth={2.5} />}
+              {plan.id === 'sovereign' && <Crown size={12} strokeWidth={2.5} />}
+              Buy Membership
+            </Link>
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 py-2 px-3.5 rounded-full font-semibold text-white/70 text-xs border border-white/15 hover:border-white/30 hover:text-white transition-all"
+            >
+              <svg viewBox="0 0 32 32" width="12" height="12" fill="currentColor">
+                <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.668 4.799 1.836 6.793L2 30l7.393-1.812A13.918 13.918 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2z"/>
+              </svg>
+              Enquire
+            </a>
           </div>
         </div>
-      </section>
+      </header>
 
-      {/* Content */}
-      <section className="max-w-5xl mx-auto px-6 pb-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* ── HERO ── */}
+      <div
+        className={`relative bg-gradient-to-br ${theme.headerGrad} overflow-hidden`}
+        style={theme.headerStyle}
+      >
+        <div className={`absolute rounded-full blur-3xl pointer-events-none ${theme.orb1}`} />
+        <div className={`absolute rounded-full blur-3xl pointer-events-none ${theme.orb2}`} />
+        {plan.id === 'sovereign' && (
+          <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(105deg, transparent 15%, rgba(180,180,180,0.025) 50%, transparent 85%)' }} />
+        )}
+        <div className={`absolute right-0 bottom-0 text-[clamp(140px,22vw,240px)] font-black leading-none select-none pointer-events-none ${theme.numColor}`}>
+          {plan.packageNo}
+        </div>
 
-        {/* Left: Privileges + FAQ */}
-        <div className="lg:col-span-2 space-y-6">
-
-          {/* Privileges */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className={['px-6 py-5 border-b', isElite ? 'bg-black border-[#BF9F00]/15' : 'bg-gray-50 border-gray-100'].join(' ')}>
-              <h2 className={['font-semibold text-sm tracking-wide', isElite ? 'text-[#BF9F00]' : 'text-gray-700'].join(' ')}>
-                Complimentary Privileges Included
-              </h2>
-              <p className={['text-xs mt-0.5 font-light', isElite ? 'text-white/30' : 'text-gray-400'].join(' ')}>
-                All activated from day one of your membership
-              </p>
+        <div className="relative max-w-6xl mx-auto px-6 sm:px-10 pt-12 pb-14">
+          {/* Badge */}
+          {theme.badge && (
+            <div className="mb-6">
+              <span className={`text-[10px] font-bold px-4 py-1.5 rounded-full tracking-[0.18em] uppercase ${theme.badge.cls}`}>
+                {theme.badge.label}
+              </span>
             </div>
-            <ul className="divide-y divide-gray-50">
-              {plan.privileges.map((priv, i) => (
-                <li key={i} className="flex items-start gap-4 px-6 py-4 hover:bg-gray-50/50 transition-colors">
-                  <div className={[
-                    'w-9 h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5',
-                    isElite ? 'bg-[#BF9F00]/10 text-[#BF9F00]' :
-                    isSovereign ? 'bg-gray-100 text-gray-500' :
-                    'bg-gray-50 text-gray-400',
-                  ].join(' ')}>
-                    <PrivIcon emoji={priv.icon} size={16} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm text-gray-800">{priv.title}</div>
-                    {priv.desc && <div className="text-xs text-gray-400 mt-0.5 font-light">{priv.desc}</div>}
-                  </div>
-                  {priv.worth ? (
-                    <div className="shrink-0 text-right">
-                      <div className="text-[9px] text-gray-300 uppercase tracking-wide">worth</div>
-                      <div className={['font-semibold text-sm', isElite ? 'text-[#BF9F00]' : 'text-gray-600'].join(' ')}>
-                        {INR(priv.worth)}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className={['text-xs font-medium shrink-0', isElite ? 'text-[#BF9F00]/60' : 'text-gray-300'].join(' ')}>
-                      Included
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
+          )}
 
-          {/* Plan FAQ */}
-          {plan.faqs?.length > 0 && (
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="px-6 py-5 border-b border-gray-100 bg-gray-50">
-                <h2 className="font-semibold text-sm text-gray-700">Plan Questions</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-end">
+            {/* Left: Plan identity */}
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <TierIcon size={36} strokeWidth={1.2} className={theme.nameTxt} />
+                <div>
+                  <span className={`text-[11px] font-bold tracking-[0.3em] uppercase opacity-55 block ${theme.nameTxt}`}>
+                    Membership {String(plan.packageNo).padStart(2, '0')}
+                  </span>
+                  <span className={`text-5xl sm:text-6xl font-black tracking-[0.05em] uppercase leading-none ${theme.nameTxt}`}>
+                    {plan.name}
+                  </span>
+                </div>
               </div>
-              <div className="divide-y divide-gray-50">
-                {plan.faqs.map((faq, i) => (
-                  <details key={i} className="group">
-                    <summary className="flex items-center justify-between px-6 py-4 cursor-pointer text-sm font-medium text-gray-700 hover:text-[#BF9F00] transition-colors list-none">
-                      {faq.q}
-                      <span className="text-gray-300 text-xl ml-4 shrink-0 group-open:rotate-45 transition-transform inline-block leading-none">
-                        +
-                      </span>
-                    </summary>
-                    <div className="px-6 pb-5 text-gray-500 text-sm leading-relaxed font-light">
-                      {faq.a}
-                    </div>
-                  </details>
+              <p className={`text-sm max-w-sm font-light leading-relaxed italic mb-6 ${theme.taglineTxt}`}>
+                {plan.tagline}
+              </p>
+
+              {/* Spec pills */}
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { Icon: Navigation, text: `${plan.trips} Curated Journeys` },
+                  { Icon: Car, text: plan.vehicleType },
+                  {
+                    Icon: plan.bodyguard.toLowerCase().includes('unarmed') ? Shield : ShieldCheck,
+                    text: plan.bodyguard.toLowerCase().includes('unarmed') ? 'Unarmed Guard' : 'Armed Guard',
+                  },
+                ].map(({ Icon, text }, i) => (
+                  <span key={i} className={`flex items-center gap-1.5 text-[11px] px-3 py-1.5 rounded-full border font-bold tracking-wide uppercase backdrop-blur-sm ${theme.chipBg}`}>
+                    <Icon size={10} strokeWidth={2.5} />
+                    {text}
+                  </span>
                 ))}
               </div>
             </div>
-          )}
+
+            {/* Right: Price + CTAs */}
+            <div className="lg:text-right">
+              {anchorPrice && (
+                <div className="text-sm line-through opacity-45 mb-1" style={{ color: 'inherit' }}>
+                  {INR(anchorPrice)}
+                </div>
+              )}
+              <div className={`text-[48px] sm:text-6xl font-black tracking-tight leading-none ${theme.priceTxt}`}>
+                {INR(plan.price)}
+              </div>
+              <div className={`text-sm mt-1.5 font-light ${theme.priceSubTxt}`}>
+                per year, all-inclusive
+              </div>
+              <div className={`flex items-center gap-1.5 text-xs font-semibold mt-3 lg:justify-end ${theme.perksTxt}`}>
+                <Gem size={11} strokeWidth={2} />
+                ₹{plan.freePerksWorth.toLocaleString('en-IN')} in privileges included
+              </div>
+
+              {/* Founding spots */}
+              <div className={`inline-flex items-center gap-2 text-xs font-semibold mt-4 px-4 py-2 rounded-full border lg:ml-auto ${theme.chipBg}`}>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+                Founding 100 · {foundingSpots} of 100 confirmed
+              </div>
+
+              {/* Hero CTAs */}
+              <div className="flex flex-col sm:flex-row lg:flex-col gap-3 mt-6">
+                {/* PRIMARY — Buy */}
+                <Link
+                  href={`/booking/${plan.id}`}
+                  className="flex items-center justify-center gap-2 py-4 px-8 rounded-2xl font-black text-black text-sm transition-all hover:shadow-2xl hover:-translate-y-0.5 pulse-ring"
+                  style={{
+                    background: 'linear-gradient(135deg,#C9A24B 0%,#f0c940 50%,#C9A24B 100%)',
+                    boxShadow: '0 8px 32px rgba(201,162,75,0.5)',
+                  }}
+                >
+                  {plan.id === 'elite' && <Gem size={15} strokeWidth={2.5} />}
+                  {plan.id === 'sovereign' && <Crown size={15} strokeWidth={2.5} />}
+                  {plan.id === 'sovereign' ? 'Buy Sovereign Membership' : plan.id === 'elite' ? 'Buy Elite Membership' : `Buy ${plan.name} Membership`}
+                  <span className="text-base">→</span>
+                </Link>
+
+                {/* SECONDARY — WhatsApp */}
+                <a
+                  href={waUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 py-3.5 px-8 rounded-2xl font-semibold text-sm border-2 transition-all hover:opacity-80"
+                  style={{ borderColor: 'rgba(37,211,102,0.4)', color: '#25D366', backgroundColor: 'transparent' }}
+                >
+                  <svg viewBox="0 0 32 32" width="15" height="15" fill="#25D366">
+                    <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.668 4.799 1.836 6.793L2 30l7.393-1.812A13.918 13.918 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2z"/>
+                  </svg>
+                  Have a Question? WhatsApp Us
+                </a>
+              </div>
+
+              <p className={`text-[10px] mt-4 lg:text-right ${theme.priceSubTxt}`}>
+                Instant Activation &nbsp;·&nbsp; No Hidden Fees
+              </p>
+            </div>
+          </div>
         </div>
+      </div>
 
-        {/* Right: Summary sidebar */}
-        <div className="space-y-5">
+      {/* ── BODY ── */}
+      <div className={theme.bodyBg}>
+        <div className="max-w-6xl mx-auto px-6 sm:px-10 py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-10">
 
-          {/* Value summary */}
-          <div className={['rounded-2xl overflow-hidden border shadow-sm', isElite ? 'border-[#BF9F00]/25' : 'border-gray-100'].join(' ')}>
-            <div className={['px-5 py-4 border-b', isElite ? 'bg-black border-[#BF9F00]/15' : 'bg-gray-50 border-gray-100'].join(' ')}>
-              <h3 className={['font-semibold text-sm', isElite ? 'text-[#BF9F00]' : 'text-gray-700'].join(' ')}>
-                Privilege Value Breakdown
-              </h3>
+            {/* ── LEFT: Privileges ── */}
+            <div>
+              <p className={`text-[10px] font-bold tracking-[0.3em] uppercase mb-6 ${theme.darkBody ? 'text-white/25' : 'text-gray-300'}`}>
+                All Included Privileges
+              </p>
+              <ul className="space-y-5">
+                {plan.privileges.map((priv, i) => {
+                  const PrivIcon = PRIV_ICONS[priv.icon] || Check;
+                  return (
+                    <li key={i} className="flex items-start gap-4">
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border ${theme.checkBg}`}>
+                        <PrivIcon size={15} strokeWidth={1.75} className={theme.checkColor} />
+                      </div>
+                      <div>
+                        <span className={`text-[14px] font-semibold leading-snug block ${theme.privTitle}`}>
+                          {priv.title}
+                        </span>
+                        {priv.desc && (
+                          <span className={`text-[12px] font-light leading-snug block mt-0.5 ${theme.privNote}`}>
+                            {priv.desc}
+                          </span>
+                        )}
+                        {priv.worth && (
+                          <span className={`text-[11px] font-semibold mt-1 inline-block ${theme.checkColor}`}>
+                            worth {INR(priv.worth)}
+                          </span>
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              {/* What's NOT included */}
+              {notIncluded.length > 0 && (
+                <div className={`mt-10 p-5 rounded-2xl border ${theme.noteBg}`}>
+                  <p className={`text-[10px] font-bold tracking-[0.25em] uppercase mb-3 ${theme.privNote}`}>
+                    Not included in this plan
+                  </p>
+                  <ul className="space-y-1.5">
+                    {notIncluded.map((item, i) => (
+                      <li key={i} className={`flex items-center gap-2 text-[12px] font-light ${theme.privNote}`}>
+                        <span className="opacity-40">–</span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                  {plan.id !== 'sovereign' && (
+                    <Link
+                      href={`/membership/${plans[plans.findIndex(p => p.id === plan.id) + 1]?.id || 'sovereign'}`}
+                      className={`mt-4 text-[11px] font-semibold flex items-center gap-1 ${theme.checkColor}`}
+                    >
+                      See what the next tier adds
+                      <ChevronRight size={12} strokeWidth={2.5} />
+                    </Link>
+                  )}
+                </div>
+              )}
             </div>
-            <div className="bg-white px-5 py-4 space-y-3">
-              {plan.privileges.filter((p) => p.worth).map((priv, i) => (
-                <div key={i} className="flex items-center justify-between gap-3">
-                  <span className="text-xs text-gray-500 flex-1 leading-snug font-light">{priv.title}</span>
-                  <span className={['text-xs font-semibold shrink-0', isElite ? 'text-[#BF9F00]' : 'text-gray-600'].join(' ')}>
-                    {INR(priv.worth)}
-                  </span>
-                </div>
-              ))}
-              <div className="border-t border-gray-100 pt-3 space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-gray-400 font-light">Total privilege value</span>
-                  <span className="font-semibold text-gray-600">{INR(totalWorth)}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-gray-800">You Pay</span>
-                  <span className={['text-lg font-bold', isElite ? 'text-[#BF9F00]' : 'text-gray-900'].join(' ')}>
-                    {INR(plan.price)}
-                  </span>
-                </div>
+
+            {/* ── RIGHT: Summary + CTA ── */}
+            <div className="space-y-5">
+              {/* Plan summary box */}
+              <div className={`rounded-2xl p-5 border ${theme.checkBg}`}>
+                <p className={`text-[10px] font-bold tracking-[0.3em] uppercase mb-4 ${theme.darkBody ? 'text-white/25' : 'text-gray-300'}`}>
+                  Plan Summary
+                </p>
+                {[
+                  { label: 'Validity', val: plan.validity },
+                  { label: 'Curated Journeys', val: `${plan.trips} per year` },
+                  { label: 'Privileges Worth', val: `₹${plan.freePerksWorth.toLocaleString('en-IN')}` },
+                  { label: 'Vehicle', val: plan.vehicleType },
+                  { label: 'Security', val: plan.bodyguard },
+                ].map(({ label, val }) => (
+                  <div
+                    key={label}
+                    className="flex justify-between items-center py-2.5 border-b"
+                    style={{ borderColor: theme.summaryBorder }}
+                  >
+                    <span className={`text-[12px] font-medium ${theme.privNote}`}>{label}</span>
+                    <span className={`text-[12px] font-bold ${theme.privTitle}`}>{val}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Founding 100 */}
+              <div
+                className={`flex items-center justify-center gap-2 text-[11px] py-3.5 rounded-2xl border font-semibold ${theme.checkBg}`}
+                style={{ borderColor: plan.id === 'elite' ? 'rgba(201,162,75,0.25)' : undefined }}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+                <span className={theme.privTitle}>
+                  Founding 100 Member · {foundingSpots} of 100 confirmed
+                </span>
+              </div>
+
+              {/* CTA block — Buy is primary */}
+              <div className="space-y-3">
+                {/* PRIMARY — Buy */}
+                <Link
+                  href={`/booking/${plan.id}`}
+                  className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl font-black text-black text-sm transition-all hover:shadow-2xl hover:-translate-y-0.5 pulse-ring"
+                  style={{
+                    background: 'linear-gradient(135deg,#C9A24B 0%,#f0c940 50%,#C9A24B 100%)',
+                    boxShadow: '0 6px 24px rgba(201,162,75,0.45)',
+                  }}
+                >
+                  {plan.id === 'elite' && <Gem size={14} strokeWidth={2.5} />}
+                  {plan.id === 'sovereign' && <Crown size={14} strokeWidth={2.5} />}
+                  {plan.id === 'sovereign' ? 'Buy Sovereign Membership' : plan.id === 'elite' ? 'Buy Elite Membership' : `Buy ${plan.name} — ${INR(plan.price)}`}
+                  <span>→</span>
+                </Link>
+
+                {/* SECONDARY — WhatsApp */}
+                <a
+                  href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Hi WENS Force, I have a question about the ' + plan.name + ' membership. Can you help?')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-sm font-semibold transition-all hover:opacity-90"
+                  style={{ backgroundColor: '#25D366', color: 'white' }}
+                >
+                  <svg viewBox="0 0 32 32" width="14" height="14" fill="white">
+                    <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.668 4.799 1.836 6.793L2 30l7.393-1.812A13.918 13.918 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2z"/>
+                  </svg>
+                  Have Questions? WhatsApp Us
+                </a>
+                <p className={`text-center text-[10px] ${theme.privNote}`}>
+                  No Hidden Fees
+                </p>
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Quick specs */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div className="bg-gray-50 px-5 py-4 border-b border-gray-100">
-              <h3 className="font-semibold text-sm text-gray-700">At a Glance</h3>
+      {/* ── PLAN-SPECIFIC FAQS ── */}
+      {plan.faqs && plan.faqs.length > 0 && (
+        <section className="py-14 px-6" style={{ backgroundColor: '#FAF6EC' }}>
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-10">
+              <p className="text-[#C9A24B] text-[10px] tracking-[0.4em] uppercase font-semibold mb-3">
+                {plan.name} Specifics
+              </p>
+              <h2 className="font-serif-display text-2xl sm:text-3xl font-bold text-[#0B1E3F]">
+                Questions about this plan
+              </h2>
             </div>
-            <div className="px-5 py-4 space-y-3">
-              {[
-                { label: 'Annual price', value: INR(plan.price) },
-                { label: 'Monthly equivalent', value: INR(plan.perMonth) },
-                { label: 'Trips per year', value: `${plan.trips} trips` },
-                { label: 'Vehicle class', value: plan.vehicleType },
-                { label: 'Security level', value: plan.bodyguard.includes('Armed') ? 'Armed guard' : 'Unarmed guard' },
-                { label: 'Privileges worth', value: `₹${plan.freePerksWorth.toLocaleString('en-IN')}+` },
-              ].map((item) => (
-                <div key={item.label} className="flex items-center justify-between">
-                  <span className="text-xs text-gray-400 font-light">{item.label}</span>
-                  <span className={['text-xs font-semibold', isElite ? 'text-[#BF9F00]' : 'text-gray-700'].join(' ')}>
-                    {item.value}
-                  </span>
-                </div>
+            <div className="space-y-3">
+              {plan.faqs.map((faq, i) => (
+                <details
+                  key={i}
+                  className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-[#C9A24B]/30 transition-all duration-300 overflow-hidden"
+                >
+                  <summary className="flex items-center justify-between px-6 py-4 cursor-pointer font-semibold text-gray-800 hover:text-[#0B1E3F] transition-colors list-none gap-4">
+                    <span className="text-[15px] text-left">{faq.q}</span>
+                    <span className="text-gray-400 text-xl shrink-0 group-open:rotate-45 transition-transform duration-300 inline-block leading-none font-light">+</span>
+                  </summary>
+                  <div className="px-6 pb-5 text-gray-600 text-sm leading-relaxed border-t border-gray-100 pt-4 font-light bg-gray-50/30">
+                    {faq.a}
+                  </div>
+                </details>
               ))}
             </div>
           </div>
+        </section>
+      )}
 
-          {/* Urgency CTA */}
-          <div className={['rounded-2xl p-5', isElite ? 'bg-black border border-[#BF9F00]/20' : 'bg-white border border-gray-100'].join(' ')}>
-            <div className="text-center mb-4">
-              <div className={['text-xs font-light mb-1.5', isElite ? 'text-white/30' : 'text-gray-400'].join(' ')}>
-                Price increases June 1, 2026
-              </div>
-              <CountdownTimer targetDate="2026-06-01T00:00:00" />
+      {/* ── EXPLORE OTHER TIERS ── */}
+      {otherPlans.length > 0 && (
+        <section className="py-14 px-6 bg-white">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-10">
+              <p className="text-[#C9A24B] text-[10px] tracking-[0.4em] uppercase font-semibold mb-3">
+                Compare Options
+              </p>
+              <h2 className="font-serif-display text-2xl sm:text-3xl font-bold text-[#0B1E3F]">
+                Explore other tiers
+              </h2>
             </div>
-            <button
-              className={[
-                'w-full py-3.5 rounded-xl font-semibold text-sm transition-all',
-                isElite ? 'bg-[#BF9F00] text-black hover:bg-[#a88a00] pulse-ring' :
-                isSovereign ? 'bg-gray-900 text-white hover:bg-black' :
-                'bg-gray-900 text-white hover:bg-black',
-              ].join(' ')}
-            >
-              {isElite ? 'Claim This Membership' : isSovereign ? 'Enquire About Sovereign' : `Get ${plan.name} Plan`}
-            </button>
-            <p className={['text-[10px] text-center mt-2', isElite ? 'text-white/20' : 'text-gray-400'].join(' ')}>
-              15-day refund · No hidden fees
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {otherPlans.map((p) => {
+                const t = TIER_THEMES[p.id];
+                const TIcon = TIER_ICONS[p.id] || Car;
+                const isElite = p.id === 'elite';
+                return (
+                  <Link
+                    key={p.id}
+                    href={`/membership/${p.id}`}
+                    className="group relative rounded-2xl overflow-hidden"
+                    style={{
+                      boxShadow: isElite ? '0 8px 32px -8px rgba(201,162,75,0.3)' : '0 4px 16px -4px rgba(0,0,0,0.1)',
+                    }}
+                  >
+                    <div className={`bg-gradient-to-br ${t.headerGrad} p-5 h-full`}>
+                      <div className="flex items-center gap-2 mb-3">
+                        <TIcon size={16} strokeWidth={1.5} className={t.nameTxt} />
+                        <span className={`text-xs font-bold tracking-wide uppercase ${t.nameTxt}`}>{p.name}</span>
+                      </div>
+                      <div className={`text-lg font-black ${t.priceTxt}`}>{INR(p.price)}</div>
+                      <div className={`text-[10px] font-light mt-0.5 mb-3 ${t.taglineTxt}`}>per year</div>
+                      <div
+                        className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full ${t.chipBg}`}
+                      >
+                        View
+                        <ChevronRight size={10} strokeWidth={2.5} className="group-hover:translate-x-0.5 transition-transform" />
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── FINAL CTA ── */}
+      <section className="py-20 px-6" style={{ backgroundColor: '#0B1E3F' }}>
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            {plan.id === 'elite' && <Gem size={18} strokeWidth={1.5} className="text-[#C9A24B]" />}
+            {plan.id === 'sovereign' && <Crown size={18} strokeWidth={1.5} className="text-[#C9A24B]" />}
+            <p className="text-[#C9A24B] text-[10px] tracking-[0.4em] uppercase font-semibold">
+              Founding 100 Programme
             </p>
           </div>
 
-          {/* Upgrade nudge (only for lower tiers) */}
-          {!isElite && !isSovereign && (
-            <div className="bg-[#BF9F00]/6 border border-[#BF9F00]/20 rounded-2xl p-5">
-              <div className="text-[10px] font-semibold text-[#BF9F00] tracking-[0.2em] uppercase mb-2">
-                Upgrade Consideration
-              </div>
-              <p className="text-xs text-gray-600 mb-3 leading-relaxed font-light">
-                The Elite plan includes a Luxury Sedan, unlimited domestic lounges, 5 VIP darshan vouchers, fine dining,
-                and a personal RM — all for ₹99,999/year.
-              </p>
-              <Link
-                href="/membership/elite"
-                className="block w-full py-2.5 bg-[#BF9F00] text-black font-semibold text-xs text-center rounded-xl hover:bg-[#a88a00] transition-all"
-              >
-                View Elite Plan →
-              </Link>
-            </div>
-          )}
-        </div>
-      </section>
+          <h2 className="font-serif-display text-2xl sm:text-3xl font-bold text-white mb-4 leading-snug">
+            {foundingSpots} of 100 {plan.name} spots confirmed.<br />
+            <span className="text-[#C9A24B]">Charter pricing locked for life.</span>
+          </h2>
 
-      {/* Other plans */}
-      <section className="max-w-5xl mx-auto px-6 pb-14">
-        <h2 className="text-lg font-semibold text-gray-900 mb-5">Other Membership Plans</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {otherPlans.slice(0, 4).map((p) => {
-            const OtherIcon = TIER_ICONS[p.id] || Car;
-            return (
-              <Link
-                key={p.id}
-                href={`/membership/${p.id}`}
-                className={[
-                  'flex items-center gap-4 bg-white rounded-2xl p-5 border transition-all hover:shadow-md card-hover',
-                  p.highlight ? 'border-[#BF9F00]/30' : 'border-gray-100',
-                ].join(' ')}
-              >
-                <div className={[
-                  'w-10 h-10 rounded-xl flex items-center justify-center shrink-0',
-                  p.highlight ? 'bg-[#BF9F00]/10 text-[#BF9F00]' :
-                  p.isAnchor ? 'bg-gray-900 text-white/60' :
-                  'bg-gray-50 text-gray-400',
-                ].join(' ')}>
-                  <OtherIcon size={18} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-[9px] text-gray-300 tracking-[0.2em] uppercase font-semibold">Package {p.packageNo}</div>
-                  <div className={['font-semibold text-base tracking-wide mt-0.5', p.highlight ? 'text-[#BF9F00]' : 'text-gray-800'].join(' ')}>
-                    {p.name}
-                  </div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-sm font-semibold text-gray-700">{INR(p.price)}/yr</span>
-                    <span className="text-xs text-gray-300">·</span>
-                    <span className="text-xs text-gray-400 font-light">{p.trips} trips</span>
-                  </div>
-                </div>
-                <Navigation size={14} className="text-gray-300 shrink-0" />
-              </Link>
-            );
-          })}
-        </div>
-        <div className="mt-5 text-center">
-          <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-[#BF9F00] transition-colors font-light">
-            <ArrowLeft size={13} />
-            Back to all plans
-          </Link>
-        </div>
-      </section>
+          <p className="text-white/45 text-sm font-light mb-8 leading-relaxed">
+            Founding members lock current pricing permanently — no annual increases.<br />
+            Join now before the remaining {100 - foundingSpots} spots are filled.
+          </p>
 
-      {/* Footer */}
-      <footer className="bg-black border-t border-white/5 py-8 px-6">
-        <div className="max-w-5xl mx-auto text-center">
-          <div className="text-[#BF9F00] font-bold text-sm tracking-[0.25em] uppercase mb-2">WENS Force</div>
-          <p className="text-gray-700 text-xs font-light">© 2026 WENS Force. All rights reserved.</p>
-        </div>
-      </footer>
-
-      {/* Sticky mobile CTA */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-black/95 backdrop-blur border-t border-white/8 px-5 py-3">
-        <div className="flex items-center gap-4">
-          <div className="flex-1 min-w-0">
-            <div className="text-[10px] text-gray-500 uppercase tracking-widest">{plan.name}</div>
-            <div className={['font-semibold text-sm', isElite ? 'text-[#BF9F00]' : 'text-white'].join(' ')}>
-              {INR(plan.price)}/yr{plan.spotsLeft <= 8 ? ` · ${plan.spotsLeft} left` : ''}
-            </div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href={`/booking/${plan.id}`}
+              className="flex items-center gap-2 font-black py-4 px-9 rounded-full text-black text-sm pulse-ring"
+              style={{ background: 'linear-gradient(135deg,#C9A24B,#f0c940)', boxShadow: '0 8px 32px rgba(201,162,75,0.5)' }}
+            >
+              Buy {plan.name} Membership →
+            </Link>
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 border font-semibold py-4 px-8 rounded-full text-sm transition-all hover:bg-white/5"
+              style={{ borderColor: '#25D366', color: '#25D366' }}
+            >
+              <svg viewBox="0 0 32 32" width="15" height="15" fill="#25D366">
+                <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.668 4.799 1.836 6.793L2 30l7.393-1.812A13.918 13.918 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2z"/>
+              </svg>
+              Enquire on WhatsApp
+            </a>
           </div>
-          <button
-            className={[
-              'font-semibold py-2.5 px-5 rounded-xl text-xs whitespace-nowrap shrink-0',
-              isElite ? 'bg-[#BF9F00] text-black' : 'bg-white text-black',
-            ].join(' ')}
-          >
-            Get Started
-          </button>
+
+          <p className="text-white/25 text-xs mt-6">
+            +91-73046 07954 &nbsp;·&nbsp; concierge@wensforce.com
+          </p>
         </div>
+      </section>
+
+      {/* ── FOOTER STRIP ── */}
+      <div className="py-6 px-6 border-t text-center" style={{ backgroundColor: '#060606', borderColor: 'rgba(255,255,255,0.05)' }}>
+        <Link
+          href="/"
+          className="text-sm font-light transition-colors"
+          style={{ color: 'rgba(255,255,255,0.3)' }}
+        >
+          ← Back to wensforce.com
+        </Link>
       </div>
-      <div className="h-16 md:hidden" />
+
+      {/* ── MOBILE STICKY BAR ── */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-4 pt-3" style={{ background: 'linear-gradient(to top, #0B1E3F 80%, transparent)' }}>
+        <Link
+          href={`/booking/${plan.id}`}
+          className="flex items-center justify-center gap-2 w-full font-black py-4 rounded-2xl text-black text-sm pulse-ring"
+          style={{ background: 'linear-gradient(135deg,#C9A24B,#f0c940)', boxShadow: '0 6px 24px rgba(201,162,75,0.45)' }}
+        >
+          Buy {plan.name} Membership — {INR(plan.price)}/yr →
+        </Link>
+        <p className="text-center text-white/35 text-[10px] mt-2">
+          {100 - foundingSpots} founding spots remaining · No payment now
+        </p>
+      </div>
+
     </div>
   );
 }
