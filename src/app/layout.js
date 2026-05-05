@@ -25,6 +25,9 @@ export const metadata = {
   title: "WENS Force — India's Only Luxury Travel + Armed Protection + VIP Darshan Subscription",
   description:
     "Five tiers. One annual fee. Vehicle, bodyguard, and lifestyle privileges pre-arranged for the year. VIP Darshan at Tirupati, Vaishno Devi, Mahakaleshwar. PSARA-licensed security. From ₹24,999/year.",
+  verification: {
+    google: "2YIY1he-4ib4Llzu-dsSYumockta8C1agDary9_byOc",  
+  },
 };
 
 export default function RootLayout({ children }) {
