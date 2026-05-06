@@ -1,6 +1,10 @@
 export async function getPayPalToken() {
+  const baseUrl = process.env.PAYPAL_ENV === 'production'
+    ? 'https://api-m.paypal.com'
+    : 'https://api-m.sandbox.paypal.com';
+
   const res = await fetch(
-    "https://api-m.sandbox.paypal.com/v1/oauth2/token",  // use api-m.paypal.com for live
+    `${baseUrl}/v1/oauth2/token`,
     {
       method: "POST",
       headers: {
@@ -13,5 +17,9 @@ export async function getPayPalToken() {
     }
   );
   const data = await res.json();
+  if (!data.access_token) {
+    console.error('PayPal token error:', data);
+    throw new Error(data.error_description || 'Failed to get PayPal access token');
+  }
   return data.access_token;
 }

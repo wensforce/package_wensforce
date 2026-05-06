@@ -6,7 +6,6 @@ import {
 import { plans } from './data/plans';
 import Header from './components/Header';
 import HowItWorks from './components/HowItWorks';
-import AllPlansGrid from './components/AllPlansGrid';
 import PlansSection from './components/PlansSection';
 import TrustStrip from './components/TrustStrip';
 import WedgeBlock from './components/WedgeBlock';

@@ -7,7 +7,7 @@ import {
   Navigation, Shield, Building2, Plane, Landmark,
   Sparkles, Utensils, Gift, Phone, Zap, Wifi,
   RefreshCw, Flame, UserCheck, CheckCircle, Check,
-  ChevronRight,
+  ChevronRight, ChevronLeft,
 } from 'lucide-react';
 import { plans } from '../data/plans';
 
@@ -145,6 +145,10 @@ export default function PlansSection() {
   const anchorPrice = ANCHOR_PRICES[activeId];
   const foundingSpots = FOUNDING_SPOTS[activeId];
 
+  const currentIndex = TAB_ORDER.indexOf(activeId);
+  const prevId = currentIndex > 0 ? TAB_ORDER[currentIndex - 1] : null;
+  const nextId = currentIndex < TAB_ORDER.length - 1 ? TAB_ORDER[currentIndex + 1] : null;
+
   return (
     <section id="plans" className="w-full px-4 sm:px-8 pt-20 pb-16 max-w-6xl mx-auto">
       {/* Section header */}
@@ -183,6 +187,27 @@ export default function PlansSection() {
       </div>
 
       {/* Card spotlight */}
+      <div className="relative">
+        {/* Prev arrow — mobile only, pinned to top-left of card */}
+        <button
+          onClick={() => prevId && setActiveId(prevId)}
+          disabled={!prevId}
+          aria-label="Previous plan"
+          className="sm:hidden absolute left-3 top-4 z-10 w-8 h-8 rounded-full bg-white/15 border border-white/25 text-white backdrop-blur-md disabled:opacity-0 disabled:pointer-events-none transition-all active:scale-90 flex items-center justify-center"
+        >
+          <ChevronLeft size={16} strokeWidth={2.5} />
+        </button>
+
+        {/* Next arrow — mobile only, pinned to top-right of card */}
+        <button
+          onClick={() => nextId && setActiveId(nextId)}
+          disabled={!nextId}
+          aria-label="Next plan"
+          className="sm:hidden absolute right-3 top-4 z-10 w-8 h-8 rounded-full bg-white/15 border border-white/25 text-white backdrop-blur-md disabled:opacity-0 disabled:pointer-events-none transition-all active:scale-90 flex items-center justify-center"
+        >
+          <ChevronRight size={16} strokeWidth={2.5} />
+        </button>
+
       <div
         key={activeId}
         className="max-w-4xl mx-auto rounded-4xl overflow-hidden shadow-2xl"
@@ -199,7 +224,7 @@ export default function PlansSection() {
             {plan.packageNo}
           </div>
 
-          <div className="relative px-8 sm:px-12 pt-10 pb-10">
+          <div className="relative px-8 sm:px-12 pt-16 sm:pt-10 pb-10">
             {theme.badge && (
               <div className="mb-5">
                 <span className={`text-[10px] font-bold px-4 py-1.5 rounded-full tracking-[0.18em] uppercase ${theme.badge.cls}`}>
@@ -373,6 +398,7 @@ export default function PlansSection() {
           </div>
         </div>
       </div>
+      </div>{/* end card spotlight wrapper */}
 
       {/* Progress dots */}
       <div className="flex justify-center gap-2 mt-6">
