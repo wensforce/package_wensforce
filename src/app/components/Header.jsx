@@ -30,11 +30,7 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
-              scrolled
-                ? 'bg-[#BF9F00]/10 group-hover:bg-[#BF9F00]/15'
-                : 'bg-white/10 group-hover:bg-white/15'
-            }`}>
+            <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all`}>
               <img src="/Logo.png" alt="WENS Force Logo" />
             </div>
             <span className={`font-bold text-base tracking-wide transition-colors ${
