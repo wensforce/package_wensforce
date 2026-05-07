@@ -537,7 +537,7 @@ export default function HomePage() {
       <footer style={{ backgroundColor: '#060606' }} className="border-t border-white/5 py-10 px-6">
         <div className="max-w-6xl mx-auto text-center">
           <div className="flex items-center justify-center gap-2 mb-3">
-            <img src="/logo.png" alt="WENS Force Logo" className="w-5 h-5" />
+            <img src="/Logo.png" alt="WENS Force Logo" className="w-5 h-5" />
             <span className="text-[#C9A24B] font-bold text-sm tracking-[0.3em] uppercase">WENS Force</span>
           </div>
           <p className="text-gray-600 text-xs max-w-xs mx-auto mb-6 font-light">
