@@ -161,21 +161,146 @@ export default function PlansSection() {
           0%,100%{box-shadow:0 0 0 1px rgba(201,162,75,.45),0 20px 60px rgba(201,162,75,.14),0 6px 20px rgba(0,0,0,.42);}
           50%{box-shadow:0 0 0 1.5px rgba(201,162,75,.78),0 26px 70px rgba(201,162,75,.24),0 6px 20px rgba(0,0,0,.42);}
         }
-        @keyframes goldShimmer {
-          from{background-position:0% 50%;}
-          to{background-position:200% 50%;}
+        @keyframes diamondGlow {
+          0%, 100% { box-shadow: 0 0 10px rgba(147, 51, 234, .4), 0 4px 22px rgba(0,0,0,.2); }
+          50% { box-shadow: 0 0 20px rgba(147, 51, 234, .8), 0 4px 30px rgba(147, 51, 234, .4); }
+        }
+        @keyframes pricePulse {
+          0%, 100% { transform: scale(1); filter: brightness(1); }
+          50% { transform: scale(1.03); filter: brightness(1.1); }
+        }
+        @keyframes regularPricePop {
+          0%, 100% { opacity: 0.7; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.02); }
+        }
+        @keyframes buttonShine {
+          0% { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+        @keyframes shine {
+          0% { left: -100%; }
+          100% { left: 100%; }
+        }
+        @keyframes emeraldGlow {
+          0%, 100% { box-shadow: 0 0 15px rgba(16, 185, 129, .5), 0 4px 22px rgba(0,0,0,.2); }
+          50% { box-shadow: 0 0 30px rgba(16, 185, 129, .8), 0 6px 35px rgba(16, 185, 129, .4); }
         }
         .pc-img{transition:transform .9s cubic-bezier(.22,1,.36,1);}
         .plan-card:hover .pc-img{transform:scale(1.06);}
         .elite-ring{animation:goldPulse 2.8s ease-in-out infinite;}
         .elite-ring:hover{animation:none;}
-        .gold-cta{
-          background:linear-gradient(100deg,#b8882e 0%,#e8c56a 40%,#f5d98a 55%,#e0b84a 75%,#b8882e 100%);
-          background-size:200% auto;
-          animation:goldShimmer 3s linear infinite;
-          transition:transform .2s ease,filter .2s ease;
+        .price-highlight {
+          color: #f0d878 !important;
+          font-weight: 900;
+          letter-spacing: -.02em;
         }
-        .gold-cta:hover{transform:translateY(-1px);filter:brightness(1.08);}
+        .regular-price-highlight {
+          animation: regularPricePop 2.2s ease-in-out infinite;
+        }
+        .price-badge {
+          animation: pricePulse 2s ease-in-out infinite;
+        }
+        .bronze-cta{
+          background:linear-gradient(100deg,#6b4423 0%,#a0522d 40%,#cd853f 55%,#8b6f47 75%,#6b4423 100%);
+          background-size:200% auto;
+          animation:buttonShine 5s cubic-bezier(.4, 0, .2, 1) infinite;
+          transition:all .35s cubic-bezier(.4, 0, .2, 1);
+          position:relative;
+          overflow:hidden;
+        }
+        .bronze-cta::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent);
+          animation: shine 5s cubic-bezier(.4, 0, .2, 1) infinite;
+        }
+        .bronze-cta:hover{transform:translateY(-2px);filter:brightness(1.1);}
+        .silver-cta{
+          background:linear-gradient(100deg,#808080 0%,#a8a8a8 40%,#e0e0e0 55%,#b0b0b0 75%,#808080 100%);
+          background-size:200% auto;
+          animation:buttonShine 5s cubic-bezier(.4, 0, .2, 1) infinite;
+          transition:all .35s cubic-bezier(.4, 0, .2, 1);
+          position:relative;
+          overflow:hidden;
+        }
+        .silver-cta::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,.4), transparent);
+          animation: shine 5s cubic-bezier(.4, 0, .2, 1) infinite;
+        }
+        .silver-cta:hover{transform:translateY(-2px);filter:brightness(1.1);}
+        .gold-cta{
+          background:linear-gradient(100deg,#3a5a7a 0%,#5a8fc2 40%,#7eb3e8 55%,#5a7fa8 75%,#3a5a7a 100%);
+          background-size:200% auto;
+          animation:buttonShine 5s cubic-bezier(.4, 0, .2, 1) infinite;
+          transition:all .35s cubic-bezier(.4, 0, .2, 1);
+          position:relative;
+          overflow:hidden;
+        }
+        .gold-cta::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,.4), transparent);
+          animation: shine 5s cubic-bezier(.4, 0, .2, 1) infinite;
+        }
+        .gold-cta:hover{transform:translateY(-2px);filter:brightness(1.1);}
+        .platinum-cta{
+          background:linear-gradient(100deg,#d4a045 0%,#f0d878 40%,#ffd700 55%,#e8c56a 75%,#d4a045 100%);
+          background-size:200% auto;
+          animation:buttonShine 5s cubic-bezier(.4, 0, .2, 1) infinite;
+          transition:all .35s cubic-bezier(.4, 0, .2, 1);
+          position:relative;
+          overflow:hidden;
+        }
+        .platinum-cta::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,.4), transparent);
+          animation: shine 5s cubic-bezier(.4, 0, .2, 1) infinite;
+        }
+        .platinum-cta:hover{transform:translateY(-2px);filter:brightness(1.1);}
+        .diamond-cta{
+          background:linear-gradient(100deg, #059669 0%, #10b981 40%, #34d399 55%, #6ee7b7 75%, #059669 100%);
+          background-size:200% auto;
+          animation:buttonShine 5s cubic-bezier(.4, 0, .2, 1) infinite;
+          transition:all .35s cubic-bezier(.4, 0, .2, 1);
+          box-shadow: 0 0 20px rgba(16, 185, 129, .6), 0 4px 22px rgba(0,0,0,.2);
+          color: #ffffff !important;
+          position:relative;
+          overflow:hidden;
+        }
+        .diamond-cta::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent);
+          animation: shine 5s cubic-bezier(.4, 0, .2, 1) infinite;
+        }
+        .diamond-cta:hover{
+          transform:translateY(-2px);
+          filter:brightness(1.15);
+          box-shadow: 0 0 40px rgba(16, 185, 129, 1) !important;
+        }
         .ghost-cta{
           background:rgba(255,255,255,.10);
           backdrop-filter:blur(8px);
@@ -282,9 +407,6 @@ export default function PlansSection() {
             const save = anchor
               ? Math.round((1 - plan.price / anchor) * 100)
               : 0;
-            const armed =
-              plan.bodyguard.toLowerCase().includes("armed") &&
-              !plan.bodyguard.toLowerCase().includes("unarmed");
             const isSovereign = id === "sovereign";
             const showPrivCount = isSovereign ? 5 : 3;
 
@@ -486,7 +608,20 @@ export default function PlansSection() {
                   />
 
                   {/* PRICE */}
-                  <div className="flex flex-col items-start relative mb-4">
+                  <div 
+                    className="flex flex-col items-start relative mb-4"
+                    style={{
+                      background: m.isElite 
+                        ? 'linear-gradient(135deg, rgba(240,210,140,.10) 0%, rgba(201,162,75,.06) 100%)'
+                        : 'linear-gradient(135deg, rgba(240,210,140,.08) 0%, rgba(201,162,75,.03) 100%)',
+                      padding: '12px 10px',
+                      borderRadius: 8,
+                      border: m.isElite 
+                        ? '1.5px solid rgba(240,210,140,.28)'
+                        : '1px solid rgba(240,210,140,.18)',
+                      backdropFilter: 'blur(6px)',
+                    }}
+                  >
                     {/* Price Row */}
                     <div
                       style={{
@@ -504,28 +639,30 @@ export default function PlansSection() {
                           display: "flex",
                           flexDirection: "column",
                           alignItems: "center",
-                          gap: 2,
-                          flex: 0.85,
+                          gap: 3,
+                          flex: 0.75,
                         }}
                       >
                         <span
                           style={{
-                            fontSize: 6.5,
-                            fontWeight: 700,
-                            letterSpacing: ".14em",
+                            fontSize: 6,
+                            fontWeight: 800,
+                            letterSpacing: ".20em",
                             textTransform: "uppercase",
-                            color: m.statLabel,
+                            color: m.isElite ? m.accent : "rgba(240,210,140,.65)",
+                            opacity: 0.75,
                           }}
                         >
                           Regular
                         </span>
                         <span
+                          className="regular-price-highlight"
                           style={{
-                            fontSize: 12,
-                            color: m.subColor,
+                            fontSize: 13,
+                            color: m.isElite ? m.accent : "#f0d878",
+                            // color: "white",
                             textDecoration: "line-through",
-                            fontWeight: 700,
-                            opacity: 0.75,
+                            fontWeight: 900,
                           }}
                         >
                           {INR(anchor || plan.price)}
@@ -533,19 +670,21 @@ export default function PlansSection() {
                       </div>
 
                       <span
+                      className="text-[10px] text-white"
                         style={{
-                          fontSize: 6,
                           fontWeight: 700,
                           letterSpacing: ".14em",
                           textTransform: "uppercase",
-                          color: m.isElite ? m.accent : "rgba(255,255,255,.48)",
+                          // color: m.isElite ? m.accent : "rgba(255,255,255,.52)",
                           textAlign: "center",
                           lineHeight: 1.1,
                           flex: 0.7,
                           paddingTop: 2,
+                          fontStyle: 'italic',
+                          letterSpacing: '.18em',
                         }}
                       >
-                        Now Available
+                        Now <br /> Available
                       </span>
 
                       {/* Arrow Right */}
@@ -555,10 +694,12 @@ export default function PlansSection() {
                         viewBox="0 0 16 16"
                         fill="none"
                         style={{
-                          opacity: 0.6,
-                          color: m.subColor,
+                          opacity: 0.7,
+                          color:"white",
+                          // color: m.isElite ? m.accent : m.subColor,
                           flexShrink: 0,
                           marginTop: 1,
+                          transition: 'all .3s ease',
                         }}
                       >
                         <path
@@ -588,33 +729,38 @@ export default function PlansSection() {
                           }}
                         >
                           <span
+                            className="price-highlight"
                             style={{
                               fontSize: 17,
                               fontWeight: 900,
                               letterSpacing: "-.02em",
                               lineHeight: 1,
-                              color: m.priceColor,
+                              color: "#f0d878",
                             }}
                           >
                             {INR(plan.price)}
                           </span>
                           <span
+                            className="price-badge"
                             style={{
                               fontSize: 5.5,
                               fontWeight: 800,
                               letterSpacing: ".12em",
                               textTransform: "uppercase",
-                              padding: "2px 4px",
-                              borderRadius: 2,
+                              padding: "4px 6px",
+                              borderRadius: 4,
                               background: m.isElite
-                                ? "rgba(201,162,75,.12)"
-                                : m.statBg,
+                                ? "rgba(240,216,96,.22)"
+                                : "rgba(240,210,140,.14)",
                               color: m.isElite
-                                ? m.accent
-                                : "rgba(255,255,255,.42)",
-                              border: `1px solid ${m.isElite ? "rgba(201,162,75,.22)" : m.statBorder}`,
+                                ? "#f0d878"
+                                : "#f0d878",
+                              border: m.isElite
+                                ? "1.5px solid rgba(240,216,96,.45)"
+                                : "1px solid rgba(240,210,140,.32)",
                               whiteSpace: "nowrap",
                               flexShrink: 0,
+                              fontWeight: 900,
                             }}
                           >
                             Limited
@@ -631,7 +777,7 @@ export default function PlansSection() {
                         justifyContent: "flex-start",
                         gap: 3,
                         fontSize: 7,
-                        color: m.subColor,
+                        color: m.isElite ? m.subColor : "white",
                         marginLeft: 0,
                       }}
                     >
@@ -642,13 +788,16 @@ export default function PlansSection() {
                           borderRadius: "50%",
                           background: m.isElite
                             ? m.accent
-                            : "rgba(255,255,255,.32)",
+                            : "white",
                           flexShrink: 0,
+                          boxShadow: m.isElite
+                            ? `0 0 6px ${m.accent}`
+                            : 'none',
                         }}
                       />
                       <span style={{ fontWeight: 700 }}>Selling Fast</span>
                       <span style={{ opacity: 0.5 }}>·</span>
-                      <span style={{ fontWeight: 500, opacity: 0.8 }}>39 Available</span>
+                      <span style={{ fontWeight: 500, opacity: 0.8 }}>{100 - plan.confirmed} Available</span>
                     </div>
                   </div>
 
@@ -669,7 +818,7 @@ export default function PlansSection() {
                       { label: "Vehicle", value: plan.vehicleType },
                       {
                         label: "Security",
-                        value: armed ? "Armed guard" : "Unarmed guard",
+                        value: plan.bodyguard || "Not Included",
                       },
                       { label: "Validity", value: plan.validity },
                     ].map(({ label, value }) => (
@@ -786,7 +935,13 @@ export default function PlansSection() {
                   >
                     <Link
                       href={`/booking/${id}`}
-                      className={m.isElite ? "gold-cta" : "ghost-cta"}
+                      className={{
+                        essential: "bronze-cta",
+                        executive: "silver-cta",
+                        premium: "gold-cta",
+                        elite: "platinum-cta",
+                        sovereign: "diamond-cta"
+                      }[id]}
                       style={{
                         display: "flex",
                         alignItems: "center",
@@ -795,15 +950,13 @@ export default function PlansSection() {
                         flex: 1,
                         height: 44,
                         borderRadius: 8,
-                        color: m.isElite ? "#0c0800" : "#ffffff",
-                        fontSize: 9.5,
+                        color: id === "sovereign" ? "#ffffff" : "#ffffff",
+                        fontSize: 11,
                         fontWeight: 800,
                         letterSpacing: ".20em",
                         textTransform: "uppercase",
                         textDecoration: "none",
-                        boxShadow: m.isElite
-                          ? "0 4px 22px rgba(201,162,75,.28)"
-                          : "none",
+                        boxShadow: id === "sovereign" ? "none" : "0 4px 22px rgba(0,0,0,.2)",
                         whiteSpace: "nowrap",
                       }}
                     >

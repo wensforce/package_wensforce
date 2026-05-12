@@ -8,7 +8,7 @@ export const plans = [
     perMonth: 2083,
     vehicle: 'Standard Sedan (5-Seater)',
     vehicleType: 'Sedan',
-    bodyguard: 'Unarmed Bodyguard',
+    bodyguard: 'MMA Bodyguard',
     trips: 3,
     validity: '12 Months',
     perTripCost: 8333,
@@ -18,6 +18,7 @@ export const plans = [
     isDecoy: false,
     isAnchor: false,
     highlight: false,
+    confirmed: 43,
     tag: null,
     privileges: [
       {
@@ -90,7 +91,7 @@ export const plans = [
     perMonth: 4167,
     vehicle: 'Standard SUV (7-Seater)',
     vehicleType: 'SUV',
-    bodyguard: 'Unarmed Bodyguard',
+    bodyguard: 'MMA Bodyguard',
     trips: 4,
     validity: '12 Months',
     perTripCost: 12500,
@@ -100,6 +101,7 @@ export const plans = [
     isDecoy: false,
     isAnchor: false,
     highlight: false,
+    confirmed: 62,
     tag: 'MOST POPULAR',
     privileges: [
       {
@@ -189,6 +191,7 @@ export const plans = [
     isAnchor: false,
     highlight: false,
     tag: null,   
+    confirmed: 45,
     privileges: [
       {
         title: '3× VIP Darshan Vouchers',
@@ -282,6 +285,7 @@ export const plans = [
     isDecoy: false,
     isAnchor: false,
     highlight: true,
+    confirmed: 73,
     tag: 'BEST VALUE',   
     privileges: [
       {
@@ -386,6 +390,7 @@ export const plans = [
     isDecoy: false,
     isAnchor: true,
     highlight: false,
+    confirmed: 33,
     tag: 'ULTRA EXCLUSIVE',   
     privileges: [
       {
@@ -486,7 +491,7 @@ export const getPlanById = (id) => plans.find((p) => p.id === id);
 export const comparisonFeatures = [
   { key: 'trips', label: 'Premium Trips / Year', values: ['3', '4', '5', '5', '5'] },
   { key: 'vehicle', label: 'Vehicle Class', values: ['Standard Sedan', 'Standard SUV', 'Standard SUV', 'Luxury Sedan', 'Luxury SUV'] },
-  { key: 'guard', label: 'Security', values: ['Unarmed', 'Unarmed', 'Armed ✓', 'Armed ✓', 'Armed ✓'] },
+  { key: 'guard', label: 'Security', values: ['MMA', 'MMA', 'Armed ✓', 'Armed ✓', 'Armed ✓'] },
   { key: 'darshan', label: 'VIP Darshan Vouchers', values: ['1', '2', '3', '5', 'Unlimited'] },
   { key: 'lounge', label: 'Airport Lounge (Domestic)', values: ['1 visit', '2 visits', '3 visits', 'Unlimited', 'Unlimited'] },
   { key: 'intl', label: 'Airport Lounge (International)', values: ['—', '—', '1 visit', '3 visits', 'Unlimited'] },
