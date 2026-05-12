@@ -12,7 +12,7 @@ const QUESTIONS = [
   },
   {
     q: 'Do you typically travel alone or with family?',
-    options: ['Alone, mostly business', 'With spouse', 'Full family, often with children/parents'],
+    options: ['Alone, mostly business', 'With spouse/acquaintances', 'Full family, often with children/parents'],
     scores: [1, 2, 3],
   },
   {
@@ -169,7 +169,25 @@ export default function TierQuiz() {
             <h2 className="font-serif-display text-4xl font-bold mb-1" style={{ color: '#C9A24B' }}>
               {recommended.name}
             </h2>
+
             <p className="text-gray-500 text-sm italic mb-6">{recommended.tagline}</p>
+
+            {/* Tier image */}
+            <div className="w-full aspect-[2/1] mb-6 rounded-xl overflow-hidden border border-gray-100 bg-white shadow-sm">
+              <img
+                src={`/cards/${
+                  recommended.id === 'essential' ? 'Sedan_Essential.png'
+                  : recommended.id === 'executive' ? 'BMW_Executive.png'
+                  : recommended.id === 'premium' ? 'GLC_Premium.png'
+                  : recommended.id === 'elite' ? 'S-Class_Elite.png'
+                  : recommended.id === 'sovereign' ? 'GWGON_Sovereign.png'
+                  : 'Sedan_Essential.png'
+                }`}
+                alt={recommended.name + ' car'}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
 
             <div className="bg-[#FAF6EC] rounded-2xl p-5 mb-8">
               <p className="text-[#0B1E3F] text-sm font-light leading-relaxed">
@@ -183,7 +201,7 @@ export default function TierQuiz() {
             <p className="text-gray-600 text-sm font-medium mb-3">
               Get your personalised brochure on WhatsApp:
             </p>
-            <form onSubmit={handleSubmit} className="flex gap-3">
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1 flex items-center border-2 border-gray-200 rounded-xl overflow-hidden focus-within:border-[#C9A24B] transition-colors">
                 <span className="px-3 text-sm text-gray-500 font-medium border-r border-gray-200 h-full flex items-center">+91</span>
                 <input

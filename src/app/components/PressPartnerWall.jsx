@@ -3,13 +3,13 @@ import Link from 'next/link';
 const BLOCKS = [
   {
     title: 'In the Press',
-    body: 'Featured in Forbes India, ET, Business Standard, Mint Lounge, CNBC TV18.',
+    body: 'Featured in Mid Day, Mumbai Times, Deccan Bharat, Daily Hunt, Herald Post.',
     cta: 'Read coverage →',
     href: '#',
   },
   {
     title: 'Bank & Hospitality Partners',
-    body: 'Co-branded benefits with HDFC Infinia, ICICI Emeralde, Taj Hotels, Oberoi, ITC.',
+    body: 'Co-branded benefits with Visa Concierge, ICICI Emeralde, Taj Hotels, Marriott, ITC.',
     cta: 'View partners →',
     href: '#',
   },

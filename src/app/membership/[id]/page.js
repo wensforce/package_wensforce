@@ -54,21 +54,24 @@ const NOT_INCLUDED = {
 
 // Per-plan hero imagery (high-res, confirmed Unsplash IDs)
 const HERO_IMAGES = {
-  essential: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1600&q=90',
-  executive: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1600&q=90',
-  premium:   'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1600&q=90',
-  elite:     'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600&q=90',
-  sovereign: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1600&q=90',
+  essential: '/cards/Sedan_Essential.png',
+  executive: '/cards/BMW_Executive.png',
+  premium:   '/cards/GLC_Premium.png',
+  elite:     '/cards/S-Class_Elite.png',
+  sovereign: '/cards/GWGON_Sovereign.png',
 };
 
 // Service category imagery for the showcase section
 const SERVICE_IMAGES = {
   transport:  'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=900&q=85',
-  airport:    'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=900&q=85',
-  journey:    'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=900&q=85',
+  airport:    '/services/airport_lounge.png',
+  SUV:        '/services/SUV.png',
+  vip_darshan: '/services/Vip_Darshan.png',
+  sedan:       '/services/Sedan.png',
+  Luxury_SUV:  '/services/luxury_suv.png',
   spa:        'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=900&q=85',
-  dining:     'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&q=85',
-  security:   'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=900&q=85',
+  dining:     '/services/dining.png',
+  security:   '/services/bodyguard.png',
   concierge:  'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=85',
   heritage:   'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=900&q=85',
   sovereign:  'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=900&q=85',
@@ -78,14 +81,14 @@ const SERVICE_IMAGES = {
 const PLAN_SERVICES = {
   essential: [
     {
-      img: 'journey',
+      img: 'vip_darshan',
       cat: 'Curated Journeys',
       title: 'Skip the Queue.\nEnter in Reverence.',
       body: '3 VIP darshan experiences per year at India\'s most sacred shrines — pre-arranged so you arrive in peace, not in line.',
       Icon: Building2,
     },
     {
-      img: 'transport',
+      img: 'sedan',
       cat: 'Ground Transport',
       title: 'Luxury Sedan,\nAt Your Command.',
       body: 'A professional chauffeur in a premium sedan — timed pickups, zero waiting, door-to-door on every leg of your journey.',
@@ -108,7 +111,7 @@ const PLAN_SERVICES = {
       Icon: Plane,
     },
     {
-      img: 'transport',
+      img: 'SUV',
       cat: 'SUV Transport',
       title: 'SUV Class\non Every Road.',
       body: 'A standard SUV with a dedicated professional driver — more space, more presence, and more comfort for every pilgrimage journey.',
@@ -131,7 +134,7 @@ const PLAN_SERVICES = {
       Icon: Shield,
     },
     {
-      img: 'transport',
+      img: 'Luxury_SUV',
       cat: 'Premium SUV',
       title: 'Luxury SUV,\nProfessional Driver.',
       body: 'A premium SUV with a vetted professional driver — comfort and capability on every road that matters.',
@@ -154,7 +157,7 @@ const PLAN_SERVICES = {
   ],
   elite: [
     {
-      img: 'journey',
+      img: 'vip_darshan',
       cat: 'VVIP Darshan',
       title: 'The Inner Sanctum\nAwaits You.',
       body: 'Bhasm Aarti VVIP booking at Ujjain, priority access at Kashi Vishwanath, Shirdi, Tirupati — all pre-arranged, no exceptions.',
@@ -184,7 +187,7 @@ const PLAN_SERVICES = {
   ],
   sovereign: [
     {
-      img: 'journey',
+      img: 'vip_darshan',
       cat: 'Unlimited VVIP Access',
       title: 'Every Shrine.\nNo Limits.',
       body: 'Unlimited VIP darshan, exclusive Bhasm Aarti VVIP reservations, and bespoke pilgrimage curation — the sovereign standard.',

@@ -1,10 +1,15 @@
+
 export default function TrustStrip() {
   const press = [
-    'Forbes India', 'The Economic Times', 'Business Standard', 'Mint Lounge', 'CNBC TV18',
+    { name: 'Mid Day', url: 'https://www.mid-day.com/buzzfeed/article/a-new-security-discipline-for-a-new-india-why-a-digital-framework-is-now-essential-for-public-trust-8060' },
+    { name: 'Mumbai Times', url: 'https://mumbaitimes.org/wens-force-international-a-new-security-discipline-for-a-new-india/' },
+    { name: 'Deccan Bharat', url: 'https://deccanbharat.com/wens-force-international-a-new-security-discipline-for-a-new-india/' },
+    { name: 'Daily Hunt', url: 'http://dhunt.in/12JxGz' },
+    { name: 'Herald Post', url: 'https://heraldpost.in/wens-force-international-a-new-security-discipline-for-a-new-india/' },
   ];
 
   const partners = [
-    'HDFC Infinia', 'ICICI Emeralde', 'Taj Hotels', 'Oberoi', 'Tirupati Devasthanam', 'ITC Hotels',
+    'Visa Concierge', 'ICICI Emeralde', 'Taj Hotels', 'Marriott', 'Holy Places', 'ITC Hotels',
   ];
 
   return (
@@ -17,13 +22,16 @@ export default function TrustStrip() {
             As Featured In
           </p>
           <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-10">
-            {press.map((name) => (
-              <span
+            {press.map(({ name, url }) => (
+              <a
                 key={name}
-                className="text-sm font-semibold text-gray-400 hover:text-gray-700 transition-colors duration-300 cursor-default tracking-wide"
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-semibold text-gray-400 hover:text-gray-700 transition-colors duration-300 cursor-pointer tracking-wide"
               >
                 {name}
-              </span>
+              </a>
             ))}
           </div>
         </div>

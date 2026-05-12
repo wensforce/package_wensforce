@@ -14,6 +14,7 @@ import PressPartnerWall from './components/PressPartnerWall';
 import FounderStoryBlock from './components/FounderStoryBlock';
 import ReferralBanner from './components/ReferralBanner';
 import ExitIntentPopup from './components/ExitIntentPopup';
+import TestimonialsSection from './components/TestimonialsSection';
 
 const INR = (n) => '₹' + Number(n).toLocaleString('en-IN');
 const WA_NUMBER = '917304607954';
@@ -34,55 +35,10 @@ const FOUNDING_SPOTS = {
   sovereign: 41,
 };
 
-const testimonials = [
-  {
-    name: 'Rajan Desai',
-    role: 'Managing Partner — Desai Capital Group, Mumbai',
-    avatar: 'RD',
-    plan: 'SOVEREIGN',
-    text: 'I\'ve had global concierge services. WENS Force is the first one that actually knows India — the temples, the airports, the security dynamics. The Bhasm Aarti booking at Ujjain was something I thought was impossible to arrange. They had it done in 48 hours.',
-  },
-  {
-    name: 'Dr. Priya Venkataraman',
-    role: 'COO — Zenith Pharma, Bangalore',
-    avatar: 'PV',
-    plan: 'ELITE',
-    text: 'As a woman who travels frequently across metros for board meetings, the armed escort changed my confidence entirely. My RM knows my schedule before I tell her. I haven\'t touched a travel app in eight months.',
-  },
-  {
-    name: 'Rajiv Singhania',
-    role: 'Business Family — Delhi NCR',
-    avatar: 'RS',
-    plan: 'SOVEREIGN',
-    text: 'We joined as Executive for a year, upgraded to Sovereign within three months. The difference is not just in the service — it\'s in how the family feels. My wife uses her booking line independently. My parents did their Vaishno Devi pilgrimage without me worrying for a second.',
-  },
-  {
-    name: 'Capt. (Retd.) Arun Sharma',
-    role: 'Board Director — Infrastructure & Defence Advisory, Hyderabad',
-    avatar: 'AS',
-    plan: 'PREMIUM',
-    text: 'I vetted the security protocol before joining. Ex-NSG trained guards, background-verified, rotated by city. The risk assessment they did for my travel pattern was sharper than what most corporates offer their CEOs. Worth every rupee.',
-  },
-  {
-    name: 'Anjali Bhatnagar',
-    role: 'Independent Film Producer, Mumbai',
-    avatar: 'AB',
-    plan: 'SOVEREIGN',
-    text: 'I needed discretion, not drama. WENS Force delivers exactly that — the car is there before I ask, the guard blends in, the concierge never asks twice. When my family visits from Canada, I extend the booking line to them seamlessly.',
-  },
-  {
-    name: 'Rohan Agarwal',
-    role: 'Returned NRI — Pune (formerly Singapore)',
-    avatar: 'RA',
-    plan: 'ELITE',
-    text: 'I came back to India after 12 years and was apprehensive about mobility and safety. A friend referred me to WENS Force. Two weeks in, I had done three trips, one pilgrimage, and two lounge visits. I upgraded from Executive to Elite within 60 days.',
-  },
-];
-
 const faqs = [
   {
     q: "I'm sceptical about prepaying this much. How do I know WENS Force is real?",
-    a: "Fair question. WENS Force is a registered company with a physical operations team across 9 cities. Every member gets a dedicated concierge contact on WhatsApp within 2 hours of joining. You can also speak to our team before paying: +91-7304607954.",
+    a: "Fair question. WENS Force alias WENS Force International Private Limited Headquarterd in Mahindra Chamber Stock Exchange opp. CST Station, South Mumbai is a registered company with a physical operations team across 9 cities. Every member gets a dedicated concierge contact on WhatsApp within 2 hours of joining. You can also speak to our team before paying: +91-7304607954.",
   },
   {
     q: 'What exactly happens in the first 24 hours after I join?',
@@ -224,7 +180,7 @@ function ComparisonTable() {
                       href={`${waBase}${msg}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-block text-[10px] font-bold px-3 py-2 rounded-xl transition-all hover:opacity-90"
+                      className="inline-block text-[10px] whitespace-nowrap font-bold px-3 py-2 rounded-xl transition-all hover:opacity-90"
                       style={{
                         backgroundColor: isElite ? '#C9A24B' : '#0B1E3F',
                         color: isElite ? '#000' : '#fff',
@@ -301,7 +257,7 @@ export default function HomePage() {
       <Header />
 
       {/* Founding 100 announcement bar */}
-      <div style={{ backgroundColor: '#0B1E3F' }} className="text-white py-2.5 px-6 text-center">
+      <div style={{ backgroundColor: '#0B1E3F' }} className="text-white py-1 md:py-2.6 px-6 text-center">
         <div className="max-w-6xl mx-auto flex items-center justify-center gap-2 text-xs flex-wrap">
           <span className="w-1.5 h-1.5 rounded-full bg-[#C9A24B] inline-block" />
           <span className="text-white/70">Founding 100 Programme</span>
@@ -314,7 +270,7 @@ export default function HomePage() {
 
       {/* ── HERO ── */}
       <section
-        className="relative overflow-hidden pt-16 pb-24 px-6"
+        className="relative overflow-hidden pt-5 md:pt-16 pb-24 px-6"
         style={{ backgroundColor: '#0B1E3F' }}
       >
         {/* Subtle dot grid */}
@@ -330,7 +286,7 @@ export default function HomePage() {
 
         <div className="relative max-w-4xl mx-auto text-center">
           <p className="text-[#C9A24B] text-[10px] tracking-[0.45em] uppercase font-semibold mb-5">
-            Est. 2024 &nbsp;·&nbsp; India&apos;s Premium Subscription
+            Est. 2008 &nbsp;·&nbsp; India&apos;s Premium Subscription
           </p>
 
           <h1 className="font-serif-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.08] mb-6 tracking-tight">
@@ -404,65 +360,7 @@ export default function HomePage() {
       <HowItWorks />
 
       {/* ── TESTIMONIALS ── */}
-      <section style={{ backgroundColor: '#0B1E3F' }} className="py-20 px-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <p className="text-[#C9A24B] text-[10px] tracking-[0.4em] uppercase font-semibold mb-3">
-              Member Stories
-            </p>
-            <h2 className="font-serif-display text-3xl sm:text-4xl font-bold text-white mb-3">
-              How Our Members Travel
-            </h2>
-            <p className="text-white/40 text-base font-light">
-              HNI members across India — in their own words.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {testimonials.map((t, i) => (
-              <div
-                key={i}
-                className="group relative border rounded-2xl p-6 flex flex-col hover:border-white/15 transition-all duration-300"
-                style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.08)' }}
-              >
-                {/* Stars */}
-                <div className="flex items-center gap-1 mb-4">
-                  {[...Array(5)].map((_, j) => (
-                    <svg key={j} viewBox="0 0 16 16" className="w-3 h-3 fill-[#C9A24B]">
-                      <path d="M8 1l1.85 3.75L14 5.5l-3 2.92.7 4.12L8 10.4l-3.7 2.14.7-4.12L2 5.5l4.15-.75L8 1z"/>
-                    </svg>
-                  ))}
-                </div>
-
-                <p className="text-white/65 text-sm leading-relaxed flex-1 font-light mb-5 italic">
-                  &ldquo;{t.text}&rdquo;
-                </p>
-
-                <div className="border-t pt-4" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-9 h-9 rounded-full flex items-center justify-center text-black text-xs font-bold shrink-0"
-                      style={{ background: 'linear-gradient(135deg, #C9A24B, #a88000)' }}
-                    >
-                      {t.avatar}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-white text-sm font-semibold">{t.name}</div>
-                      <div className="text-white/35 text-xs leading-snug">{t.role}</div>
-                    </div>
-                    <span
-                      className="text-[9px] font-bold px-2 py-1 rounded-full shrink-0 border"
-                      style={{ backgroundColor: 'rgba(201,162,75,0.12)', color: '#C9A24B', borderColor: 'rgba(201,162,75,0.2)' }}
-                    >
-                      {t.plan}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <TestimonialsSection />
 
       {/* ── PRESS & PARTNERS ── */}
       <PressPartnerWall />
@@ -536,9 +434,9 @@ export default function HomePage() {
       {/* ── FOOTER ── */}
       <footer style={{ backgroundColor: '#060606' }} className="border-t border-white/5 py-10 px-6">
         <div className="max-w-6xl mx-auto text-center">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <img src="/Logo.png" alt="WENS Force Logo" className="w-5 h-5" />
-            <span className="text-[#C9A24B] font-bold text-sm tracking-[0.3em] uppercase">WENS Force</span>
+          <div className="flex flex-col items-center justify-center gap-2 mb-3">
+            <img src="/Logo.png" alt="WENS Force Logo" className="w-15 h-15" />
+            <span className="text-[#C9A24B] font-bold text-sm tracking-[0.3em] uppercase">WENS Force International Private Limited</span>
           </div>
           <p className="text-gray-600 text-xs max-w-xs mx-auto mb-6 font-light">
             Where Every Journey Becomes an Arrival.

@@ -14,7 +14,7 @@ export default function FloatingWhatsApp({ tierContext = '' }) {
   const waUrl = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`;
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-3">
+    <div className="fixed bottom-17 right-6 z-[9999] flex flex-col items-end gap-3">
       {/* Greeting bubble */}
       {showBubble && (
         <div
