@@ -18,8 +18,8 @@ export default function TrustStrip() {
 
         {/* AS FEATURED IN */}
         <div>
-          <p className="text-center text-[10px] tracking-[0.35em] text-gray-400 uppercase font-medium mb-5">
-            As Featured In
+          <p className="text-center text-[12px] tracking-[0.35em] text-black uppercase font-medium mb-5">
+            We Are In NEWS
           </p>
           <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-10">
             {press.map(({ name, url }) => (
@@ -41,7 +41,7 @@ export default function TrustStrip() {
 
         {/* OFFICIAL PARTNERS */}
         <div>
-          <p className="text-center text-[10px] tracking-[0.35em] text-gray-400 uppercase font-medium mb-5">
+          <p className="text-center  text-[12px] tracking-[0.35em] text-black uppercase font-medium mb-5">
             Official Partners
           </p>
           <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-10">

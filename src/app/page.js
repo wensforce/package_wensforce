@@ -292,7 +292,13 @@ export default function HomePage() {
           <h1 className="font-serif-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.08] mb-6 tracking-tight">
             India&apos;s Only Subscription for<br />
             <span className="text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(90deg, #C9A24B, #f0c940, #C9A24B)' }}>
-              Luxury Travel + Armed Protection
+              Luxury Travel + Close Protection
+            </span>
+            <span className="block text-[#C9A24B] text-[10px] tracking-[0.45em] uppercase mt-2">
+             Added 
+            </span>
+            <span className="block text-white text-[18px] tracking-[0.45em] mt-2 uppercase">
+             VIP Darshan
             </span>
           </h1>
 
@@ -326,9 +332,9 @@ export default function HomePage() {
           </div>
 
           {/* Trust strip */}
-          <div className="flex items-center justify-center gap-5 text-white/40 text-xs flex-wrap">
+          <div className="flex items-center justify-center gap-5 text-white text-xs flex-wrap">
             <span>✓ Instant Activation</span>
-            <span className="text-white/20">·</span>
+            <span className="text-white">·</span>
             <span>✓ No Hidden Fees</span>
           </div>
         </div>
