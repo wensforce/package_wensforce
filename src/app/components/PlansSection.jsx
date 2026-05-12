@@ -77,32 +77,8 @@ const M = {
     Icon: ShieldCheck,
     cta: "Go Premium Now",
     img: "/cards/GLC_Premium.png",
-    accent: "#7a8a9a",
-    imgFilter: "grayscale(55%) brightness(.90) contrast(1.08)",
-    imgOverlay:
-      "linear-gradient(270deg,rgba(12,16,22,.0) 0%,rgba(12,16,22,.56) 60%,rgba(12,16,22,.95) 100%)",
-    border: "rgba(122,138,154,.20)",
-    shadow: "0 2px 20px rgba(0,0,0,.10)",
-    hoverShadow: "0 14px 48px rgba(0,0,0,.24)",
-    bg: "rgba(12,16,22,.96)",
-    priceColor: "#dde2e8",
-    subColor: "rgba(190,200,215,.52)",
-    statBg: "rgba(255,255,255,.06)",
-    statBorder: "rgba(255,255,255,.09)",
-    statLabel: "rgba(190,200,215,.40)",
-    statValue: "#c8d2dc",
-    featColor: "rgba(190,200,215,.76)",
-    checkBg: "rgba(255,255,255,.07)",
-    checkColor: "rgba(190,200,215,.55)",
-    isElite: false,
-  },
-  elite: {
-    num: "04",
-    Icon: Gem,
-    cta: "Claim Elite Access",
-    img: "/cards/S-Class_Elite.png",
     accent: "#c9a24b",
-    imgFilter: "grayscale(5%) brightness(.50) contrast(1.20) saturate(1.15)",
+    imgFilter: "grayscale(25%) brightness(.62) contrast(1.20) saturate(1.15)",
     imgOverlay:
       "linear-gradient(270deg,rgba(8,5,0,.0) 0%,rgba(8,5,0,.48) 55%,rgba(8,5,0,.95) 100%)",
     border: "rgba(201,162,75,.55)",
@@ -121,6 +97,30 @@ const M = {
     checkBg: "rgba(201,162,75,.14)",
     checkColor: "#c9a24b",
     isElite: true,
+  },
+  elite: {
+    num: "04",
+    Icon: Gem,
+    cta: "Claim Elite Access",
+    img: "/cards/S-Class_Elite.png",
+    accent: "#7a8a9a",
+    imgFilter: "grayscale(35%) brightness(.50) contrast(1.08)",
+    imgOverlay:
+      "linear-gradient(270deg,rgba(12,16,22,.0) 0%,rgba(12,16,22,.56) 60%,rgba(12,16,22,.95) 100%)",
+    border: "rgba(122,138,154,.20)",
+    shadow: "0 2px 20px rgba(0,0,0,.10)",
+    hoverShadow: "0 14px 48px rgba(0,0,0,.24)",
+    bg: "rgba(12,16,22,.96)",
+    priceColor: "#dde2e8",
+    subColor: "rgba(190,200,215,.52)",
+    statBg: "rgba(255,255,255,.06)",
+    statBorder: "rgba(255,255,255,.09)",
+    statLabel: "rgba(190,200,215,.40)",
+    statValue: "#c8d2dc",
+    featColor: "rgba(190,200,215,.76)",
+    checkBg: "rgba(255,255,255,.07)",
+    checkColor: "rgba(190,200,215,.55)",
+    isElite: false,
   },
   sovereign: {
     num: "05",
@@ -551,7 +551,7 @@ export default function PlansSection() {
                         {plan.name}
                       </span>
                     </div>
-                    {m.isElite ? (
+                    {plan.isBestValue ? (
                       <div
                         style={{
                           display: "flex",
@@ -814,7 +814,7 @@ export default function PlansSection() {
                     }}
                   >
                     {[
-                      { label: "Trips / Year", value: `${plan.trips} trips` },
+                      { label: "Trips / Year", value: `${plan.trips} Trips` },
                       { label: "Vehicle", value: plan.vehicleType },
                       {
                         label: "Security",
@@ -938,8 +938,8 @@ export default function PlansSection() {
                       className={{
                         essential: "bronze-cta",
                         executive: "silver-cta",
-                        premium: "gold-cta",
-                        elite: "platinum-cta",
+                        premium: "platinum-cta",
+                        elite: "gold-cta",
                         sovereign: "diamond-cta"
                       }[id]}
                       style={{

@@ -5,21 +5,21 @@ import { X, Play } from 'lucide-react';
 
 const testimonials = [
   {
-    name: 'Rajan Desai',
+    name: 'Kartik Giri',
     role: 'Managing Partner — Desai Capital Group, Mumbai',
-    avatar: 'RD',
+    avatar: 'KG',
     plan: 'SOVEREIGN',
     bannerImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400&fit=crop',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    videoUrl: 'https://subscription-wensforce-prod.s3.ap-south-1.amazonaws.com/videos/kartik_giri.mp4',
     text: 'I\'ve had global concierge services. WENS Force is the first one that actually knows India — the temples, the airports, the security dynamics.',
   },
   {
-    name: 'Dr. Priya Venkataraman',
+    name: 'Mark Robber',
     role: 'COO — Zenith Pharma, Bangalore',
-    avatar: 'PV',
+    avatar: 'MR',
     plan: 'ELITE',
     bannerImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&h=400&fit=crop',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    videoUrl: 'https://subscription-wensforce-prod.s3.ap-south-1.amazonaws.com/videos/Mark_Robber.mp4',
     text: 'As a woman who travels frequently, the armed escort changed my confidence entirely. My RM knows my schedule before I tell her.',
   },
   {
@@ -69,13 +69,12 @@ function TestimonialCard({ testimonial }) {
         {/* Video Container */}
         <div className="relative w-full h-full bg-black">
           <div className="relative w-full h-full">
-            <iframe
-              className="w-full h-full"
+            <video
+              className="w-full h-full object-cover"
               src={testimonial.videoUrl}
-              title={`Testimonial - ${testimonial.name}`}
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
+                controls  
+                muted
+                autoPlay
             />
           </div>
 

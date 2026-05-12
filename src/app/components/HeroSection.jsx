@@ -67,7 +67,7 @@ export default function HeroSection() {
       </div>
 
       {/* Full-screen video hero */}
-      <section className="relative overflow-hidden min-h-screen flex items-center justify-center px-6 py-24">
+      <section className="relative overflow-hidden min-h-screen flex items-center justify-center px-6 md:py-20 py-10">
 
         {/* Background video — plays only after fully loaded */}
         <video

@@ -19,7 +19,8 @@ import PressPartnerWall from "./components/PressPartnerWall";
 import FounderStoryBlock from "./components/FounderStoryBlock";
 import ReferralBanner from "./components/ReferralBanner";
 import ExitIntentPopup from "./components/ExitIntentPopup";
-import TestimonialsSection from "./components/TestimonialsSection";import HeroSection from './components/HeroSection';
+import TestimonialsSection from "./components/TestimonialsSection";
+import HeroSection from "./components/HeroSection";
 const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
 const WA_NUMBER = "917304607954";
 
@@ -99,7 +100,7 @@ const COMPARISON_ROWS = [
   },
   {
     label: "Security",
-    values: ["Unarmed", "Unarmed", "✓ Armed", "✓ Armed", "✓ Armed"],
+    values: ["MMA", "MMA", "✓ Armed", "✓ Armed", "✓ Armed"],
   },
   { label: "VIP Darshan Vouchers", values: ["1", "2", "3", "5", "Unlimited"] },
   {
@@ -149,13 +150,13 @@ function ComparisonTable() {
               <th className="text-left px-6 py-5 text-xs text-gray-400 w-44 font-normal" />
               {plans.map((plan) => {
                 const TierIcon = TIER_ICONS[plan.id] || Car;
-                const isElite = plan.id === "elite";
+                const isHighlight = plan.isBestValue;
                 return (
                   <th
                     key={plan.id}
                     className={[
                       "px-3 py-5 text-center",
-                      isElite
+                      isHighlight
                         ? "bg-[#C9A24B]/6 border-x border-[#C9A24B]/15"
                         : "",
                     ].join(" ")}
@@ -164,7 +165,7 @@ function ComparisonTable() {
                       <div
                         className={[
                           "w-8 h-8 rounded-xl flex items-center justify-center border",
-                          isElite
+                          isHighlight
                             ? "bg-[#C9A24B]/15 border-[#C9A24B]/25"
                             : "bg-gray-50 border-gray-100",
                         ].join(" ")}
@@ -173,14 +174,14 @@ function ComparisonTable() {
                           size={14}
                           strokeWidth={1.75}
                           className={
-                            isElite ? "text-[#C9A24B]" : "text-gray-500"
+                            isHighlight ? "text-[#C9A24B]" : "text-gray-500"
                           }
                         />
                       </div>
                       <div
                         className={[
                           "text-xs font-bold tracking-wide",
-                          isElite ? "text-[#C9A24B]" : "text-gray-600",
+                          isHighlight ? "text-[#C9A24B]" : "text-gray-600",
                         ].join(" ")}
                       >
                         {plan.name}
@@ -188,14 +189,19 @@ function ComparisonTable() {
                       <div
                         className={[
                           "text-[10px]",
-                          isElite ? "text-[#C9A24B]/60" : "text-gray-400",
+                          isHighlight ? "text-[#C9A24B]/60" : "text-gray-400",
                         ].join(" ")}
                       >
                         {INR(plan.price)}/yr
                       </div>
-                      {isElite && (
+                      {plan.isBestValue && (
                         <div className="text-[9px] bg-[#C9A24B] text-black font-bold px-2.5 py-0.5 rounded-full tracking-wide">
                           BEST VALUE
+                        </div>
+                      )}
+                      {plan.isPopular && (
+                        <div className="text-[9px] bg-[#0B1E3F] text-white font-bold px-2.5 py-0.5 rounded-full tracking-wide">
+                          MOST POPULAR
                         </div>
                       )}
                     </div>
@@ -222,13 +228,13 @@ function ComparisonTable() {
                   {row.label}
                 </td>
                 {row.values.map((val, j) => {
-                  const isElite = plans[j].id === "elite";
+                  const isHighlight = plans[j].isBestValue;
                   return (
                     <td
                       key={j}
                       className={[
                         "px-3 py-3.5 text-center",
-                        isElite
+                        isHighlight
                           ? "bg-[#C9A24B]/6 border-x border-[#C9A24B]/15"
                           : "",
                       ].join(" ")}
@@ -245,7 +251,7 @@ function ComparisonTable() {
                           className={[
                             "text-xs",
                             row.highlight ? "font-bold" : "font-medium",
-                            isElite ? "text-[#C9A24B]" : "text-gray-700",
+                            isHighlight ? "text-[#C9A24B]" : "text-gray-700",
                           ].join(" ")}
                         >
                           {val}
@@ -261,7 +267,7 @@ function ComparisonTable() {
             <tr className="border-t border-gray-100 bg-gray-50/50">
               <td className="px-6 py-4" />
               {plans.map((plan) => {
-                const isElite = plan.id === "elite";
+                const isHighlight = plan.isBestValue;
                 const msg = encodeURIComponent(
                   `Hi WENS Force, I'd like to join the ${plan.name} membership (${INR(plan.price)}/yr). Please help me get started.`,
                 );
@@ -270,7 +276,7 @@ function ComparisonTable() {
                     key={plan.id}
                     className={[
                       "px-3 py-4 text-center",
-                      isElite
+                      isHighlight
                         ? "bg-[#C9A24B]/6 border-x border-[#C9A24B]/15"
                         : "",
                     ].join(" ")}
@@ -281,8 +287,8 @@ function ComparisonTable() {
                       rel="noopener noreferrer"
                       className="inline-block text-[10px] whitespace-nowrap font-bold px-3 py-2 rounded-xl transition-all hover:opacity-90"
                       style={{
-                        backgroundColor: isElite ? "#C9A24B" : "#0B1E3F",
-                        color: isElite ? "#000" : "#fff",
+                        backgroundColor: isHighlight ? "#C9A24B" : "#0B1E3F",
+                        color: isHighlight ? "#000" : "#fff",
                       }}
                     >
                       Get Started
@@ -451,12 +457,12 @@ export default function HomePage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/membership/elite"
+              href="/membership/premium"
               className="flex items-center gap-2 font-bold py-4 px-9 rounded-full text-sm transition-all hover:opacity-90"
               style={{ backgroundColor: "#C9A24B", color: "#000" }}
             >
               <Gem size={15} strokeWidth={2} />
-              Claim Elite Membership
+              Claim Premium Membership
             </Link>
             <a
               href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent("Hi WENS Force, I want to learn about the Founding 100 Sovereign membership.")}`}
