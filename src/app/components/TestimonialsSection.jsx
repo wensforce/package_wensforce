@@ -1,87 +1,128 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { X, Play } from 'lucide-react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { EffectCoverflow } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/effect-coverflow';
 
 const testimonials = [
   {
     name: 'Kartik Giri',
-    role: 'Managing Partner — Desai Capital Group, Mumbai',
-    avatar: 'KG',
+    role: 'Giri Zever Mahal Owner',
     plan: 'SOVEREIGN',
-    bannerImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400&fit=crop',
-    videoUrl: 'https://subscription-wensforce-prod.s3.ap-south-1.amazonaws.com/videos/kartik_giri.mp4',
+    avatar: '/testimonials/kartik_profile.png',
+    profileUrl: 'https://www.instagram.com/_kaartikgiri/',
+    bannerImage: '/testimonials/kartik_giri.png',
+    videoUrl: 'https://d2zcmp43lwd2kr.cloudfront.net/videos/kartik_giri.mp4',
     text: 'I\'ve had global concierge services. WENS Force is the first one that actually knows India — the temples, the airports, the security dynamics.',
   },
   {
     name: 'Mark Robber',
-    role: 'COO — Zenith Pharma, Bangalore',
-    avatar: 'MR',
+    role: 'American YouTuber, engineer and inventor',
+    avatar: '/testimonials/mark_profile.png',
+    profileUrl: 'https://www.instagram.com/markrober/',
     plan: 'ELITE',
-    bannerImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&h=400&fit=crop',
-    videoUrl: 'https://subscription-wensforce-prod.s3.ap-south-1.amazonaws.com/videos/Mark_Robber.mp4',
+    bannerImage: '/testimonials/mark_robber.png',
+    videoUrl: 'https://d2zcmp43lwd2kr.cloudfront.net/videos/Mark_Robber.mp4',
     text: 'As a woman who travels frequently, the armed escort changed my confidence entirely. My RM knows my schedule before I tell her.',
   },
   {
-    name: 'Rajiv Singhania',
-    role: 'Business Family — Delhi NCR',
-    avatar: 'RS',
+    name: 'Pink Sweat',
+    role: 'American R&B singer and songwriter',
+    avatar: '/testimonials/pink_profile.png',
+    profileUrl: 'https://www.instagram.com/pinksweats/',
     plan: 'SOVEREIGN',
-    bannerImage: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&h=400&fit=crop',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    bannerImage: '/testimonials/pink_sweat.png',
+    videoUrl: 'https://d2zcmp43lwd2kr.cloudfront.net/videos/Pink_Sweat.mp4',
     text: 'We joined as Executive, upgraded to Sovereign within three months. The difference is in how the family feels.',
   },
   {
-    name: 'Capt. (Retd.) Arun Sharma',
-    role: 'Board Director — Infrastructure & Defence Advisory, Hyderabad',
-    avatar: 'AS',
+    name: 'Turkey Princess',
+    role: 'Princess',
+    avatar: '/testimonials/no_profile.png',
     plan: 'PREMIUM',
-    bannerImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&h=400&fit=crop',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    bannerImage: '/testimonials/turkey_princess.png',
+    videoUrl: 'https://d2zcmp43lwd2kr.cloudfront.net/videos/your_highness.mp4',
     text: 'I vetted the security protocol before joining. The risk assessment was sharper than what most corporates offer their CEOs.',
   },
   {
-    name: 'Anjali Bhatnagar',
-    role: 'Independent Film Producer, Mumbai',
-    avatar: 'AB',
+    name: 'Mo Vlog',
+    role: 'Indian YouTuber with 3M+ subscribers',
+    avatar: '/testimonials/mo_vlog_profile.png',
+    profileUrl: 'https://www.instagram.com/movlogs/',
     plan: 'SOVEREIGN',
-    bannerImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=600&h=400&fit=crop',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    bannerImage: '/testimonials/mo_vlog.png',
+    videoUrl: 'https://d2zcmp43lwd2kr.cloudfront.net/videos/Movlog_car.mp4',
     text: 'I needed discretion, not drama. The car is there before I ask, the guard blends in, the concierge never asks twice.',
   },
-  {
-    name: 'Rohan Agarwal',
-    role: 'Returned NRI — Pune (formerly Singapore)',
-    avatar: 'RA',
-    plan: 'ELITE',
-    bannerImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400&fit=crop&flip=h',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    text: 'A friend referred me to WENS Force. Two weeks in, I upgraded from Executive to Elite within 60 days.',
-  },
+  // {
+  //   name: 'Rohan Agarwal',
+  //   role: 'Returned NRI — Pune (formerly Singapore)',
+  //   avatar: 'RA',
+  //   plan: 'ELITE',
+  //   bannerImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400&fit=crop&flip=h',
+  //   videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+  //   text: 'A friend referred me to WENS Force. Two weeks in, I upgraded from Executive to Elite within 60 days.',
+  // },
 ];
 
-function TestimonialCard({ testimonial }) {
-  const [isPlaying, setIsPlaying] = useState(false);
+function TestimonialCard({ testimonial, isPlaying, onPlay, onClose }) {
+  const pointerStartX = useRef(null);
+  const videoRef = useRef(null);
+  const [paused, setPaused] = useState(false);
+
+  const handlePointerDown = (e) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    pointerStartX.current = e.clientX;
+  };
+
+  const handlePointerUp = (e) => {
+    if (pointerStartX.current === null) return;
+    const deltaX = Math.abs(e.clientX - pointerStartX.current);
+    pointerStartX.current = null;
+    if (deltaX > 50) { onClose(); return; }
+    if (videoRef.current) {
+      if (videoRef.current.paused) { videoRef.current.play(); setPaused(false); }
+      else { videoRef.current.pause(); setPaused(true); }
+    }
+  };
 
   if (isPlaying) {
     return (
       <div className="relative rounded-3xl overflow-hidden h-96 flex flex-col">
-        {/* Video Container */}
         <div className="relative w-full h-full bg-black">
-          <div className="relative w-full h-full">
-            <video
-              className="w-full h-full object-cover"
-              src={testimonial.videoUrl}
-                controls  
-                muted
-                autoPlay
-            />
-          </div>
+          <video
+            ref={videoRef}
+            className="w-full h-full object-cover"
+            src={testimonial.videoUrl}
+            muted
+            autoPlay
+          />
 
-          {/* Close Button */}
+          {/* Overlay — pointer events unify mouse+touch; touchAction:none prevents browser gesture hijack */}
+          <div
+            className="absolute inset-0 z-[80] cursor-pointer"
+            style={{ touchAction: 'none' }}
+            onPointerDown={handlePointerDown}
+            onPointerUp={handlePointerUp}
+          />
+
+          {/* Paused indicator */}
+          {paused && (
+            <div className="absolute inset-0 flex items-center justify-center z-[85] pointer-events-none">
+              <div className="w-16 h-16 rounded-full bg-black/50 flex items-center justify-center">
+                <Play size={32} className="text-white fill-white ml-1" />
+              </div>
+            </div>
+          )}
+
+          {/* Close button — above overlay */}
           <button
-            onClick={() => setIsPlaying(false)}
-            className="absolute top-3 right-3 z-10 w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center text-white transition-all"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); onClose(); }}
+            className="absolute top-3 right-3 cursor-pointer z-[90] w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center text-white transition-all"
           >
             <X size={24} />
           </button>
@@ -93,7 +134,7 @@ function TestimonialCard({ testimonial }) {
   return (
     <div
       className="group relative rounded-3xl overflow-hidden cursor-pointer h-96 flex flex-col justify-end"
-      onClick={() => setIsPlaying(true)}
+      onClick={() => onPlay()}
     >
       {/* Banner Image Background */}
       <div
@@ -127,12 +168,15 @@ function TestimonialCard({ testimonial }) {
             className="w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
             style={{ background: 'linear-gradient(135deg, #C9A24B, #a88000)' }}
           >
-            {testimonial.avatar}
+            <img src={testimonial.avatar} alt={testimonial.name} className="w-full h-full object-cover rounded-full" />
           </div>
-          <div className="min-w-0 flex-1">
+          <a onClick={(e)=>{
+            e.stopPropagation();
+          }} 
+          target='_blank' href={testimonial.profileUrl} className="min-w-0 flex-1">
             <div className="text-white text-sm font-semibold line-clamp-1">{testimonial.name}</div>
             <div className="text-white/60 text-xs line-clamp-1">{testimonial.role}</div>
-          </div>
+          </a>
         </div>
         <span
           className="inline-block text-[8px] font-bold px-2.5 py-1 rounded-full border"
@@ -152,9 +196,11 @@ function TestimonialCard({ testimonial }) {
 
 
 export default function TestimonialsSection() {
+  const [playingName, setPlayingName] = useState(null);
+
   return (
-    <section style={{ backgroundColor: '#0B1E3F' }} className="py-20 px-6">
-      <div className="max-w-6xl mx-auto">
+    <section style={{ backgroundColor: '#0B1E3F' }} className="py-20 overflow-hidden">
+      <div className="max-w-6xl mx-auto px-6">
         {/* Section Header */}
         <div className="text-center mb-12">
           <p className="text-[#C9A24B] text-[10px] tracking-[0.4em] uppercase font-semibold mb-3">
@@ -167,14 +213,45 @@ export default function TestimonialsSection() {
             HNI members across India — in their own words. Click to watch their stories.
           </p>
         </div>
-
-        {/* Testimonials Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {testimonials.map((testimonial, i) => (
-            <TestimonialCard key={i} testimonial={testimonial} />
-          ))}
-        </div>
       </div>
+
+      {/* Swiper Carousel */}
+      <Swiper
+        modules={[EffectCoverflow]}
+        effect="coverflow"
+        loop
+        slidesPerView={1.2}
+        spaceBetween={20}
+        grabCursor
+        centeredSlides
+        allowTouchMove={!playingName}
+        coverflowEffect={{
+          rotate: 0,
+          stretch: 0,
+          depth: 100,
+          modifier: 1,
+          slideShadows: false,
+        }}
+        breakpoints={{
+          640:  { slidesPerView: 1.6, spaceBetween: 24 },
+          1024: { slidesPerView: 2.2, spaceBetween: 28 },
+          1280: { slidesPerView: 2.5, spaceBetween: 32 },
+        }}
+        style={{ paddingBottom: '8px' }}
+      >
+        {testimonials.map((testimonial, i) => (
+          <SwiperSlide key={i} style={{ height: 'auto' }}>
+            <div>
+              <TestimonialCard
+                testimonial={testimonial}
+                isPlaying={playingName === testimonial.name}
+                onPlay={() => setPlayingName(testimonial.name)}
+                onClose={() => setPlayingName(null)}
+              />
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
     </section>
   );
 }

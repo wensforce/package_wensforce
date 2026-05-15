@@ -5,7 +5,7 @@ import { useRef, useEffect } from 'react';
 const WA_NUMBER = '917304607954';
 
 // Replace this URL with your actual video when ready
-const HERO_VIDEO_URL = 'https://wens-website-prod.s3.us-east-1.amazonaws.com/landing_page_videos/promo-background.mp4';
+const HERO_VIDEO_URL = 'https://d2zcmp43lwd2kr.cloudfront.net/videos/hero_video.mp4';
 
 export default function HeroSection() {
   const videoRef = useRef(null);
@@ -158,8 +158,6 @@ export default function HeroSection() {
             <span>✓ Instant Activation</span>
             <span>·</span>
             <span>✓ No Hidden Fees</span>
-            <span>·</span>
-            <span>✓ 24×7 Concierge</span>
           </div>
         </div>
 

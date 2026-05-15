@@ -21,6 +21,7 @@ import ReferralBanner from "./components/ReferralBanner";
 import ExitIntentPopup from "./components/ExitIntentPopup";
 import TestimonialsSection from "./components/TestimonialsSection";
 import HeroSection from "./components/HeroSection";
+import FoundingMemberBanner from "./components/FoundingMemberBanner";
 const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
 const WA_NUMBER = "917304607954";
 
@@ -32,26 +33,18 @@ const TIER_ICONS = {
   sovereign: Crown,
 };
 
-const FOUNDING_SPOTS = {
-  essential: 82,
-  executive: 71,
-  premium: 58,
-  elite: 73,
-  sovereign: 41,
-};
-
 const faqs = [
   {
     q: "I'm sceptical about prepaying this much. How do I know WENS Force is real?",
-    a: "Fair question. WENS Force alias WENS Force International Private Limited Headquarterd in Mahindra Chamber Stock Exchange opp. CST Station, South Mumbai is a registered company with a physical operations team across 9 cities. Every member gets a dedicated concierge contact on WhatsApp within 2 hours of joining. You can also speak to our team before paying: +91-7304607954.",
+    a: "Fair question. WENS Force alias WENS Force International Private Limited Headquarterd in Mahindra Chamber Stock Exchange opp. CST Station, South Mumbai is a registered company with a physical operations team across India & Dubai. Every member gets a dedicated concierge contact on WhatsApp immediately upon joining. You can also speak to our team before paying: +91-7304607954.",
   },
   {
     q: "What exactly happens in the first 24 hours after I join?",
-    a: "Within 2 hours: your concierge calls to introduce themselves and understand your preferences — vehicle type, usual routes, pilgrimage interests. Within 24 hours: your account is fully set up, your security profile is created, and you can book your first trip. Most members book within 72 hours.",
+    a: "Your dedicated concierge calls to introduce themselves and understand your preferences — vehicle type, usual routes, pilgrimage interests. Within 24 hours, your membership is activated and you're ready to book. Most members take their first trip within 72 hours.",
   },
   {
     q: "My schedule is unpredictable — will a car really be ready in 12 minutes?",
-    a: "Yes. For Elite and Sovereign: 10–15 minute dispatch, 24×7, pre-positioned in your city. For Premium: 20-minute guarantee. For Essential and Executive: 30–45 minutes for scheduled bookings; same-day bookings confirmed within the hour. We maintain standby fleets precisely for unplanned travel.",
+    a: "Yes. For Elite and Sovereign: 10–15 minute dispatch, 24×7, pre-positioned in your city. For Essential and Executive: 30–45 minutes for scheduled bookings; same-day bookings confirmed within the hour. We maintain standby fleets precisely for unplanned travel.",
   },
   {
     q: "Can my family use the membership when I travel abroad?",
@@ -64,10 +57,6 @@ const faqs = [
   {
     q: "Is the armed bodyguard discreet, or will it look conspicuous?",
     a: "Discreet is the default. All guards are in plain clothes unless you specifically request uniformed security. They are briefed on your preferences during onboarding. Most members say their guests do not notice the security at all — only the smooth experience.",
-  },
-  {
-    q: "What does 'VIP Darshan' actually mean — will I really skip the queue?",
-    a: "Yes. WENS Force holds verified partnerships with temple trusts and official VIP darshan programmes. Your concierge books a specific time slot at the VIP/VVIP counter — not the general queue. For Bhasm Aarti at Mahakaleshwar (Sovereign), this is one of the rarest bookings in India — fewer than 20 VVIP spots exist per day.",
   },
   {
     q: "Can I upgrade my tier mid-year if my needs change?",
@@ -409,76 +398,8 @@ export default function HomePage() {
       {/* ── FAQ ── */}
       <FAQSection />
 
-      {/* ── FINAL CTA — FOUNDING 100 FRAME ── */}
-      <section style={{ backgroundColor: "#0B1E3F" }} className="py-24 px-6">
-        <div className="max-w-2xl mx-auto text-center">
-          <div className="flex items-center justify-center gap-2 mb-5">
-            <Crown size={18} strokeWidth={1.5} className="text-[#C9A24B]" />
-            <p className="text-[#C9A24B] text-[10px] tracking-[0.4em] uppercase font-semibold">
-              Founding 100 Programme
-            </p>
-            <Crown size={18} strokeWidth={1.5} className="text-[#C9A24B]" />
-          </div>
-
-          <h2 className="font-serif-display text-3xl sm:text-4xl font-bold text-white mb-4 leading-snug">
-            The First 100 Sovereign Members
-            <br />
-            <span className="text-[#C9A24B]">
-              Become Permanent Charter Members.
-            </span>
-          </h2>
-
-          <p className="text-white/50 text-base font-light mb-8 leading-relaxed">
-            Charter members lock current pricing for life — no annual increase,
-            ever.
-            <br />
-            <strong className="text-white/70 font-medium">
-              41 of 100 spots confirmed.
-            </strong>{" "}
-            The remaining 59 are open now.
-          </p>
-
-          {/* Founding spots mini-grid */}
-          <div className="grid grid-cols-5 gap-3 mb-10 max-w-sm mx-auto">
-            {["essential", "executive", "premium", "elite", "sovereign"].map(
-              (id) => (
-                <div key={id} className="text-center">
-                  <div className="text-base font-bold text-[#C9A24B]">
-                    {FOUNDING_SPOTS[id]}
-                  </div>
-                  <div className="text-[9px] text-white/30 uppercase tracking-wide font-light leading-tight">
-                    {id}
-                  </div>
-                  <div className="text-[8px] text-white/20">of 100</div>
-                </div>
-              ),
-            )}
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/membership/premium"
-              className="flex items-center gap-2 font-bold py-4 px-9 rounded-full text-sm transition-all hover:opacity-90"
-              style={{ backgroundColor: "#C9A24B", color: "#000" }}
-            >
-              <Gem size={15} strokeWidth={2} />
-              Claim Premium Membership
-            </Link>
-            <a
-              href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent("Hi WENS Force, I want to learn about the Founding 100 Sovereign membership.")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="border border-white/20 text-white/70 font-medium py-4 px-8 rounded-full text-sm hover:border-white/40 hover:text-white transition-all"
-            >
-              Enquire About Sovereign →
-            </a>
-          </div>
-
-          <p className="text-white/25 text-xs mt-6">
-            wensforce.com &nbsp;·&nbsp; +91-73046 07954
-          </p>
-        </div>
-      </section>
+      {/* ── FOUNDING MEMBER BANNER ── */}
+      <FoundingMemberBanner />
 
       {/* ── FOOTER ── */}
       <footer

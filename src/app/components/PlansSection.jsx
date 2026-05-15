@@ -127,23 +127,25 @@ const M = {
     Icon: Crown,
     cta: "Reserve Sovereign",
     img: "/cards/GWGON_Sovereign.png",
-    accent: "#707070",
-    imgFilter: "grayscale(30%) brightness(.62) contrast(1.48)",
+    accent: "#c9a24b",
+    imgFilter: "grayscale(25%) brightness(.62) contrast(1.20) saturate(1.15)",
     imgOverlay:
-      "linear-gradient(270deg,rgba(6,6,6,.0) 0%,rgba(6,6,6,.55) 60%,rgba(6,6,6,.95) 100%)",
-    border: "rgba(112,112,112,.18)",
-    shadow: "0 2px 20px rgba(0,0,0,.28)",
-    hoverShadow: "0 14px 48px rgba(0,0,0,.46)",
-    bg: "rgba(6,6,6,.97)",
-    priceColor: "#b0b0b0",
-    subColor: "rgba(155,155,155,.52)",
-    statBg: "rgba(255,255,255,.05)",
-    statBorder: "rgba(255,255,255,.08)",
-    statLabel: "rgba(155,155,155,.42)",
-    statValue: "#989898",
-    featColor: "rgba(160,160,160,.72)",
-    checkBg: "rgba(255,255,255,.06)",
-    checkColor: "rgba(155,155,155,.55)",
+      "linear-gradient(270deg,rgba(8,5,0,.0) 0%,rgba(8,5,0,.48) 55%,rgba(8,5,0,.95) 100%)",
+    border: "rgba(201,162,75,.55)",
+    shadow:
+      "0 0 0 1px rgba(201,162,75,.45),0 20px 60px rgba(201,162,75,.14),0 6px 20px rgba(0,0,0,.42)",
+    hoverShadow:
+      "0 0 0 1.5px rgba(201,162,75,.75),0 28px 72px rgba(201,162,75,.26),0 10px 28px rgba(0,0,0,.52)",
+    bg: "rgba(8,5,0,.97)",
+    priceColor: "#f0d878",
+    subColor: "rgba(201,162,75,.65)",
+    statBg: "rgba(201,162,75,.10)",
+    statBorder: "rgba(201,162,75,.20)",
+    statLabel: "rgba(201,162,75,.52)",
+    statValue: "#e8c97a",
+    featColor: "rgba(240,210,140,.84)",
+    checkBg: "rgba(201,162,75,.14)",
+    checkColor: "#c9a24b",
     isElite: false,
   },
 };
@@ -159,7 +161,7 @@ export default function PlansSection() {
       <style>{`
         @keyframes goldPulse {
           0%,100%{box-shadow:0 0 0 1px rgba(201,162,75,.45),0 20px 60px rgba(201,162,75,.14),0 6px 20px rgba(0,0,0,.42);}
-          50%{box-shadow:0 0 0 1.5px rgba(201,162,75,.78),0 26px 70px rgba(201,162,75,.24),0 6px 20px rgba(0,0,0,.42);}
+          50%{box-shadow:0 0 0 1.5px rgba(201,162,75,.75),0 26px 70px rgba(201,162,75,.24),0 6px 20px rgba(0,0,0,.42);}
         }
         @keyframes diamondGlow {
           0%, 100% { box-shadow: 0 0 10px rgba(147, 51, 234, .4), 0 4px 22px rgba(0,0,0,.2); }
@@ -200,34 +202,68 @@ export default function PlansSection() {
         .price-badge {
           animation: pricePulse 2s ease-in-out infinite;
         }
-        .bronze-cta{
-          background:linear-gradient(100deg,#6b4423 0%,#a0522d 40%,#cd853f 55%,#8b6f47 75%,#6b4423 100%);
-          background-size:200% auto;
-          animation:buttonShine 5s cubic-bezier(.4, 0, .2, 1) infinite;
-          transition:all .35s cubic-bezier(.4, 0, .2, 1);
-          position:relative;
-          overflow:hidden;
+        .bronze-cta {
+          position: relative;
+          // background-color: #8B6F47;
+          background-color: #C9733D;
+          color: #FFFFFF;
+          transition: all 0.3s ease-in-out;
+          overflow: hidden;
+          box-shadow: 0 0 0 1px rgba(139,111,71,.45), 0 20px 60px rgba(139,111,71,.14), 0 6px 20px rgba(0,0,0,.42);
         }
-        .bronze-cta::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent);
-          animation: shine 5s cubic-bezier(.4, 0, .2, 1) infinite;
+        .bronze-cta:hover {
+          box-shadow: 0 0 0 1.5px rgba(139,111,71,.75), 0 28px 72px rgba(139,111,71,.26), 0 10px 28px rgba(0,0,0,.52);
         }
-        .bronze-cta:hover{transform:translateY(-2px);filter:brightness(1.1);}
-        .silver-cta{
-          background:linear-gradient(100deg,#808080 0%,#a8a8a8 40%,#e0e0e0 55%,#b0b0b0 75%,#808080 100%);
-          background-size:200% auto;
-          animation:buttonShine 5s cubic-bezier(.4, 0, .2, 1) infinite;
-          transition:all .35s cubic-bezier(.4, 0, .2, 1);
-          position:relative;
-          overflow:hidden;
+
+        .silver-cta {
+          position: relative;
+          background-color: #dadada;
+          color: #000000;
+          transition: all 0.3s ease-in-out;
+          overflow: hidden;
+          box-shadow: 0 0 0 1px rgba(200,200,200,.45), 0 20px 60px rgba(200,200,200,.14), 0 6px 20px rgba(0,0,0,.42);
         }
-        .silver-cta::before {
+        .silver-cta:hover {
+          box-shadow: 0 0 0 1.5px rgba(200,200,200,.75), 0 28px 72px rgba(200,200,200,.26), 0 10px 28px rgba(0,0,0,.52);
+        }
+
+        .platinum-cta {
+          position: relative;
+          background-color: #C9A24B;
+          color: #FFFFFF;
+          transition: all 0.3s ease-in-out;
+          overflow: hidden;
+          box-shadow: 0 0 0 1px rgba(201,162,75,.45), 0 20px 60px rgba(201,162,75,.14), 0 6px 20px rgba(0,0,0,.42);
+        }
+        .platinum-cta:hover {
+          box-shadow: 0 0 0 1.5px rgba(201,162,75,.75), 0 28px 72px rgba(201,162,75,.26), 0 10px 28px rgba(0,0,0,.52);
+        }
+
+        .gold-cta {
+          position: relative;
+          background-color: #4A90E2;
+          color: #FFFFFF;
+          transition: all 0.3s ease-in-out;
+          overflow: hidden;
+          box-shadow: 0 0 0 1px rgba(74,144,226,.45), 0 20px 60px rgba(74,144,226,.14), 0 6px 20px rgba(0,0,0,.42);
+        }
+        .gold-cta:hover {
+          box-shadow: 0 0 0 1.5px rgba(74,144,226,.75), 0 28px 72px rgba(74,144,226,.26), 0 10px 28px rgba(0,0,0,.52);
+        }
+
+        .diamond-cta {
+          position: relative;
+          background-color: #10B981;
+          color: #FFFFFF;
+          transition: all 0.3s ease-in-out;
+          overflow: hidden;
+          box-shadow: 0 0 0 1px rgba(16,185,129,.45), 0 20px 60px rgba(16,185,129,.14), 0 6px 20px rgba(0,0,0,.42);
+        }
+        .diamond-cta:hover {
+          box-shadow: 0 0 0 1.5px rgba(16,185,129,.75), 0 28px 72px rgba(16,185,129,.26), 0 10px 28px rgba(0,0,0,.52);
+        }
+
+        .bronze-cta::before, .silver-cta::before, .gold-cta::before, .platinum-cta::before, .diamond-cta::before {
           content: '';
           position: absolute;
           top: 0;
@@ -235,71 +271,11 @@ export default function PlansSection() {
           width: 100%;
           height: 100%;
           background: linear-gradient(90deg, transparent, rgba(255,255,255,.4), transparent);
-          animation: shine 5s cubic-bezier(.4, 0, .2, 1) infinite;
+          animation: shine 3s cubic-bezier(.4, 0, .2, 1) infinite;
         }
-        .silver-cta:hover{transform:translateY(-2px);filter:brightness(1.1);}
-        .gold-cta{
-          background:linear-gradient(100deg,#3a5a7a 0%,#5a8fc2 40%,#7eb3e8 55%,#5a7fa8 75%,#3a5a7a 100%);
-          background-size:200% auto;
-          animation:buttonShine 5s cubic-bezier(.4, 0, .2, 1) infinite;
-          transition:all .35s cubic-bezier(.4, 0, .2, 1);
-          position:relative;
-          overflow:hidden;
-        }
-        .gold-cta::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,.4), transparent);
-          animation: shine 5s cubic-bezier(.4, 0, .2, 1) infinite;
-        }
-        .gold-cta:hover{transform:translateY(-2px);filter:brightness(1.1);}
-        .platinum-cta{
-          background:linear-gradient(100deg,#d4a045 0%,#f0d878 40%,#ffd700 55%,#e8c56a 75%,#d4a045 100%);
-          background-size:200% auto;
-          animation:buttonShine 5s cubic-bezier(.4, 0, .2, 1) infinite;
-          transition:all .35s cubic-bezier(.4, 0, .2, 1);
-          position:relative;
-          overflow:hidden;
-        }
-        .platinum-cta::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,.4), transparent);
-          animation: shine 5s cubic-bezier(.4, 0, .2, 1) infinite;
-        }
-        .platinum-cta:hover{transform:translateY(-2px);filter:brightness(1.1);}
-        .diamond-cta{
-          background:linear-gradient(100deg, #059669 0%, #10b981 40%, #34d399 55%, #6ee7b7 75%, #059669 100%);
-          background-size:200% auto;
-          animation:buttonShine 5s cubic-bezier(.4, 0, .2, 1) infinite;
-          transition:all .35s cubic-bezier(.4, 0, .2, 1);
-          box-shadow: 0 0 20px rgba(16, 185, 129, .6), 0 4px 22px rgba(0,0,0,.2);
-          color: #ffffff !important;
-          position:relative;
-          overflow:hidden;
-        }
-        .diamond-cta::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,.3), transparent);
-          animation: shine 5s cubic-bezier(.4, 0, .2, 1) infinite;
-        }
-        .diamond-cta:hover{
+        .platinum-cta:hover, .silver-cta:hover, .bronze-cta:hover, .gold-cta:hover, .diamond-cta:hover {
           transform:translateY(-2px);
-          filter:brightness(1.15);
-          box-shadow: 0 0 40px rgba(16, 185, 129, 1) !important;
+          filter:brightness(1.1);
         }
         .ghost-cta{
           background:rgba(255,255,255,.10);
@@ -950,7 +926,7 @@ export default function PlansSection() {
                         flex: 1,
                         height: 44,
                         borderRadius: 8,
-                        color: id === "sovereign" ? "#ffffff" : "#ffffff",
+                        color: id === "executive" ? "#000000" : "#ffffff",
                         fontSize: 11,
                         fontWeight: 800,
                         letterSpacing: ".20em",
@@ -1024,7 +1000,7 @@ export default function PlansSection() {
             }}
           >
             Instant Activation &nbsp;&middot;&nbsp; No Hidden Fees
-            &nbsp;&middot;&nbsp; 24&times;7 Concierge
+            
           </p>
           <div
             style={{

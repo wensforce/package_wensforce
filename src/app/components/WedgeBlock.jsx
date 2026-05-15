@@ -22,7 +22,7 @@ const CARDS = [
       </svg>
     ),
     headline: 'Armed Protection, Vetted & Trained',
-    body: 'Ex-Defence and ex-Police personnel. PSARA-licensed under Indian law. NDA-bound. Briefed on your full itinerary 24 hours in advance.',
+    body: 'Ex-Defence and ex-Police personnel. PSARA-Compliant under Indian law. NDA-bound. Briefed on your full itinerary 24 hours in advance.',
     cta: 'Available from Premium tier',
     href: '/membership/premium',
   },
@@ -36,7 +36,7 @@ const CARDS = [
       </svg>
     ),
     headline: 'Luxury Vehicles, Ready in 10 Minutes',
-    body: 'Mercedes E-Class, BMW 7 Series, Audi Q7. Pre-positioned across 9 cities. Average dispatch time under 12 minutes, guaranteed.',
+    body: 'Mercedes E-Class, BMW 7 Series, Audi Q7. Pre-positioned across cities. Average dispatch time under 12 minutes, guaranteed.',
     cta: 'Available from Essential tier',
     href: '/membership/essential',
   },

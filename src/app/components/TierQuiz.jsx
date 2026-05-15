@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const WA_NUMBER = '917304607954';
 
@@ -45,10 +46,10 @@ function getTier(total) {
 }
 
 export default function TierQuiz() {
+  const router = useRouter();
   const [started, setStarted] = useState(false);
   const [step, setStep] = useState(0);
   const [scores, setScores] = useState([]);
-  const [phone, setPhone] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [leaving, setLeaving] = useState(false);
 
@@ -64,18 +65,19 @@ export default function TierQuiz() {
     }, 250);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const msg = `Hi WENS Force, my quiz result is ${recommended.name} (${recommended.price}/yr). Please send me the personalised brochure. My number is +91${phone}.`;
+  const handleAskConcierge = () => {
+    const msg = `Hi WENS Force, I just took your tier quiz and got ${recommended.name} tier (${recommended.price}/year). I'd like to know more about this plan and how to get started. Please advise.`;
     window.open(`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank');
-    setSubmitted(true);
+  };
+
+  const handleBookNow = () => {
+    router.push(`/booking/${recommended.id}`);
   };
 
   const reset = () => {
     setStarted(false);
     setStep(0);
     setScores([]);
-    setPhone('');
     setSubmitted(false);
     setLeaving(false);
   };
@@ -198,37 +200,26 @@ export default function TierQuiz() {
               </p>
             </div>
 
-            <p className="text-gray-600 text-sm font-medium mb-3">
-              Get your personalised brochure on WhatsApp:
-            </p>
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
-              <div className="flex-1 flex items-center border-2 border-gray-200 rounded-xl overflow-hidden focus-within:border-[#C9A24B] transition-colors">
-                <span className="px-3 text-sm text-gray-500 font-medium border-r border-gray-200 h-full flex items-center">+91</span>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value.replace(/\D/, '').slice(0, 10))}
-                  placeholder="98765 43210"
-                  required
-                  pattern="\d{10}"
-                  className="flex-1 px-3 py-3.5 text-sm outline-none text-gray-800"
-                />
-              </div>
+            <div className="flex flex-col gap-3">
               <button
-                type="submit"
-                className="flex items-center gap-2 px-5 py-3.5 rounded-xl text-white font-semibold text-sm whitespace-nowrap transition-all hover:opacity-90"
-                style={{ backgroundColor: '#25D366' }}
+                onClick={handleBookNow}
+                className="w-full py-3.5 rounded-xl text-white font-semibold text-sm transition-all hover:opacity-90"
+                style={{ backgroundColor: '#0B1E3F' }}
+              >
+                Book {recommended.name} Now →
+              </button>
+              <button
+                onClick={handleAskConcierge}
+                className="flex items-center justify-center gap-2 w-full px-5 py-3.5 rounded-xl text-white font-semibold text-sm whitespace-nowrap transition-all hover:opacity-90 border-2"
+                style={{ backgroundColor: '#25D366', borderColor: '#25D366' }}
               >
                 <svg viewBox="0 0 32 32" width="16" height="16" fill="white">
                   <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.668 4.799 1.836 6.793L2 30l7.393-1.812A13.918 13.918 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2z"/>
                 </svg>
-                Send to WhatsApp
+                Ask Concierge on WhatsApp
               </button>
-            </form>
-            <p className="text-[10px] text-gray-400 mt-3">
-              By submitting, you agree to receive a brochure and a follow-up from our concierge. No spam.
-            </p>
-            <button onClick={reset} className="mt-4 text-xs text-gray-400 hover:text-gray-600 transition-colors">
+            </div>
+            <button onClick={reset} className="mt-4 w-full text-xs text-gray-400 hover:text-gray-600 transition-colors">
               ← Retake the quiz
             </button>
           </div>
