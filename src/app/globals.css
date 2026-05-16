@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+.swiper, .swiper-wrapper, .swiper-slide,
+.swiper.swiper-initialized,
+.swiper-container, .swiper-container-pointer-events {
+  cursor: pointer !important;
+}
+
 :root {
   --background: #F8F5EE;
   --foreground: #1A202C;
