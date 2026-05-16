@@ -111,7 +111,7 @@ function SuccessState({ plan, form }) {
           <p className="text-center text-white/40 text-sm font-light leading-relaxed mb-10">
             Our concierge will call{' '}
             <span className="text-white/65">{form.phone}</span>{' '}
-            within 2 hours to complete payment.
+            within 12 hours to complete payment.
           </p>
 
           {/* Timeline */}
@@ -121,8 +121,8 @@ function SuccessState({ plan, form }) {
 
             {[
               { label: 'Spot Reserved', sub: 'Right now', done: true },
-              { label: 'Concierge Calls', sub: 'Within 2 hours', done: false },
-              { label: 'Membership Active', sub: 'Within 24 hours', done: false },
+              { label: 'Concierge Calls', sub: 'Within 12 hours', done: false },
+              { label: 'Membership Active', sub: 'After 24 hours', done: false },
             ].map((s, i) => (
               <div key={i} className="flex flex-col items-center relative z-10 w-28">
                 <div

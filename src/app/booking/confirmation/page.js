@@ -171,7 +171,7 @@ function ConfirmationContent() {
                 </h1>
 
                 <p className="text-gray-500 text-sm font-light leading-relaxed mb-5">
-                  Our concierge will reach out within 2 hours to set up your account and walk you through everything included in your membership.
+                  Our concierge will reach out shortly to set up your account and walk you through everything included in your membership.
                 </p>
 
                 {/* Order ID */}
@@ -197,7 +197,7 @@ function ConfirmationContent() {
                   <div className="space-y-0">
                     {[
                       { label: 'Payment Confirmed', sub: 'Your payment is verified and recorded', done: true },
-                      { label: 'Concierge Calls You', sub: 'Within 2 hours of payment', done: false },
+                      { label: 'Concierge Calls You', sub: 'Within 12 hours of payment', done: false },
                       { label: 'Account Activated', sub: 'Full membership access within 24 hours', done: false },
                     ].map((s, i, arr) => (
                       <div key={i} className="flex gap-4 relative">

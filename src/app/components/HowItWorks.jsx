@@ -15,7 +15,7 @@ const STEPS = [
   {
     num: '02',
     title: 'Onboard & Personalise',
-    time: 'Within 2 hours',
+    time: 'Within 12 hours',
     description:
       'Your dedicated concierge calls to set vehicle preferences, security needs, travel patterns, and pilgrimage wishes.',
     color: '#0B1E3F',

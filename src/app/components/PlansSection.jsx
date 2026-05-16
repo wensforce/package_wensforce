@@ -297,6 +297,9 @@ export default function PlansSection() {
           .card-img-panel{width:100% !important;height:200px !important;flex-shrink:0 !important;}
           .plan-card{flex-direction:column !important;}
         }
+        @media(max-width:480px){
+          .price-badge{font-size:4.5px !important;padding:3px 5px !important;}
+        }
       `}</style>
 
       <div style={{ maxWidth: 1280, margin: "0 auto" }}>
@@ -596,8 +599,38 @@ export default function PlansSection() {
                         ? '1.5px solid rgba(240,210,140,.28)'
                         : '1px solid rgba(240,210,140,.18)',
                       backdropFilter: 'blur(6px)',
+                      position: 'relative',
                     }}
                   >
+                    <span
+                      className="price-badge"
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        right: 0,
+                        fontSize: 5.5,
+                        fontWeight: 800,
+                        letterSpacing: ".12em",
+                        textTransform: "uppercase",
+                        padding: "4px 6px",
+                        borderRadius: 4,
+                        background: m.isElite
+                          ? "rgba(240,216,96,.22)"
+                          : "rgba(240,210,140,.14)",
+                        color: m.isElite
+                          ? "#f0d878"
+                          : "#f0d878",
+                        border: m.isElite
+                          ? "1.5px solid rgba(240,216,96,.45)"
+                          : "1px solid rgba(240,210,140,.32)",
+                        whiteSpace: "nowrap",
+                        flexShrink: 0,
+                        fontWeight: 900,
+                        zIndex: 10,
+                      }}
+                    >
+                      Limited
+                    </span>
                     {/* Price Row */}
                     <div
                       style={{
@@ -715,31 +748,6 @@ export default function PlansSection() {
                             }}
                           >
                             {INR(plan.price)}
-                          </span>
-                          <span
-                            className="price-badge"
-                            style={{
-                              fontSize: 5.5,
-                              fontWeight: 800,
-                              letterSpacing: ".12em",
-                              textTransform: "uppercase",
-                              padding: "4px 6px",
-                              borderRadius: 4,
-                              background: m.isElite
-                                ? "rgba(240,216,96,.22)"
-                                : "rgba(240,210,140,.14)",
-                              color: m.isElite
-                                ? "#f0d878"
-                                : "#f0d878",
-                              border: m.isElite
-                                ? "1.5px solid rgba(240,216,96,.45)"
-                                : "1px solid rgba(240,210,140,.32)",
-                              whiteSpace: "nowrap",
-                              flexShrink: 0,
-                              fontWeight: 900,
-                            }}
-                          >
-                            Limited
                           </span>
                         </div>
                       </div>

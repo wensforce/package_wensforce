@@ -171,7 +171,7 @@ export default function FoundingMemberBanner() {
             {[
               { icon: Tag, title: 'Current FY Pricing', desc: "You pay today's rate for this membership year — before the next cycle update." },
               { icon: Star, title: 'Founding Member Status', desc: 'Recognised as an early member when WENS Force launched its premium tier.' },
-              { icon: CheckCircle, title: 'Priority Onboarding', desc: 'Your concierge calls within 2 hours of joining to set everything up.' },
+              { icon: CheckCircle, title: 'Priority Onboarding', desc: 'Your concierge calls within 12 hours of joining to set everything up.' },
             ].map(({ icon: Icon, title, desc }) => (
               <div key={title} className="flex items-start gap-3">
                 <div className="mt-0.5 w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: 'rgba(201,162,75,0.15)' }}>
