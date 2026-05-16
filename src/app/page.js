@@ -473,9 +473,9 @@ export default function HomePage() {
           </p>
         </div>
       </footer>
-
+      
       {/* Sticky mobile CTA */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[#0B1E3F]/97 backdrop-blur border-t border-white/8 px-5 py-3">
+      {/* <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[#0B1E3F]/97 backdrop-blur border-t border-white/8 px-5 py-3">
         <div className="flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <div className="text-[9px] text-white uppercase tracking-widest">
@@ -499,7 +499,7 @@ export default function HomePage() {
             Enquire Now
           </a>
         </div>
-      </div>
+      </div> */}
       <div className="h-16 md:hidden" />
 
       {/* Exit intent popup */}
