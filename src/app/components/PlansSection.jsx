@@ -126,7 +126,7 @@ const M = {
     num: "05",
     Icon: Crown,
     cta: "Reserve Sovereign",
-    img: "/cards/GWGON_Sovereign.png",
+    img: "/cards/Defender_Sovereign.png",
     accent: "#c9a24b",
     imgFilter: "grayscale(25%) brightness(.62) contrast(1.20) saturate(1.15)",
     imgOverlay:

@@ -182,7 +182,7 @@ export default function TierQuiz() {
                   : recommended.id === 'executive' ? 'BMW_Executive.png'
                   : recommended.id === 'premium' ? 'GLC_Premium.png'
                   : recommended.id === 'elite' ? 'S-Class_Elite.png'
-                  : recommended.id === 'sovereign' ? 'GWGON_Sovereign.png'
+                  : recommended.id === 'sovereign' ? 'Defender_Sovereign.png'
                   : 'Sedan_Essential.png'
                 }`}
                 alt={recommended.name + ' car'}

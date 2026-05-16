@@ -58,7 +58,7 @@ const HERO_IMAGES = {
   executive: '/cards/BMW_Executive.png',
   premium:   '/cards/GLC_Premium.png',
   elite:     '/cards/S-Class_Elite.png',
-  sovereign: '/cards/GWGON_Sovereign.png',
+  sovereign: '/cards/Defender_Sovereign.png',
 };
 
 // Service category imagery for the showcase section
