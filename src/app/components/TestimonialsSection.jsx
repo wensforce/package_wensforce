@@ -34,7 +34,7 @@ const testimonials = [
     plan:'ELITE',
     bannerImage:'/testimonials/weronica_rodowicz.png',
     videoUrl:'https://d2zcmp43lwd2kr.cloudfront.net/videos/Weronica.mp4',
-    videoObjectPosition: 'center 20%',
+    videoObjectPosition: 'center 25%',
   },
   {
     name: 'Pink Sweat',
@@ -112,7 +112,7 @@ function TestimonialCard({ testimonial, isCenter, isPlaying, onPlay, onClose }) 
 
   return (
     <div
-      className="relative rounded-3xl overflow-hidden h-120 bg-black select-none group"
+      className="relative rounded-3xl overflow-hidden h-96 bg-black select-none group"
       style={{ cursor: !isPlaying && isCenter ? 'pointer' : 'default', zIndex: isCenter ? 2 : 1, position: 'relative' }}
       onClick={!isPlaying && isCenter ? onPlay : undefined}
     >

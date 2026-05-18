@@ -72,6 +72,26 @@ export default function Header() {
             >
               How It Works
             </a>
+            <a
+              href="#testimonials"
+              className={`text-sm font-medium transition-colors ${
+                scrolled
+                  ? 'text-gray-600 hover:text-gray-900'
+                  : 'text-white/70 hover:text-white'
+              }`}
+            >
+              Testimonials
+            </a>
+            <a
+              href="#founding"
+              className={`text-sm font-medium transition-colors ${
+                scrolled
+                  ? 'text-gray-600 hover:text-gray-900'
+                  : 'text-white/70 hover:text-white'
+              }`}
+            >
+              Offer
+            </a>
           </nav>
 
           {/* Desktop CTA */}
@@ -133,6 +153,24 @@ export default function Header() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 How It Works
+              </a>
+              <a
+                href="#testimonials"
+                className={`block text-sm font-medium transition-colors ${
+                  scrolled ? 'text-gray-600 hover:text-gray-900' : 'text-white/70 hover:text-white'
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Testimonials
+              </a>
+              <a
+                href="#founding"
+                className={`block text-sm font-medium transition-colors ${
+                  scrolled ? 'text-gray-600 hover:text-gray-900' : 'text-white/70 hover:text-white'
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Offer
               </a>
               <a
                 href="#plans"
