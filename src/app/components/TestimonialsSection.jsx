@@ -160,7 +160,7 @@ function TestimonialCard({ testimonial, isCenter, isPlaying, onPlay, onClose }) 
         }}
       >
         {/* Desktop hover play */}
-        <div className="absolute inset-0 hidden sm:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/10">
+        <div className="absolute  inset-0 hidden sm:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/10">
           {isCenter && (
             <div className="w-16 h-16 rounded-full bg-[#C9A24B] flex items-center justify-center shadow-lg">
               <Play size={32} className="text-black fill-black ml-1" />
@@ -356,10 +356,8 @@ export default function TestimonialsSection() {
           </p>
         </div>
       </div>
-
+     
       <Swiper
-        modules={[EffectCoverflow]}
-        effect="coverflow"
         centeredSlides
         initialSlide={2}
         slidesPerView={1.2}
@@ -395,3 +393,4 @@ export default function TestimonialsSection() {
     </section>
   );
 }
+
