@@ -27,6 +27,16 @@ const testimonials = [
     videoUrl: 'https://d2zcmp43lwd2kr.cloudfront.net/videos/Mark_Robber.mp4',
   },
   {
+    name:'Weronica Rodowicz',
+    role:'Film Director',
+    avatar:'/testimonials/weronica_profile.png',
+    profileUrl:'https://www.instagram.com/letsplantstories/',
+    plan:'ELITE',
+    bannerImage:'/testimonials/weronica_rodowicz.png',
+    videoUrl:'https://d2zcmp43lwd2kr.cloudfront.net/videos/Weronica.mp4',
+    videoObjectPosition: 'center 20%',
+  },
+  {
     name: 'Pink Sweat',
     role: 'American R&B singer and songwriter',
     avatar: '/testimonials/pink_profile.png',
@@ -102,12 +112,12 @@ function TestimonialCard({ testimonial, isCenter, isPlaying, onPlay, onClose }) 
 
   return (
     <div
-      className="relative rounded-3xl overflow-hidden h-96 bg-black select-none group"
-      style={{ cursor: !isPlaying && isCenter ? 'pointer' : 'default' }}
+      className="relative rounded-3xl overflow-hidden h-120 bg-black select-none group"
+      style={{ cursor: !isPlaying && isCenter ? 'pointer' : 'default', zIndex: isCenter ? 2 : 1, position: 'relative' }}
       onClick={!isPlaying && isCenter ? onPlay : undefined}
     >
       {/* Block all clicks on non-center cards */}
-      {!isCenter && <div className="absolute inset-0 z-50" style={{ cursor: 'default' }} />}
+      {!isCenter && <div className="absolute inset-0 z-10" style={{ cursor: 'default' }} />}
 
       {/* Thumbnail — fades out when video plays */}
       <div
@@ -133,6 +143,7 @@ function TestimonialCard({ testimonial, isCenter, isPlaying, onPlay, onClose }) 
           opacity: isPlaying ? 1 : 0,
           transition: 'opacity 0.25s ease',
           pointerEvents: 'none',
+          objectPosition: testimonial.videoObjectPosition || 'center',
         }}
         onTimeUpdate={() => {
           if (seekingRef.current) return;
@@ -358,6 +369,8 @@ export default function TestimonialsSection() {
       </div>
      
       <Swiper
+        modules={[EffectCoverflow]}
+        effect='coverflow'
         centeredSlides
         initialSlide={2}
         slidesPerView={1.2}

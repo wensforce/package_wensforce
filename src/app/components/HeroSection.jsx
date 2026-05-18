@@ -1,32 +1,14 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
-
 const WA_NUMBER = '917304607954';
 
-// Replace this URL with your actual video when ready
 const HERO_VIDEO_URL = 'https://d2zcmp43lwd2kr.cloudfront.net/videos/hero_video.mp4';
 
 export default function HeroSection() {
-  const videoRef = useRef(null);
-
   const heroWaMsg = encodeURIComponent(
     "Hi WENS Force, I'm exploring your subscription. Can you help me find the right tier?"
   );
   const heroWaUrl = `https://wa.me/${WA_NUMBER}?text=${heroWaMsg}`;
-
-  // Start playing video once it's loaded
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const handleCanPlay = () => {
-      video.play().catch(err => console.log('Autoplay prevented:', err));
-    };
-
-    video.addEventListener('canplay', handleCanPlay);
-    return () => video.removeEventListener('canplay', handleCanPlay);
-  }, []);
 
   return (
     <>
@@ -69,12 +51,12 @@ export default function HeroSection() {
       {/* Full-screen video hero */}
       <section className="relative overflow-hidden min-h-screen flex items-center justify-center px-6 md:py-20 py-10 pt-1">
 
-        {/* Background video — plays only after fully loaded */}
+        {/* Background video — autoplay starts immediately as data arrives */}
         <video
-          ref={videoRef}
+          autoPlay
           muted
           loop
-          playsInline
+          preload="auto"
           className="absolute inset-0 w-full h-full object-cover"
           src={HERO_VIDEO_URL}
         />
