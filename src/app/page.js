@@ -22,6 +22,14 @@ import ExitIntentPopup from "./components/ExitIntentPopup";
 import TestimonialsSection from "./components/TestimonialsSection";
 import HeroSection from "./components/HeroSection";
 import FoundingMemberBanner from "./components/FoundingMemberBanner";
+import JsonLd from "./components/JsonLd";
+
+export const metadata = {
+  title: "WENS Force — India's Only Luxury Travel + Armed Protection + VIP Darshan Subscription",
+  description:
+    "Five tiers. One annual fee. Vehicle, bodyguard, and lifestyle privileges pre-arranged for the year. VIP Darshan at Tirupati, Vaishno Devi, Mahakaleshwar. PSARA-licensed security. From ₹24,999/year.",
+  alternates: { canonical: "https://subscription.wensforce.com" },
+};
 const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
 const WA_NUMBER = "917304607954";
 
@@ -353,8 +361,43 @@ function FAQSection() {
 }
 
 export default function HomePage() {
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map((f) => ({
+      "@type": "Question",
+      "name": f.q,
+      "acceptedAnswer": { "@type": "Answer", "text": f.a },
+    })),
+  };
+
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "WENS Force Membership Plans",
+    "itemListElement": plans.map((plan, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "item": {
+        "@type": "Product",
+        "name": `WENS Force ${plan.name} Membership`,
+        "description": plan.tagline,
+        "url": `https://subscription.wensforce.com/membership/${plan.id}`,
+        "offers": {
+          "@type": "Offer",
+          "priceCurrency": "INR",
+          "price": plan.price,
+          "availability": "https://schema.org/InStock",
+          "url": `https://subscription.wensforce.com/booking/${plan.id}`,
+        },
+      },
+    })),
+  };
+
   return (
     <div className="min-h-screen relative">
+      <JsonLd data={faqSchema} />
+      <JsonLd data={itemListSchema} />
       <Header />
 
       {/* ── HERO (with announcement bar + full-screen video) ── */}

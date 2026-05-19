@@ -3,6 +3,7 @@ export default function robots() {
     rules: {
       userAgent: '*',
       allow: '/',
+      disallow: ['/api/', '/booking/confirmation/'],
     },
     sitemap: 'https://subscription.wensforce.com/sitemap.xml',
   }

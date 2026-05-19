@@ -28,9 +28,25 @@ export async function generateMetadata({ params }) {
   const { id } = await params;
   const plan = getPlanById(id);
   if (!plan) return {};
+  const title = `Book ${plan.name} Membership — WENS Force`;
+  const description = `Reserve your ${plan.name} founding membership at ${INR(plan.price)}/year. ${plan.trips} curated journeys, ${plan.bodyguard}, VIP Darshan. Limited founding spots remaining.`;
+  const url = `https://subscription.wensforce.com/booking/${id}`;
   return {
-    title: `Book ${plan.name} Membership — WENS Force`,
-    description: `Reserve your ${plan.name} founding membership at ${INR(plan.price)}/year. ${plan.trips} curated journeys, ${plan.bodyguard}, VIP Darshan. Limited founding spots remaining.`,
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: 'website',
+      locale: 'en_IN',
+      url,
+      title,
+      description,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
   };
 }
 

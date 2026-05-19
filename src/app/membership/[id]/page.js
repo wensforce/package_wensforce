@@ -355,13 +355,35 @@ export async function generateStaticParams() {
   return plans.map((p) => ({ id: p.id }));
 }
 
+export async function generateStaticParams() {
+  return plans.map((p) => ({ id: p.id }));
+}
+
 export async function generateMetadata({ params }) {
   const { id } = await params;
   const plan = getPlanById(id);
   if (!plan) return {};
+  const title = `${plan.name} Membership — WENS Force`;
+  const description = `${plan.tagline}. ${plan.trips} curated journeys/year · ${plan.vehicleType}. From ${INR(plan.price)}/year.`;
+  const url = `https://subscription.wensforce.com/membership/${id}`;
   return {
-    title: `${plan.name} Membership — WENS Force`,
-    description: `${plan.tagline}. ${plan.trips} curated journeys/year · ${plan.vehicleType}. From ${INR(plan.price)}/year.`,
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: 'website',
+      locale: 'en_IN',
+      url,
+      title,
+      description,
+      images: [{ url: HERO_IMAGES[id] || '/og-default.webp', width: 1200, height: 630, alt: `WENS Force ${plan.name} Membership` }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [HERO_IMAGES[id] || '/og-default.webp'],
+    },
   };
 }
 
