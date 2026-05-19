@@ -353,7 +353,7 @@ export default function TestimonialsSection() {
   const [playingIndex, setPlayingIndex] = useState(null);
 
   return (
-    <section style={{ backgroundColor: '#0B1E3F' }} className="py-20 overflow-hidden">
+    <section id="testimonials" style={{ backgroundColor: '#0B1E3F' }} className="py-20 overflow-hidden">
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center mb-12">
           <p className="text-[#C9A24B] text-[10px] tracking-[0.4em] uppercase font-semibold mb-3">
