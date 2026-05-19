@@ -8,6 +8,8 @@ import { Check, Shield, ArrowLeft, Gem, Crown } from 'lucide-react';
 const INR = (n) => '₹' + Number(n).toLocaleString('en-IN');
 const WA_NUMBER = '917304607954';
 const INTL_SURCHARGE = 0.10;
+const GST_RATE = 0.18;
+const CONVENIENCE_FEE_RATE = 0.03;
 
 const CITIES = [
   'Mumbai', 'Delhi NCR', 'Bangalore', 'Hyderabad', 'Chennai',
@@ -193,11 +195,22 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
   const planAccent = PLAN_ACCENTS[plan.id] || PLAN_ACCENTS.essential;
   const isIndia = paymentMethod === 'india';
 
+  // India pricing
+  const gstAmount = Math.ceil(plan.price * GST_RATE);
+  const priceWithGst = plan.price + gstAmount;
+  const convenienceFee = Math.ceil(priceWithGst * CONVENIENCE_FEE_RATE);
+  const indiaTotalINR = priceWithGst + convenienceFee;
+
+  // International pricing
   const intlSurchargeINR = Math.ceil(plan.price * INTL_SURCHARGE);
-  const intlTotalINR = plan.price + intlSurchargeINR;
+  const intlBaseINR = plan.price + intlSurchargeINR;
+  const intlGstAmount = Math.ceil(intlBaseINR * GST_RATE);
+  const intlAfterGst = intlBaseINR + intlGstAmount;
+  const intlConvenienceFee = Math.ceil(intlAfterGst * CONVENIENCE_FEE_RATE);
+  const intlTotalINR = intlAfterGst + intlConvenienceFee;
   const intlTotalUSD = rateLoading ? null : (intlTotalINR / exchangeRate).toFixed(2);
   const spotsLeft = 100 - foundingSpots;
-  const displayPrice = isIndia ? INR(plan.price) : (intlTotalUSD ? `$${intlTotalUSD}` : '…');
+  const displayPrice = isIndia ? INR(indiaTotalINR) : (intlTotalUSD ? `$${intlTotalUSD}` : '…');
 
   const handleMethodChange = (method) => {
     setPaymentMethod(method);
@@ -231,7 +244,7 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            amount: plan.price,
+            amount: indiaTotalINR,
             customerName: form.name.trim(),
             customerPhone: form.phone,
             planId: plan.id,
@@ -605,10 +618,16 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
                   <p className="text-[9px] font-bold text-gray-400 tracking-[0.3em] uppercase mb-3">
                     Order Summary
                   </p>
-
+                    {/* {anchorPrice && (
+                      <div className="flex justify-between items-center text-xs text-gray-400">
+                        <span>Regular price</span>
+                        <span className="line-through tabular-nums">{INR(anchorPrice)}</span>
+                      </div>
+                    )} */}
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 text-sm">{plan.name} Membership</span>
+                      
                       <span className="text-gray-700 text-sm font-semibold tabular-nums">{INR(plan.price)}</span>
                     </div>
                     {!isIndia && (
@@ -620,12 +639,22 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
                         <span className="text-amber-700 text-sm font-semibold tabular-nums">+{INR(intlSurchargeINR)}</span>
                       </div>
                     )}
-                    {anchorPrice && (
-                      <div className="flex justify-between items-center text-xs text-gray-400">
-                        <span>Regular price</span>
-                        <span className="line-through tabular-nums">{INR(anchorPrice)}</span>
-                      </div>
-                    )}
+                   
+                    <div className="flex justify-between items-center">
+                      <span className="flex items-center gap-1.5 text-xs text-gray-500">
+                        <span className="bg-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full">+18%</span>
+                        GST
+                      </span>
+                      <span className="text-gray-600 text-sm font-semibold tabular-nums">+{INR(isIndia ? gstAmount : intlGstAmount)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="flex items-center gap-1.5 text-xs text-gray-500">
+                        <span className="bg-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full">+3%</span>
+                        Convenience fee
+                      </span>
+                      <span className="text-gray-600 text-sm font-semibold tabular-nums">+{INR(isIndia ? convenienceFee : intlConvenienceFee)}</span>
+                    </div>
+                   
                   </div>
 
                   <div
@@ -637,7 +666,7 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
                     </span>
                     <div className="text-right">
                       {isIndia ? (
-                        <span className="text-gray-900 text-lg font-black tabular-nums">{INR(plan.price)}</span>
+                        <span className="text-gray-900 text-lg font-black tabular-nums">{INR(indiaTotalINR)}</span>
                       ) : (
                         <>
                           <span className="text-gray-900 text-lg font-black tabular-nums">
@@ -658,7 +687,7 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
                 <button
                   type="submit"
                   disabled={loading || (!isIndia && rateLoading)}
-                  className="w-full py-4 rounded-xl font-black text-sm tracking-wide transition-all hover:opacity-95 hover:-translate-y-0.5 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
+                  className="w-full py-4 rounded-xl font-black text-md tracking-wide transition-all hover:opacity-95 hover:-translate-y-0.5 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
                   style={{
                     background: 'linear-gradient(135deg,#C9A24B 0%,#f0c940 50%,#C9A24B 100%)',
                     color: '#000',
@@ -678,7 +707,7 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
                       {plan.id === 'elite' && <Gem size={14} strokeWidth={2.5} />}
                       {plan.id === 'sovereign' && <Crown size={14} strokeWidth={2.5} />}
                       {isIndia
-                        ? `Pay ${INR(plan.price)} · India`
+                        ? `Pay ${INR(indiaTotalINR)} · India`
                         : `Pay $${intlTotalUSD || '…'} · International`}
                     </span>
                   )}
@@ -727,7 +756,6 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
                 {[
                   { icon: '🔒', text: 'Secure & Private' },
                   { icon: '✓', text: 'GST Registered' },
-                  { icon: '★', text: 'All-Inclusive' },
                 ].map(({ icon, text }) => (
                   <span key={text} className="flex items-center gap-1.5 text-[10px] text-gray-400">
                     <span>{icon}</span> {text}
