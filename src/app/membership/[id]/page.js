@@ -355,10 +355,6 @@ export async function generateStaticParams() {
   return plans.map((p) => ({ id: p.id }));
 }
 
-export async function generateStaticParams() {
-  return plans.map((p) => ({ id: p.id }));
-}
-
 export async function generateMetadata({ params }) {
   const { id } = await params;
   const plan = getPlanById(id);
