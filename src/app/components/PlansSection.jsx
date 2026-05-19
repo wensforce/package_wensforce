@@ -102,7 +102,7 @@ const M = {
     num: "04",
     Icon: Gem,
     cta: "Claim Elite Access",
-    img: "/cards/S-Class_Elite.png",
+    img: "/cards/S-Class_Elite_v2.jpg",
     accent: "#7a8a9a",
     imgFilter: "grayscale(35%) brightness(.50) contrast(1.08)",
     imgOverlay:
@@ -126,7 +126,7 @@ const M = {
     num: "05",
     Icon: Crown,
     cta: "Reserve Sovereign",
-    img: "/cards/Defender_Sovereign.png",
+    img: "/cards/Defender_Sovereign_v2.png",
     accent: "#c9a24b",
     imgFilter: "grayscale(25%) brightness(.62) contrast(1.20) saturate(1.15)",
     imgOverlay:
@@ -266,7 +266,7 @@ export default function PlansSection() {
                     src={m.img}
                     alt={plan.name}
                     className="pc-img absolute inset-0 w-full h-full object-cover"
-                    style={{ filter: m.imgFilter, transform: "scale(1)" }}
+                    style={{ filter: m.imgFilter, transform: "scale(1)", }}
                   />
                   {m.isElite && (
                     <div

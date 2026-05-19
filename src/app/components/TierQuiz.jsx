@@ -178,12 +178,12 @@ export default function TierQuiz() {
             <div className="w-full aspect-[2/1] mb-6 rounded-xl overflow-hidden border border-gray-100 bg-white shadow-sm">
               <img
                 src={`/cards/${
-                  recommended.id === 'essential' ? 'Sedan_Essential.png'
-                  : recommended.id === 'executive' ? 'BMW_Executive.png'
-                  : recommended.id === 'premium' ? 'GLC_Premium.png'
-                  : recommended.id === 'elite' ? 'S-Class_Elite.png'
-                  : recommended.id === 'sovereign' ? 'Defender_Sovereign.png'
-                  : 'Sedan_Essential.png'
+                  recommended.id === 'essential' ? 'Sedan_Essential_Desktop.png'
+                  : recommended.id === 'executive' ? 'BMW_Executive_v2.png'
+                  : recommended.id === 'premium' ? 'GLC_Premium_v2.png'
+                  : recommended.id === 'elite' ? 'S-Class_Elite_v2.jpg'
+                  : recommended.id === 'sovereign' ? 'Defender_Sovereign_v2.png'
+                  : 'Sedan_Essential_Desktop.png'
                 }`}
                 alt={recommended.name + ' car'}
                 className="w-full h-full object-cover"

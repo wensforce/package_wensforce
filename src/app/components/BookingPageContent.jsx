@@ -53,11 +53,11 @@ const TIER_HIGHLIGHTS = {
 };
 
 const PLAN_IMAGES = {
-  essential: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=900&q=85',
-  executive: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=900&q=85',
-  premium:   'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=900&q=85',
-  elite:     'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=900&q=85',
-  sovereign: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=900&q=85',
+  essential: '/cards/Sedan_Essential_Desktop.png',
+  executive: '/cards/BMW_Executive_v2.png',
+  premium:   '/cards/GLC_Premium_v2.png',
+  elite:     '/cards/S-Class_Elite_v2.jpg',
+  sovereign: '/cards/Defender_Sovereign_v2.png',
 };
 
 const PLAN_ACCENTS = {

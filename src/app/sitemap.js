@@ -1,4 +1,4 @@
-const BASE_URL = 'https://www.wensforce.com';
+const BASE_URL = 'https://subscription.wensforce.com';
 
 const PLAN_IDS = ['essential', 'executive', 'premium', 'elite', 'sovereign'];
 

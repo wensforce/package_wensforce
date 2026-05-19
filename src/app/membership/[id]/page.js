@@ -54,11 +54,11 @@ const NOT_INCLUDED = {
 
 // Per-plan hero imagery (high-res, confirmed Unsplash IDs)
 const HERO_IMAGES = {
-  essential: '/cards/Sedan_Essential.png',
-  executive: '/cards/BMW_Executive.png',
-  premium:   '/cards/GLC_Premium.png',
-  elite:     '/cards/S-Class_Elite.png',
-  sovereign: '/cards/Defender_Sovereign.png',
+  essential: '/cards/Sedan_Essential_Desktop.png',
+  executive: '/cards/BMW_Executive_v2.png',
+  premium:   '/cards/GLC_Premium_v2.png',
+  elite:     '/cards/S-Class_Elite_v2.jpg',
+  sovereign: '/cards/Defender_Sovereign_v2.png',
 };
 
 // Service category imagery for the showcase section
