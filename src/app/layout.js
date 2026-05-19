@@ -4,6 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 import FloatingWhatsApp from "./components/FloatingWhatsApp";
 import LiveActivityTicker from "./components/LiveActivityTicker";
+import { Analytics } from "@vercel/analytics/next"
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -62,6 +63,7 @@ export default function RootLayout({ children }) {
         {children}
         <FloatingWhatsApp />
         <LiveActivityTicker />
+        <Analytics />
       </body>
     </html>
   );
