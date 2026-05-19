@@ -74,7 +74,7 @@ const faqs = [
 
 const COMPARISON_ROWS = [
   {
-    label: "Privileges Worth",
+    label: "Add-on Extras Worth",
     values: [
       INR(plans[0].freePerksWorth),
       INR(plans[1].freePerksWorth),
