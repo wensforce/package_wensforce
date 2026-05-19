@@ -214,16 +214,7 @@ function TestimonialCard({ testimonial, isCenter, isPlaying, onPlay, onClose }) 
               </div>
             )}
           </div>
-          <span
-            className="inline-block text-[8px] font-bold px-2.5 py-1 rounded-full border"
-            style={{
-              backgroundColor: 'rgba(201,162,75,0.2)',
-              color: '#C9A24B',
-              borderColor: 'rgba(201,162,75,0.4)',
-            }}
-          >
-            {testimonial.plan}
-          </span>
+          
         </div>
       </div>
 
