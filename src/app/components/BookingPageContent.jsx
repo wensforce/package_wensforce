@@ -388,13 +388,11 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
   const convenienceFee = Math.ceil(priceWithGst * CONVENIENCE_FEE_RATE);
   const indiaTotalINR = priceWithGst + convenienceFee;
 
-  // International pricing
+  // International pricing (no GST for overseas customers)
   const intlSurchargeINR = Math.ceil(plan.price * INTL_SURCHARGE);
   const intlBaseINR = plan.price + intlSurchargeINR;
-  const intlGstAmount = Math.ceil(intlBaseINR * GST_RATE);
-  const intlAfterGst = intlBaseINR + intlGstAmount;
-  const intlConvenienceFee = Math.ceil(intlAfterGst * CONVENIENCE_FEE_RATE);
-  const intlTotalINR = intlAfterGst + intlConvenienceFee;
+  const intlConvenienceFee = Math.ceil(intlBaseINR * CONVENIENCE_FEE_RATE);
+  const intlTotalINR = intlBaseINR + intlConvenienceFee;
   const intlTotalForeign = currencyRateLoading ? null : roundForeign(intlTotalINR / currencyRate, selectedCurrency);
 
   // Convert any INR amount to the selected foreign currency (for line-item display)
@@ -920,20 +918,17 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
                       </div>
                     )}
                    
-                    <div className="flex justify-between items-center">
-                      <span className="flex items-center gap-1.5 text-xs text-gray-500">
-                        <span className="bg-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full">+18%</span>
-                        GST
-                      </span>
-                      <div className="text-right">
-                        <span className="text-gray-600 text-sm font-semibold tabular-nums">
-                          +{isIndia ? INR(gstAmount) : toForeign(intlGstAmount)}
+                    {isIndia && (
+                      <div className="flex justify-between items-center">
+                        <span className="flex items-center gap-1.5 text-xs text-gray-500">
+                          <span className="bg-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full">+18%</span>
+                          GST
                         </span>
-                        {!isIndia && !currencyRateLoading && (
-                          <p className="text-gray-400 text-[10px] tabular-nums">+{INR(intlGstAmount)}</p>
-                        )}
+                        <div className="text-right">
+                          <span className="text-gray-600 text-sm font-semibold tabular-nums">+{INR(gstAmount)}</span>
+                        </div>
                       </div>
-                    </div>
+                    )}
                     <div className="flex justify-between items-center">
                       <span className="flex items-center gap-1.5 text-xs text-gray-500">
                         <span className="bg-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full">+3%</span>
