@@ -11,6 +11,189 @@ const INTL_SURCHARGE = 0.10;
 const GST_RATE = 0.18;
 const CONVENIENCE_FEE_RATE = 0.03;
 
+// Top international currencies — keep codes in sync with API routes
+const CURRENCIES = [
+  // ── Common / High-traffic ──────────────────────────────────────────────────
+  { code: 'USD', name: 'US Dollar',              flag: '🇺🇸', symbol: '$',    country: 'United States' },
+  { code: 'GBP', name: 'British Pound',          flag: '🇬🇧', symbol: '£',    country: 'United Kingdom' },
+  { code: 'THB', name: 'Thai Baht',              flag: '🇹🇭', symbol: '฿',    country: 'Thailand' },
+  { code: 'AED', name: 'UAE Dirham',             flag: '🇦🇪', symbol: 'AED ', country: 'United Arab Emirates' },
+  { code: 'EUR', name: 'Euro',                   flag: '🇪🇺', symbol: '€',    country: 'European Union' },
+  { code: 'AUD', name: 'Australian Dollar',      flag: '🇦🇺', symbol: 'A$',   country: 'Australia' },
+  { code: 'CNY', name: 'Chinese Yuan',           flag: '🇨🇳', symbol: '¥',    country: 'China' },
+  { code: 'LKR', name: 'Sri Lankan Rupee',       flag: '🇱🇰', symbol: 'LKR ', country: 'Sri Lanka' },
+  { code: 'MYR', name: 'Malaysian Ringgit',      flag: '🇲🇾', symbol: 'MYR ', country: 'Malaysia' },
+  { code: 'VND', name: 'Vietnamese Dong',        flag: '🇻🇳', symbol: '₫',    country: 'Vietnam' },
+  { code: 'SGD', name: 'Singapore Dollar',       flag: '🇸🇬', symbol: 'S$',   country: 'Singapore' },
+  { code: 'SAR', name: 'Saudi Riyal',            flag: '🇸🇦', symbol: 'SAR ', country: 'Saudi Arabia' },
+  { code: 'ZAR', name: 'South African Rand',     flag: '🇿🇦', symbol: 'ZAR ', country: 'South Africa' },
+  { code: 'CHF', name: 'Swiss Franc',            flag: '🇨🇭', symbol: 'Fr ',  country: 'Switzerland' },
+  { code: 'CAD', name: 'Canadian Dollar',        flag: '🇨🇦', symbol: 'C$',   country: 'Canada' },
+  { code: 'NPR', name: 'Nepalese Rupee',         flag: '🇳🇵', symbol: 'NPR ', country: 'Nepal' },
+  { code: 'OMR', name: 'Omani Rial',             flag: '🇴🇲', symbol: 'OMR ', country: 'Oman' },
+  { code: 'HKD', name: 'Hong Kong Dollar',       flag: '🇭🇰', symbol: 'HK$',  country: 'Hong Kong' },
+  { code: 'BDT', name: 'Bangladeshi Taka',       flag: '🇧🇩', symbol: '৳',    country: 'Bangladesh' },
+  { code: 'JPY', name: 'Japanese Yen',           flag: '🇯🇵', symbol: '¥',    country: 'Japan' },
+  { code: 'SEK', name: 'Swedish Krona',          flag: '🇸🇪', symbol: 'SEK ', country: 'Sweden' },
+  { code: 'QAR', name: 'Qatari Riyal',           flag: '🇶🇦', symbol: 'QAR ', country: 'Qatar' },
+  { code: 'NZD', name: 'New Zealand Dollar',     flag: '🇳🇿', symbol: 'NZ$',  country: 'New Zealand' },
+  { code: 'ILS', name: 'Israeli New Shekel',     flag: '🇮🇱', symbol: '₪',    country: 'Israel' },
+  { code: 'KWD', name: 'Kuwaiti Dinar',          flag: '🇰🇼', symbol: 'KWD ', country: 'Kuwait' },
+  { code: 'BHD', name: 'Bahraini Dinar',         flag: '🇧🇭', symbol: 'BHD ', country: 'Bahrain' },
+  { code: 'DKK', name: 'Danish Krone',           flag: '🇩🇰', symbol: 'kr ',  country: 'Denmark' },
+  { code: 'KES', name: 'Kenyan Shilling',        flag: '🇰🇪', symbol: 'KES ', country: 'Kenya' },
+  { code: 'MUR', name: 'Mauritian Rupee',        flag: '🇲🇺', symbol: 'MUR ', country: 'Mauritius' },
+  { code: 'NOK', name: 'Norwegian Krone',        flag: '🇳🇴', symbol: 'NOK ', country: 'Norway' },
+  { code: 'PHP', name: 'Philippine Peso',        flag: '🇵🇭', symbol: '₱',    country: 'Philippines' },
+  { code: 'RUB', name: 'Russian Ruble',          flag: '🇷🇺', symbol: '₽',    country: 'Russia' },
+  // ── A ──────────────────────────────────────────────────────────────────────
+  { code: 'AFN', name: 'Afghan Afghani',         flag: '🇦🇫', symbol: '؋',    country: 'Afghanistan' },
+  { code: 'ALL', name: 'Albanian Lek',           flag: '🇦🇱', symbol: 'L ',   country: 'Albania' },
+  { code: 'DZD', name: 'Algerian Dinar',         flag: '🇩🇿', symbol: 'DZD ', country: 'Algeria' },
+  { code: 'AOA', name: 'Angolan Kwanza',         flag: '🇦🇴', symbol: 'Kz ',  country: 'Angola' },
+  { code: 'XCD', name: 'East Caribbean Dollar',  flag: '🌴', symbol: 'EC$',  country: 'East Caribbean' },
+  { code: 'ARS', name: 'Argentine Peso',         flag: '🇦🇷', symbol: '$',    country: 'Argentina' },
+  { code: 'AMD', name: 'Armenian Dram',          flag: '🇦🇲', symbol: 'AMD ', country: 'Armenia' },
+  { code: 'AWG', name: 'Aruban Florin',          flag: '🇦🇼', symbol: 'ƒ',    country: 'Aruba' },
+  { code: 'AZN', name: 'Azerbaijani Manat',      flag: '🇦🇿', symbol: '₼',    country: 'Azerbaijan' },
+  // ── B ──────────────────────────────────────────────────────────────────────
+  { code: 'BSD', name: 'Bahamian Dollar',        flag: '🇧🇸', symbol: '$',    country: 'Bahamas' },
+  { code: 'BBD', name: 'Barbadian Dollar',       flag: '🇧🇧', symbol: '$',    country: 'Barbados' },
+  { code: 'BZD', name: 'Belize Dollar',          flag: '🇧🇿', symbol: 'BZ$',  country: 'Belize' },
+  { code: 'XOF', name: 'West African CFA Franc', flag: '🌍', symbol: 'XOF ', country: 'West Africa' },
+  { code: 'BMD', name: 'Bermudian Dollar',       flag: '🇧🇲', symbol: '$',    country: 'Bermuda' },
+  { code: 'BTN', name: 'Bhutanese Ngultrum',     flag: '🇧🇹', symbol: 'Nu ',  country: 'Bhutan' },
+  { code: 'BOB', name: 'Bolivian Boliviano',     flag: '🇧🇴', symbol: 'Bs ',  country: 'Bolivia' },
+  { code: 'BWP', name: 'Botswana Pula',          flag: '🇧🇼', symbol: 'P ',   country: 'Botswana' },
+  { code: 'BAM', name: 'Bosnia-Herzegovina Mark',flag: '🇧🇦', symbol: 'KM ',  country: 'Bosnia & Herzegovina' },
+  { code: 'BRL', name: 'Brazilian Real',         flag: '🇧🇷', symbol: 'R$',   country: 'Brazil' },
+  { code: 'BND', name: 'Brunei Dollar',          flag: '🇧🇳', symbol: '$',    country: 'Brunei' },
+  { code: 'BGN', name: 'Bulgarian Lev',          flag: '🇧🇬', symbol: 'лв ',  country: 'Bulgaria' },
+  { code: 'BIF', name: 'Burundian Franc',        flag: '🇧🇮', symbol: 'Fr ',  country: 'Burundi' },
+  // ── C ──────────────────────────────────────────────────────────────────────
+  { code: 'KHR', name: 'Cambodian Riel',         flag: '🇰🇭', symbol: '៛',    country: 'Cambodia' },
+  { code: 'XAF', name: 'Central African CFA',    flag: '🌍', symbol: 'XAF ', country: 'Central Africa' },
+  { code: 'CVE', name: 'Cape Verdean Escudo',    flag: '🇨🇻', symbol: '$',    country: 'Cape Verde' },
+  { code: 'KYD', name: 'Cayman Islands Dollar',  flag: '🇰🇾', symbol: '$',    country: 'Cayman Islands' },
+  { code: 'CLP', name: 'Chilean Peso',           flag: '🇨🇱', symbol: '$',    country: 'Chile' },
+  { code: 'COP', name: 'Colombian Peso',         flag: '🇨🇴', symbol: '$',    country: 'Colombia' },
+  { code: 'KMF', name: 'Comorian Franc',         flag: '🇰🇲', symbol: 'Fr ',  country: 'Comoros' },
+  { code: 'CRC', name: 'Costa Rican Colón',      flag: '🇨🇷', symbol: '₡',    country: 'Costa Rica' },
+  { code: 'CZK', name: 'Czech Koruna',           flag: '🇨🇿', symbol: 'Kč ',  country: 'Czech Republic' },
+  // ── D ──────────────────────────────────────────────────────────────────────
+  { code: 'CDF', name: 'Congolese Franc',        flag: '🇨🇩', symbol: 'Fr ',  country: 'DR Congo' },
+  { code: 'DJF', name: 'Djiboutian Franc',       flag: '🇩🇯', symbol: 'Fr ',  country: 'Djibouti' },
+  { code: 'DOP', name: 'Dominican Peso',         flag: '🇩🇴', symbol: '$',    country: 'Dominican Republic' },
+  // ── E ──────────────────────────────────────────────────────────────────────
+  { code: 'EGP', name: 'Egyptian Pound',         flag: '🇪🇬', symbol: '£',    country: 'Egypt' },
+  { code: 'ERN', name: 'Eritrean Nakfa',         flag: '🇪🇷', symbol: 'Nfk ', country: 'Eritrea' },
+  { code: 'ETB', name: 'Ethiopian Birr',         flag: '🇪🇹', symbol: 'Br ',  country: 'Ethiopia' },
+  // ── F ──────────────────────────────────────────────────────────────────────
+  { code: 'FJD', name: 'Fijian Dollar',          flag: '🇫🇯', symbol: '$',    country: 'Fiji' },
+  { code: 'FKP', name: 'Falkland Islands Pound', flag: '🇫🇰', symbol: '£',    country: 'Falkland Islands' },
+  // ── G ──────────────────────────────────────────────────────────────────────
+  { code: 'GMD', name: 'Gambian Dalasi',         flag: '🇬🇲', symbol: 'D ',   country: 'Gambia' },
+  { code: 'GEL', name: 'Georgian Lari',          flag: '🇬🇪', symbol: '₾',    country: 'Georgia' },
+  { code: 'GHS', name: 'Ghanaian Cedi',          flag: '🇬🇭', symbol: 'GH₵',  country: 'Ghana' },
+  { code: 'GIP', name: 'Gibraltar Pound',        flag: '🇬🇮', symbol: '£',    country: 'Gibraltar' },
+  { code: 'GTQ', name: 'Guatemalan Quetzal',     flag: '🇬🇹', symbol: 'Q ',   country: 'Guatemala' },
+  { code: 'GNF', name: 'Guinean Franc',          flag: '🇬🇳', symbol: 'Fr ',  country: 'Guinea' },
+  { code: 'GYD', name: 'Guyanese Dollar',        flag: '🇬🇾', symbol: '$',    country: 'Guyana' },
+  // ── H ──────────────────────────────────────────────────────────────────────
+  { code: 'HTG', name: 'Haitian Gourde',         flag: '🇭🇹', symbol: 'G ',   country: 'Haiti' },
+  { code: 'HNL', name: 'Honduran Lempira',       flag: '🇭🇳', symbol: 'L ',   country: 'Honduras' },
+  { code: 'HUF', name: 'Hungarian Forint',       flag: '🇭🇺', symbol: 'Ft ',  country: 'Hungary' },
+  // ── I ──────────────────────────────────────────────────────────────────────
+  { code: 'ISK', name: 'Icelandic Króna',        flag: '🇮🇸', symbol: 'kr ',  country: 'Iceland' },
+  { code: 'IDR', name: 'Indonesian Rupiah',      flag: '🇮🇩', symbol: 'Rp ',  country: 'Indonesia' },
+  { code: 'IQD', name: 'Iraqi Dinar',            flag: '🇮🇶', symbol: 'IQD ', country: 'Iraq' },
+  // ── J ──────────────────────────────────────────────────────────────────────
+  { code: 'JMD', name: 'Jamaican Dollar',        flag: '🇯🇲', symbol: '$',    country: 'Jamaica' },
+  { code: 'JOD', name: 'Jordanian Dinar',        flag: '🇯🇴', symbol: 'JOD ', country: 'Jordan' },
+  // ── K ──────────────────────────────────────────────────────────────────────
+  { code: 'KZT', name: 'Kazakhstani Tenge',      flag: '🇰🇿', symbol: '₸',    country: 'Kazakhstan' },
+  { code: 'KGS', name: 'Kyrgyzstani Som',        flag: '🇰🇬', symbol: 'с ',   country: 'Kyrgyzstan' },
+  { code: 'KRW', name: 'South Korean Won',       flag: '🇰🇷', symbol: '₩',    country: 'South Korea' },
+  // ── L ──────────────────────────────────────────────────────────────────────
+  { code: 'LAK', name: 'Lao Kip',               flag: '🇱🇦', symbol: '₭',    country: 'Laos' },
+  { code: 'LBP', name: 'Lebanese Pound',        flag: '🇱🇧', symbol: 'LBP ', country: 'Lebanon' },
+  { code: 'LRD', name: 'Liberian Dollar',        flag: '🇱🇷', symbol: '$',    country: 'Liberia' },
+  { code: 'LYD', name: 'Libyan Dinar',           flag: '🇱🇾', symbol: 'LYD ', country: 'Libya' },
+  // ── M ──────────────────────────────────────────────────────────────────────
+  { code: 'MAD', name: 'Moroccan Dirham',        flag: '🇲🇦', symbol: 'MAD ', country: 'Morocco' },
+  { code: 'MDL', name: 'Moldovan Leu',           flag: '🇲🇩', symbol: 'L ',   country: 'Moldova' },
+  { code: 'MGA', name: 'Malagasy Ariary',        flag: '🇲🇬', symbol: 'Ar ',  country: 'Madagascar' },
+  { code: 'MKD', name: 'Macedonian Denar',       flag: '🇲🇰', symbol: 'den ', country: 'North Macedonia' },
+  { code: 'MNT', name: 'Mongolian Tögrög',       flag: '🇲🇳', symbol: '₮',    country: 'Mongolia' },
+  { code: 'MOP', name: 'Macanese Pataca',        flag: '🇲🇴', symbol: 'P ',   country: 'Macau' },
+  { code: 'MRU', name: 'Mauritanian Ouguiya',    flag: '🇲🇷', symbol: 'UM ',  country: 'Mauritania' },
+  { code: 'MVR', name: 'Maldivian Rufiyaa',      flag: '🇲🇻', symbol: 'Rf ',  country: 'Maldives' },
+  { code: 'MWK', name: 'Malawian Kwacha',        flag: '🇲🇼', symbol: 'MK ',  country: 'Malawi' },
+  { code: 'MXN', name: 'Mexican Peso',           flag: '🇲🇽', symbol: '$',    country: 'Mexico' },
+  { code: 'MZN', name: 'Mozambican Metical',     flag: '🇲🇿', symbol: 'MT ',  country: 'Mozambique' },
+  // ── N ──────────────────────────────────────────────────────────────────────
+  { code: 'NAD', name: 'Namibian Dollar',        flag: '🇳🇦', symbol: '$',    country: 'Namibia' },
+  { code: 'NGN', name: 'Nigerian Naira',         flag: '🇳🇬', symbol: '₦',    country: 'Nigeria' },
+  { code: 'NIO', name: 'Nicaraguan Córdoba',     flag: '🇳🇮', symbol: 'C$',   country: 'Nicaragua' },
+  // ── P ──────────────────────────────────────────────────────────────────────
+  { code: 'PGK', name: 'Papua New Guinean Kina', flag: '🇵🇬', symbol: 'K ',   country: 'Papua New Guinea' },
+  { code: 'PYG', name: 'Paraguayan Guaraní',     flag: '🇵🇾', symbol: '₲',    country: 'Paraguay' },
+  { code: 'PEN', name: 'Peruvian Sol',           flag: '🇵🇪', symbol: 'S/',   country: 'Peru' },
+  { code: 'PLN', name: 'Polish Złoty',           flag: '🇵🇱', symbol: 'zł ',  country: 'Poland' },
+  // ── R ──────────────────────────────────────────────────────────────────────
+  { code: 'RON', name: 'Romanian Leu',           flag: '🇷🇴', symbol: 'lei ', country: 'Romania' },
+  { code: 'RSD', name: 'Serbian Dinar',          flag: '🇷🇸', symbol: 'din ', country: 'Serbia' },
+  { code: 'RWF', name: 'Rwandan Franc',          flag: '🇷🇼', symbol: 'Fr ',  country: 'Rwanda' },
+  // ── S ──────────────────────────────────────────────────────────────────────
+  { code: 'SBD', name: 'Solomon Islands Dollar', flag: '🇸🇧', symbol: '$',    country: 'Solomon Islands' },
+  { code: 'SCR', name: 'Seychellois Rupee',      flag: '🇸🇨', symbol: 'SR ',  country: 'Seychelles' },
+  { code: 'SHP', name: 'Saint Helena Pound',     flag: '🇸🇭', symbol: '£',    country: 'Saint Helena' },
+  { code: 'SLL', name: 'Sierra Leonean Leone',   flag: '🇸🇱', symbol: 'Le ',  country: 'Sierra Leone' },
+  { code: 'SOS', name: 'Somali Shilling',        flag: '🇸🇴', symbol: 'Sh ',  country: 'Somalia' },
+  { code: 'SRD', name: 'Surinamese Dollar',      flag: '🇸🇷', symbol: '$',    country: 'Suriname' },
+  { code: 'SZL', name: 'Swazi Lilangeni',        flag: '🇸🇿', symbol: 'L ',   country: 'Eswatini' },
+  // ── T ──────────────────────────────────────────────────────────────────────
+  { code: 'TJS', name: 'Tajikistani Somoni',     flag: '🇹🇯', symbol: 'SM ',  country: 'Tajikistan' },
+  { code: 'TMT', name: 'Turkmenistani Manat',    flag: '🇹🇲', symbol: 'T ',   country: 'Turkmenistan' },
+  { code: 'TND', name: 'Tunisian Dinar',         flag: '🇹🇳', symbol: 'TND ', country: 'Tunisia' },
+  { code: 'TOP', name: 'Tongan Paʻanga',         flag: '🇹🇴', symbol: 'T$',   country: 'Tonga' },
+  { code: 'TTD', name: 'Trinidad & Tobago Dollar',flag: '🇹🇹', symbol: '$',   country: 'Trinidad & Tobago' },
+  { code: 'TRY', name: 'Turkish Lira',           flag: '🇹🇷', symbol: '₺',    country: 'Turkey' },
+  { code: 'TWD', name: 'New Taiwan Dollar',      flag: '🇹🇼', symbol: 'NT$',  country: 'Taiwan' },
+  { code: 'TZS', name: 'Tanzanian Shilling',     flag: '🇹🇿', symbol: 'Sh ',  country: 'Tanzania' },
+  // ── U ──────────────────────────────────────────────────────────────────────
+  { code: 'UAH', name: 'Ukrainian Hryvnia',      flag: '🇺🇦', symbol: '₴',    country: 'Ukraine' },
+  { code: 'UGX', name: 'Ugandan Shilling',       flag: '🇺🇬', symbol: 'Sh ',  country: 'Uganda' },
+  { code: 'UYU', name: 'Uruguayan Peso',         flag: '🇺🇾', symbol: '$',    country: 'Uruguay' },
+  { code: 'UZS', name: 'Uzbekistani Som',        flag: '🇺🇿', symbol: 'UZS ', country: 'Uzbekistan' },
+  // ── V–Z ────────────────────────────────────────────────────────────────────
+  { code: 'VUV', name: 'Vanuatu Vatu',           flag: '🇻🇺', symbol: 'Vt ',  country: 'Vanuatu' },
+  { code: 'WST', name: 'Samoan Tālā',            flag: '🇼🇸', symbol: 'T ',   country: 'Samoa' },
+  { code: 'XPF', name: 'CFP Franc',              flag: '🇵🇫', symbol: 'Fr ',  country: 'French Polynesia' },
+  { code: 'YER', name: 'Yemeni Rial',            flag: '🇾🇪', symbol: 'YER ', country: 'Yemen' },
+  { code: 'ZMW', name: 'Zambian Kwacha',         flag: '🇿🇲', symbol: 'ZK ',  country: 'Zambia' },
+];
+
+// Currencies with no decimal places
+const ZERO_DECIMAL = new Set(['JPY','KRW','IDR','VND','BIF','CLP','DJF','GNF','ISK','KMF','MGA','PYG','RWF','UGX','VUV','XAF','XOF','XPF']);
+// Currencies with 3 decimal places
+const THREE_DECIMAL = new Set(['KWD','BHD','OMR','JOD','TND','IQD','LYD']);
+
+// Format an amount in a foreign currency
+const fmtForeign = (amount, code) => {
+  if (amount === null || amount === undefined || isNaN(amount)) return '…';
+  const decimals = ZERO_DECIMAL.has(code) ? 0 : THREE_DECIMAL.has(code) ? 3 : 2;
+  const sym = CURRENCIES.find((c) => c.code === code)?.symbol ?? '';
+  return sym + Number(amount).toFixed(decimals);
+};
+
+// Round foreign amount up to the appropriate decimal precision
+const roundForeign = (amount, code) => {
+  if (ZERO_DECIMAL.has(code)) return Math.ceil(amount);
+  if (THREE_DECIMAL.has(code)) return Math.ceil(amount * 1000) / 1000;
+  return Math.ceil(amount * 100) / 100;
+};
+
 const CITIES = [
   'Mumbai', 'Delhi NCR', 'Bangalore', 'Hyderabad', 'Chennai',
   'Pune', 'Kolkata', 'Ahmedabad', 'Jaipur', 'Lucknow', 'Other',
@@ -174,26 +357,30 @@ function SuccessState({ plan, form }) {
 
 // ── Main Component ────────────────────────────────────────────────────────────
 export default function BookingPageContent({ plan, anchorPrice, foundingSpots }) {
-  const [form, setForm] = useState({ name: '', phone: '', city: '' });
+  const [form, setForm] = useState({ name: '', phone: '', email: '', city: '' });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [payError, setPayError] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('india');
-  const [exchangeRate, setExchangeRate] = useState(95);
-  const [rateLoading, setRateLoading] = useState(true);
+  const [selectedCurrency, setSelectedCurrency] = useState('USD');
+  const [currencyRate, setCurrencyRate] = useState(94); // INR per 1 unit of selectedCurrency
+  const [currencyRateLoading, setCurrencyRateLoading] = useState(false);
 
   useEffect(() => {
-    fetch('/api/exchange-rate')
+    if (paymentMethod === 'india') return;
+    setCurrencyRateLoading(true);
+    fetch(`/api/exchange-rate?currency=${selectedCurrency}`)
       .then((r) => r.json())
-      .then((d) => setExchangeRate(d.rate || 95))
+      .then((d) => setCurrencyRate(d.rate || 94))
       .catch(() => {})
-      .finally(() => setRateLoading(false));
-  }, []);
+      .finally(() => setCurrencyRateLoading(false));
+  }, [paymentMethod, selectedCurrency]);
 
   const highlights = TIER_HIGHLIGHTS[plan.id] || [];
   const planAccent = PLAN_ACCENTS[plan.id] || PLAN_ACCENTS.essential;
   const isIndia = paymentMethod === 'india';
+  const currencyData = CURRENCIES.find((c) => c.code === selectedCurrency) ?? CURRENCIES[0];
 
   // India pricing
   const gstAmount = Math.ceil(plan.price * GST_RATE);
@@ -208,13 +395,19 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
   const intlAfterGst = intlBaseINR + intlGstAmount;
   const intlConvenienceFee = Math.ceil(intlAfterGst * CONVENIENCE_FEE_RATE);
   const intlTotalINR = intlAfterGst + intlConvenienceFee;
-  const intlTotalUSD = rateLoading ? null : (intlTotalINR / exchangeRate).toFixed(2);
+  const intlTotalForeign = currencyRateLoading ? null : roundForeign(intlTotalINR / currencyRate, selectedCurrency);
+
+  // Convert any INR amount to the selected foreign currency (for line-item display)
+  const toForeign = (inrAmount) =>
+    currencyRateLoading ? '…' : fmtForeign(roundForeign(inrAmount / currencyRate, selectedCurrency), selectedCurrency);
+
   const spotsLeft = 100 - foundingSpots;
-  const displayPrice = isIndia ? INR(indiaTotalINR) : (intlTotalUSD ? `$${intlTotalUSD}` : '…');
+  const displayPrice = isIndia ? INR(indiaTotalINR) : fmtForeign(intlTotalForeign, selectedCurrency);
 
   const handleMethodChange = (method) => {
     setPaymentMethod(method);
-    setForm((f) => ({ ...f, phone: '' }));
+    setForm((f) => ({ ...f, phone: '', email: '' }));
+    if (method !== 'india') setSelectedCurrency('USD');
     setErrors({});
     setPayError('');
   };
@@ -226,8 +419,9 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
       if (!form.phone.match(/^\d{10}$/)) e.phone = 'Enter a valid 10-digit mobile number';
     } else {
       const cleaned = form.phone.replace(/[\s\-()+]/g, '');
-      if (cleaned.length < 7 || !/^\d+$/.test(cleaned)) e.phone = 'Enter a valid international number';
-    }
+      if (cleaned.length < 7 || !/^\d+$/.test(cleaned)) e.phone = 'Enter a valid international number';      if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+        e.email = 'Enter a valid email address';
+      }    }
     return e;
   };
 
@@ -239,46 +433,37 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
     setLoading(true);
 
     try {
-      if (method === 'india') {
-        const res = await fetch('/api/cashfree/create-order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+      const isIntl = method !== 'india';
+      const payload = isIntl
+        ? {
+            amount: intlTotalForeign,
+            currency: selectedCurrency,
+            customerName: form.name.trim(),
+            customerPhone: form.phone,
+            customerEmail: form.email.trim() || undefined,
+            planId: plan.id,
+          }
+        : {
             amount: indiaTotalINR,
+            currency: 'INR',
             customerName: form.name.trim(),
             customerPhone: form.phone,
             planId: plan.id,
-          }),
-        });
-        const data = await res.json();
-        if (!res.ok || !data.payment_session_id) {
-          throw new Error(data.error || 'Could not initiate payment. Please try again.');
-        }
-        const cashfree = await load({
-          mode: process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production' ? 'production' : 'sandbox',
-        });
-        cashfree.checkout({ paymentSessionId: data.payment_session_id, redirectTarget: '_self' });
-      } else {
-        const res = await fetch('/api/paypal/create-order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            amount: intlTotalUSD,
-            bookingId: `${plan.id}-${Date.now()}`,
-            customerName: form.name.trim(),
-            customerPhone: form.phone,
-            planId: plan.id,
-            exchangeRate,
-          }),
-        });
-        const data = await res.json();
-        if (!res.ok || !data.id) {
-          throw new Error(data.error?.message || 'Could not initiate payment. Please try again.');
-        }
-        const approvalLink = data.links?.find((l) => l.rel === 'approve');
-        if (!approvalLink) throw new Error('Payment approval link not found.');
-        window.location.href = approvalLink.href;
+          };
+
+      const res = await fetch('/api/cashfree/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.payment_session_id) {
+        throw new Error(data.error || 'Could not initiate payment. Please try again.');
       }
+      const cashfree = await load({
+        mode: process.env.NEXT_PUBLIC_CASHFREE_ENV === 'production' ? 'production' : 'sandbox',
+      });
+      cashfree.checkout({ paymentSessionId: data.payment_session_id, redirectTarget: '_self' });
     } catch (err) {
       setPayError(err.message || 'Payment failed. Please try again.');
       setLoading(false);
@@ -501,7 +686,8 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
                   <label className="block text-[10px] font-bold text-gray-400 mb-2.5 tracking-[0.22em] uppercase">
                     Payment Region
                   </label>
-                  <div className="grid grid-cols-1 gap-2.5">
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {/* India */}
                     <button
                       type="button"
                       onClick={() => handleMethodChange('india')}
@@ -526,12 +712,74 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
                             India
                           </div>
                           <div className={`text-xs font-semibold tabular-nums ${isIndia ? 'text-amber-600' : 'text-gray-400'}`}>
-                            {INR(plan.price)} · Pay in INR
+                            {INR(plan.price)} · INR
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+
+                    {/* International */}
+                    <button
+                      type="button"
+                      onClick={() => handleMethodChange('international')}
+                      className={`relative py-3.5 px-4 rounded-xl border-2 transition-all text-left ${
+                        !isIndia
+                          ? 'border-[#C9A24B] bg-amber-50/70'
+                          : 'border-gray-200 bg-white hover:border-amber-200'
+                      }`}
+                    >
+                      {!isIndia && (
+                        <span
+                          className="absolute top-3 right-3 w-4 h-4 rounded-full flex items-center justify-center"
+                          style={{ backgroundColor: '#C9A24B' }}
+                        >
+                          <Check size={9} strokeWidth={3.5} className="text-black" />
+                        </span>
+                      )}
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl">🌍</span>
+                        <div>
+                          <div className={`text-sm font-bold ${!isIndia ? 'text-amber-800' : 'text-gray-700'}`}>
+                            International
+                          </div>
+                          <div className={`text-xs font-semibold ${!isIndia ? 'text-amber-600' : 'text-gray-400'}`}>
+                            Multi-currency
                           </div>
                         </div>
                       </div>
                     </button>
                   </div>
+
+                  {/* Currency selector — shown only for international */}
+                  {!isIndia && (
+                    <div className="mt-3">
+                      <label className="block text-[10px] font-bold text-gray-400 mb-1.5 tracking-[0.22em] uppercase">
+                        Select Currency
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={selectedCurrency}
+                          onChange={(e) => setSelectedCurrency(e.target.value)}
+                          className="w-full pl-4 pr-8 py-3 rounded-xl border border-gray-200 focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/10 text-sm text-gray-700 outline-none transition-all bg-white appearance-none"
+                        >
+                          {CURRENCIES.map((c) => (
+                            <option key={c.code} value={c.code}>
+                              {c.flag} {c.code} — {c.name} ({c.country})
+                            </option>
+                          ))}
+                        </select>
+                        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">▾</span>
+                      </div>
+                      {currencyRateLoading && (
+                        <p className="text-[10px] text-amber-600 mt-1">Fetching live rate…</p>
+                      )}
+                      {!currencyRateLoading && (
+                        <p className="text-[10px] text-gray-400 mt-1">
+                          1 {selectedCurrency} ≈ {INR(Math.round(currencyRate))} · live rate
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Full Name */}
@@ -595,17 +843,38 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
                   {errors.phone && <p className="text-red-500 text-xs mt-1.5">{errors.phone}</p>}
                 </div>
 
+                {/* Email — optional, shown for international only */}
+                {!isIndia && (
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-400 mb-2 tracking-[0.22em] uppercase">
+                      Email <span className="text-gray-300 font-normal normal-case tracking-normal">(optional)</span>
+                    </label>
+                    <input
+                      type="email"
+                      value={form.email}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      placeholder="e.g. john@example.com"
+                      className={`w-full px-4 py-3 rounded-xl border text-sm text-gray-800 outline-none transition-all placeholder:text-gray-300 ${
+                        errors.email
+                          ? 'border-red-300 bg-red-50'
+                          : 'border-gray-200 focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/10 bg-white'
+                      }`}
+                    />
+                    {errors.email && <p className="text-red-500 text-xs mt-1.5">{errors.email}</p>}
+                  </div>
+                )}
+
                 {/* City */}
                 <div>
                   <label className="block text-[10px] font-bold text-gray-400 mb-2 tracking-[0.22em] uppercase">
-                    Your City
+                    Service City
                   </label>
                   <select
                     value={form.city}
                     onChange={(e) => setForm({ ...form, city: e.target.value })}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/10 text-sm text-gray-700 outline-none transition-all bg-white appearance-none"
                   >
-                    <option value="">Select your city…</option>
+                    <option value="">Select Service City…</option>
                     {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
@@ -627,8 +896,14 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 text-sm">{plan.name} Membership</span>
-                      
-                      <span className="text-gray-700 text-sm font-semibold tabular-nums">{INR(plan.price)}</span>
+                      <div className="text-right">
+                        <span className="text-gray-700 text-sm font-semibold tabular-nums">
+                          {isIndia ? INR(plan.price) : toForeign(plan.price)}
+                        </span>
+                        {!isIndia && !currencyRateLoading && (
+                          <p className="text-gray-400 text-[10px] tabular-nums">{INR(plan.price)}</p>
+                        )}
+                      </div>
                     </div>
                     {!isIndia && (
                       <div className="flex justify-between items-center">
@@ -636,7 +911,12 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
                           <span className="bg-amber-100 text-amber-800 text-[9px] font-bold px-1.5 py-0.5 rounded-full">+10%</span>
                           Intl. processing fee
                         </span>
-                        <span className="text-amber-700 text-sm font-semibold tabular-nums">+{INR(intlSurchargeINR)}</span>
+                        <div className="text-right">
+                          <span className="text-amber-700 text-sm font-semibold tabular-nums">+{toForeign(intlSurchargeINR)}</span>
+                          {!currencyRateLoading && (
+                            <p className="text-gray-400 text-[10px] tabular-nums">+{INR(intlSurchargeINR)}</p>
+                          )}
+                        </div>
                       </div>
                     )}
                    
@@ -645,16 +925,29 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
                         <span className="bg-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full">+18%</span>
                         GST
                       </span>
-                      <span className="text-gray-600 text-sm font-semibold tabular-nums">+{INR(isIndia ? gstAmount : intlGstAmount)}</span>
+                      <div className="text-right">
+                        <span className="text-gray-600 text-sm font-semibold tabular-nums">
+                          +{isIndia ? INR(gstAmount) : toForeign(intlGstAmount)}
+                        </span>
+                        {!isIndia && !currencyRateLoading && (
+                          <p className="text-gray-400 text-[10px] tabular-nums">+{INR(intlGstAmount)}</p>
+                        )}
+                      </div>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="flex items-center gap-1.5 text-xs text-gray-500">
                         <span className="bg-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full">+3%</span>
                         Convenience fee
                       </span>
-                      <span className="text-gray-600 text-sm font-semibold tabular-nums">+{INR(isIndia ? convenienceFee : intlConvenienceFee)}</span>
+                      <div className="text-right">
+                        <span className="text-gray-600 text-sm font-semibold tabular-nums">
+                          +{isIndia ? INR(convenienceFee) : toForeign(intlConvenienceFee)}
+                        </span>
+                        {!isIndia && !currencyRateLoading && (
+                          <p className="text-gray-400 text-[10px] tabular-nums">+{INR(intlConvenienceFee)}</p>
+                        )}
+                      </div>
                     </div>
-                   
                   </div>
 
                   <div
@@ -662,7 +955,7 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
                     style={{ borderColor: 'rgba(201,162,75,0.12)' }}
                   >
                     <span className="text-gray-900 text-sm font-bold">
-                      Total {isIndia ? '(INR)' : '(USD)'}
+                      Total {isIndia ? '(INR)' : `(${selectedCurrency})`}
                     </span>
                     <div className="text-right">
                       {isIndia ? (
@@ -670,9 +963,9 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
                       ) : (
                         <>
                           <span className="text-gray-900 text-lg font-black tabular-nums">
-                            {rateLoading ? '…' : `$${intlTotalUSD}`}
+                            {fmtForeign(intlTotalForeign, selectedCurrency)}
                           </span>
-                          {!rateLoading && (
+                          {!currencyRateLoading && intlTotalForeign !== null && (
                             <p className="text-gray-400 text-[10px] mt-0.5 tabular-nums">
                               ≈ {INR(intlTotalINR)} · live rate
                             </p>
@@ -686,7 +979,7 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
                 {/* Submit button */}
                 <button
                   type="submit"
-                  disabled={loading || (!isIndia && rateLoading)}
+                  disabled={loading || (!isIndia && currencyRateLoading)}
                   className="w-full py-4 rounded-xl font-black text-md tracking-wide transition-all hover:opacity-95 hover:-translate-y-0.5 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
                   style={{
                     background: 'linear-gradient(135deg,#C9A24B 0%,#f0c940 50%,#C9A24B 100%)',
@@ -708,7 +1001,7 @@ export default function BookingPageContent({ plan, anchorPrice, foundingSpots })
                       {plan.id === 'sovereign' && <Crown size={14} strokeWidth={2.5} />}
                       {isIndia
                         ? `Pay ${INR(indiaTotalINR)} · India`
-                        : `Pay $${intlTotalUSD || '…'} · International`}
+                        : `Pay ${fmtForeign(intlTotalForeign, selectedCurrency)} · ${currencyData.country}`}
                     </span>
                   )}
                 </button>
