@@ -5,6 +5,7 @@ import "./globals.css";
 import FloatingWhatsApp from "./components/FloatingWhatsApp";
 import LiveActivityTicker from "./components/LiveActivityTicker";
 import JsonLd from "./components/JsonLd";
+import GTMPageTracker from "./components/GTMPageTracker";
 import { Analytics } from "@vercel/analytics/next";
 
 const playfair = Playfair_Display({
@@ -138,6 +139,7 @@ export default function RootLayout({ children }) {
           ></iframe>
         </noscript>
 
+        <GTMPageTracker />
         {children}
         <FloatingWhatsApp />
         <LiveActivityTicker />
