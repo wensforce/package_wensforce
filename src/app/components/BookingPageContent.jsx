@@ -1377,15 +1377,6 @@ export default function BookingPageContent({
             planId: plan.id,
           };
 
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({
-        event: "pay_button_click",
-        conversion_value: isIndia ? indiaTotalINR : intlTotalForeign, // your existing price variable
-        currency: isIndia ? "INR" : selectedCurrency, // or your currency variable
-        plan_name: plan.name, // your existing plan variable
-      });
-
-
       const res = await fetch("/api/cashfree/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -2056,6 +2047,15 @@ export default function BookingPageContent({
                 <button
                   type="submit"
                   id="pay-submit-btn"
+                  onClick={() => {
+                    window.dataLayer = window.dataLayer || [];
+                    window.dataLayer.push({
+                      event: "pay_button_click",
+                      conversion_value: isIndia ? indiaTotalINR : intlTotalForeign, // your existing price variable
+                      currency: isIndia ? "INR" : selectedCurrency, // or your currency variable
+                      plan_name: plan.name, // your existing plan variable
+                    });
+                  }}
                   disabled={loading || (!isIndia && currencyRateLoading)}
                   className="w-full py-4 rounded-xl font-black text-md tracking-wide transition-all hover:opacity-95 hover:-translate-y-0.5 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
                   style={{
