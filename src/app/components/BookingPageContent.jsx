@@ -1389,7 +1389,10 @@ export default function BookingPageContent({
         event: "pay_button_click",
         conversion_value: isIndia ? indiaTotalINR : intlTotalForeign, // your existing price variable
         currency: isIndia ? "INR" : selectedCurrency, // or your currency variable
-        plan_name: plan.name, // your existing plan variable
+        customer_name: form.name.trim() || "Unknown",
+        customer_phone: form.phone || "Unknown",
+        service_city: form.city || "Unknown",
+        plan_name: plan.name || "Unknown", // your existing plan variable
       });
       if (!res.ok || !data.payment_session_id) {
         throw new Error(
