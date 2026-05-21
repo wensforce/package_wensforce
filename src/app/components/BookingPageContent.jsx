@@ -1382,7 +1382,15 @@ export default function BookingPageContent({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+      
       const data = await res.json();
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "pay_button_click",
+        conversion_value: isIndia ? indiaTotalINR : intlTotalForeign, // your existing price variable
+        currency: isIndia ? "INR" : selectedCurrency, // or your currency variable
+        plan_name: plan.name, // your existing plan variable
+      });
       if (!res.ok || !data.payment_session_id) {
         throw new Error(
           data.error || "Could not initiate payment. Please try again.",
@@ -2047,15 +2055,6 @@ export default function BookingPageContent({
                 <button
                   type="submit"
                   id="pay-submit-btn"
-                  onClick={() => {
-                    window.dataLayer = window.dataLayer || [];
-                    window.dataLayer.push({
-                      event: "pay_button_click",
-                      conversion_value: isIndia ? indiaTotalINR : intlTotalForeign, // your existing price variable
-                      currency: isIndia ? "INR" : selectedCurrency, // or your currency variable
-                      plan_name: plan.name, // your existing plan variable
-                    });
-                  }}
                   disabled={loading || (!isIndia && currencyRateLoading)}
                   className="w-full py-4 rounded-xl font-black text-md tracking-wide transition-all hover:opacity-95 hover:-translate-y-0.5 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
                   style={{
