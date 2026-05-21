@@ -1397,16 +1397,16 @@ export default function BookingPageContent({
           data.error || "Could not initiate payment. Please try again.",
         );
       }
-      // const cashfree = await load({
-      //   mode:
-      //     process.env.NEXT_PUBLIC_CASHFREE_ENV === "production"
-      //       ? "production"
-      //       : "sandbox",
-      // });
-      // cashfree.checkout({
-      //   paymentSessionId: data.payment_session_id,
-      //   redirectTarget: "_self",
-      // });
+      const cashfree = await load({
+        mode:
+          process.env.NEXT_PUBLIC_CASHFREE_ENV === "production"
+            ? "production"
+            : "sandbox",
+      });
+      cashfree.checkout({
+        paymentSessionId: data.payment_session_id,
+        redirectTarget: "_self",
+      });
     } catch (err) {
       setPayError(err.message || "Payment failed. Please try again.");
       setLoading(false);
