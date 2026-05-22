@@ -111,7 +111,7 @@ function ConfirmationContent() {
             currency: data.currency || "INR",
             customer_name: data.customer_name,
             customer_phone: data.customer_phone,
-            service_city: data.service_city,
+            service_city: "N/A", // add if available
           });
           setStatus(data.paid ? "success" : "failed");
         }
