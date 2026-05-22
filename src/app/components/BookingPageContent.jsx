@@ -7,9 +7,7 @@ import { Check, Shield, ArrowLeft, Gem, Crown } from "lucide-react";
 
 const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
 const WA_NUMBER = "917304607954";
-const INTL_SURCHARGE = 0.1;
 const GST_RATE = 0.18;
-const CONVENIENCE_FEE_RATE = 0.03;
 
 // Top international currencies — keep codes in sync with API routes
 const CURRENCIES = [
@@ -1292,15 +1290,11 @@ export default function BookingPageContent({
 
   // India pricing
   const gstAmount = Math.ceil(plan.price * GST_RATE);
-  const priceWithGst = plan.price + gstAmount;
-  const convenienceFee = Math.ceil(priceWithGst * CONVENIENCE_FEE_RATE);
-  const indiaTotalINR = priceWithGst + convenienceFee;
+  const indiaTotalINR = plan.price + gstAmount;
 
-  // International pricing (no GST for overseas customers)
-  const intlSurchargeINR = Math.ceil(plan.price * INTL_SURCHARGE);
-  const intlBaseINR = plan.price + intlSurchargeINR;
-  const intlConvenienceFee = Math.ceil(intlBaseINR * CONVENIENCE_FEE_RATE);
-  const intlTotalINR = intlBaseINR + intlConvenienceFee;
+  // International pricing
+  const intlGstAmount = Math.ceil(plan.price * GST_RATE);
+  const intlTotalINR = plan.price + intlGstAmount;
   const intlTotalForeign = currencyRateLoading
     ? null
     : roundForeign(intlTotalINR / currencyRate, selectedCurrency);
@@ -1966,59 +1960,20 @@ export default function BookingPageContent({
                         )}
                       </div>
                     </div>
-                    {!isIndia && (
-                      <div className="flex justify-between items-center">
-                        <span className="flex items-center gap-1.5 text-xs text-amber-700">
-                          <span className="bg-amber-100 text-amber-800 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
-                            +10%
-                          </span>
-                          Intl. processing fee
-                        </span>
-                        <div className="text-right">
-                          <span className="text-amber-700 text-sm font-semibold tabular-nums">
-                            +{toForeign(intlSurchargeINR)}
-                          </span>
-                          {!currencyRateLoading && (
-                            <p className="text-gray-400 text-[10px] tabular-nums">
-                              +{INR(intlSurchargeINR)}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {isIndia && (
-                      <div className="flex justify-between items-center">
-                        <span className="flex items-center gap-1.5 text-xs text-gray-500">
-                          <span className="bg-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
-                            +18%
-                          </span>
-                          GST
-                        </span>
-                        <div className="text-right">
-                          <span className="text-gray-600 text-sm font-semibold tabular-nums">
-                            +{INR(gstAmount)}
-                          </span>
-                        </div>
-                      </div>
-                    )}
                     <div className="flex justify-between items-center">
                       <span className="flex items-center gap-1.5 text-xs text-gray-500">
                         <span className="bg-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
-                          +3%
+                          +18%
                         </span>
-                        Convenience fee
+                        GST
                       </span>
                       <div className="text-right">
                         <span className="text-gray-600 text-sm font-semibold tabular-nums">
-                          +
-                          {isIndia
-                            ? INR(convenienceFee)
-                            : toForeign(intlConvenienceFee)}
+                          +{isIndia ? INR(gstAmount) : toForeign(intlGstAmount)}
                         </span>
                         {!isIndia && !currencyRateLoading && (
                           <p className="text-gray-400 text-[10px] tabular-nums">
-                            +{INR(intlConvenienceFee)}
+                            +{INR(intlGstAmount)}
                           </p>
                         )}
                       </div>

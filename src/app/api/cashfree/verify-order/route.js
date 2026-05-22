@@ -77,9 +77,15 @@ export async function GET(req) {
       }
     }
     
+
     return NextResponse.json({
       paid: isPaid,
       status: data.order_status,
+      amount: data.order_amount,
+      currency: data.order_currency,
+      customer_name: data.customer_details?.customer_name,
+      customer_phone: data.customer_details?.customer_phone,
+      service_city: data.order_note, // Assuming city is passed in order_note
     });
   } catch (err) {
     return NextResponse.json({ paid: false, status: 'error' }, { status: 200 });
