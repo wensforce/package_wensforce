@@ -2060,6 +2060,11 @@ export default function BookingPageContent({
                   )}
                 </button>
 
+                {/* Convenience fee note */}
+                <p className="text-[11px] text-gray-500 leading-relaxed">
+                  <span className="font-semibold text-gray-600">Note:</span> Additional convenience charges may be applied during payment processing based on the selected payment method.
+                </p>
+
                 {/* Security note */}
                 <p className="text-center text-[11px] text-gray-400 flex items-center justify-center gap-1.5">
                   <svg
