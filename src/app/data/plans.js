@@ -4,7 +4,7 @@ export const plans = [
     packageNo: '01',
     name: 'ESSENTIAL',
     tagline: 'Your gateway to assured premium mobility',
-    price: 1,
+    price: 24999,
     perMonth: 2083,
     vehicle: 'Standard Sedan (5-Seater)',
     vehicleType: 'Sedan',
