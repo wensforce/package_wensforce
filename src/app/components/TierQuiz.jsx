@@ -34,11 +34,11 @@ const QUESTIONS = [
 ];
 
 const TIER_MAP = [
-  { min: 5,  max: 7,  id: 'essential',  name: 'ESSENTIAL',  price: '₹24,999', tagline: 'Built for the frequent solo traveller.' },
-  { min: 8,  max: 9,  id: 'executive',  name: 'EXECUTIVE',  price: '₹49,999', tagline: 'Built for the rising professional & growing family.' },
-  { min: 10, max: 11, id: 'premium',    name: 'PREMIUM',    price: '₹74,999', tagline: 'Where armed protection meets pilgrimage convenience.' },
-  { min: 12, max: 13, id: 'elite',      name: 'ELITE',      price: '₹99,999', tagline: 'Where C-suite executives travel.' },
-  { min: 14, max: 15, id: 'sovereign',  name: 'SOVEREIGN',  price: '₹1,99,999', tagline: 'The pinnacle — no compromises, anywhere.' },
+  { min: 5,  max: 7,  id: 'essential',  name: 'ESSENTIAL',  price: '₹24,999* + Tax', tagline: 'Built for the frequent solo traveller.' },
+  { min: 8,  max: 9,  id: 'executive',  name: 'EXECUTIVE',  price: '₹49,999* + Tax', tagline: 'Built for the rising professional & growing family.' },
+  { min: 10, max: 11, id: 'premium',    name: 'PREMIUM',    price: '₹74,999* + Tax', tagline: 'Where armed protection meets pilgrimage convenience.' },
+  { min: 12, max: 13, id: 'elite',      name: 'ELITE',      price: '₹99,999* + Tax', tagline: 'Where C-suite executives travel.' },
+  { min: 14, max: 15, id: 'sovereign',  name: 'SOVEREIGN',  price: '₹1,99,999* + Tax', tagline: 'The pinnacle — no compromises, anywhere.' },
 ];
 
 function getTier(total) {

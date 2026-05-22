@@ -370,7 +370,7 @@ export default function PlansSection() {
                           className="regular-price-highlight text-[13px] line-through font-black"
                           style={{ color: m.isElite ? m.accent : "#f0d878" }}
                         >
-                          {INR(anchor || plan.price)}
+                          {INR(anchor || plan.price)}*
                         </span>
                       </div>
 
@@ -398,9 +398,10 @@ export default function PlansSection() {
                       <div className="flex flex-col items-center gap-px flex-[0.95]">
                         <div className="flex items-center gap-0.75">
                           <span className="price-highlight text-[17px] font-black tracking-[-0.02em] leading-none">
-                            {INR(plan.price)}
+                            {INR(plan.price)}*
                           </span>
                         </div>
+                        <span className="text-[7px] font-bold opacity-55" style={{ color: '#f0d878' }}>+ Tax</span>
                       </div>
                     </div>
 

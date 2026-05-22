@@ -1529,7 +1529,7 @@ export default function BookingPageContent({
           <div className="mb-7">
             {anchorPrice && (
               <span className="text-gray-400 text-sm line-through block mb-1">
-                {INR(anchorPrice)}
+                {INR(anchorPrice)}*
               </span>
             )}
             <div className="flex items-end gap-3 flex-wrap">
@@ -1540,8 +1540,9 @@ export default function BookingPageContent({
                   color: plan.id === "elite" ? "#C9A24B" : "#0B1E3F",
                 }}
               >
-                {INR(plan.price)}
+                {INR(plan.price)}*
               </span>
+              <span className="text-[11px] font-semibold text-gray-400 mb-1">+ Tax</span>
               <span className="text-gray-400 text-sm font-light mb-1">
                 / year, all-inclusive
               </span>
@@ -1720,7 +1721,7 @@ export default function BookingPageContent({
                           <div
                             className={`text-xs font-semibold tabular-nums ${isIndia ? "text-amber-600" : "text-gray-400"}`}
                           >
-                            {INR(plan.price)} · INR
+                            {INR(plan.price)}* · INR
                           </div>
                         </div>
                       </div>
@@ -1951,11 +1952,12 @@ export default function BookingPageContent({
                       </span>
                       <div className="text-right">
                         <span className="text-gray-700 text-sm font-semibold tabular-nums">
-                          {isIndia ? INR(plan.price) : toForeign(plan.price)}
+                          {isIndia ? INR(plan.price) + "*" : toForeign(plan.price) + "*"}
                         </span>
+                        
                         {!isIndia && !currencyRateLoading && (
                           <p className="text-gray-400 text-[10px] tabular-nums">
-                            {INR(plan.price)}
+                            {INR(plan.price)}*
                           </p>
                         )}
                       </div>

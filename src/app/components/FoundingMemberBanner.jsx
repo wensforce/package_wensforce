@@ -8,11 +8,11 @@ const WA_NUMBER = '917304607954';
 const DEADLINE = '2026-05-31T23:59:59+05:30';
 
 const TIER_PRICES = {
-  essential: '₹24,999',
-  executive: '₹49,999',
-  premium: '₹74,999',
-  elite: '₹99,999',
-  sovereign: '₹1,99,999',
+  essential: '₹24,999* + Tax',
+  executive: '₹49,999* + Tax',
+  premium: '₹74,999* + Tax',
+  elite: '₹99,999* + Tax',
+  sovereign: '₹1,99,999* + Tax',
 };
 
 function CountdownBlock() {
