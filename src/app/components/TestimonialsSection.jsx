@@ -18,7 +18,7 @@ const testimonials = [
     videoUrl: 'https://d2zcmp43lwd2kr.cloudfront.net/videos/kartik_giri.mp4',
   },
   {
-    name: 'Mark Robber',
+    name: 'Mark Rober',
     role: 'American YouTuber, engineer and inventor',
     avatar: '/testimonials/mark_profile.png',
     profileUrl: 'https://www.instagram.com/markrober/',

@@ -13,11 +13,11 @@ const INR = (n) => '₹' + Number(n).toLocaleString('en-IN');
 const WA_NUMBER = '917304607954';
 
 const ANCHOR_PRICES = {
-  essential: 34999,
-  executive: 64999,
-  premium: 99999,
-  elite: 130000,
-  sovereign: 250000,
+  essential: 65000,
+  executive: 85000,
+  premium: 135000,
+  elite: 195000,
+  sovereign: 365000,
 };
 
 const FOUNDING_SPOTS = {
@@ -251,7 +251,7 @@ const TIER_THEMES = {
     orb1: 'bg-blue-400/25 -top-16 -right-16 w-64 h-64',
     orb2: 'bg-indigo-300/15 bottom-0 left-4 w-44 h-44',
     numColor: 'text-white/[0.07]',
-    badge: { label: 'Most Popular', cls: 'bg-white/15 border border-white/20 text-white' },
+    badge: null,
     nameTxt: 'text-white',
     taglineTxt: 'text-blue-200/70',
     priceTxt: 'text-white',
@@ -517,8 +517,8 @@ export default async function PlanDetailPage({ params }) {
                   { Icon: Navigation, text: `${plan.trips} Curated Journeys /yr` },
                   { Icon: Car, text: plan.vehicleType },
                   {
-                    Icon: plan.bodyguard.toLowerCase().includes('unarmed') ? Shield : ShieldCheck,
-                    text: plan.bodyguard.toLowerCase().includes('unarmed') ? 'Unarmed Guard' : 'Armed Guard',
+                    Icon: plan.bodyguard.toLowerCase().includes('mma fighter') ? Shield : ShieldCheck,
+                    text: plan.bodyguard.toLowerCase().includes('mma fighter') ? 'MMA Fighter' : 'Armed Bodyguard',
                   },
                 ].map(({ Icon, text }, i) => (
                   <span
@@ -560,11 +560,11 @@ export default async function PlanDetailPage({ params }) {
                 <div className="space-y-2.5 mb-5 border-t pt-4" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
                   <div className="flex items-center gap-2 text-xs text-white/50">
                     <Gem size={11} strokeWidth={2} style={{ color: '#C9A24B' }} />
-                    ₹{plan.freePerksWorth.toLocaleString('en-IN')} in privileges included
+                   Privilege worth ₹{anchorPrice?.toLocaleString('en-IN')} @  ₹{plan.price.toLocaleString('en-IN')}
                   </div>
                   <div className="flex items-center gap-2 text-xs text-white/50">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
-                    Founding 100 · {foundingSpots} of 100 confirmed
+                    Founding 100 · {plan.confirmed} of 100 confirmed
                   </div>
                 </div>
 
@@ -818,7 +818,7 @@ export default async function PlanDetailPage({ params }) {
                   {[
                     { label: 'Validity', val: plan.validity },
                     { label: 'Curated Journeys', val: `${plan.trips} per year` },
-                    { label: 'Privileges Worth', val: `₹${plan.freePerksWorth.toLocaleString('en-IN')}` },
+                    { label: 'Privileges Worth', val: `₹${anchorPrice?.toLocaleString('en-IN')}` },
                     { label: 'Vehicle', val: plan.vehicleType },
                     { label: 'Security', val: plan.bodyguard },
                   ].map(({ label, val }) => (

@@ -4,7 +4,7 @@ export default function TrustStrip() {
     { name: 'Mid Day', url: 'https://www.mid-day.com/buzzfeed/article/a-new-security-discipline-for-a-new-india-why-a-digital-framework-is-now-essential-for-public-trust-8060' },
     { name: 'Mumbai Times', url: 'https://mumbaitimes.org/wens-force-international-a-new-security-discipline-for-a-new-india/' },
     { name: 'Deccan Bharat', url: 'https://deccanbharat.com/wens-force-international-a-new-security-discipline-for-a-new-india/' },
-    { name: 'Daily Hunt', url: 'http://dhunt.in/12JxGz' },
+    { name: 'Daily Hunt', url: 'http://m.dailyhunt.in/news/india/english/tycoon+world-epaper-dh4c6a646b987d48f5b87f17d40865f089/wens+force+international+a+new+security+discipline+for+a+new+india-newsid-dh4c6a646b987d48f5b87f17d40865f089_36213950d44e11f08bbf1a761810ba2e?sm=Y' },
     { name: 'Herald Post', url: 'https://heraldpost.in/wens-force-international-a-new-security-discipline-for-a-new-india/' },
   ];
 

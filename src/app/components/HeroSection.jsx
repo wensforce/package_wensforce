@@ -1,7 +1,7 @@
 'use client';
 
 const WA_NUMBER = '917304607954';
-
+import { plans } from '../data/plans.js';
 const HERO_VIDEO_URL = 'https://d2zcmp43lwd2kr.cloudfront.net/videos/hero_video.mp4';
 
 export default function HeroSection() {
@@ -42,7 +42,7 @@ export default function HeroSection() {
           <span className="w-1.5 h-1.5 rounded-full bg-[#C9A24B] inline-block" />
           <span className="text-white/70">Founding 100 Programme</span>
           <span className="text-[#C9A24B] font-semibold">·</span>
-          <span className="text-white/90 font-medium">41 of 100 Sovereign spots confirmed</span>
+          <span className="text-white/90 font-medium">{plans[4].confirmed} of 100 Sovereign spots confirmed</span>
           <span className="text-white/40 hidden sm:inline">—</span>
           <span className="text-white/55 hidden sm:inline">Charter members locked at current pricing permanently</span>
         </div>

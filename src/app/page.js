@@ -44,7 +44,7 @@ const TIER_ICONS = {
 const faqs = [
   {
     q: "I'm sceptical about prepaying this much. How do I know WENS Force is real?",
-    a: "Fair question. WENS Force alias WENS Force International Private Limited Headquarterd in Mahindra Chamber Stock Exchange opp. CST Station, South Mumbai is a registered company with a physical operations team across India & Dubai. Every member gets a dedicated concierge contact on WhatsApp immediately upon joining. You can also speak to our team before paying: +91-7304607954.",
+    a: "Fair question. WENS Force alias WENS Force International Private Limited Headquartered in Mahendra Chamber Stock Exchange opp. CST Station, South Mumbai is a registered company with a physical operations team across India & Dubai. Every member gets a dedicated concierge contact on WhatsApp immediately upon joining. You can also speak to our team before paying: +91-7304607954.",
   },
   {
     q: "What exactly happens in the first 24 hours after I join?",
@@ -194,11 +194,6 @@ function ComparisonTable() {
                       {plan.isBestValue && (
                         <div className="text-[9px] bg-[#C9A24B] text-black font-bold px-2.5 py-0.5 rounded-full tracking-wide">
                           BEST VALUE
-                        </div>
-                      )}
-                      {plan.isPopular && (
-                        <div className="text-[9px] bg-[#0B1E3F] text-white font-bold px-2.5 py-0.5 rounded-full tracking-wide">
-                          MOST POPULAR
                         </div>
                       )}
                     </div>
@@ -458,8 +453,14 @@ export default function HomePage() {
               WENS Force International Private Limited
             </span>
           </div>
-          <p className="text-gray-600 text-xs max-w-xs mx-auto mb-6 font-light">
+          <p className="text-sm text-[#C9A24B] mb-2">CIN : U80100MH2025PTC442268</p>
+          <p className="text-[#C9A24B] text-xs max-w-xs mx-auto mb-4 font-light">
             Where Every Journey Becomes an Arrival.
+          </p>
+          <p className="text-gray-600 text-xs max-w-sm mx-auto mb-6 font-light leading-relaxed">
+            89, 2nd Flr, 138/148, Mahendra Chamber, Empire Building,<br />
+            Dr. Dadabhai Nowroji Road, Stock Exchange,<br />
+            Opp. CSMT Fort, Mumbai – 400001
           </p>
           <div className="flex justify-center gap-6 text-xs text-gray-700 flex-wrap mb-6">
             {[
@@ -506,11 +507,11 @@ export default function HomePage() {
             </a>
             <span className="text-gray-800">·</span>
             <a
-              href="mailto:wensforce@gmail.com"
+              href="mailto:concierge@wensforce.com"
               className="hover:text-gray-500 transition-colors flex items-center gap-1"
             >
               <Phone size={11} />
-              wensforce@gmail.com
+              concierge@wensforce.com
             </a>
           </div>
           <p className="text-gray-800 text-xs">

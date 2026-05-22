@@ -8,7 +8,7 @@ export const plans = [
     perMonth: 2083,
     vehicle: 'Standard Sedan (5-Seater)',
     vehicleType: 'Sedan',
-    bodyguard: 'MMA Bodyguard',
+    bodyguard: 'MMA Fighter',
     trips: 3,
     validity: '12 Months',
     perTripCost: 8333,
@@ -18,8 +18,7 @@ export const plans = [
     isDecoy: false,
     isAnchor: false,
     highlight: false,
-    confirmed: 43,
-    tag: 'MOST POPULAR',
+    confirmed: 30,
     privileges: [
       {
         title: '1× VIP Darshan Voucher',
@@ -91,7 +90,7 @@ export const plans = [
     perMonth: 4167,
     vehicle: 'Standard SUV (7-Seater)',
     vehicleType: 'SUV',
-    bodyguard: 'MMA Bodyguard',
+    bodyguard: 'MMA Fighter',
     trips: 4,
     validity: '12 Months',
     perTripCost: 12500,
@@ -101,7 +100,7 @@ export const plans = [
     isDecoy: false,
     isAnchor: false,
     highlight: false,
-    confirmed: 62,
+    confirmed: 45,
     tag: null,
     privileges: [
       {
@@ -191,7 +190,7 @@ export const plans = [
     isAnchor: false,
     highlight: false,
     tag: null,   
-    confirmed: 45,
+    confirmed: 75,
     privileges: [
       {
         title: '3× VIP Darshan Vouchers',
@@ -285,7 +284,7 @@ export const plans = [
     isDecoy: false,
     isAnchor: false,
     highlight: true,
-    confirmed: 73,
+    confirmed: 60,
     tag: null,   
     privileges: [
       {
@@ -390,7 +389,7 @@ export const plans = [
     isDecoy: false,
     isAnchor: true,
     highlight: false,
-    confirmed: 33,
+    confirmed: 10,
     tag: 'ULTRA EXCLUSIVE',   
     privileges: [
       {
