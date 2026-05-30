@@ -107,7 +107,7 @@ function ConfirmationContent() {
             order_id: orderId,
             payment_status: data.paid ? "SUCCESS" : "FAILED", // 'SUCCESS' or 'FAILED'
             plan_name: plan.charAt(0).toUpperCase() + plan.slice(1),
-            conversion_value: data.amount, // assuming amount is in paise
+            conversion_value: data.paid === "SUCCESS" ? data.amount : 0, // assuming amount is in paise
             currency: data.currency || "INR",
             customer_name: data.customer_name,
             customer_phone: data.customer_phone,

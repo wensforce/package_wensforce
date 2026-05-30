@@ -401,7 +401,7 @@ export default function PlansSection() {
                             {INR(plan.price)}*
                           </span>
                         </div>
-                        <span className="text-[7px] font-bold opacity-55" style={{ color: '#f0d878' }}>+ Tax</span>
+                        <span className="text-[7px] font-bold opacity-55" style={{ color: '#f0d878' }}>GST 18% Extra</span>
                       </div>
                     </div>
 

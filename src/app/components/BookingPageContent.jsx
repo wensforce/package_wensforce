@@ -1381,7 +1381,7 @@ export default function BookingPageContent({
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
         event: "pay_button_click",
-        conversion_value: isIndia ? indiaTotalINR : intlTotalForeign, // your existing price variable
+        conversion_value: "0", // your existing price variable
         currency: isIndia ? "INR" : selectedCurrency, // or your currency variable
         customer_name: form.name.trim() || "Unknown",
         customer_phone: form.phone || "Unknown",
@@ -1542,7 +1542,7 @@ export default function BookingPageContent({
               >
                 {INR(plan.price)}*
               </span>
-              <span className="text-[11px] font-semibold text-gray-400 mb-1">+ Tax</span>
+              <span className="text-[11px] font-semibold text-gray-400 mb-1">GST 18% Extra</span>
               <span className="text-gray-400 text-sm font-light mb-1">
                 / year, all-inclusive
               </span>
@@ -2135,14 +2135,16 @@ export default function BookingPageContent({
           <p className="text-center text-gray-400 text-[11px] mt-4 font-light leading-relaxed px-4">
             By reserving, you agree to our{" "}
             <Link
-              href="#"
+              href="https://wensforce.com/disclaimer-terms-of-services/"
+              target="_blank"
               className="underline hover:text-gray-600 transition-colors"
             >
               Terms &amp; Conditions
             </Link>{" "}
             and{" "}
             <Link
-              href="#"
+              href="https://wensforce.com/privacy-policy/"
+              target="_blank"
               className="underline hover:text-gray-600 transition-colors"
             >
               Privacy Policy

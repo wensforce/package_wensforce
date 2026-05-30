@@ -554,7 +554,7 @@ export default async function PlanDetailPage({ params }) {
                 >
                   {INR(plan.price)}*
                 </div>
-                <div className="text-white/50 text-[11px] font-semibold mb-1">+ Tax</div>
+                <div className="text-white/50 text-[11px] font-semibold mb-1">GST 18% Extra</div>
                 <div className="text-white/35 text-xs font-light mb-5">per year, all-inclusive</div>
 
                 <div className="space-y-2.5 mb-5 border-t pt-4" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
@@ -959,7 +959,7 @@ export default async function PlanDetailPage({ params }) {
                       <div className={`text-lg font-black leading-none mb-0.5 ${t.priceTxt}`}>
                         {INR(p.price)}* 
                         <br />
-                        <span className='text-xs text-gray-400 font-semibold' > + Tax</span>
+                        <span className='text-xs text-gray-400 font-semibold' >GST 18% Extra</span>
                       </div>
                       <div className={`text-[9px] font-light mb-4 ${t.taglineTxt}`}>per year</div>
                       <div

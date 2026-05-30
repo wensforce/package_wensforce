@@ -189,7 +189,7 @@ function ComparisonTable() {
                           isHighlight ? "text-[#C9A24B]/60" : "text-gray-400",
                         ].join(" ")}
                       >
-                        {INR(plan.price)}* + Tax/yr
+                        {INR(plan.price)}* + GST 18% Extra/yr
                       </div>
                       {plan.isBestValue && (
                         <div className="text-[9px] bg-[#C9A24B] text-black font-bold px-2.5 py-0.5 rounded-full tracking-wide">
