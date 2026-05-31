@@ -453,7 +453,8 @@ export default function HomePage() {
               WENS Force International Private Limited
             </span>
           </div>
-          <p className="text-sm text-[#C9A24B] mb-2">CIN : U80100MH2025PTC442268</p>
+          <p className="text-sm text-[#C9A24B] mb-1">CIN : U80100MH2025PTC442268</p>
+          <p className="text-sm text-[#C9A24B] mb-2">PSARA Licence : PSA/L/21/MH/2026/MAY/3/6271</p>
           <p className="text-[#C9A24B] text-xs max-w-xs mx-auto mb-4 font-light">
             Where Every Journey Becomes an Arrival.
           </p>

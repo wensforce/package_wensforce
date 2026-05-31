@@ -16,7 +16,7 @@ export async function GET(req) {
   }
 
   try {
-    const response = await fetch(`${CF_BASE_URL}/${encodeURIComponent(orderId)}`, {
+    const response = await fetch(`${CF_BASE_URL}/${encodeURIComponent(orderId)}/payments`, {
       headers: {
         'x-client-id': process.env.CASHFREE_APP_ID,
         'x-client-secret': process.env.CASHFREE_SECRET_KEY,
@@ -25,67 +25,21 @@ export async function GET(req) {
     });
 
     const data = await response.json();
-
+    
     if (!response.ok) {
       return NextResponse.json({ paid: false, status: 'error' }, { status: 200 });
     }
     
-    const isPaid = data.order_status === 'PAID';
-    
-    // Send WhatsApp notifications based on payment status
-    if (data.customer_details?.customer_phone) {
-      const phone = data.customer_details.customer_phone;
-      const customerName = data.customer_details?.customer_name || 'Customer';
-      const plan = data.order_note || 'Membership';
-
-      
-      if (isPaid) {
-        // Send success template
-        await sendWhatsAppTemplate({
-          to: phone,
-          templateName: 'membership_payment_successful',
-          templateParams: [customerName, plan, orderId, new Date().toISOString()],
-        });
-        
-        // Assign success custom fields
-        // await assignCustomerTags({
-        //   phone,
-        //   customFields: [
-        //     { name: 'lead_status', value: 'paid' },
-        //     { name: 'payment_method', value: 'cashfree' },
-        //     { name: 'order_id', value: orderId },
-        //   ],
-        // });
-
-      } else {
-        // Send failure template
-        await sendWhatsAppTemplate({
-          to: phone,
-          templateName: 'payment_failed',
-          templateParams: [customerName, orderId, data.order_status || 'FAILED'],
-        });
-        
-        // Assign failure custom fields
-        // await assignCustomerTags({
-        //   phone,
-        //   customFields: [
-        //     { name: 'lead_status', value: 'payment_failed' },
-        //     { name: 'payment_method', value: 'cashfree' },
-        //     { name: 'order_id', value: orderId },
-        //   ],
-        // });
-      }
-    }
-    
+    const isPaid = data[0]?.payment_status === 'SUCCESS';
 
     return NextResponse.json({
       paid: isPaid,
-      status: data.order_status,
-      amount: data.order_amount,
-      currency: data.order_currency,
-      customer_name: data.customer_details?.customer_name,
-      customer_phone: data.customer_details?.customer_phone,
-      service_city: data.order_note, // Assuming city is passed in order_note
+      status: data[0]?.order_status,
+      amount: data[0]?.order_amount,
+      currency: data[0]?.order_currency,
+      customer_name: data[0]?.customer_details?.customer_name,
+      customer_phone: data[0]?.customer_details?.customer_phone,
+      service_city: data[0]?.order_note, // Assuming city is passed in order_note
     });
   } catch (err) {
     return NextResponse.json({ paid: false, status: 'error' }, { status: 200 });

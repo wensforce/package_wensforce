@@ -107,6 +107,10 @@ export default function HeroSection() {
             </span>
           </h1>
 
+          <p className="text-[11px] tracking-[0.06em] text-white/35 -mt-4 mb-8 font-light">
+            PSARA LICENSE&nbsp;:&nbsp;<span className="text-[#C9A24B]/65 font-mono">PSA/L/21/MH/2026/MAY/3/6271</span>
+          </p>
+
           <p className="text-white/60 text-lg font-light mb-10 max-w-xl mx-auto">
             Five tiers. One annual fee. Everything pre-arranged for the year.
           </p>
