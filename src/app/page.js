@@ -474,6 +474,10 @@ export default function HomePage() {
                 href: "https://wensforce.com/disclaimer-terms-of-services/",
               },
               {
+                name: "Membership Terms",
+                href: "/terms",
+              },
+              {
                 name: "Refund Policy",
                 href: "https://wensforce.com/cancellation-refund-policy/",
               },
@@ -481,7 +485,7 @@ export default function HomePage() {
             ].map((item) => (
               <a
                 key={item.name}
-                target="_blank"
+                target={item.href.startsWith("/") ? "_self" : "_blank"}
                 href={item.href}
                 className="hover:text-gray-500 transition-colors"
               >
