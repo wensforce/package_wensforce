@@ -1,7 +1,7 @@
 // app/api/cashfree/webhook/route.ts
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { sendWhatsAppTemplate } from "../../lib/whatsapp";
+import { sendWhatsAppTemplate, sendWhatsAppTemplateToBroadcast } from "../../lib/whatsapp";
 
 export async function POST(req) {
   const body = await req.text();
@@ -27,10 +27,11 @@ export async function POST(req) {
     const phone = event.data?.customer_details?.customer_phone;
     const customerName =
       event.data?.customer_details?.customer_name || "Customer";
-    const plan = event.data?.order?.order_note || "Membership";
+    const plan = event.data?.order?.order_tags?.plan_id || "Membership";
 
     const isPaid = event.data?.payment?.payment_status === "SUCCESS";
     const orderId = event.data?.order?.order_id;
+    const reason = event.data?.payment?.payment_status === "USER_DROPPED" ? "User Dropped" : event.data?.error_details?.error_description || "N/A";
 
     if (isPaid) {
       // Send success template
@@ -45,16 +46,12 @@ export async function POST(req) {
             new Date().toISOString(),
           ],
         }),
-        sendWhatsAppTemplate({
-          to: 7217210054,
-          templateName: "membership_payment_successful",
-          templateParams: [
-            customerName,
-            plan,
-            orderId,
-            new Date().toISOString(),
-          ],
-        }),
+        sendWhatsAppTemplateToBroadcast(
+          "abandoned cart", 
+          "abandoned_cart_payment_success",
+          [orderId, customerName, plan, new Date().toISOString()],
+          phone
+        ),
       ]);
       // Assign success custom fields
       // await assignCustomerTags({
@@ -80,17 +77,12 @@ export async function POST(req) {
             7304607954,
           ],
         }),
-        sendWhatsAppTemplate({
-          to: 7217210054,
-          templateName: "membership_payment_failed",
-          templateParams: [
-            customerName,
-            plan,
-            orderId,
-            new Date().toISOString(),
-            7304607954,
-          ],
-        }),
+        sendWhatsAppTemplateToBroadcast(
+          "abandoned cart", 
+          "abandoned_cart_payment_failed",
+          [customerName, plan, new Date().toISOString(), reason],
+          phone
+        ),
       ]);
 
       // Assign failure custom fields

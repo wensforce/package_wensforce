@@ -1,6 +1,5 @@
 // app/api/cashfree/verify-order/route.js
 import { NextResponse } from 'next/server';
-import { sendWhatsAppTemplate, assignCustomerTags } from '../../lib/whatsapp';
 
 const CF_BASE_URL =
   process.env.CASHFREE_ENV === 'production'
