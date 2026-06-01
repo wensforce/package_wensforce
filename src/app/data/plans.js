@@ -111,7 +111,7 @@ export const plans = [
       },
       {
         title: '2× Airport Lounge Access',
-        desc: 'Domestic + 1× International terminal across India',
+        desc: '2× Domestic or 1× International terminal across India',
         worth: 10000,
         icon: '✈️',
       },
