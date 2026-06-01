@@ -11,12 +11,13 @@
   "dependencies": {
     "@cashfreepayments/cashfree-js": "^1.0.7",
     "@vercel/analytics": "^2.0.1",
-    "axios": "^1.16.0",
+    "axios": "^1.16.1",
     "lucide-react": "^1.14.0",
     "next": "16.2.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "swiper": "^12.1.4"
+    "swiper": "^12.1.4",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
