@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Crown, Gem, Tag, AlertTriangle, CheckCircle, Star } from 'lucide-react';
 
 const WA_NUMBER = '917304607954';
-const DEADLINE = '2026-05-31T23:59:59+05:30';
+const DEADLINE = '2026-06-30T23:59:59+05:30';
 
 const TIER_PRICES = {
   essential: '₹24,999* + GST 18% Extra',
@@ -105,7 +105,7 @@ export default function FoundingMemberBanner() {
             style={{ backgroundColor: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.35)', color: '#f87171' }}
           >
             <AlertTriangle size={12} strokeWidth={2.5} />
-            Access Closes May 31, 2026 — 11:59 PM IST
+            Access Closes June 30, 2026 — 11:59 PM IST
           </div>
         </div>
 
@@ -126,7 +126,7 @@ export default function FoundingMemberBanner() {
         </h2>
 
         <p className="text-center text-white/40 text-sm font-light mb-10 max-w-lg mx-auto leading-relaxed">
-          After May 31, all new members pay the updated price for the next cycle.
+          After June 30, all new members pay the updated price for the next cycle.
           Join now and pay today&apos;s rate for your first membership year.
         </p>
 
@@ -144,7 +144,7 @@ export default function FoundingMemberBanner() {
         {/* Tier pricing pills */}
         <div className="mb-10">
           <p className="text-center text-white/30 text-[10px] uppercase tracking-[0.3em] font-medium mb-5">
-            Current founding rates — valid till May 31
+            Current founding rates — valid till June 30, 2026
           </p>
           <div className="grid grid-cols-5 gap-2 sm:gap-3">
             {tierList.map((id) => (
@@ -193,7 +193,7 @@ export default function FoundingMemberBanner() {
         >
           <AlertTriangle size={15} className="text-red-400 shrink-0 mt-0.5" strokeWidth={2} />
           <p className="text-red-300/70 text-xs font-light leading-relaxed">
-            <strong className="text-red-300 font-semibold">After May 31, 2026:</strong> New memberships will be onboarded at the updated pricing for the next financial year cycle. This window will not be extended.
+            <strong className="text-red-300 font-semibold">After June 30, 2026:</strong> New memberships will be onboarded at the updated pricing for the next financial year cycle. This window will not be extended.
           </p>
         </div>
 
@@ -208,7 +208,7 @@ export default function FoundingMemberBanner() {
             Claim Founding Rate — Premium
           </Link>
           <a
-            href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Hi WENS Force, I want to claim Founding Member pricing before May 31. Please guide me.')}`}
+            href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Hi WENS Force, I want to claim Founding Member pricing before June 30, 2026. Please guide me.')}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 font-medium py-4 px-8 rounded-full text-sm transition-all w-full sm:w-auto"
@@ -221,7 +221,7 @@ export default function FoundingMemberBanner() {
         </div>
 
         <p className="text-center text-white/15 text-xs mt-6">
-          wensforce.com &nbsp;·&nbsp; +91-73046 07954 &nbsp;·&nbsp; Founding access closes 31 May 2026
+          wensforce.com &nbsp;·&nbsp; +91-73046 07954 &nbsp;·&nbsp; Founding access closes 30 June 2026
         </p>
 
       </div>
