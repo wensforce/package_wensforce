@@ -4,11 +4,12 @@ const WA_NUMBER = '917304607954';
 import { plans } from '../data/plans.js';
 const HERO_VIDEO_URL = 'https://d2zcmp43lwd2kr.cloudfront.net/videos/hero_video.mp4';
 
-export default function HeroSection() {
+export default async function HeroSection({ welcomeIndia }) {
   const heroWaMsg = encodeURIComponent(
     "Hi WENS Force, I'm exploring your subscription. Can you help me find the right tier?"
   );
   const heroWaUrl = `https://wa.me/${WA_NUMBER}?text=${heroWaMsg}`;
+
 
   return (
     <>
@@ -87,11 +88,11 @@ export default function HeroSection() {
         {/* Content */}
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           <p className="text-[#C9A24B] text-[10px] tracking-[0.45em] uppercase font-semibold mb-5">
-            Est. 2008 &nbsp;·&nbsp; India&apos;s Premium Subscription
+            Est. 2008 &nbsp;·&nbsp; India&apos;s Premium { welcomeIndia ? "Packages":"Subscription" }
           </p>
 
           <h1 className="font-serif-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.08] mb-6 tracking-tight">
-            India&apos;s Only Subscription for
+            India&apos;s Only  {welcomeIndia ? "Package":"Subscription" }  for
             <br />
             <span
               className="text-transparent bg-clip-text"

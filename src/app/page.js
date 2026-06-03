@@ -398,7 +398,7 @@ export default async function HomePage({ searchParams }) {
       <Header />
 
       {/* ── HERO (with announcement bar + full-screen video) ── */}
-      <HeroSection />
+      <HeroSection welcomeIndia={welcomeIndia} />
 
       {/* ── TRUST STRIP ── */}
       <TrustStrip />
