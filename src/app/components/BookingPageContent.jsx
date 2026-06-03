@@ -4,10 +4,16 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { load } from "@cashfreepayments/cashfree-js";
 import { Check, Shield, ArrowLeft, Gem, Crown } from "lucide-react";
+import { plans as mainPlans } from "../data/plans";
+import { plans as welcomePlans } from "../data/welcomeIndia";
+
+const plans = [...mainPlans, ...welcomePlans];
+const welcomePlanIds = new Set(welcomePlans.map((p) => p.id));
 
 const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
 const WA_NUMBER = "917304607954";
 const GST_RATE = 0.18;
+const GST_RATE_WELCOME = 0.05;
 
 // Top international currencies — keep codes in sync with API routes
 const CURRENCIES = [
@@ -1055,51 +1061,21 @@ const CITIES = [
   "Other",
 ];
 
-const TIER_HIGHLIGHTS = {
-  essential: [
-    { text: "3 Curated Journeys per year", bold: true },
-    { text: "1× VIP Darshan Voucher (worth ₹4,000)" },
-    { text: "1× Airport Lounge Access (worth ₹5,000)" },
-    { text: "24×7 Concierge Helpline" },
-    { text: "Family-Transferable membership" },
-  ],
-  executive: [
-    { text: "4 Curated Journeys per year", bold: true },
-    { text: "2× VIP Darshan Vouchers (worth ₹10,000)" },
-    { text: "Heritage Monument Fast-Track Pass" },
-    { text: "Free Vehicle Upgrade Voucher (worth ₹15,000)" },
-    { text: "24×7 Concierge Helpline" },
-  ],
-  premium: [
-    { text: "5 Curated Journeys per year", bold: true },
-    { text: "3× VIP Darshan Vouchers (worth ₹20,000)" },
-    { text: "Unarmed Bodyguard on every trip", bold: true },
-    { text: "Dedicated Relationship Manager" },
-    { text: "Personal Security Risk Assessment (worth ₹10,000)" },
-  ],
-  elite: [
-    { text: "5 Curated Journeys per year", bold: true },
-    { text: "5× Premium VIP Darshan Vouchers (worth ₹25,000)" },
-    { text: "Armed Bodyguard + Luxury Sedan", bold: true },
-    { text: "Unlimited Domestic Lounge Access (worth ₹50,000)" },
-    { text: "Fine-Dining Voucher + Personalised Gift" },
-  ],
-  sovereign: [
-    { text: "5 Curated Journeys — Luxury SUV", bold: true },
-    { text: "Unlimited VIP Darshan (all 11 partner temples)" },
-    { text: "Bhasm Aarti VVIP Booking — Mahakaleshwar", bold: true },
-    { text: "Unlimited All Airport Lounges (Priority Pass)" },
-    { text: "4× Spa Sessions + 2× Fine Dining + Airport Concierge" },
-  ],
-};
+const TIER_HIGHLIGHTS = Object.fromEntries(
+  plans.map((p) => [
+    p.id,
+    p.privileges.map((priv) => ({
+      text: (!welcomePlanIds.has(p.id) && priv.worth)
+        ? `${priv.title} (worth ₹${priv.worth.toLocaleString("en-IN")})`
+        : priv.title,
+      bold: !welcomePlanIds.has(p.id) && !!priv.worth,
+    })),
+  ])
+);
 
-const PLAN_IMAGES = {
-  essential: "/cards/Sedan_Essential_Desktop.png",
-  executive: "/cards/BMW_Executive_v2.png",
-  premium: "/cards/GLC_Premium_v2.png",
-  elite: "/cards/S-Class_Elite_v2.jpg",
-  sovereign: "/cards/Defender_Sovereign_v2.png",
-};
+const PLAN_IMAGES = Object.fromEntries(
+  plans.map((p) => [p.id, p.image])
+);
 
 const PLAN_ACCENTS = {
   essential: { color: "#94a3b8", badge: null },
@@ -1287,13 +1263,16 @@ export default function BookingPageContent({
   const isIndia = paymentMethod === "india";
   const currencyData =
     CURRENCIES.find((c) => c.code === selectedCurrency) ?? CURRENCIES[0];
+  const isWelcomeIndia = welcomePlanIds.has(plan.id);
+  const effectiveGstRate = isWelcomeIndia ? 0 : GST_RATE;
+  const gstLabel = isWelcomeIndia ? "All Inclusive" : "GST 18% Extra";
 
   // India pricing
-  const gstAmount = Math.ceil(plan.price * GST_RATE);
+  const gstAmount = Math.ceil(plan.price * effectiveGstRate);
   const indiaTotalINR = plan.price + gstAmount;
 
   // International pricing
-  const intlGstAmount = Math.ceil(plan.price * GST_RATE);
+  const intlGstAmount = Math.ceil(plan.price * effectiveGstRate);
   const intlTotalINR = plan.price + intlGstAmount;
   const intlTotalForeign = currencyRateLoading
     ? null
@@ -1542,10 +1521,12 @@ export default function BookingPageContent({
               >
                 {INR(plan.price)}*
               </span>
-              <span className="text-[11px] font-semibold text-gray-400 mb-1">GST 18% Extra</span>
+              <span className="text-[11px] font-semibold text-gray-400 mb-1">{gstLabel}</span>
+              {!isWelcomeIndia && (
               <span className="text-gray-400 text-sm font-light mb-1">
                 / year, all-inclusive
               </span>
+              )}
               {anchorPrice && (
                 <span
                   className="mb-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full"
@@ -1828,7 +1809,7 @@ export default function BookingPageContent({
                 {/* Phone */}
                 <div>
                   <label className="block text-[10px] font-bold text-gray-400 mb-2 tracking-[0.22em] uppercase">
-                    {isIndia ? "Mobile Number" : "Contact Number"}{" "}
+                    {isIndia ? "Mobile Number" : "Whatsapp Number"}{" "}
                     <span className="text-red-400">*</span>
                   </label>
                   {isIndia ? (
@@ -1962,6 +1943,7 @@ export default function BookingPageContent({
                         )}
                       </div>
                     </div>
+                    {!isWelcomeIndia && (
                     <div className="flex justify-between items-center">
                       <span className="flex items-center gap-1.5 text-xs text-gray-500">
                         <span className="bg-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
@@ -1980,6 +1962,7 @@ export default function BookingPageContent({
                         )}
                       </div>
                     </div>
+                    )}
                   </div>
 
                   <div

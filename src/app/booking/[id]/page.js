@@ -1,27 +1,15 @@
 import { notFound } from 'next/navigation';
-import { plans, getPlanById } from '../../data/plans';
+import { plans as mainPlans, getPlanById as getMainPlanById } from '../../data/plans';
+import { plans as welcomePlans } from '../../data/welcomeIndia';
 import BookingPageContent from '../../components/BookingPageContent';
+
+const allPlans = [...mainPlans, ...welcomePlans];
+const getPlanById = (id) => allPlans.find((p) => p.id === id);
 
 const INR = (n) => '₹' + Number(n).toLocaleString('en-IN');
 
-const ANCHOR_PRICES = {
-  essential: 34999,
-  executive: 64999,
-  premium: 99999,
-  elite: 130000,
-  sovereign: 250000,
-};
-
-const FOUNDING_SPOTS = {
-  essential: 82,
-  executive: 71,
-  premium: 58,
-  elite: 73,
-  sovereign: 41,
-};
-
 export async function generateStaticParams() {
-  return plans.map((p) => ({ id: p.id }));
+  return allPlans.map((p) => ({ id: p.id }));
 }
 
 export async function generateMetadata({ params }) {
@@ -58,8 +46,8 @@ export default async function BookingPage({ params }) {
   return (
     <BookingPageContent
       plan={plan}
-      anchorPrice={ANCHOR_PRICES[plan.id]}
-      foundingSpots={FOUNDING_SPOTS[plan.id]}
+      anchorPrice={plan.anchorPrice}
+      foundingSpots={plan.confirmed}
     />
   );
 }

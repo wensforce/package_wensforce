@@ -7,26 +7,15 @@ import {
   Sparkles, Utensils, Gift, Phone, Zap, Wifi,
   RefreshCw, Flame, UserCheck, CheckCircle,
 } from 'lucide-react';
-import { plans, getPlanById } from '../../data/plans';
+import { plans as mainPlans } from '../../data/plans';
+import { plans as welcomePlans } from '../../data/welcomeIndia';
+
+const allPlans = [...mainPlans, ...welcomePlans];
+const getPlanById = (id) => allPlans.find((p) => p.id === id);
 
 const INR = (n) => '₹' + Number(n).toLocaleString('en-IN');
 const WA_NUMBER = '917304607954';
 
-const ANCHOR_PRICES = {
-  essential: 65000,
-  executive: 85000,
-  premium: 135000,
-  elite: 195000,
-  sovereign: 365000,
-};
-
-const FOUNDING_SPOTS = {
-  essential: 82,
-  executive: 71,
-  premium: 58,
-  elite: 73,
-  sovereign: 41,
-};
 
 const TIER_ICONS = {
   essential: Car,
@@ -34,6 +23,11 @@ const TIER_ICONS = {
   premium: ShieldCheck,
   elite: Gem,
   sovereign: Crown,
+  'comfortable-arrival': Car,
+  'arrive-in-style': Users,
+  'arrival-en-grandeur': ShieldCheck,
+  'ultimate-convoy-matrix': Gem,
+  'end-to-end-concierge': Crown,
 };
 
 const PRIV_ICONS = {
@@ -42,6 +36,9 @@ const PRIV_ICONS = {
   '⚡': Zap, '🚗': Car, '🛜': Wifi, '🔄': RefreshCw,
   '👨‍👩‍👧': Users, '🪔': Flame, '🤵': UserCheck, '✅': CheckCircle,
   '🏎️': Car, '🔋': Zap,
+  '🚘': Car, '📶': Wifi, '💊': Zap, '🧴': Sparkles,
+  '🪪': UserCheck, '🎬': Sparkles, '🚔': Shield, '🚙': Car,
+  '🤝': Users, '🛫': Plane, '🅿️': Navigation,
 };
 
 const NOT_INCLUDED = {
@@ -50,16 +47,17 @@ const NOT_INCLUDED = {
   premium: ['3× International Lounge Access', 'Fine Dining Voucher', 'Same-Day SUV Upgrade', 'Personalised Gift Delivery'],
   elite: ['Bhasm Aarti VVIP Booking at Ujjain (Sovereign exclusive)', 'Unlimited VIP Darshan', 'Airport Concierge Service', '4× Spa Sessions', 'Family Extension Booking Line'],
   sovereign: [],
+  'comfortable-arrival': ['Annual Membership', 'Multi-Trip Package', 'VIP Darshan Access', 'Spa / Wellness', 'Fine Dining', 'Heritage Fast-Track'],
+  'arrive-in-style': ['Annual Membership', 'Multi-Trip Package', 'VIP Darshan Access', 'Spa / Wellness', 'Fine Dining', 'Heritage Fast-Track'],
+  'arrival-en-grandeur': ['Annual Membership', 'Multi-Trip Package', 'VIP Darshan Access', 'Spa / Wellness', 'Fine Dining'],
+  'ultimate-convoy-matrix': ['Annual Membership', 'Multi-Trip Package', 'VIP Darshan Access', 'Spa / Wellness', 'Fine Dining'],
+  'end-to-end-concierge': [],
 };
 
-// Per-plan hero imagery (high-res, confirmed Unsplash IDs)
-const HERO_IMAGES = {
-  essential: '/cards/Sedan_Essential_Desktop.png',
-  executive: '/cards/BMW_Executive_v2.png',
-  premium:   '/cards/GLC_Premium_v2.png',
-  elite:     '/cards/S-Class_Elite_v2.jpg',
-  sovereign: '/cards/Defender_Sovereign_v2.png',
-};
+
+// Alias maps — welcome plans reuse production themes/services
+const TIER_THEME_FALLBACK = { 'comfortable-arrival': 'essential', 'arrive-in-style': 'executive', 'arrival-en-grandeur': 'elite', 'ultimate-convoy-matrix': 'elite', 'end-to-end-concierge': 'sovereign' };
+const PLAN_SERVICES_FALLBACK = { 'comfortable-arrival': 'essential', 'arrive-in-style': 'executive', 'arrival-en-grandeur': 'premium', 'ultimate-convoy-matrix': 'elite', 'end-to-end-concierge': 'elite' };
 
 // Service category imagery for the showcase section
 const SERVICE_IMAGES = {
@@ -352,7 +350,7 @@ const TIER_THEMES = {
 };
 
 export async function generateStaticParams() {
-  return plans.map((p) => ({ id: p.id }));
+  return allPlans.map((p) => ({ id: p.id }));
 }
 
 export async function generateMetadata({ params }) {
@@ -372,13 +370,13 @@ export async function generateMetadata({ params }) {
       url,
       title,
       description,
-      images: [{ url: HERO_IMAGES[id] || '/og-default.webp', width: 1200, height: 630, alt: `WENS Force ${plan.name} Membership` }],
+      images: [{ url: plan.image || '/og-default.webp', width: 1200, height: 630, alt: `WENS Force ${plan.name} Membership` }],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: [HERO_IMAGES[id] || '/og-default.webp'],
+      images: [plan.image || '/og-default.webp'],
     },
   };
 }
@@ -388,13 +386,16 @@ export default async function PlanDetailPage({ params }) {
   const plan = getPlanById(id);
   if (!plan) notFound();
 
-  const theme = TIER_THEMES[plan.id];
+  const theme = TIER_THEMES[plan.id] || TIER_THEMES[TIER_THEME_FALLBACK[plan.id]] || TIER_THEMES.essential;
   const TierIcon = TIER_ICONS[plan.id] || Car;
-  const anchorPrice = ANCHOR_PRICES[plan.id];
-  const foundingSpots = FOUNDING_SPOTS[plan.id];
+  const isWelcomeIndia = welcomePlans.some((p) => p.id === plan.id);
+  const sourcePlans = isWelcomeIndia ? welcomePlans : mainPlans;
+  const backHref = isWelcomeIndia ? '/?welcomeIndia=true' : '/';
+  const anchorPrice = plan.anchorPrice;
+  const foundingSpots = plan.confirmed;
   const notIncluded = NOT_INCLUDED[plan.id] || [];
-  const otherPlans = plans.filter((p) => p.id !== plan.id).slice(0, 4);
-  const services = PLAN_SERVICES[plan.id] || [];
+  const otherPlans = sourcePlans.filter((p) => p.id !== plan.id);
+  const services = PLAN_SERVICES[plan.id] || PLAN_SERVICES[PLAN_SERVICES_FALLBACK[plan.id]] || [];
 
   const waMsg = `Hi WENS Force, I'm interested in the ${plan.name} membership (${INR(plan.price)}/yr). Can you help me get started?`;
   const waUrl = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(waMsg)}`;
@@ -406,7 +407,7 @@ export default async function PlanDetailPage({ params }) {
       <header className="sticky top-0 z-40 border-b border-white/8" style={{ backgroundColor: '#0B1E3F' }}>
         <div className="max-w-6xl mx-auto px-6 py-3.5 flex items-center justify-between">
           <Link
-            href="/#plans"
+            href={backHref}
             className="flex items-center gap-2 text-white/60 hover:text-white text-sm transition-colors"
           >
             <ArrowLeft size={15} />
@@ -447,7 +448,7 @@ export default async function PlanDetailPage({ params }) {
         {/* Background image */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={HERO_IMAGES[plan.id]}
+          src={plan.image}
           alt={plan.name}
           className="absolute inset-0 w-full h-full object-cover"
           style={{ filter: 'brightness(0.75) saturate(0.9)' }}
@@ -518,7 +519,7 @@ export default async function PlanDetailPage({ params }) {
                   { Icon: Car, text: plan.vehicleType },
                   {
                     Icon: plan.bodyguard.toLowerCase().includes('mma fighter') ? Shield : ShieldCheck,
-                    text: plan.bodyguard.toLowerCase().includes('mma fighter') ? 'MMA Fighter' : 'Armed Bodyguard',
+                    text: plan.bodyguard,
                   },
                 ].map(({ Icon, text }, i) => (
                   <span
@@ -554,7 +555,7 @@ export default async function PlanDetailPage({ params }) {
                 >
                   {INR(plan.price)}*
                 </div>
-                <div className="text-white/50 text-[11px] font-semibold mb-1">GST 18% Extra</div>
+                <div className="text-white/50 text-[11px] font-semibold mb-1">{isWelcomeIndia ? 'All Inclusive' : 'GST 18% Extra'}</div>
                 <div className="text-white/35 text-xs font-light mb-5">per year, all-inclusive</div>
 
                 <div className="space-y-2.5 mb-5 border-t pt-4" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
@@ -579,7 +580,7 @@ export default async function PlanDetailPage({ params }) {
                 >
                   {plan.id === 'elite' && <Gem size={14} strokeWidth={2.5} />}
                   {plan.id === 'sovereign' && <Crown size={14} strokeWidth={2.5} />}
-                  Buy {plan.name} Membership →
+                  {isWelcomeIndia ? 'Book Now →' : `Buy ${plan.name} Membership →`}
                 </Link>
 
                 {/* WhatsApp CTA */}
@@ -609,8 +610,8 @@ export default async function PlanDetailPage({ params }) {
       <div style={{ backgroundColor: '#0B1E3F' }} className="py-10 px-6 border-b border-white/5">
         <div className="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-8 divide-x divide-white/[0.06]">
           {[
-            { num: plan.trips, suffix: '', label: 'Curated Journeys / Year' },
-            { num: `₹${(plan.freePerksWorth / 1000).toFixed(0)}K+`, suffix: '', label: 'In Privileges' },
+            { num: plan.trips, suffix: '', label: isWelcomeIndia ? 'Curated Journeys' : 'Curated Journeys / Year' },
+            ...(!isWelcomeIndia ? [{ num: `₹${(plan.freePerksWorth / 1000).toFixed(0)}K+`, suffix: '', label: 'In Privileges' }] : []),
             { num: `${foundingSpots}/100`, suffix: '', label: 'Founding Spots Left' },
             { num: '24×7', suffix: '', label: 'Concierge Support' },
           ].map(({ num, label }, i) => (
@@ -628,6 +629,7 @@ export default async function PlanDetailPage({ params }) {
       </div>
 
       {/* ── SERVICE SHOWCASE ── */}
+      {!isWelcomeIndia && (
       <section
         className="py-24 px-6"
         style={{ backgroundColor: theme.darkBody ? '#080808' : '#FAFAF8' }}
@@ -718,6 +720,7 @@ export default async function PlanDetailPage({ params }) {
           </div>
         </div>
       </section>
+      )}
 
       {/* ── PRIVILEGES + STICKY SUMMARY ── */}
       <div className={theme.bodyBg}>
@@ -761,7 +764,7 @@ export default async function PlanDetailPage({ params }) {
                           {priv.desc}
                         </p>
                       )}
-                      {priv.worth && (
+                      {priv.worth && !isWelcomeIndia && (
                         <div className={`mt-3 text-[10px] font-bold tracking-wide uppercase ${theme.checkColor}`}>
                           worth {INR(priv.worth)}
                         </div>
@@ -785,15 +788,22 @@ export default async function PlanDetailPage({ params }) {
                       </div>
                     ))}
                   </div>
-                  {plan.id !== 'sovereign' && (
+                  {plan.id !== 'sovereign' && plan.id !== 'end-to-end-concierge' && (
                     <Link
-                      href={`/membership/${plans[plans.findIndex((p) => p.id === plan.id) + 1]?.id || 'sovereign'}`}
+                      href={`/membership/${sourcePlans[sourcePlans.findIndex((p) => p.id === plan.id) + 1]?.id}`}
                       className={`mt-5 text-[11px] font-semibold flex items-center gap-1.5 ${theme.checkColor}`}
                     >
                       See what the next tier adds
                       <ChevronRight size={12} strokeWidth={2.5} />
                     </Link>
                   )}
+                  <Link
+                    href={`/booking/${plan.id}`}
+                    className={`mt-3 text-[11px] font-semibold flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity ${theme.checkColor}`}
+                  >
+                    These can be added as paid add-ons when you book
+                    <ChevronRight size={12} strokeWidth={2.5} />
+                  </Link>
                 </div>
               )}
             </div>
@@ -817,7 +827,7 @@ export default async function PlanDetailPage({ params }) {
                 <div className="p-5">
                   {[
                     { label: 'Validity', val: plan.validity },
-                    { label: 'Curated Journeys', val: `${plan.trips} per year` },
+                    ...(!isWelcomeIndia ? [{ label: 'Curated Journeys', val: `${plan.trips} per year` }] : [{ label: 'Curated Journeys', val: `${plan.trips}` }]),
                     { label: 'Privileges Worth', val: `₹${anchorPrice?.toLocaleString('en-IN')}` },
                     { label: 'Vehicle', val: plan.vehicleType },
                     { label: 'Security', val: plan.bodyguard },
@@ -856,7 +866,9 @@ export default async function PlanDetailPage({ params }) {
                 >
                   {plan.id === 'elite' && <Gem size={14} strokeWidth={2.5} />}
                   {plan.id === 'sovereign' && <Crown size={14} strokeWidth={2.5} />}
-                  {plan.id === 'sovereign'
+                  {isWelcomeIndia
+                    ? `Book Now — ${INR(plan.price)}`
+                    : plan.id === 'sovereign'
                     ? 'Buy Sovereign Membership'
                     : plan.id === 'elite'
                     ? 'Buy Elite Membership'
@@ -935,9 +947,9 @@ export default async function PlanDetailPage({ params }) {
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {otherPlans.map((p) => {
-                const t = TIER_THEMES[p.id];
+                const t = TIER_THEMES[p.id] || TIER_THEMES[TIER_THEME_FALLBACK[p.id]] || TIER_THEMES.essential;
                 const TIcon = TIER_ICONS[p.id] || Car;
-                const isElite = p.id === 'elite';
+                const isElite = p.id === 'elite' || p.id === 'ultimate-convoy-matrix' || p.id === 'end-to-end-concierge';
                 return (
                   <Link
                     key={p.id}
@@ -959,7 +971,7 @@ export default async function PlanDetailPage({ params }) {
                       <div className={`text-lg font-black leading-none mb-0.5 ${t.priceTxt}`}>
                         {INR(p.price)}* 
                         <br />
-                        <span className='text-xs text-gray-400 font-semibold' >GST 18% Extra</span>
+                        <span className='text-xs text-gray-400 font-semibold' >{isWelcomeIndia ? 'All Inclusive' : 'GST 18% Extra'}</span>
                       </div>
                       <div className={`text-[9px] font-light mb-4 ${t.taglineTxt}`}>per year</div>
                       <div
@@ -1038,7 +1050,7 @@ export default async function PlanDetailPage({ params }) {
         style={{ backgroundColor: '#060606', borderColor: 'rgba(255,255,255,0.05)' }}
       >
         <Link
-          href="/"
+          href={backHref}
           className="text-sm font-light transition-colors"
           style={{ color: 'rgba(255,255,255,0.25)' }}
         >

@@ -23,6 +23,7 @@ import TestimonialsSection from "./components/TestimonialsSection";
 import HeroSection from "./components/HeroSection";
 import FoundingMemberBanner from "./components/FoundingMemberBanner";
 import JsonLd from "./components/JsonLd";
+import WelcomeIndiaCard from "./components/WelcomeIndiaCard";
 
 export const metadata = {
   title: "WENS Force — India's Only Luxury Travel + Armed Protection + VIP Darshan Subscription",
@@ -355,7 +356,8 @@ function FAQSection() {
   );
 }
 
-export default function HomePage() {
+export default async function HomePage({ searchParams }) {
+  const { welcomeIndia } = await searchParams;
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -406,7 +408,7 @@ export default function HomePage() {
 
       {/* ── PLANS SPOTLIGHT ── */}
       <section style={{ backgroundColor: "#FAF6EC" }}>
-        <PlansSection />
+        {welcomeIndia === 'true' ? <WelcomeIndiaCard /> : <PlansSection />}
       </section>
 
       {/* ── TIER QUIZ ── */}
@@ -416,9 +418,9 @@ export default function HomePage() {
       {/* <AllPlansGrid plans={plans} /> */}
 
       {/* ── COMPARISON TABLE ── */}
-      <section style={{ backgroundColor: "#FAF6EC" }}>
+      {welcomeIndia === 'true' && <section style={{ backgroundColor: "#FAF6EC" }}>
         <ComparisonTable />
-      </section>
+      </section>}
 
       {/* ── HOW IT WORKS ── */}
       <HowItWorks />
