@@ -418,7 +418,7 @@ export default async function HomePage({ searchParams }) {
       {/* <AllPlansGrid plans={plans} /> */}
 
       {/* ── COMPARISON TABLE ── */}
-      {welcomeIndia === 'true' && <section style={{ backgroundColor: "#FAF6EC" }}>
+      {welcomeIndia !== 'true' && <section style={{ backgroundColor: "#FAF6EC" }}>
         <ComparisonTable />
       </section>}
 
