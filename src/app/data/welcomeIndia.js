@@ -1,7 +1,7 @@
 export const plans = [
   {
     id: "comfortable-arrival",
-    image: "/cards/Sedan_Essential_Desktop.png",
+    image: "/cards/ComfortableArrival.png",
     packageNo: "01",
     name: "Comfortable Arrival",
     tagline: "Your assured premium airport arrival experience",
@@ -86,7 +86,7 @@ export const plans = [
   },
   {
     id: "arrive-in-style",
-    image: "/cards/BMW_Executive_v2.png",
+    image: "/cards/ArrivalWithMercedes.png", //public\cards\ArrivalWithMercedes.png
     packageNo: "02",
     name: "Arrive in Style with Mercedes",
     tagline: "Make your first impression unforgettable — Mercedes all the way",
@@ -177,7 +177,7 @@ export const plans = [
   },
   {
     id: "arrival-in-grandeur",
-    image: "/cards/GLC_Premium_v2.png",
+    image: "/cards/Grandeur.png",  // public\cards\Grandeur.png
     packageNo: "03",
     name: "Arrival in Grandeur",
     tagline: "A grand entrance — luxury car, VIP escort & video shoot",
@@ -280,7 +280,7 @@ export const plans = [
   },
   {
     id: "ultimate-convoy-matrix",
-    image: "/cards/S-Class_Elite_v2.jpg",
+    image: "/cards/UltimateConvoy.png",  // public\cards\UltimateConvoy.png
     packageNo: "04",
     name: "Ultimate Convoy Matrix",
     tagline: "The full executive treatment — convoy, concierge & complete security",
@@ -371,7 +371,7 @@ export const plans = [
   },
   {
     id: "end-to-end-concierge",
-    image: "/cards/S-Class_Elite_v2.jpg",
+    image: "/cards/EndToEnd.png", // public\cards\EndToEnd.png
     packageNo: "05",
     name: "End-to-End Concierge Service",
     tagline: "Complete 3-day VIP coverage — arrival to departure, nothing left to chance",

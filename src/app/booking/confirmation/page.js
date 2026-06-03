@@ -12,21 +12,13 @@ import {
   Crown,
   Shield,
 } from "lucide-react";
+import { plans as membershipPlans } from "@/app/data/plans";
+import { plans as welcomeIndiaPlans } from "@/app/data/welcomeIndia";
 
 const WA_NUMBER = "917304607954";
 
-const PLAN_IMAGES = {
-  essential:
-    "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80",
-  executive:
-    "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1200&q=80",
-  premium:
-    "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80",
-  elite:
-    "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80",
-  sovereign:
-    "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1200&q=80",
-};
+const allPlans = [...membershipPlans, ...welcomeIndiaPlans];
+const getPlanImage = (id) => allPlans.find((p) => p.id === id)?.image || membershipPlans.find((p) => p.id === "elite")?.image;
 
 // ── Loading Screen ────────────────────────────────────────────────────────────
 function LoadingScreen() {
@@ -126,7 +118,7 @@ function ConfirmationContent() {
   const planLabel = plan
     ? plan.charAt(0).toUpperCase() + plan.slice(1)
     : "Membership";
-  const planImage = PLAN_IMAGES[plan] || PLAN_IMAGES.elite;
+  const planImage = getPlanImage(plan);
   const waMsg = `Hi WENS Force! I just completed payment for the ${planLabel} Membership.\n\nOrder ID: ${orderId}\n\nPlease activate my account.`;
 
   if (status === "loading") return <LoadingScreen />;

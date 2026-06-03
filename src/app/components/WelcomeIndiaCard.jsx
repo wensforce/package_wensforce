@@ -41,7 +41,6 @@ const M = {
     num: "01",
     Icon: Car,
     cta: "Book Comfortable Arrival",
-    img: "/cards/Sedan_Essential_Desktop.png",
     accent: "#8e99b0",
     imgFilter: "grayscale(40%) brightness(.54) contrast(1.05)",
     imgOverlay:
@@ -66,7 +65,6 @@ const M = {
     num: "02",
     Icon: Users,
     cta: "Arrive in Style",
-    img: "/cards/BMW_Executive_v2.png",
     accent: "#5a8fc2",
     imgFilter: "grayscale(22%) brightness(.52) contrast(1.10)",
     imgOverlay:
@@ -91,7 +89,6 @@ const M = {
     num: "03",
     Icon: ShieldCheck,
     cta: "Book en Grandeur",
-    img: "/cards/GLC_Premium_v2.png",
     accent: "#c9a24b",
     imgFilter: "grayscale(25%) brightness(.62) contrast(1.20) saturate(1.15)",
     imgOverlay:
@@ -118,7 +115,6 @@ const M = {
     num: "04",
     Icon: Gem,
     cta: "Book Convoy",
-    img: "/cards/S-Class_Elite_v2.jpg",
     accent: "#7a8a9a",
     imgFilter: "grayscale(35%) brightness(.50) contrast(1.08)",
     imgOverlay:
@@ -143,7 +139,6 @@ const M = {
     num: "05",
     Icon: Crown,
     cta: "Book VIP Concierge",
-    img: "/cards/S-Class_Elite_v2.jpg",
     accent: "#9b8a6a",
     imgFilter: "brightness(.44) contrast(1.15) saturate(.75)",
     imgOverlay:
@@ -336,7 +331,7 @@ export default function WelcomeIndiaCard() {
                 <div className={`card-img-panel relative shrink-0 overflow-hidden ${isFullWidth ? "w-full h-80 xl:w-[45%] xl:h-auto" : "w-full h-[200px] xl:w-[48%] xl:h-auto"}`}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={m.img}
+                    src={plan.image}
                     alt={plan.name}
                     className="wi-pc-img absolute inset-0 w-full h-full object-cover"
                     style={{ filter: m.imgFilter, transform: "scale(1)" }}
