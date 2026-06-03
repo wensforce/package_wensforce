@@ -6,9 +6,11 @@ import { useAuthStore } from "@/store/auth.store";
 import { Loader2 } from "lucide-react";
 
 export default function ProtectedLayout({ children }) {
-  useInitAuth();
-  useRequireAuth(); // redirects to /login if not authenticated
-  const isInitialized = useAuthStore((s) => s.isInitialized && s.isAuthenticated);
+  useInitAuth(); // restores session from httpOnly refresh cookie
+  useRequireAuth(); // redirects to /auth if not authenticated
+  const isInitialized = useAuthStore(
+    (s) => s.isInitialized && s.isAuthenticated,
+  );
 
   // Block render until the token-refresh check completes — prevents content flash
   if (!isInitialized) {

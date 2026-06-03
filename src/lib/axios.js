@@ -1,9 +1,10 @@
 import axios from "axios";
 import { tokenManager } from "./tokenManager";
+import { useAuthStore } from "@/store/auth.store";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
-  withCredentials: true,                    // sends httpOnly cookie automatically
+  withCredentials: true, // sends httpOnly cookie automatically
   headers: { "Content-Type": "application/json" },
 });
 
@@ -20,21 +21,28 @@ api.interceptors.response.use(
   async (error) => {
     const original = error.config;
 
-    if (error.response?.status === 401 && !original._retry) {
+    const isRefreshRequest = original.url?.includes("/auth/refresh-token");
+
+    if (error.response?.status === 401 && !original._retry && !isRefreshRequest) {
       original._retry = true;
       try {
-        const { data } = await api.post("/auth/refresh"); // cookie sent auto
-        tokenManager.set(data.accessToken);
-        original.headers.Authorization = `Bearer ${data.accessToken}`;
-        return api(original);                             // retry failed request
+        const { data } = await api.post("/auth/refresh-token");
+        tokenManager.set(data.data?.accessToken);
+        original.headers.Authorization = `Bearer ${data.data?.accessToken}`;
+        return api(original);
       } catch {
         tokenManager.clear();
-        window.location.href = "/login";
+        useAuthStore.getState().clearAuth();
       }
     }
 
+    if (error.response?.status === 401 && isRefreshRequest) {
+      tokenManager.clear();
+      useAuthStore.getState().clearAuth();
+    }
+
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

@@ -24,7 +24,6 @@ export default function AuthPage() {
   function handleSendOtp(e) {
     e.preventDefault();
     setLoading(true);
-    // TODO: call send OTP API, then:
     setErrorMsg("");
     sendOtp(country.dial + phone)
       .then(() => {
@@ -54,12 +53,15 @@ export default function AuthPage() {
   function handleResend() {
     setOtp(Array(OTP_LENGTH).fill(""));
     setResendKey((k) => k + 1);
-    // TODO: call resend OTP API
+    resendOtp(country.dial + phone, "SMS").catch(() => {
+      setErrorMsg("Failed to resend OTP. Please try again.");
+    });
   }
 
   function handleWhatsAppOtp() {
-    // TODO: call send OTP via WhatsApp API
-    console.log("WhatsApp OTP requested for:", country.dial, phone);
+    resendOtp(country.dial + phone, "Whatsapp").catch(() => {
+      setErrorMsg("Failed to send OTP via WhatsApp. Please try again.");
+    });
   }
 
   function handleBack() {

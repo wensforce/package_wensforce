@@ -9,23 +9,8 @@ import { tokenManager } from "@/lib/tokenManager";
 export const useAuth = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { setAuth, clearAuth } = useAuthStore();
+  const { setAuth, clearAuth, setInitialized } = useAuthStore();
   const router = useRouter();
-
-  //   const login = async (email, password) => {
-  //     try {
-  //       setLoading(true);
-  //       setError(null);
-  //       const { data } = await authApi.login({ email, password });
-  //       tokenManager.set(data.accessToken);
-  //       setAuth(data.user);
-  //       router.push("/dashboard");
-  //     } catch (err) {
-  //       setError(err.response?.data?.message ?? "Login failed");
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
 
   const sendOtp = async (mobileNumber) => {
     try {
@@ -47,6 +32,7 @@ export const useAuth = () => {
       const { data } = await authApi.verifyOtp(mobileNumber, otp);
       tokenManager.set(data.accessToken);
       setAuth(data.user);
+      setInitialized(); // mark as initialized so layout skips the getProfile call
       router.push("/dashboard");
     } catch (err) {
       setError(err.response?.data?.message ?? "OTP verification failed");
@@ -56,11 +42,11 @@ export const useAuth = () => {
     }
   };
 
-  const resendOtp = async (mobileNumber) => {
+  const resendOtp = async (mobileNumber, platform) => {
     try {
       setLoading(true);
       setError(null);
-      await authApi.resendOtp(mobileNumber);
+      await authApi.resendOtp(mobileNumber, platform);
     } catch (err) {
       setError(err.response?.data?.message ?? "Failed to resend OTP");
     } finally {
@@ -74,7 +60,7 @@ export const useAuth = () => {
     } finally {
       tokenManager.clear();
       clearAuth();
-      router.push("/login");
+      router.push("/auth");
     }
   };
 
