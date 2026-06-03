@@ -87,7 +87,7 @@ const M = {
     isElite: false,
     ctaClass: "silver-cta",
   },
-  "arrival-en-grandeur": {
+  "arrival-in-grandeur": {
     num: "03",
     Icon: ShieldCheck,
     cta: "Book en Grandeur",
@@ -168,7 +168,7 @@ const M = {
   },
 };
 
-const ORDER = ["comfortable-arrival", "arrive-in-style", "arrival-en-grandeur", "ultimate-convoy-matrix", "end-to-end-concierge"];
+const ORDER = ["comfortable-arrival", "arrive-in-style", "arrival-in-grandeur", "ultimate-convoy-matrix", "end-to-end-concierge"];
 
 export default function WelcomeIndiaCard() {
   const [currency, setCurrency] = useState("INR");

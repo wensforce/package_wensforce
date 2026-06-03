@@ -270,7 +270,7 @@ export const plans = [
     faqs: [
       {
         q: "What does the Video Shoot ★ include?",
-        a: "A dedicated videographer captures your arrival — from the moment you exit the terminal through to your vehicle. Edited footage is shared within 24 hours via WhatsApp or email.",
+        a: "A dedicated videographer captures your arrival — from the moment you exit the terminal through to your vehicle. Raw footage is shared within 24 hours via WhatsApp or email.",
       },
       {
         q: "Can I customise the vehicle choice for this package?",
