@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 import { plans as mainPlans, getPlanById as getMainPlanById } from '../../data/plans';
 import { plans as welcomePlans } from '../../data/welcomeIndia';
 import BookingPageContent from '../../components/BookingPageContent';
@@ -44,10 +45,12 @@ export default async function BookingPage({ params }) {
   if (!plan) notFound();
 
   return (
-    <BookingPageContent
-      plan={plan}
-      anchorPrice={plan.anchorPrice}
-      foundingSpots={plan.confirmed}
-    />
+    <Suspense fallback={null}>
+      <BookingPageContent
+        plan={plan}
+        anchorPrice={plan.anchorPrice}
+        foundingSpots={plan.confirmed}
+      />
+    </Suspense>
   );
 }

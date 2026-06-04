@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import {
   Car,
   Users,
@@ -396,7 +397,9 @@ export default async function HomePage({ searchParams }) {
     <div className="min-h-screen relative">
       <JsonLd data={faqSchema} />
       <JsonLd data={itemListSchema} />
-      <Header />
+      <Suspense fallback={null}>
+        <Header />
+      </Suspense>
 
       {/* ── HERO (with announcement bar + full-screen video) ── */}
       <HeroSection welcomeIndia={welcomeIndia} />
