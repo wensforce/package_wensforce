@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Crown, Gem, Tag, AlertTriangle, CheckCircle, Star } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 
 const WA_NUMBER = '917304607954';
 const DEADLINE = '2026-06-30T23:59:59+05:30';
@@ -77,7 +78,9 @@ function CountdownBlock() {
 
 export default function FoundingMemberBanner() {
   const tierList = ['essential', 'executive', 'premium', 'elite', 'sovereign'];
-
+  const searchParams = useSearchParams();
+  const isWelcomeIndia = searchParams.get('welcomeIndia') === 'true';
+  
   return (
     <section
       id="founding"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { load } from "@cashfreepayments/cashfree-js";
 import { Check, Shield, ArrowLeft, Gem, Crown } from "lucide-react";
@@ -10,10 +11,18 @@ import { plans as welcomePlans } from "../data/welcomeIndia";
 const plans = [...mainPlans, ...welcomePlans];
 const welcomePlanIds = new Set(welcomePlans.map((p) => p.id));
 
+// Fixed USD prices for Welcome India plans (not exchange-rate based)
+const WELCOME_USD_PRICES = {
+  "comfortable-arrival": 100,
+  "arrive-in-style": 150,
+  "arrival-in-grandeur": 370,
+  "ultimate-convoy-matrix": 900,
+  "end-to-end-concierge": 2100,
+};
+
 const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
 const WA_NUMBER = "917304607954";
 const GST_RATE = 0.18;
-const GST_RATE_WELCOME = 0.05;
 
 // Top international currencies — keep codes in sync with API routes
 const CURRENCIES = [
@@ -1243,20 +1252,27 @@ export default function BookingPageContent({
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [payError, setPayError] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("india");
-  const [selectedCurrency, setSelectedCurrency] = useState("USD");
+  const searchParams = useSearchParams();
+  const urlCurrency = searchParams.get("currency");
+  const initCurrency = urlCurrency && urlCurrency !== "INR" ? urlCurrency : "USD";
+  const initMethod = urlCurrency && urlCurrency !== "INR" ? "international" : "india";
+
+  const [paymentMethod, setPaymentMethod] = useState(initMethod);
+  const [selectedCurrency, setSelectedCurrency] = useState(initCurrency);
   const [currencyRate, setCurrencyRate] = useState(94); // INR per 1 unit of selectedCurrency
   const [currencyRateLoading, setCurrencyRateLoading] = useState(false);
 
+  const isFixedUSD = selectedCurrency === "USD" && welcomePlanIds.has(plan.id);
+
   useEffect(() => {
-    if (paymentMethod === "india") return;
+    if (paymentMethod === "india" || isFixedUSD) return;
     setCurrencyRateLoading(true);
     fetch(`/api/exchange-rate?currency=${selectedCurrency}`)
       .then((r) => r.json())
       .then((d) => setCurrencyRate(d.rate || 94))
       .catch(() => {})
       .finally(() => setCurrencyRateLoading(false));
-  }, [paymentMethod, selectedCurrency]);
+  }, [paymentMethod, selectedCurrency, isFixedUSD]);
 
   const highlights = TIER_HIGHLIGHTS[plan.id] || [];
   const planAccent = PLAN_ACCENTS[plan.id] || PLAN_ACCENTS.essential;
@@ -1274,18 +1290,27 @@ export default function BookingPageContent({
   // International pricing
   const intlGstAmount = Math.ceil(plan.price * effectiveGstRate);
   const intlTotalINR = plan.price + intlGstAmount;
-  const intlTotalForeign = currencyRateLoading
-    ? null
-    : roundForeign(intlTotalINR / currencyRate, selectedCurrency);
+  const intlTotalForeign = isFixedUSD
+    ? (WELCOME_USD_PRICES[plan.id] ?? null)
+    : currencyRateLoading
+      ? null
+      : roundForeign(intlTotalINR / currencyRate, selectedCurrency);
 
   // Convert any INR amount to the selected foreign currency (for line-item display)
-  const toForeign = (inrAmount) =>
-    currencyRateLoading
+  const toForeign = (inrAmount) => {
+    if (isFixedUSD) {
+      // For welcome plans with fixed USD, scale proportionally from plan base price
+      const usdBase = WELCOME_USD_PRICES[plan.id] ?? 0;
+      const scaled = Math.round((inrAmount / (plan.price || 1)) * usdBase);
+      return fmtForeign(scaled, "USD");
+    }
+    return currencyRateLoading
       ? "…"
       : fmtForeign(
           roundForeign(inrAmount / currencyRate, selectedCurrency),
           selectedCurrency,
         );
+  };
 
   const spotsLeft = 100 - foundingSpots;
   const displayPrice = isIndia
@@ -1506,7 +1531,7 @@ export default function BookingPageContent({
 
           {/* Price block */}
           <div className="mb-7">
-            {anchorPrice && (
+            {anchorPrice && isIndia && (
               <span className="text-gray-400 text-sm line-through block mb-1">
                 {INR(anchorPrice)}*
               </span>
@@ -1519,7 +1544,9 @@ export default function BookingPageContent({
                   color: plan.id === "elite" ? "#C9A24B" : "#0B1E3F",
                 }}
               >
-                {INR(plan.price)}*
+                 {isIndia
+                        ? `${INR(indiaTotalINR)}`
+                        : `${fmtForeign(intlTotalForeign, selectedCurrency)}`}*
               </span>
               <span className="text-[11px] font-semibold text-gray-400 mb-1">{gstLabel}</span>
               {!isWelcomeIndia && (
@@ -1770,15 +1797,20 @@ export default function BookingPageContent({
                           ▾
                         </span>
                       </div>
-                      {currencyRateLoading && (
+                      {currencyRateLoading && !isFixedUSD && (
                         <p className="text-[10px] text-amber-600 mt-1">
                           Fetching live rate…
                         </p>
                       )}
-                      {!currencyRateLoading && (
+                      {!currencyRateLoading && !isFixedUSD && (
                         <p className="text-[10px] text-gray-400 mt-1">
                           1 {selectedCurrency} ≈ {INR(Math.round(currencyRate))}{" "}
                           · live rate
+                        </p>
+                      )}
+                      {isFixedUSD && (
+                        <p className="text-[10px] text-gray-400 mt-1">
+                          Fixed USD rate · all inclusive
                         </p>
                       )}
                     </div>
@@ -1936,7 +1968,7 @@ export default function BookingPageContent({
                           {isIndia ? INR(plan.price) + "*" : toForeign(plan.price) + "*"}
                         </span>
                         
-                        {!isIndia && !currencyRateLoading && (
+                        {!isIndia && !currencyRateLoading && !isFixedUSD && (
                           <p className="text-gray-400 text-[10px] tabular-nums">
                             {INR(plan.price)}*
                           </p>
@@ -1982,7 +2014,7 @@ export default function BookingPageContent({
                           <span className="text-gray-900 text-lg font-black tabular-nums">
                             {fmtForeign(intlTotalForeign, selectedCurrency)}
                           </span>
-                          {!currencyRateLoading &&
+                          {!currencyRateLoading && !isFixedUSD &&
                             intlTotalForeign !== null && (
                               <p className="text-gray-400 text-[10px] mt-0.5 tabular-nums">
                                 ≈ {INR(intlTotalINR)} · live rate
@@ -1998,7 +2030,7 @@ export default function BookingPageContent({
                 <button
                   type="submit"
                   id="pay-submit-btn"
-                  disabled={loading || (!isIndia && currencyRateLoading)}
+                  disabled={loading || (!isIndia && currencyRateLoading && !isFixedUSD)}
                   className="w-full py-4 rounded-xl font-black text-md tracking-wide transition-all hover:opacity-95 hover:-translate-y-0.5 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
                   style={{
                     background:

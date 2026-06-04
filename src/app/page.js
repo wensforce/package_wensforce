@@ -24,6 +24,7 @@ import HeroSection from "./components/HeroSection";
 import FoundingMemberBanner from "./components/FoundingMemberBanner";
 import JsonLd from "./components/JsonLd";
 import WelcomeIndiaCard from "./components/WelcomeIndiaCard";
+import ServicesVideoSection from "./components/ServicesVideoSection";
 
 export const metadata = {
   title: "WENS Force — India's Only Luxury Travel + Armed Protection + VIP Darshan Subscription",
@@ -402,6 +403,8 @@ export default async function HomePage({ searchParams }) {
 
       {/* ── TRUST STRIP ── */}
       <TrustStrip />
+
+      <ServicesVideoSection />
 
       {/* ── WEDGE BLOCK ── */}
       <WedgeBlock />

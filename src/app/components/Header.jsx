@@ -1,12 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Crown, Menu, X } from 'lucide-react';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const searchParams = useSearchParams();
+  const isWelcomeIndia = searchParams.get('welcomeIndia') === 'true';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -52,6 +55,7 @@ export default function Header() {
             >
               Plans
             </a>
+            {!isWelcomeIndia && (
             <a
               href="#compare"
               className={`text-sm font-medium transition-colors ${
@@ -62,6 +66,7 @@ export default function Header() {
             >
               Compare
             </a>
+            )}
             <a
               href="#how-it-works"
               className={`text-sm font-medium transition-colors ${
@@ -136,6 +141,7 @@ export default function Header() {
               >
                 Plans
               </a>
+              {!isWelcomeIndia && (
               <a
                 href="#compare"
                 className={`block text-sm font-medium transition-colors ${
@@ -145,6 +151,7 @@ export default function Header() {
               >
                 Compare
               </a>
+              )}
               <a
                 href="#how-it-works"
                 className={`block text-sm font-medium transition-colors ${

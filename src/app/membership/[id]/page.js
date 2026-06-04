@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import PlanVideoPlayer from '../../components/PlanVideoPlayer';
 import { notFound } from 'next/navigation';
 import {
   ArrowLeft, Check, ChevronRight,
@@ -500,7 +501,7 @@ export default async function PlanDetailPage({ params }) {
                 <TierIcon strokeWidth={1} className="text-white shrink-0" style={{ width: 'clamp(28px,3vw,44px)', height: 'clamp(28px,3vw,44px)' }} />
                 <h1
                   className="text-white font-black leading-none tracking-tight"
-                  style={{ fontSize: 'clamp(62px, 11vw, 118px)' }}
+                  style={{ fontSize: 'clamp(42px, 7vw, 118px)' }}
                 >
                   {plan.name}
                 </h1>
@@ -605,6 +606,17 @@ export default async function PlanDetailPage({ params }) {
           </div>
         </div>
       </section>
+
+      {/* ── PLAN VIDEO ── */}
+      {plan.video && (
+        <PlanVideoPlayer
+          videoUrl={plan.video}
+          posterUrl={plan.image}
+          accentColor={theme.accentColor}
+          accentRgb={theme.accentRgb}
+          planName={plan.name}
+        />
+      )}
 
       {/* ── STATS STRIP ── */}
       <div style={{ backgroundColor: '#0B1E3F' }} className="py-10 px-6 border-b border-white/5">

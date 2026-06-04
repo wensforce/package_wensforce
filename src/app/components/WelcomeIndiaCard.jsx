@@ -165,13 +165,22 @@ const M = {
 
 const ORDER = ["comfortable-arrival", "arrive-in-style", "arrival-in-grandeur", "ultimate-convoy-matrix", "end-to-end-concierge"];
 
+// Fixed USD prices (not exchange-rate based)
+const USD_PRICES = {
+  "comfortable-arrival": 100,
+  "arrive-in-style": 150,
+  "arrival-in-grandeur": 370,
+  "ultimate-convoy-matrix": 900,
+  "end-to-end-concierge": 2100,
+};
+
 export default function WelcomeIndiaCard() {
   const [currency, setCurrency] = useState("INR");
   const [rate, setRate] = useState(1);       // INR per 1 unit of selected currency
   const [rateLoading, setRateLoading] = useState(false);
 
   useEffect(() => {
-    if (currency === "INR") { setRate(1); return; }
+    if (currency === "INR" || currency === "USD") { setRate(1); return; }
     setRateLoading(true);
     fetch(`/api/exchange-rate?currency=${currency}`)
       .then((r) => r.json())
@@ -180,8 +189,15 @@ export default function WelcomeIndiaCard() {
       .finally(() => setRateLoading(false));
   }, [currency]);
 
-  const convertPrice = (inrAmount) => {
+  const convertPrice = (inrAmount, planId) => {
     if (currency === "INR") return INR(inrAmount);
+    if (currency === "USD" && planId && USD_PRICES[planId] !== undefined) {
+      // For anchor/regular price, scale proportionally from the plan's base price
+      const basePlanPrice = plans.find((p) => p.id === planId)?.price ?? inrAmount;
+      const usdBase = USD_PRICES[planId];
+      const scaled = Math.round((inrAmount / basePlanPrice) * usdBase);
+      return "$" + scaled.toLocaleString("en-US");
+    }
     if (rateLoading) return "…";
     return fmtForeign(inrAmount / rate, currency);
   };
@@ -292,7 +308,7 @@ export default function WelcomeIndiaCard() {
           {rateLoading && (
             <span className="text-[9px] text-[#a07838] animate-pulse tracking-wider">Fetching rate…</span>
           )}
-          {!rateLoading && currency !== "INR" && (
+          {!rateLoading && currency !== "INR" && currency !== "USD" && (
             <span className="text-[9px] text-[#a07838]/60 tracking-[.12em]">1 {currency} ≈ {INR(Math.round(rate))}</span>
           )}
         </div>
@@ -465,7 +481,7 @@ export default function WelcomeIndiaCard() {
                           className="wi-regular-price-highlight text-[13px] line-through font-black"
                           style={{ color: m.isElite ? m.accent : "#f0d878" }}
                         >
-                          {convertPrice(plan.anchorPrice || plan.price)}*
+                          {convertPrice(plan.anchorPrice || plan.price, id)}*
                         </span>
                       </div>
 
@@ -492,7 +508,7 @@ export default function WelcomeIndiaCard() {
                       {/* Current Price */}
                       <div className="flex flex-col items-center gap-px flex-[0.95]">
                         <span className="wi-price-highlight text-[17px] font-black tracking-[-0.02em] leading-none">
-                          {convertPrice(plan.price)}*
+                          {convertPrice(plan.price, id)}*
                         </span>
                         <span
                           className="text-[7px] font-bold opacity-55"
@@ -526,7 +542,7 @@ export default function WelcomeIndiaCard() {
                   </div>
 
                   {/* STATS */}
-                  <div className={`grid ${isFullWidth ? "grid-cols-4" : "grid-cols-2"} gap-2 mb-[14px] relative`}>
+                  <div className={`grid ${isFullWidth ? "grid-cols-2 xl:grid-cols-4" : "grid-cols-2"} gap-2 mb-[14px] relative`}>
                     {[
                       { label: "Trips / Year", value: `${plan.trips} Trips` },
                       { label: "Vehicle", value: plan.vehicleType },
@@ -595,7 +611,7 @@ export default function WelcomeIndiaCard() {
                   {/* CTA row */}
                   <div className="flex items-center justify-between gap-3 relative">
                     <Link
-                      href={`/booking/${id}`}
+                      href={`/booking/${id}?currency=${currency}`}
                       className={`wi-${m.ctaClass} flex items-center justify-center gap-2 flex-1 min-h-[44px] py-2 rounded-lg text-[11px] font-extrabold tracking-[.14em] uppercase no-underline text-center`}
                       style={{ boxShadow: "0 4px 22px rgba(0,0,0,.2)" }}
                     >

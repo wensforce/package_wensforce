@@ -2,6 +2,7 @@ export const plans = [
   {
     id: "comfortable-arrival",
     image: "/cards/ComfortableArrival.png",
+    video: "https://d2zcmp43lwd2kr.cloudfront.net/videos/Arrival_in_comfort.mp4",
     packageNo: "01",
     name: "Comfortable Arrival",
     tagline: "Your assured premium airport arrival experience",
@@ -86,7 +87,8 @@ export const plans = [
   },
   {
     id: "arrive-in-style",
-    image: "/cards/ArrivalWithMercedes.png", //public\cards\ArrivalWithMercedes.png
+    image: "/cards/ArrivalWithMercedes.png",
+    video:"https://d2zcmp43lwd2kr.cloudfront.net/videos/Arrival_in_style.mp4",
     packageNo: "02",
     name: "Arrive in Style with Mercedes",
     tagline: "Make your first impression unforgettable — Mercedes all the way",
@@ -177,7 +179,8 @@ export const plans = [
   },
   {
     id: "arrival-in-grandeur",
-    image: "/cards/Grandeur.png",  // public\cards\Grandeur.png
+    image: "/cards/Grandeur.png",
+    video:"https://d2zcmp43lwd2kr.cloudfront.net/videos/Arrival_in_grandeur.mp4",
     packageNo: "03",
     name: "Arrival in Grandeur",
     tagline: "A grand entrance — luxury car, VIP escort & video shoot",
@@ -280,7 +283,8 @@ export const plans = [
   },
   {
     id: "ultimate-convoy-matrix",
-    image: "/cards/UltimateConvoy.png",  // public\cards\UltimateConvoy.png
+    image: "/cards/UltimateConvoy.png",
+    video:"https://d2zcmp43lwd2kr.cloudfront.net/videos/Ultimate_conyoy_matrix.mp4",
     packageNo: "04",
     name: "Ultimate Convoy Matrix",
     tagline: "The full executive treatment — convoy, concierge & complete security",
@@ -303,8 +307,8 @@ export const plans = [
     tag: null,
     privileges: [
       {
-        title: "Choice of 3 Luxury Vehicles",
-        desc: "Hummer, Land Cruiser 300, Land Rover Defender, or Mercedes V-Class — you choose",
+        title: "Luxury VIP Vehicle",
+        desc: "Hummer, Land Cruiser 300, Land Rover Defender, Mercedes V-Class or equivalent luxury Sedan/SUV",
         worth: null,
         icon: "🚙",
       },
@@ -360,25 +364,26 @@ export const plans = [
     },
     faqs: [
       {
-        q: "Can I choose which vehicles are in my convoy?",
-        a: "Yes. For the principal vehicle you can select from Hummer, Land Cruiser 300, Land Rover Defender, or Mercedes V-Class. The convoy configuration is coordinated by your dedicated concierge.",
+        q: "Is this a hands-free experience from arrival to destination?",
+        a: "Yes. Your concierge and security team handle all logistics from the moment you step off the plane to your final destination. You can relax and enjoy a seamless, VIP experience without lifting a finger.",
       },
       {
         q: "What is 'Elite Concierge Meet & Greet'?",
-        a: "A senior WENS concierge meets you at the aircraft door (or arrival gate) and personally escorts you through immigration, baggage claim, and to your waiting convoy — eliminating all friction from the airport process.",
+        a: "A concierge manager meets you at the Jet bridge and personally escorts you inside the airport and assists you with all the processes, immigration, buggy, porter, until you reach the arrival gate.",
       },
     ],
   },
   {
     id: "end-to-end-concierge",
-    image: "/cards/EndToEnd.png", // public\cards\EndToEnd.png
+    image: "/cards/EndToEnd.png", // publi\cards\EndToEnd.png
+    video:"https://d2zcmp43lwd2kr.cloudfront.net/videos/End_to_end_concierge.mp4",
     packageNo: "05",
     name: "End-to-End Concierge Service",
     tagline: "Complete 3-day VIP coverage — arrival to departure, nothing left to chance",
     price: 210000,
     perMonth: 0,
-    vehicle: "1 Luxury Main Car + 1 Dedicated Escort Vehicle",
-    vehicleType: "Luxury Sedan",
+    vehicle: "Luxury Multi Seater Van or Luxury SUV +  Dedicated Escort Vehicle",
+    vehicleType: "Luxury Multi Seater Van",
     bodyguard: "Armed PSO on 12-Hr Shift + Security Team",
     trips: 1,
     validity: "3 Days",
@@ -446,7 +451,7 @@ export const plans = [
     faqs: [
       {
         q: "What exactly does '3 Days' cover?",
-        a: "The service covers your full 3-day stay — starting from your arrival at the airport through to your departure. Your concierge and security detail are available throughout, including inter-hotel and event transfers.",
+        a: "The service covers your full 3-day security & travel — starting from your arrival at the airport through to your departure. Your concierge and security detail are available throughout, including inter-hotel and event transfers.",
       },
       {
         q: "What does the Armed PSO 12-Hour Shift include?",
