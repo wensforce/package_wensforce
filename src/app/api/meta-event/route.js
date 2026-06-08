@@ -3,7 +3,6 @@ import { sendCapiEvent } from '@/app/lib/metaCapi.js';
 export async function POST(req) {
   try {
     const body = await req.json();
-
     const ip =
       req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
       req.headers.get('x-real-ip') ||
@@ -18,6 +17,9 @@ export async function POST(req) {
         phone: body.phone || null,
         ip,
         userAgent,
+        fn: body.firstName || null,
+        ln: body.lastName || null,
+        em: body.email || null,
         fbc: body.fbc || null,
         fbp: body.fbp || null,
       },

@@ -38,6 +38,9 @@ export async function POST(req) {
     if (isPaid) {
       // Fire Meta CAPI Purchase event
       try {
+        const nameParts = (customerName || "").trim().split(" ");
+        const firstName = nameParts[0] || "";
+        const lastName = nameParts.slice(1).join(" ") || "";
         await sendCapiEvent({
           eventName: 'Purchase',
           eventId: generateEventId('Purchase'),
@@ -45,6 +48,9 @@ export async function POST(req) {
             phone: phone,
             ip: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || undefined,
             userAgent: req.headers.get('user-agent') || undefined,
+            fn: firstName,
+            ln: lastName,
+            em: event.data?.customer_details?.customer_email || null,
           },
           customData: {
             value: event.data?.payment?.payment_amount,

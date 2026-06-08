@@ -1378,7 +1378,7 @@ export default function BookingPageContent({
             planId: plan.id,
           };
 
-      await trackLead({ value: isIntl ? intlTotalForeign : indiaTotalINR });
+      await trackLead({ value: isIntl ? intlTotalForeign : indiaTotalINR , phone: form.phone, userData: { fullName: form.name, email: form.email, city: form.city } });
 
       const res = await fetch("/api/cashfree/create-order", {
         method: "POST",
