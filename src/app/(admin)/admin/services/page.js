@@ -1,111 +1,175 @@
-import { Wrench, Plus, Edit, Trash2, Eye } from "lucide-react";
+import { Wrench, Plus, Edit, Trash2, Eye, Search } from "lucide-react";
 
 const CATEGORIES = ["All", "Security", "Transport", "Concierge", "Intelligence"];
 
 export default function ServicesPage() {
   return (
-    <div className="max-w-6xl space-y-8">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-3">
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ background: "rgba(212,175,55,0.12)", border: "1px solid rgba(212,175,55,0.22)" }}
+    <div className="max-w-6xl space-y-6">
+
+      {/* ── Page header ────────────────────────────────────────────── */}
+      <div className="flex items-end justify-between gap-4 flex-wrap">
+        <div>
+          <p
+            className="text-[10px] font-bold tracking-[0.45em] uppercase mb-1"
+            style={{ color: "var(--adm-gold)" }}
           >
-            <Wrench size={16} style={{ color: "#D4AF37" }} />
-          </div>
-          <div>
-            <p className="text-[10px] font-bold tracking-[0.45em] uppercase" style={{ color: "#D4AF37" }}>
-              Service Catalogue
-            </p>
-            <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "var(--font-playfair, serif)" }}>
-              Services
-            </h1>
-          </div>
+            Service Catalogue
+          </p>
+          <h1
+            className="text-2xl font-bold"
+            style={{ color: "var(--adm-blue)", fontFamily: "var(--font-playfair, serif)" }}
+          >
+            Services
+          </h1>
+          <p className="text-sm mt-1" style={{ color: "var(--adm-text-sub)" }}>
+            Manage and organise services available to members
+          </p>
         </div>
 
         <button
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5"
-          style={{ background: "rgba(212,175,55,0.13)", border: "1px solid rgba(212,175,55,0.26)", color: "#D4AF37" }}
+          className="adm-btn-primary"
+          style={{ background: "var(--adm-navy)" }}
         >
-          <Plus size={13} />
+          <Plus size={14} />
           Add Service
         </button>
       </div>
 
-      {/* Category filters */}
-      <div className="flex gap-2 flex-wrap">
-        {CATEGORIES.map((c, i) => (
-          <span
-            key={c}
-            className="px-3.5 py-1.5 rounded-lg text-xs font-semibold"
-            style={
-              i === 0
-                ? { background: "rgba(212,175,55,0.14)", border: "1px solid rgba(212,175,55,0.28)", color: "#D4AF37" }
-                : { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.28)" }
-            }
+      {/* ── Stats strip ────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {[
+          { label: "Total Services", value: "—", accent: "var(--adm-blue)" },
+          { label: "Active",         value: "—", accent: "var(--adm-success)" },
+          { label: "Categories",     value: CATEGORIES.length - 1, accent: "var(--adm-gold)" },
+          { label: "Inactive",       value: "—", accent: "var(--adm-error)" },
+        ].map(({ label, value, accent }) => (
+          <div
+            key={label}
+            className="adm-card rounded-xl px-4 py-3.5"
           >
-            {c}
-          </span>
+            <p className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: "var(--adm-text-muted)" }}>
+              {label}
+            </p>
+            <p className="text-2xl font-bold" style={{ color: accent }}>
+              {value}
+            </p>
+          </div>
         ))}
       </div>
 
-      {/* Service list shell */}
+      {/* ── Filter / search bar ─────────────────────────────────────── */}
       <div
-        className="rounded-2xl overflow-hidden"
-        style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}
+        className="adm-card rounded-2xl px-4 py-3 flex items-center gap-3 flex-wrap"
       >
-        {/* List header */}
+        {/* Search input */}
         <div
-          className="grid px-5 py-3.5 border-b"
-          style={{ gridTemplateColumns: "1fr 2fr 0.8fr 0.8fr 100px", borderColor: "rgba(255,255,255,0.05)" }}
+          className="flex items-center gap-2 flex-1 min-w-45 px-3 py-2 rounded-xl"
+          style={{ background: "var(--adm-table-head)", border: "1px solid var(--adm-border)" }}
+        >
+          <Search size={13} style={{ color: "var(--adm-text-muted)" }} />
+          <input
+            placeholder="Search services…"
+            className="flex-1 bg-transparent text-sm outline-none"
+            style={{ color: "var(--adm-text)", caretColor: "var(--adm-blue)" }}
+          />
+        </div>
+
+        {/* Category pills */}
+        <div className="flex gap-2 flex-wrap">
+          {CATEGORIES.map((c, i) => (
+            <span
+              key={c}
+              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer select-none transition-all"
+              style={
+                i === 0
+                  ? { background: "var(--adm-navy)", color: "#fff" }
+                  : {
+                      background: "var(--adm-table-head)",
+                      border: "1px solid var(--adm-border)",
+                      color: "var(--adm-text-sub)",
+                    }
+              }
+            >
+              {c}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Service table ───────────────────────────────────────────── */}
+      <div className="adm-card rounded-2xl overflow-hidden">
+
+        {/* Table header row */}
+        <div
+          className="grid px-5 py-3 border-b"
+          style={{
+            gridTemplateColumns: "1fr 2fr 0.8fr 0.8fr 100px",
+            borderColor: "var(--adm-card-border)",
+            background: "var(--adm-table-head)",
+          }}
         >
           {["Service Name", "Description", "Category", "Status", "Actions"].map((h) => (
-            <p key={h} className="text-[10px] font-bold tracking-widest uppercase text-white/22">{h}</p>
+            <p
+              key={h}
+              className="text-[10px] font-bold tracking-widest uppercase"
+              style={{ color: "var(--adm-text-muted)" }}
+            >
+              {h}
+            </p>
           ))}
         </div>
 
         {/* Empty state */}
-        <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="flex flex-col items-center justify-center py-24 text-center">
           <div
             className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5"
-            style={{ background: "rgba(212,175,55,0.07)", border: "1px solid rgba(212,175,55,0.14)" }}
+            style={{
+              background: "var(--adm-gold-light)",
+              border: "1px solid var(--adm-gold-border)",
+            }}
           >
-            <Wrench size={26} style={{ color: "rgba(212,175,55,0.45)" }} />
+            <Wrench size={26} style={{ color: "var(--adm-gold)" }} />
           </div>
-          <h3 className="text-white/55 font-semibold text-lg mb-2" style={{ fontFamily: "var(--font-playfair, serif)" }}>
+          <h3
+            className="font-semibold text-lg mb-1.5"
+            style={{ color: "var(--adm-blue)", fontFamily: "var(--font-playfair, serif)" }}
+          >
             No Services Yet
           </h3>
-          <p className="text-white/22 text-sm max-w-xs leading-relaxed mb-6">
-            Add services to the catalogue. Members will be able to see them based on their membership tier.
+          <p className="text-sm max-w-xs leading-relaxed mb-6" style={{ color: "var(--adm-text-sub)" }}>
+            Add services to the catalogue. Members will see them based on their membership tier.
           </p>
-          <button
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold"
-            style={{ background: "rgba(212,175,55,0.13)", border: "1px solid rgba(212,175,55,0.26)", color: "#D4AF37" }}
-          >
+          <button className="adm-btn-primary" style={{ background: "var(--adm-navy)" }}>
             <Plus size={13} />
             Add First Service
           </button>
         </div>
       </div>
 
-      {/* Action legend */}
+      {/* ── Action legend ───────────────────────────────────────────── */}
       <div
-        className="rounded-2xl p-4 flex items-center gap-6 flex-wrap"
-        style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}
+        className="adm-card rounded-2xl px-5 py-3.5 flex items-center gap-6 flex-wrap"
       >
-        <p className="text-[10px] font-bold tracking-widest uppercase text-white/18">Available Actions</p>
+        <p
+          className="text-[10px] font-bold tracking-widest uppercase"
+          style={{ color: "var(--adm-text-muted)" }}
+        >
+          Available Actions
+        </p>
         {[
-          { icon: Eye,     label: "View",   color: "#6B8DD6" },
-          { icon: Edit,    label: "Edit",   color: "#C9A24B" },
-          { icon: Trash2,  label: "Delete", color: "#ef4444" },
+          { icon: Eye,    label: "View Details", color: "var(--adm-blue-mid)" },
+          { icon: Edit,   label: "Edit",         color: "var(--adm-gold)" },
+          { icon: Trash2, label: "Delete",        color: "var(--adm-error)" },
         ].map(({ icon: Icon, label, color }) => (
           <div key={label} className="flex items-center gap-2">
             <Icon size={13} style={{ color }} />
-            <span className="text-xs text-white/30">{label}</span>
+            <span className="text-xs font-medium" style={{ color: "var(--adm-text-sub)" }}>
+              {label}
+            </span>
           </div>
         ))}
       </div>
+
     </div>
   );
 }

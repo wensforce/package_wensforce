@@ -222,6 +222,106 @@ body {
 .quiz-in  { animation: quiz-slide-in  0.35s cubic-bezier(0.16,1,0.3,1) forwards; }
 .quiz-out { animation: quiz-slide-out 0.25s ease-in forwards; }
 
+/* ─── Admin Portal Theme ────────────────────────────────────────────────────
+   Scoped under .admin-theme so it never bleeds into the public-facing site.
+   Usage: add className="admin-theme" to the admin layout wrapper.
+   ─────────────────────────────────────────────────────────────────────────── */
+.admin-theme {
+  /* Page & surface */
+  --adm-bg:             #EEF2F8;           /* page canvas — cool off-white */
+  --adm-card:           #FFFFFF;           /* card / panel surfaces */
+  --adm-card-border:    #E2ECF6;
+  --adm-table-head:     #F4F7FC;           /* table / list header row */
+
+  /* Navy blue spectrum */
+  --adm-navy:           #0F2A50;           /* sidebar, deep accents */
+  --adm-blue:           #1A3B6E;           /* primary text headings */
+  --adm-blue-mid:       #2558C3;           /* interactive blue (links, icon) */
+  --adm-blue-light:     #EBF0FB;           /* blue tint badge background */
+
+  /* Gold accent spectrum */
+  --adm-gold:           #C9A24B;           /* primary accent */
+  --adm-gold-dark:      #A8822A;
+  --adm-gold-light:     #FDF5E4;           /* gold-tint chip background */
+  --adm-gold-border:    rgba(201,162,75,0.28);
+
+  /* Typography */
+  --adm-text:           #0F172A;           /* primary body text */
+  --adm-text-sub:       #475569;           /* secondary / descriptions */
+  --adm-text-muted:     #94A3B8;           /* placeholders, labels */
+
+  /* Borders & shadows */
+  --adm-border:         #DDE5F0;
+  --adm-shadow-xs:      0 1px 2px rgba(15,23,42,0.05);
+  --adm-shadow-sm:      0 1px 4px rgba(15,23,42,0.07), 0 1px 2px rgba(15,23,42,0.05);
+  --adm-shadow:         0 4px 16px rgba(15,23,42,0.08), 0 1px 4px rgba(15,23,42,0.05);
+
+  /* Sidebar (stays dark for classic enterprise contrast) */
+  --adm-sidebar-bg:     #0E2245;
+  --adm-sidebar-border: rgba(255,255,255,0.07);
+  --adm-sidebar-text:   rgba(255,255,255,0.48);
+  --adm-sidebar-active-bg:   rgba(201,162,75,0.13);
+  --adm-sidebar-active-border: rgba(201,162,75,0.22);
+  --adm-sidebar-active-text: #C9A24B;
+
+  /* Status colours */
+  --adm-success:        #16A34A;
+  --adm-success-bg:     #F0FDF4;
+  --adm-error:          #DC2626;
+  --adm-error-bg:       #FEF2F2;
+  --adm-warning:        #D97706;
+  --adm-warning-bg:     #FFFBEB;
+}
+
+/* Admin scrollbar */
+.admin-theme ::-webkit-scrollbar        { width: 5px; }
+.admin-theme ::-webkit-scrollbar-track  { background: var(--adm-bg); }
+.admin-theme ::-webkit-scrollbar-thumb  { background: var(--adm-gold); border-radius: 4px; }
+
+/* ─── Admin utility helpers ─────────────────────────────────────────────── */
+.adm-card {
+  background: var(--adm-card);
+  border: 1px solid var(--adm-card-border);
+  box-shadow: var(--adm-shadow-sm);
+  border-radius: 1rem;
+}
+.adm-btn-primary {
+  background: var(--adm-navy);
+  color: #ffffff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.625rem;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  box-shadow: var(--adm-shadow-xs);
+  transition: background 0.18s, transform 0.18s, box-shadow 0.18s;
+}
+.adm-btn-primary:hover {
+  background: var(--adm-blue);
+  transform: translateY(-1px);
+  box-shadow: var(--adm-shadow-sm);
+}
+.adm-btn-gold {
+  background: var(--adm-gold-light);
+  color: var(--adm-gold-dark);
+  border: 1px solid var(--adm-gold-border);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.625rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  transition: background 0.18s, transform 0.18s;
+}
+.adm-btn-gold:hover {
+  background: rgba(201,162,75,0.18);
+  transform: translateY(-1px);
+}
+
 /* Neon glow (legacy, keep for existing components) */
 @keyframes neon-pulse {
   0%, 100% { text-shadow: 0 0 10px currentColor, 0 0 20px currentColor; }

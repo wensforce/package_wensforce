@@ -64,27 +64,27 @@ export default function AdminSidebar({ open, onClose, user }) {
         open ? "translate-x-0" : "-translate-x-full"
       } lg:translate-x-0`}
       style={{
-        backgroundColor: "#07152B",
-        borderRight: "1px solid rgba(255,255,255,0.06)",
+        backgroundColor: "var(--adm-sidebar-bg)",
+        borderRight: "1px solid var(--adm-sidebar-border)",
       }}
     >
       {/* Logo */}
       <div
         className="flex items-center justify-between h-14 px-5 shrink-0 border-b"
-        style={{ borderColor: "rgba(255,255,255,0.06)" }}
+        style={{ borderColor: "var(--adm-sidebar-border)" }}
       >
         <div className="flex items-center gap-2.5">
           <div
             className="w-8 h-8 rounded-xl flex items-center justify-center"
             style={{
-              background: "rgba(201,162,75,0.15)",
-              border: "1px solid rgba(201,162,75,0.25)",
+              background: "rgba(201,162,75,0.14)",
+              border: "1px solid var(--adm-gold-border)",
             }}
           >
             <ShieldCheck size={15} style={{ color: "#C9A24B" }} />
           </div>
           <div>
-            <p className="text-xs font-bold text-white/80 leading-none">WENS Force</p>
+            <p className="text-xs font-bold leading-none" style={{ color: "rgba(255,255,255,0.82)" }}>WENS Force</p>
             <p
               className="text-[9px] font-bold tracking-[0.38em] uppercase mt-0.5"
               style={{ color: "#C9A24B" }}
@@ -97,7 +97,7 @@ export default function AdminSidebar({ open, onClose, user }) {
         {/* Mobile close */}
         <button
           className="lg:hidden w-7 h-7 flex items-center justify-center rounded-lg"
-          style={{ background: "rgba(255,255,255,0.05)" }}
+            style={{ background: "rgba(255,255,255,0.07)" }}
           onClick={onClose}
         >
           <X size={13} style={{ color: "rgba(255,255,255,0.4)" }} />
@@ -110,7 +110,7 @@ export default function AdminSidebar({ open, onClose, user }) {
           <div key={label}>
             <p
               className="text-[9px] font-bold tracking-[0.42em] uppercase px-3 mb-1.5"
-              style={{ color: "rgba(255,255,255,0.18)" }}
+              style={{ color: "var(--adm-sidebar-text)" }}
             >
               {label}
             </p>
@@ -126,12 +126,12 @@ export default function AdminSidebar({ open, onClose, user }) {
                     style={
                       active
                         ? {
-                            background: "rgba(201,162,75,0.12)",
-                            color: "#C9A24B",
-                            border: "1px solid rgba(201,162,75,0.2)",
+                            background: "var(--adm-sidebar-active-bg)",
+                            color: "var(--adm-sidebar-active-text)",
+                            border: "1px solid var(--adm-sidebar-active-border)",
                           }
                         : {
-                            color: "rgba(255,255,255,0.36)",
+                            color: "var(--adm-sidebar-text)",
                             border: "1px solid transparent",
                           }
                     }
@@ -157,7 +157,7 @@ export default function AdminSidebar({ open, onClose, user }) {
         <Link
           href="/dashboard"
           className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-150"
-          style={{ color: "rgba(255,255,255,0.28)", border: "1px solid transparent" }}
+          style={{ color: "rgba(255,255,255,0.32)", border: "1px solid transparent" }}
         >
           <ArrowLeft size={15} className="shrink-0" />
           Member Portal
