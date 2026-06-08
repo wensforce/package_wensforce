@@ -13,7 +13,7 @@ export async function sendCapiEvent({
   }
 
   const payload = {
-    test_event_code: 'TEST26191',
+    // test_event_code: 'TEST26191',
     data: [
       {
         event_name: eventName,
