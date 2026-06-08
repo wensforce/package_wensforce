@@ -21,9 +21,9 @@ export function useMetaEvents() {
     await sendCapi({ eventName: 'ViewContent', eventId, contentName, contentId, value });
   }
 
-  async function trackLead({ value = 0 }) {
+  async function trackLead({ value = 0, userData = {} }) {
     const eventId = pixelLead({ value });
-    await sendCapi({ eventName: 'Lead', eventId, value });
+    await sendCapi({ eventName: 'Lead', eventId, value, ...userData });
   }
 
   async function trackPurchase({ value, orderId, currency = 'INR', userData = {} }) {

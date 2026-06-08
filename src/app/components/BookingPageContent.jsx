@@ -7,6 +7,7 @@ import { load } from "@cashfreepayments/cashfree-js";
 import { Check, Shield, ArrowLeft, Gem, Crown } from "lucide-react";
 import { plans as mainPlans } from "../data/plans";
 import { plans as welcomePlans } from "../data/welcomeIndia";
+import { useMetaEvents } from "../hooks/useMetaEvents";
 
 const plans = [...mainPlans, ...welcomePlans];
 const welcomePlanIds = new Set(welcomePlans.map((p) => p.id));
@@ -1346,6 +1347,8 @@ export default function BookingPageContent({
     return e;
   };
 
+  const { trackLead } = useMetaEvents();
+
   const handlePaymentSubmit = async (method) => {
     const formErrors = validate();
     if (Object.keys(formErrors).length) {
@@ -1374,6 +1377,8 @@ export default function BookingPageContent({
             customerPhone: form.phone,
             planId: plan.id,
           };
+
+      await trackLead({ value: isIntl ? intlTotalForeign : indiaTotalINR });
 
       const res = await fetch("/api/cashfree/create-order", {
         method: "POST",
