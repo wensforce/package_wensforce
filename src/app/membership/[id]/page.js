@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import { plans as mainPlans } from '../../data/plans';
 import { plans as welcomePlans } from '../../data/welcomeIndia';
+import { useMetaEvents } from '@/app/hooks/useMetaEvents';
+import MetaViewTracker from '@/app/components/MetaViewTracker';
 
 const allPlans = [...mainPlans, ...welcomePlans];
 const getPlanById = (id) => allPlans.find((p) => p.id === id);
@@ -403,7 +405,7 @@ export default async function PlanDetailPage({ params }) {
 
   return (
     <div className="min-h-screen">
-
+    <MetaViewTracker plan={plan} />
       {/* ── STICKY HEADER ── */}
       <header className="sticky top-0 z-40 border-b border-white/8" style={{ backgroundColor: '#0B1E3F' }}>
         <div className="max-w-6xl mx-auto px-6 py-3.5 flex items-center justify-between">

@@ -7,6 +7,7 @@ import LiveActivityTicker from "./components/LiveActivityTicker";
 import JsonLd from "./components/JsonLd";
 // import GTMPageTracker from "./components/GTMPageTracker";
 import { Analytics } from "@vercel/analytics/next";
+import MetaPixelInit from "./components/MetaPixelInit";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -151,6 +152,7 @@ export default function RootLayout({ children }) {
 
         {/* <GTMPageTracker /> */}
         {children}
+        <MetaPixelInit />
         <FloatingWhatsApp />
         <LiveActivityTicker />
         <Analytics />
