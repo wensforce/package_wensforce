@@ -407,7 +407,9 @@ export default async function HomePage({ searchParams }) {
       {/* ── TRUST STRIP ── */}
       <TrustStrip />
 
-      <ServicesVideoSection />
+    {
+      welcomeIndia === 'true'&& <ServicesVideoSection />
+    }
 
       {/* ── WEDGE BLOCK ── */}
       <WedgeBlock />

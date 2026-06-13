@@ -944,6 +944,32 @@ export default async function PlanDetailPage({ params }) {
         </section>
       )}
 
+      {/* ── TERMS & CONDITIONS ── */}
+      {plan.termsAndConditions && plan.termsAndConditions.length > 0 && (
+        <section className="py-12 px-6" style={{ backgroundColor: '#F7F5F0' }}>
+          <div className="max-w-3xl mx-auto">
+            <div className="flex items-start gap-3 mb-5">
+              <span className="shrink-0 mt-0.5 text-[#C9A24B]">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+              </span>
+              <p className="text-[10px] font-bold tracking-[0.45em] uppercase text-[#C9A24B]">
+                Terms &amp; Conditions
+              </p>
+            </div>
+            <ul className="space-y-2.5">
+              {plan.termsAndConditions.map((term, i) => (
+                <li key={i} className="flex items-start gap-3 text-[12px] text-gray-500 font-light leading-relaxed">
+                  <span className="shrink-0 mt-1.5 w-1 h-1 rounded-full bg-gray-400" />
+                  {term}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
       {/* ── EXPLORE OTHER TIERS ── */}
       {otherPlans.length > 0 && (
         <section className="py-20 px-6" style={{ backgroundColor: theme.darkBody ? '#050505' : 'white' }}>

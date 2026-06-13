@@ -8,6 +8,8 @@ import JsonLd from "./components/JsonLd";
 // import GTMPageTracker from "./components/GTMPageTracker";
 import { Analytics } from "@vercel/analytics/next";
 import MetaPixelInit from "./components/MetaPixelInit";
+import { AuthProvider } from "./context/AuthContext";
+import { Toaster } from "sonner";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -91,7 +93,7 @@ export default function RootLayout({ children }) {
         {/* Google Tag Manager */}
         <Script
           id="gtm-script"
-          strategy="beforeInteractive"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-NVQRNTML');`,
           }}
@@ -151,10 +153,21 @@ export default function RootLayout({ children }) {
         </noscript>
 
         {/* <GTMPageTracker /> */}
-        {children}
-        <MetaPixelInit />
-        <FloatingWhatsApp />
-        <LiveActivityTicker />
+        <AuthProvider>
+          {children}
+          <MetaPixelInit />
+          <FloatingWhatsApp />
+          <LiveActivityTicker />
+          <Toaster
+            position="top-center"
+            toastOptions={{
+              style: {
+                fontFamily: "var(--font-inter)",
+                fontSize: "13px",
+              },
+            }}
+          />
+        </AuthProvider>
         <Analytics />
       </body>
     </html>

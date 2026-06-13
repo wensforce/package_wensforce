@@ -158,11 +158,12 @@ export async function POST(req) {
       customerPhone,
       customerEmail,
       planId,
+      planName,
       currency = "INR",
     } = body;
 
     // Server-side validation
-    if (!customerName || !customerPhone || !amount || !planId) {
+    if (!customerName || !customerPhone || !amount || !planId || !planName) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 },

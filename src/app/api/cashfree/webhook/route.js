@@ -1,7 +1,10 @@
 // app/api/cashfree/webhook/route.ts
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { sendWhatsAppTemplate, sendWhatsAppTemplateToBroadcast } from "../../lib/whatsapp";
+import {
+  sendWhatsAppTemplate,
+  sendWhatsAppTemplateToBroadcast,
+} from "../../lib/whatsapp";
 import { sendCapiEvent } from "@/app/lib/metaCapi";
 import { generateEventId } from "@/app/lib/metaPixel";
 
@@ -21,8 +24,27 @@ export async function POST(req) {
   }
 
   const event = JSON.parse(body);
-
-  console.log("Received Cashfree webhook:", event.data);
+  //TODO: after backend deployed, uncomment this and remove
+  // const res = await fetch(
+  //   `${process.env.NEXT_PUBLIC_API_BASE_URL}/booking/webhook`,
+  //   {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       "x-signature": process.env.BACKEND_WEBHOOK_SECRET,
+  //     },
+  //     body: JSON.stringify({
+  //       cashfreeId: event.data?.order?.order_id,
+  //       orderStatus: event.data?.payment?.payment_status,
+  //       orderAmount: event.data?.payment?.payment_amount,
+  //     }),
+  //   },
+  // );
+  
+  // const resData = await res.json();
+  // if (resData.data?.count === 0) {
+  //   return NextResponse.json({ message: "Already processed" }, { status: 200 });
+  // }
 
   // Send WhatsApp notifications based on payment status
   if (event.data?.customer_details?.customer_phone) {
@@ -77,7 +99,7 @@ export async function POST(req) {
           ],
         }),
         sendWhatsAppTemplateToBroadcast(
-          "abandoned cart", 
+          "abandoned cart",
           "abandoned_cart_payment_success",
           [orderId, customerName, plan, new Date().toISOString()],
           phone
@@ -108,7 +130,7 @@ export async function POST(req) {
           ],
         }),
         sendWhatsAppTemplateToBroadcast(
-          "abandoned cart", 
+          "abandoned cart",
           "abandoned_cart_payment_failed",
           [customerName, plan, new Date().toISOString(), reason],
           phone
