@@ -161,9 +161,57 @@ const M = {
     isElite: true,
     ctaClass: "sovereign-cta",
   },
+  "premium-airport-transfer": {
+    num: "P1",
+    Icon: Car,
+    cta: "Book Airport Transfer",
+    accent: "#4a9e8a",
+    imgFilter: "grayscale(30%) brightness(.54) contrast(1.05)",
+    imgOverlay:
+      "linear-gradient(270deg,rgba(4,18,16,.0) 0%,rgba(4,18,16,.55) 60%,rgba(4,18,16,.94) 100%)",
+    border: "rgba(74,158,138,.22)",
+    shadow: "0 2px 20px rgba(0,0,0,.10)",
+    hoverShadow: "0 14px 48px rgba(0,0,0,.24)",
+    bg: "rgba(4,18,16,.96)",
+    priceColor: "#c8e8e0",
+    subColor: "rgba(170,215,200,.52)",
+    statBg: "rgba(255,255,255,.06)",
+    statBorder: "rgba(255,255,255,.09)",
+    statLabel: "rgba(170,215,200,.40)",
+    statValue: "#a8d8c8",
+    featColor: "rgba(170,215,200,.76)",
+    checkBg: "rgba(255,255,255,.07)",
+    checkColor: "rgba(170,215,200,.55)",
+    isElite: false,
+    ctaClass: "teal-cta",
+  },
+  "taj-executive-welcome": {
+    num: "P2",
+    Icon: ShieldCheck,
+    cta: "Book Taj Executive",
+    accent: "#c07840",
+    imgFilter: "grayscale(20%) brightness(.52) contrast(1.08)",
+    imgOverlay:
+      "linear-gradient(270deg,rgba(20,10,4,.0) 0%,rgba(20,10,4,.55) 60%,rgba(20,10,4,.94) 100%)",
+    border: "rgba(192,120,64,.22)",
+    shadow: "0 2px 20px rgba(0,0,0,.10)",
+    hoverShadow: "0 14px 48px rgba(0,0,0,.24)",
+    bg: "rgba(20,10,4,.96)",
+    priceColor: "#f0d8b8",
+    subColor: "rgba(220,180,130,.52)",
+    statBg: "rgba(255,255,255,.06)",
+    statBorder: "rgba(255,255,255,.09)",
+    statLabel: "rgba(220,180,130,.40)",
+    statValue: "#e0c8a0",
+    featColor: "rgba(220,185,145,.76)",
+    checkBg: "rgba(255,255,255,.07)",
+    checkColor: "rgba(220,180,130,.55)",
+    isElite: false,
+    ctaClass: "copper-cta",
+  },
 };
 
-const ORDER = ["comfortable-arrival", "arrive-in-style", "arrival-in-grandeur", "ultimate-convoy-matrix", "end-to-end-concierge"];
+const ORDER = ["premium-airport-transfer", "comfortable-arrival", "arrive-in-style", "taj-executive-welcome", "arrival-in-grandeur", "ultimate-convoy-matrix", "end-to-end-concierge"];
 
 // Fixed USD prices (not exchange-rate based)
 const USD_PRICES = {
@@ -172,6 +220,8 @@ const USD_PRICES = {
   "arrival-in-grandeur": 370,
   "ultimate-convoy-matrix": 900,
   "end-to-end-concierge": 2100,
+  "premium-airport-transfer": 72,
+  "taj-executive-welcome": 215,
 };
 
 export default function WelcomeIndiaCard() {
@@ -240,7 +290,11 @@ export default function WelcomeIndiaCard() {
         .wi-sovereign-cta{position:relative;background:linear-gradient(135deg,#9b8a6a 0%,#c8b07a 50%,#9b8a6a 100%);color:#08060c;transition:all 0.3s ease-in-out;overflow:hidden;}
         .wi-sovereign-cta:hover{box-shadow:0 0 0 1.5px rgba(155,138,106,.80),0 28px 72px rgba(155,138,106,.30),0 10px 28px rgba(0,0,0,.55);transform:translateY(-2px);filter:brightness(1.08);}
         .wi-sovereign-cta::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);animation:shine 3s cubic-bezier(.4,0,.2,1) infinite;}
-        .wi-bronze-cta::before,.wi-silver-cta::before,.wi-gold-cta::before,.wi-platinum-cta::before{
+        .wi-teal-cta{position:relative;background-color:#2e8b74;color:#FFFFFF;transition:all 0.3s ease-in-out;overflow:hidden;}
+        .wi-teal-cta:hover{box-shadow:0 0 0 1.5px rgba(46,139,116,.75),0 28px 72px rgba(46,139,116,.26),0 10px 28px rgba(0,0,0,.52);transform:translateY(-2px);filter:brightness(1.1);}
+        .wi-copper-cta{position:relative;background-color:#c07840;color:#FFFFFF;transition:all 0.3s ease-in-out;overflow:hidden;}
+        .wi-copper-cta:hover{box-shadow:0 0 0 1.5px rgba(192,120,64,.75),0 28px 72px rgba(192,120,64,.26),0 10px 28px rgba(0,0,0,.52);transform:translateY(-2px);filter:brightness(1.1);}
+        .wi-bronze-cta::before,.wi-silver-cta::before,.wi-gold-cta::before,.wi-platinum-cta::before,.wi-teal-cta::before,.wi-copper-cta::before{
           content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
           background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);
           animation:shine 3s cubic-bezier(.4,0,.2,1) infinite;

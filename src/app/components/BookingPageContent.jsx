@@ -8,6 +8,8 @@ import { Check, Shield, ArrowLeft, Gem, Crown } from "lucide-react";
 import { plans as mainPlans } from "../data/plans";
 import { plans as welcomePlans } from "../data/welcomeIndia";
 import { useMetaEvents } from "../hooks/useMetaEvents";
+import api from "../axios/axios";
+import { useAuth } from "../context/AuthContext";
 
 const plans = [...mainPlans, ...welcomePlans];
 const welcomePlanIds = new Set(welcomePlans.map((p) => p.id));
@@ -1075,17 +1077,16 @@ const TIER_HIGHLIGHTS = Object.fromEntries(
   plans.map((p) => [
     p.id,
     p.privileges.map((priv) => ({
-      text: (!welcomePlanIds.has(p.id) && priv.worth)
-        ? `${priv.title} (worth ₹${priv.worth.toLocaleString("en-IN")})`
-        : priv.title,
+      text:
+        !welcomePlanIds.has(p.id) && priv.worth
+          ? `${priv.title} (worth ₹${priv.worth.toLocaleString("en-IN")})`
+          : priv.title,
       bold: !welcomePlanIds.has(p.id) && !!priv.worth,
     })),
-  ])
+  ]),
 );
 
-const PLAN_IMAGES = Object.fromEntries(
-  plans.map((p) => [p.id, p.image])
-);
+const PLAN_IMAGES = Object.fromEntries(plans.map((p) => [p.id, p.image]));
 
 const PLAN_ACCENTS = {
   essential: { color: "#94a3b8", badge: null },
@@ -1243,6 +1244,7 @@ export default function BookingPageContent({
   anchorPrice,
   foundingSpots,
 }) {
+  const { user } = useAuth();
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -1255,8 +1257,10 @@ export default function BookingPageContent({
   const [payError, setPayError] = useState("");
   const searchParams = useSearchParams();
   const urlCurrency = searchParams.get("currency");
-  const initCurrency = urlCurrency && urlCurrency !== "INR" ? urlCurrency : "USD";
-  const initMethod = urlCurrency && urlCurrency !== "INR" ? "international" : "india";
+  const initCurrency =
+    urlCurrency && urlCurrency !== "INR" ? urlCurrency : "USD";
+  const initMethod =
+    urlCurrency && urlCurrency !== "INR" ? "international" : "india";
 
   const [paymentMethod, setPaymentMethod] = useState(initMethod);
   const [selectedCurrency, setSelectedCurrency] = useState(initCurrency);
@@ -1264,6 +1268,21 @@ export default function BookingPageContent({
   const [currencyRateLoading, setCurrencyRateLoading] = useState(false);
 
   const isFixedUSD = selectedCurrency === "USD" && welcomePlanIds.has(plan.id);
+
+  //TODO: after backend deployed
+  // useEffect(() => {
+  //   if (user) {
+  //     const rawPhone = (user.mobileNumber || "").replace(/\D/g, "");
+  //     // Strip country code: if more than 10 digits, take the last 10
+  //     const phone = rawPhone.length > 10 ? rawPhone.slice(-10) : rawPhone;
+  //     setForm((f) => ({
+  //       ...f,
+  //       name: user.name || "",
+  //       email: user.email || "",
+  //       phone: paymentMethod === "india" ? phone : user.mobileNumber || "",
+  //     }));
+  //   }
+  // }, [user, paymentMethod]);
 
   useEffect(() => {
     if (paymentMethod === "india" || isFixedUSD) return;
@@ -1283,7 +1302,6 @@ export default function BookingPageContent({
   const isWelcomeIndia = welcomePlanIds.has(plan.id);
   const effectiveGstRate = isWelcomeIndia ? 0 : GST_RATE;
   const gstLabel = isWelcomeIndia ? "All Inclusive" : "GST 18% Extra";
-
   // India pricing
   const gstAmount = Math.ceil(plan.price * effectiveGstRate);
   const indiaTotalINR = plan.price + gstAmount;
@@ -1320,7 +1338,6 @@ export default function BookingPageContent({
 
   const handleMethodChange = (method) => {
     setPaymentMethod(method);
-    setForm((f) => ({ ...f, phone: "", email: "" }));
     if (method !== "india") setSelectedCurrency("USD");
     setErrors({});
     setPayError("");
@@ -1337,12 +1354,11 @@ export default function BookingPageContent({
       const cleaned = form.phone.replace(/[\s\-()+]/g, "");
       if (cleaned.length < 7 || !/^\d+$/.test(cleaned))
         e.phone = "Enter a valid international number";
-      if (
-        form.email.trim() &&
-        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())
-      ) {
-        e.email = "Enter a valid email address";
-      }
+    }
+    if (!form.email.trim()) {
+      e.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      e.email = "Enter a valid email address";
     }
     return e;
   };
@@ -1367,25 +1383,32 @@ export default function BookingPageContent({
             currency: selectedCurrency,
             customerName: form.name.trim(),
             customerPhone: form.phone,
-            customerEmail: form.email.trim() || undefined,
+            customerEmail: form.email.trim(),
             planId: plan.id,
+            planName: plan.name,
           }
         : {
             amount: indiaTotalINR,
             currency: "INR",
             customerName: form.name.trim(),
             customerPhone: form.phone,
+            customerEmail: form.email.trim(),
             planId: plan.id,
+            planName: plan.name,
           };
 
-      await trackLead({ value: isIntl ? intlTotalForeign : indiaTotalINR , phone: form.phone, userData: { fullName: form.name, email: form.email, city: form.city } });
+      await trackLead({
+        value: isIntl ? intlTotalForeign : indiaTotalINR,
+        phone: form.phone,
+        userData: { fullName: form.name, email: form.email, city: form.city },
+      }); 
+
 
       const res = await fetch("/api/cashfree/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      
       const data = await res.json();
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
@@ -1402,6 +1425,26 @@ export default function BookingPageContent({
           data.error || "Could not initiate payment. Please try again.",
         );
       }
+      //TODO: after backend deployed
+      // await Promise.all([
+      //   api.post("/booking", {
+      //     packageName: plan.name,
+      //     packageId: plan.id,
+      //     validity: plan.validity,
+      //     serviceCity: form.city || "Not specified",
+      //     cashfreeId: data.order_id,
+      //     currency: isIndia ? "INR" : selectedCurrency,
+      //     purchaseAmount: isIndia ? indiaTotalINR : intlTotalForeign,
+      //     purchaseDate: new Date().toISOString(),
+      //   }),
+      //   !user.name || !user.email || (!user.city && form.city)
+      //     ? api.put("/auth/update-profile", {
+      //         name: form.name.trim(),
+      //         email: form.email.trim(),
+      //         city: form.city || "Not specified",
+      //       })
+      //     : Promise.resolve(),
+      // ]);
       const cashfree = await load({
         mode:
           process.env.NEXT_PUBLIC_CASHFREE_ENV === "production"
@@ -1549,15 +1592,18 @@ export default function BookingPageContent({
                   color: plan.id === "elite" ? "#C9A24B" : "#0B1E3F",
                 }}
               >
-                 {isIndia
-                        ? `${INR(indiaTotalINR)}`
-                        : `${fmtForeign(intlTotalForeign, selectedCurrency)}`}*
+                {isIndia
+                  ? `${INR(indiaTotalINR)}`
+                  : `${fmtForeign(intlTotalForeign, selectedCurrency)}`}
+                *
               </span>
-              <span className="text-[11px] font-semibold text-gray-400 mb-1">{gstLabel}</span>
+              <span className="text-[11px] font-semibold text-gray-400 mb-1">
+                {gstLabel}
+              </span>
               {!isWelcomeIndia && (
-              <span className="text-gray-400 text-sm font-light mb-1">
-                / year, all-inclusive
-              </span>
+                <span className="text-gray-400 text-sm font-light mb-1">
+                  / year, all-inclusive
+                </span>
               )}
               {anchorPrice && (
                 <span
@@ -1897,35 +1943,30 @@ export default function BookingPageContent({
                   )}
                 </div>
 
-                {/* Email — optional, shown for international only */}
-                {!isIndia && (
-                  <div>
-                    <label className="block text-[10px] font-bold text-gray-400 mb-2 tracking-[0.22em] uppercase">
-                      Email{" "}
-                      <span className="text-gray-300 font-normal normal-case tracking-normal">
-                        (optional)
-                      </span>
-                    </label>
-                    <input
-                      type="email"
-                      value={form.email}
-                      onChange={(e) =>
-                        setForm({ ...form, email: e.target.value })
-                      }
-                      placeholder="e.g. john@example.com"
-                      className={`w-full px-4 py-3 rounded-xl border text-sm text-gray-800 outline-none transition-all placeholder:text-gray-300 ${
-                        errors.email
-                          ? "border-red-300 bg-red-50"
-                          : "border-gray-200 focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/10 bg-white"
-                      }`}
-                    />
-                    {errors.email && (
-                      <p className="text-red-500 text-xs mt-1.5">
-                        {errors.email}
-                      </p>
-                    )}
-                  </div>
-                )}
+                {/* Email — mandatory for all */}
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-400 mb-2 tracking-[0.22em] uppercase">
+                    Email <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={form.email}
+                    onChange={(e) =>
+                      setForm({ ...form, email: e.target.value })
+                    }
+                    placeholder="e.g. john@example.com"
+                    className={`w-full px-4 py-3 rounded-xl border text-sm text-gray-800 outline-none transition-all placeholder:text-gray-300 ${
+                      errors.email
+                        ? "border-red-300 bg-red-50"
+                        : "border-gray-200 focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/10 bg-white"
+                    }`}
+                  />
+                  {errors.email && (
+                    <p className="text-red-500 text-xs mt-1.5">
+                      {errors.email}
+                    </p>
+                  )}
+                </div>
 
                 {/* City */}
                 <div>
@@ -1970,9 +2011,11 @@ export default function BookingPageContent({
                       </span>
                       <div className="text-right">
                         <span className="text-gray-700 text-sm font-semibold tabular-nums">
-                          {isIndia ? INR(plan.price) + "*" : toForeign(plan.price) + "*"}
+                          {isIndia
+                            ? INR(plan.price) + "*"
+                            : toForeign(plan.price) + "*"}
                         </span>
-                        
+
                         {!isIndia && !currencyRateLoading && !isFixedUSD && (
                           <p className="text-gray-400 text-[10px] tabular-nums">
                             {INR(plan.price)}*
@@ -1981,24 +2024,27 @@ export default function BookingPageContent({
                       </div>
                     </div>
                     {!isWelcomeIndia && (
-                    <div className="flex justify-between items-center">
-                      <span className="flex items-center gap-1.5 text-xs text-gray-500">
-                        <span className="bg-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
-                          +18%
+                      <div className="flex justify-between items-center">
+                        <span className="flex items-center gap-1.5 text-xs text-gray-500">
+                          <span className="bg-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                            +18%
+                          </span>
+                          GST
                         </span>
-                        GST
-                      </span>
-                      <div className="text-right">
-                        <span className="text-gray-600 text-sm font-semibold tabular-nums">
-                          +{isIndia ? INR(gstAmount) : toForeign(intlGstAmount)}
-                        </span>
-                        {!isIndia && !currencyRateLoading && (
-                          <p className="text-gray-400 text-[10px] tabular-nums">
-                            +{INR(intlGstAmount)}
-                          </p>
-                        )}
+                        <div className="text-right">
+                          <span className="text-gray-600 text-sm font-semibold tabular-nums">
+                            +
+                            {isIndia
+                              ? INR(gstAmount)
+                              : toForeign(intlGstAmount)}
+                          </span>
+                          {!isIndia && !currencyRateLoading && (
+                            <p className="text-gray-400 text-[10px] tabular-nums">
+                              +{INR(intlGstAmount)}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
                     )}
                   </div>
 
@@ -2019,7 +2065,8 @@ export default function BookingPageContent({
                           <span className="text-gray-900 text-lg font-black tabular-nums">
                             {fmtForeign(intlTotalForeign, selectedCurrency)}
                           </span>
-                          {!currencyRateLoading && !isFixedUSD &&
+                          {!currencyRateLoading &&
+                            !isFixedUSD &&
                             intlTotalForeign !== null && (
                               <p className="text-gray-400 text-[10px] mt-0.5 tabular-nums">
                                 ≈ {INR(intlTotalINR)} · live rate
@@ -2035,7 +2082,9 @@ export default function BookingPageContent({
                 <button
                   type="submit"
                   id="pay-submit-btn"
-                  disabled={loading || (!isIndia && currencyRateLoading && !isFixedUSD)}
+                  disabled={
+                    loading || (!isIndia && currencyRateLoading && !isFixedUSD)
+                  }
                   className="w-full py-4 rounded-xl font-black text-md tracking-wide transition-all hover:opacity-95 hover:-translate-y-0.5 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
                   style={{
                     background:
@@ -2084,7 +2133,9 @@ export default function BookingPageContent({
 
                 {/* Convenience fee note */}
                 <p className="text-[11px] text-gray-500 leading-relaxed">
-                  <span className="font-semibold text-gray-600">Note:</span> Additional convenience charges may be applied during payment processing based on the selected payment method.
+                  <span className="font-semibold text-gray-600">Note:</span>{" "}
+                  Additional convenience charges may be applied during payment
+                  processing based on the selected payment method.
                 </p>
 
                 {/* Security note */}

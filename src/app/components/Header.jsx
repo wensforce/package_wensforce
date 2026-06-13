@@ -4,12 +4,15 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Crown, Menu, X } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const searchParams = useSearchParams();
   const isWelcomeIndia = searchParams.get('welcomeIndia') === 'true';
+
+  const { isLoggedIn, user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -100,7 +103,31 @@ export default function Header() {
           </nav>
 
           {/* Desktop CTA */}
-          <div className="hidden md:block">
+          <div className="hidden md:flex items-center gap-3">
+            {/* TODO: when backend deployed */}
+            {/* {isLoggedIn ? (
+              <Link
+                href= { user.role === 'admin' ? '/admin/dashboard' : '/dashboard' }
+                className={`inline-flex items-center gap-2 font-semibold py-2.5 px-5 rounded-full text-sm transition-all ${
+                  scrolled
+                    ? 'border border-gray-300 text-gray-700 hover:bg-gray-100'
+                    : 'border border-white/30 text-white hover:bg-white/10'
+                }`}
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className={`inline-flex items-center gap-2 font-semibold py-2.5 px-5 rounded-full text-sm transition-all ${
+                  scrolled                    ? 'border border-gray-300 text-gray-700 hover:bg-gray-100'
+                    : 'border border-white/30 text-white hover:bg-white/10'
+                }`}
+              >
+                Login
+              </Link>
+            )
+            } */}
             <a
               href="#plans"
               className={`inline-flex items-center gap-2 font-semibold py-2.5 px-6 rounded-full text-sm transition-all ${
@@ -179,6 +206,17 @@ export default function Header() {
               >
                 Offer
               </a>
+              {isLoggedIn && (
+                <Link
+                  href="/dashboard"
+                  className={`block text-sm font-semibold transition-colors ${
+                    scrolled ? 'text-gray-700 hover:text-gray-900' : 'text-white/80 hover:text-white'
+                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+              )}
               <a
                 href="#plans"
                 className="block w-full bg-[#BF9F00] text-black font-semibold py-2.5 rounded-full text-sm hover:bg-[#a88a00] transition-all text-center mt-4"

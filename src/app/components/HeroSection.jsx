@@ -4,7 +4,7 @@ const WA_NUMBER = '917304607954';
 import { plans } from '../data/plans.js';
 const HERO_VIDEO_URL = 'https://d2zcmp43lwd2kr.cloudfront.net/videos/hero_video.mp4';
 
-export default async function HeroSection({ welcomeIndia }) {
+export default function HeroSection({ welcomeIndia }) {
   const heroWaMsg = encodeURIComponent(
     "Hi WENS Force, I'm exploring your subscription. Can you help me find the right tier?"
   );

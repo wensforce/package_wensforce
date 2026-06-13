@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-import { plans as mainPlans, getPlanById as getMainPlanById } from '../../data/plans';
-import { plans as welcomePlans } from '../../data/welcomeIndia';
-import BookingPageContent from '../../components/BookingPageContent';
+//TODO: Change path and move to protected route
+import { plans as mainPlans, getPlanById as getMainPlanById } from '@/app/data/plans';
+import { plans as welcomePlans } from '@/app/data/welcomeIndia';
+import BookingPageContent from '@/app/components/BookingPageContent';
 
 const allPlans = [...mainPlans, ...welcomePlans];
 const getPlanById = (id) => allPlans.find((p) => p.id === id);
