@@ -161,10 +161,10 @@ const M = {
     isElite: true,
     ctaClass: "sovereign-cta",
   },
-  "premium-airport-transfer": {
+  "touch-red-carpet-voyage": {
     num: "P1",
     Icon: Car,
-    cta: "Book Airport Transfer",
+    cta: "Book Red Carpet Voyage",
     accent: "#4a9e8a",
     imgFilter: "grayscale(30%) brightness(.54) contrast(1.05)",
     imgOverlay:
@@ -185,10 +185,11 @@ const M = {
     isElite: false,
     ctaClass: "teal-cta",
   },
-  "taj-executive-welcome": {
+  "maharani-maharaja-day": {
     num: "P2",
     Icon: ShieldCheck,
-    cta: "Book Taj Executive",
+    // short cta name , no maharani/maharaja in cta to save space
+    cta: "Book Royal Day", 
     accent: "#c07840",
     imgFilter: "grayscale(20%) brightness(.52) contrast(1.08)",
     imgOverlay:
@@ -211,7 +212,7 @@ const M = {
   },
 };
 
-const ORDER = ["premium-airport-transfer", "comfortable-arrival", "arrive-in-style", "taj-executive-welcome", "arrival-in-grandeur", "ultimate-convoy-matrix", "end-to-end-concierge"];
+const ORDER = ["touch-red-carpet-voyage", "comfortable-arrival", "arrive-in-style", "maharani-maharaja-day", "arrival-in-grandeur", "ultimate-convoy-matrix", "end-to-end-concierge"];
 
 // Fixed USD prices (not exchange-rate based)
 const USD_PRICES = {
@@ -220,8 +221,8 @@ const USD_PRICES = {
   "arrival-in-grandeur": 370,
   "ultimate-convoy-matrix": 900,
   "end-to-end-concierge": 2100,
-  "premium-airport-transfer": 72,
-  "taj-executive-welcome": 215,
+  "touch-red-carpet-voyage": 72,
+  "maharani-maharaja-day": 215,
 };
 
 export default function WelcomeIndiaCard() {
