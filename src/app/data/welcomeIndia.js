@@ -1,10 +1,10 @@
 export const plans = [
   {
-    id: "premium-airport-transfer",
+    id: "touch-red-carpet-voyage",
     image: "/cards/Premium_Mumbai_Delhi_Package.png",
     video: null,
     packageNo: "02",
-    name: "Premium Airport Transfer Mumbai/Delhi",
+    name: "Touch Red Carpet Voyage Mumbai/Delhi",
     tagline: "Seamless airport transfer with professional security assistance",
     price: 5999,
     perMonth: 0,
@@ -179,11 +179,11 @@ export const plans = [
     ],
   },
   {
-    id: "taj-executive-welcome",
+    id: "maharani-maharaja-day",
     image: "/cards/Taj_Welcome_Package.png",
     video: null,
     packageNo: "03",
-    name: "Taj Executive Welcome",
+    name: "Maharani / Maharaja Day",
     tagline:
       "Travel like a VIP with executive protection and premium hospitality",
     price: 17999,
