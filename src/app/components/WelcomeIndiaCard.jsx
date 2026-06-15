@@ -161,7 +161,7 @@ const M = {
     isElite: true,
     ctaClass: "sovereign-cta",
   },
-  "touch-red-carpet-voyage": {
+  "touch-red-carpet": {
     num: "P1",
     Icon: Car,
     cta: "Book Red Carpet Voyage",
@@ -185,7 +185,7 @@ const M = {
     isElite: false,
     ctaClass: "teal-cta",
   },
-  "maharani-maharaja-day": {
+  "maharani-maharaja": {
     num: "P2",
     Icon: ShieldCheck,
     // short cta name , no maharani/maharaja in cta to save space
@@ -212,7 +212,7 @@ const M = {
   },
 };
 
-const ORDER = ["touch-red-carpet-voyage", "comfortable-arrival", "arrive-in-style", "maharani-maharaja-day", "arrival-in-grandeur", "ultimate-convoy-matrix", "end-to-end-concierge"];
+const ORDER = ["touch-red-carpet", "comfortable-arrival", "arrive-in-style", "maharani-maharaja", "arrival-in-grandeur", "ultimate-convoy-matrix", "end-to-end-concierge"];
 
 // Fixed USD prices (not exchange-rate based)
 const USD_PRICES = {
@@ -221,8 +221,8 @@ const USD_PRICES = {
   "arrival-in-grandeur": 370,
   "ultimate-convoy-matrix": 900,
   "end-to-end-concierge": 2100,
-  "touch-red-carpet-voyage": 72,
-  "maharani-maharaja-day": 215,
+  "touch-red-carpet": 72,
+  "maharani-maharaja": 215,
 };
 
 export default function WelcomeIndiaCard() {

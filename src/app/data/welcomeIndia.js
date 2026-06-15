@@ -1,6 +1,6 @@
 export const plans = [
   {
-    id: "touch-red-carpet-voyage",
+    id: "touch-red-carpet",
     image: "/cards/Premium_Mumbai_Delhi_Package.png",
     video: null,
     packageNo: "02",
@@ -179,7 +179,7 @@ export const plans = [
     ],
   },
   {
-    id: "maharani-maharaja-day",
+    id: "maharani-maharaja",
     image: "/cards/Taj_Welcome_Package.png",
     video: null,
     packageNo: "03",
