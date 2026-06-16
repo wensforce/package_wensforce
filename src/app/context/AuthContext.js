@@ -16,23 +16,23 @@ export function AuthProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
 
-  // TODO: After backend deploye ────────────────────────────────
-  // useEffect(() => {
-  //   api
-  //     .get("/auth/me")
-  //     .then(({ data }) => {
-  //       if (data?.data) {
-  //         setUser(data.data);
-  //         setIsLoggedIn(true);
-  //       }
-  //     })
-  //     .catch(() => {
-  //       // Not logged in — leave state as default
-  //     })
-  //     .finally(() => {
-  //       setAuthLoading(false);
-  //     });
-  // }, []);
+  
+  useEffect(() => {
+    api
+      .get("/auth/me")
+      .then(({ data }) => {
+        if (data?.data) {
+          setUser(data.data);
+          setIsLoggedIn(true);
+        }
+      })
+      .catch(() => {
+        // Not logged in — leave state as default
+      })
+      .finally(() => {
+        setAuthLoading(false);
+      });
+  }, []);
 
   // ── Login: store tokens + set user ───────────────────────────────────────
   const login = useCallback((accessToken, userData = {}) => {

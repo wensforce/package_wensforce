@@ -42,8 +42,5 @@ next-env.d.ts
 
 TECH_STACK.md
 
-
-#TODO: REMOVE THIS FOLDER
-src/app/(protected)
-src/app/admin
-src/app/login
+#TODO
+src/app/(protected)/profile
