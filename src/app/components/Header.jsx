@@ -104,8 +104,8 @@ export default function Header() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
-            {/* TODO: when backend deployed */}
-            {/* {isLoggedIn ? (
+
+            {isLoggedIn ? (
               <Link
                 href= { user.role === 'admin' ? '/admin/dashboard' : '/dashboard' }
                 className={`inline-flex items-center gap-2 font-semibold py-2.5 px-5 rounded-full text-sm transition-all ${
@@ -127,7 +127,7 @@ export default function Header() {
                 Login
               </Link>
             )
-            } */}
+            }
             <a
               href="#plans"
               className={`inline-flex items-center gap-2 font-semibold py-2.5 px-6 rounded-full text-sm transition-all ${

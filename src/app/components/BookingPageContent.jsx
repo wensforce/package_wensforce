@@ -1269,20 +1269,19 @@ export default function BookingPageContent({
 
   const isFixedUSD = selectedCurrency === "USD" && welcomePlanIds.has(plan.id);
 
-  //TODO: after backend deployed
-  // useEffect(() => {
-  //   if (user) {
-  //     const rawPhone = (user.mobileNumber || "").replace(/\D/g, "");
-  //     // Strip country code: if more than 10 digits, take the last 10
-  //     const phone = rawPhone.length > 10 ? rawPhone.slice(-10) : rawPhone;
-  //     setForm((f) => ({
-  //       ...f,
-  //       name: user.name || "",
-  //       email: user.email || "",
-  //       phone: paymentMethod === "india" ? phone : user.mobileNumber || "",
-  //     }));
-  //   }
-  // }, [user, paymentMethod]);
+  useEffect(() => {
+    if (user) {
+      const rawPhone = (user.mobileNumber || "").replace(/\D/g, "");
+      // Strip country code: if more than 10 digits, take the last 10
+      const phone = rawPhone.length > 10 ? rawPhone.slice(-10) : rawPhone;
+      setForm((f) => ({
+        ...f,
+        name: user.name || "",
+        email: user.email || "",
+        phone: paymentMethod === "india" ? phone : user.mobileNumber || "",
+      }));
+    }
+  }, [user, paymentMethod]);
 
   useEffect(() => {
     if (paymentMethod === "india" || isFixedUSD) return;
@@ -1425,26 +1424,27 @@ export default function BookingPageContent({
           data.error || "Could not initiate payment. Please try again.",
         );
       }
-      //TODO: after backend deployed
-      // await Promise.all([
-      //   api.post("/booking", {
-      //     packageName: plan.name,
-      //     packageId: plan.id,
-      //     validity: plan.validity,
-      //     serviceCity: form.city || "Not specified",
-      //     cashfreeId: data.order_id,
-      //     currency: isIndia ? "INR" : selectedCurrency,
-      //     purchaseAmount: isIndia ? indiaTotalINR : intlTotalForeign,
-      //     purchaseDate: new Date().toISOString(),
-      //   }),
-      //   !user.name || !user.email || (!user.city && form.city)
-      //     ? api.put("/auth/update-profile", {
-      //         name: form.name.trim(),
-      //         email: form.email.trim(),
-      //         city: form.city || "Not specified",
-      //       })
-      //     : Promise.resolve(),
-      // ]);
+  
+      await Promise.all([
+        api.post("/booking", {
+          packageName: plan.name,
+          packageId: plan.id,
+          validity: plan.validity,
+          serviceCity: form.city || "Not specified",
+          cashfreeId: data.order_id,
+          currency: isIndia ? "INR" : selectedCurrency,
+          purchaseAmount: isIndia ? indiaTotalINR : intlTotalForeign,
+          purchaseDate: new Date().toISOString(),
+        }),
+        !user.name || !user.email || (!user.city && form.city)
+          ? api.put("/auth/update-profile", {
+              name: form.name.trim(),
+              email: form.email.trim(),
+              city: form.city || "Not specified",
+            })
+          : Promise.resolve(),
+      ]);
+      
       const cashfree = await load({
         mode:
           process.env.NEXT_PUBLIC_CASHFREE_ENV === "production"

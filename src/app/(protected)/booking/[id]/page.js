@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
-//TODO: Change path and move to protected route
 import { plans as mainPlans, getPlanById as getMainPlanById } from '@/app/data/plans';
 import { plans as welcomePlans } from '@/app/data/welcomeIndia';
 import BookingPageContent from '@/app/components/BookingPageContent';
