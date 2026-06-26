@@ -22,9 +22,9 @@ export default function PackageCard({ pkg }) {
 
       {/* Thumbnail */}
       <div className="relative h-44 w-full overflow-hidden rounded-t-2xl bg-neutral-100">
-        {pkg.thumbnailUrlKey ? (
+        {pkg.thumbnailUrl ? (
           <img
-            src={pkg.thumbnailUrlKey}
+            src={pkg.thumbnailUrl}
             alt={pkg.name}
             className="h-full w-full object-cover"
           />
@@ -101,16 +101,16 @@ export default function PackageCard({ pkg }) {
 
         <div className="flex gap-2">
           <button
+            onClick={() => router.push(`/admin/packages/${pkg.id}`)}
+            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl border border-neutral-200 py-2.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
+          >
+            <Eye size={12} /> Details
+          </button>
+          <button
             onClick={() => router.push(`/admin/packages/edit/${pkg.id}`)}
             className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#0B1E3F] py-2.5 text-xs font-semibold text-white hover:bg-[#152d5a] transition-colors"
           >
             <Pencil size={12} /> Edit
-          </button>
-          <button
-            onClick={() => router.push(`/admin/packages/edit/${pkg.id}`)}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl border border-neutral-200 py-2.5 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition-colors"
-          >
-            <Eye size={12} /> Details
           </button>
         </div>
 
