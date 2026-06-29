@@ -8,7 +8,7 @@ import {
   AlertCircle,
   Eye,
 } from "lucide-react";
-import api from "../../axios/axios";
+import { bookingApi } from "./apis/bookings.api";
 import AdminTable from "../components/AdminTable";
 import BookingViewModal from "../components/BookingViewModal";
 
@@ -22,7 +22,6 @@ const STATUS_CONFIG = {
 };
 
 const STATUS_TABS = ["all", "pending", "initiated", "completed", "cancelled", "failed"];
-const PAGE_LIMIT  = 10;
 
 const COLUMNS = [
   { key: "id",       label: "#" },
@@ -51,7 +50,7 @@ function formatAmount(val, currency) {
 
 export default function BookingsPage() {
   const [bookings, setBookings]     = useState([]);
-  const [pagination, setPagination] = useState({ page: 1, limit: PAGE_LIMIT, total: 0, totalPages: 1 });
+  const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 });
   const [search, setSearch]         = useState("");
   const [activeTab, setActiveTab]   = useState("all");
   const [page, setPage]             = useState(1);
@@ -71,12 +70,7 @@ export default function BookingsPage() {
     setLoading(true);
     setError(null);
     try {
-      const params = { page, limit: PAGE_LIMIT };
-      if (activeTab !== "all") params.status = activeTab;
-      if (search.trim())       params.search  = search.trim();
-
-      const res = await api.get("/booking", { params });
-      const { data: rows, pagination: pg } = res.data.data;
+      const { rows, pagination: pg } = await bookingApi.fetchBookings({ page, activeTab, search });
       setBookings(rows);
       setPagination(pg);
     } catch (err) {

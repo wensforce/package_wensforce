@@ -3,34 +3,19 @@
 import { useState, useRef, useEffect } from "react";
 import { Loader2, ImagePlus, X } from "lucide-react";
 import Modal from "../Modal";
-import api from "../../../axios/axios";
-import { uploadImageToS3, rollbackS3Upload } from "../../utils/s3Upload";
+import { servicesApi } from "../../services/apis/services.api";
 
-/**
- * @typedef {Object} ServiceCreateModalProps
- * @property {boolean} open - Controls modal visibility
- * @property {() => void} onClose - Called when the modal should close
- * @property {() => void} [onCreated] - Called after a service is successfully created
- */
-
-/**
- * Modal form for creating a new Service.
- * Uses the shared `Modal` shell.
- *
- * @param {ServiceCreateModalProps} props
- */
 export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated, service }) {
   const initialForm = { title: "", description: "", isActive: true };
 
   const [form, setForm] = useState(initialForm);
-  const [thumbnail, setThumbnail] = useState(null);   // File object
-  const [preview, setPreview] = useState(null);     // Object URL or existing URL
+  const [thumbnail, setThumbnail] = useState(null);
+  const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
   const isEditMode = Boolean(service);
 
-  // Initialize form values when service changes or modal opens
   useEffect(() => {
     if (!open) return;
 
@@ -51,7 +36,6 @@ export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated
     }
   }, [service, open]);
 
-  // Revoke old object URL when preview changes or component unmounts
   useEffect(() => {
     return () => { if (preview && thumbnail) URL.revokeObjectURL(preview); };
   }, [preview, thumbnail]);
@@ -85,43 +69,20 @@ export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated
     setLoading(true);
     setError(null);
 
-    let uploadedKey = null; // track so we can rollback on failure
-
     try {
-      // Step 1 & 2 — upload image to S3 (only if a new file was selected)
-      if (thumbnail) {
-        const { publicUrl, key } = await uploadImageToS3(thumbnail);
-        uploadedKey = key;
+      if (isEditMode) {
+        const updatedService = await servicesApi.updateService(service.id, form, thumbnail);
+        onUpdated?.(updatedService);
+      } else {
+        await servicesApi.createService(form, thumbnail);
+        onCreated?.();
       }
 
-      const payload = {
-        title: form.title.trim(),
-        isActive: form.isActive,
-        ...(form.description.trim() && { description: form.description.trim() }),
-        ...(uploadedKey && { thumbnailUrlKey: uploadedKey }),
-      };
-
-      try {
-        if (isEditMode) {
-          const res = await api.put(`/service/${service.id}`, payload);
-          const updatedService = res.data.data;
-          onUpdated?.(updatedService);
-        } else {
-          await api.post("/service/create", payload);
-          onCreated?.();
-        }
-      } catch (createErr) {
-        // API call failed — rollback the S3 upload if one occurred
-        if (uploadedKey) await rollbackS3Upload(uploadedKey);
-        throw createErr;
-      }
-
-      // Success
       setForm(initialForm);
       removeImage();
       onClose();
     } catch (err) {
-      setError(err?.response?.data?.message || "Failed to create service.");
+      setError(err?.response?.data?.message || (isEditMode ? "Failed to update service." : "Failed to create service."));
     } finally {
       setLoading(false);
     }
@@ -145,14 +106,12 @@ export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated
     >
       <form onSubmit={handleSubmit} className="px-6 py-5 space-y-5">
 
-        {/* Error banner */}
         {error && (
           <div className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-4 py-2.5">
             {error}
           </div>
         )}
 
-        {/* Title */}
         <div className="space-y-1.5">
           <label className="block text-sm font-semibold text-[#0B1E3F]">
             Title <span className="text-red-500">*</span>
@@ -168,7 +127,6 @@ export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated
           />
         </div>
 
-        {/* Description */}
         <div className="space-y-1.5">
           <label className="block text-sm font-semibold text-[#0B1E3F]">Description</label>
           <textarea
@@ -182,11 +140,9 @@ export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated
           />
         </div>
 
-        {/* Thumbnail image picker */}
         <div className="space-y-1.5">
           <label className="block text-sm font-semibold text-[#0B1E3F]">Thumbnail</label>
 
-          {/* Hidden file input */}
           <input
             ref={fileInputRef}
             type="file"
@@ -197,14 +153,12 @@ export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated
           />
 
           {preview ? (
-            /* Preview card */
             <div className="relative w-full h-40 rounded-xl overflow-hidden border border-[#CBD5E0] bg-[#FAF6EC]">
               <img
                 src={preview}
                 alt="Thumbnail preview"
                 className="w-full h-full object-cover"
               />
-              {/* Overlay controls */}
               <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                 <button
                   type="button"
@@ -225,7 +179,6 @@ export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated
               </div>
             </div>
           ) : (
-            /* Drop zone / pick button */
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
@@ -241,7 +194,6 @@ export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated
           )}
         </div>
 
-        {/* Active toggle */}
         <div className="flex items-center justify-between rounded-lg border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3">
           <div>
             <p className="text-sm font-semibold text-[#0B1E3F]">Active</p>
@@ -262,7 +214,6 @@ export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated
           </button>
         </div>
 
-        {/* Footer actions */}
         <div className="flex items-center justify-end gap-3 pt-1">
           <button
             type="button"

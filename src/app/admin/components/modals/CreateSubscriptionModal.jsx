@@ -3,8 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, Package, Search, UserRound, X, PlusCircle } from "lucide-react";
 import Modal from "../Modal";
-import api from "../../../axios/axios";
 
+import { userApi } from "../../users/apis/user.api";
+import { packageApi } from "../../packages/apis/packages.api";
+import { subscriptionApi } from "../../subscriptions/apis/subscription.api";
 const INITIAL_FORM = {
   startDate: "",
   paymentId: "",
@@ -82,12 +84,8 @@ export default function CreateSubscriptionModal({ open, onClose, onCreated }) {
     async function fetchUsers() {
       setLoadingUsers(true);
       try {
-        const res = await api.get("/user", {
-          params: { query, search: query, page: 1, limit: 5 },
-        });
-        const data = res.data?.data ?? res.data ?? {};
-        const rows = data.users || data.data || data.items || (Array.isArray(data) ? data : []);
-        if (!cancelled) setUserOptions(Array.isArray(rows) ? rows.slice(0, 5) : []);
+        const rows = await userApi.searchUsers(query);
+        if (!cancelled) setUserOptions(rows);
       } catch {
         if (!cancelled) setUserOptions([]);
       } finally {
@@ -96,9 +94,7 @@ export default function CreateSubscriptionModal({ open, onClose, onCreated }) {
     }
 
     fetchUsers();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [debouncedUserSearch, open]);
 
   useEffect(() => {
@@ -115,12 +111,8 @@ export default function CreateSubscriptionModal({ open, onClose, onCreated }) {
     async function fetchPackages() {
       setLoadingPackages(true);
       try {
-        const res = await api.get("/package", {
-          params: { query, search: query, page: 1, limit: 5 },
-        });
-        const data = res.data?.data ?? res.data ?? {};
-        const rows = data.packages || data.data || data.items || (Array.isArray(data) ? data : []);
-        if (!cancelled) setPackageOptions(Array.isArray(rows) ? rows.slice(0, 5) : []);
+        const rows = await packageApi.searchPackages(query);
+        if (!cancelled) setPackageOptions(rows);
       } catch {
         if (!cancelled) setPackageOptions([]);
       } finally {
@@ -129,9 +121,7 @@ export default function CreateSubscriptionModal({ open, onClose, onCreated }) {
     }
 
     fetchPackages();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [debouncedPackageSearch, open]);
 
   function handleFieldChange(e) {
@@ -142,15 +132,10 @@ export default function CreateSubscriptionModal({ open, onClose, onCreated }) {
   function validateForm() {
     if (!selectedUser?.id) return "Please search and select a user.";
     if (!selectedPackage?.id) return "Please search and select a package.";
-
     if (!form.startDate) return "Start date is required.";
-
     const start = new Date(form.startDate);
-
     if (Number.isNaN(start.getTime())) return "Start date is invalid.";
-
     if (!form.paymentId.trim()) return "Payment reference is required.";
-
     return null;
   }
 
@@ -174,7 +159,7 @@ export default function CreateSubscriptionModal({ open, onClose, onCreated }) {
         paymentId: form.paymentId.trim(),
       };
 
-      await api.post("/subscription", payload);
+      await subscriptionApi.createSubscription(payload);
       onCreated?.();
       onClose();
     } catch (err) {

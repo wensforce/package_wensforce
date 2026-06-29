@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import Modal from "../Modal";
-import api from "../../../axios/axios";
+import { userApi } from "../../users/apis/user.api";
 
 const ROLES = ["user", "admin", "ops"];
 const INITIAL_FORM = {
@@ -110,11 +110,11 @@ export default function UserCreateUpdateModal({ open, onClose, onCreated, onUpda
           Object.entries(cleaned).filter(([, value]) => value !== "")
         );
 
-        const res = await api.put(`/user/${user.id}`, payload);
-        onUpdated?.(res.data?.data);
+        const updated = await userApi.updateUser(user.id, payload);
+        onUpdated?.(updated);
       } else {
-        const res = await api.post("/user", cleaned);
-        onCreated?.(res.data?.data);
+        const created = await userApi.createUser(cleaned);
+        onCreated?.(created);
       }
 
       onClose();

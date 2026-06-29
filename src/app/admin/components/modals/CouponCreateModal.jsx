@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, Search, X } from "lucide-react";
 import Modal from "../Modal";
-import api from "../../../axios/axios";
 
+import { couponApi } from "../../coupons/apis/coupons.api";
+import { packageApi } from "../../packages/apis/packages.api";
 const INITIAL_FORM = {
   code: "",
   discountType: "percentage",
@@ -78,7 +79,6 @@ export default function CouponCreateModal({
     setPackageSearch("");
     setDebouncedPackageSearch("");
     setPackageSuggestions([]);
-
     setError(null);
   }, [open, coupon]);
 
@@ -103,12 +103,8 @@ export default function CouponCreateModal({
     async function searchPackages() {
       setLoadingPackages(true);
       try {
-        const res = await api.get("/package", {
-          params: { page: 1, limit: 5, search: query },
-        });
-        const data = res.data?.data ?? res.data;
-        const rows = Array.isArray(data) ? data : data?.packages ?? [];
-        if (!cancelled) setPackageSuggestions(rows.slice(0, 5));
+        const rows = await packageApi.searchPackages(query);
+        if (!cancelled) setPackageSuggestions(rows);
       } catch {
         if (!cancelled) setPackageSuggestions([]);
       } finally {
@@ -118,9 +114,7 @@ export default function CouponCreateModal({
 
     searchPackages();
 
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [debouncedPackageSearch, open]);
 
   const selectedCountLabel = useMemo(() => {
@@ -211,10 +205,10 @@ export default function CouponCreateModal({
       };
 
       if (isEditMode) {
-        const res = await api.put(`/coupon/${coupon.id}`, payload);
-        onUpdated?.(res.data?.data);
+        const updated = await couponApi.updateCoupon(coupon.id, payload);
+        onUpdated?.(updated);
       } else {
-        await api.post("/coupon", payload);
+        await couponApi.createCoupon(payload);
         onCreated?.();
       }
       onClose();
@@ -353,7 +347,7 @@ export default function CouponCreateModal({
               />
             </div>
 
-            <div className={`rounded-lg ${packageSearch.trim() ? 'border border-[#CBD5E0]' : ''} bg-white max-h-44 overflow-y-auto`}>
+            <div className={`rounded-lg ${packageSearch.trim() ? "border border-[#CBD5E0]" : ""} bg-white max-h-44 overflow-y-auto`}>
               {loadingPackages ? (
                 <div className="flex items-center gap-2 text-xs text-[#4A5568] px-3 py-2.5">
                   <Loader2 size={14} className="animate-spin" /> Loading packages...

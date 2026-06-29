@@ -3,7 +3,11 @@
 import { useEffect, useState } from "react";
 import { Loader2, PlusCircle, Search, UserRound, Repeat, ConciergeBell, X } from "lucide-react";
 import Modal from "../Modal";
-import api from "../../../axios/axios";
+
+import { subscriptionApi } from "../../subscriptions/apis/subscription.api";
+import { userApi } from "../../user/apis/user.api";
+import { servicesApi } from "../../service/apis/service.api";
+import { tripApi } from "../../trip/apis/trip.api";
 
 const INITIAL_FORM = {
   assignmentId: "",
@@ -20,14 +24,6 @@ function toDateInputValue(value) {
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return "";
   return d.toISOString().slice(0, 10);
-}
-
-function getArrayFromResponse(data, keys) {
-  for (const key of keys) {
-    const value = data?.[key];
-    if (Array.isArray(value)) return value;
-  }
-  return [];
 }
 
 export default function CreateTripModal({ open, onClose, onCreated, trip, onUpdated }) {
@@ -83,11 +79,11 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
       setSelectedServices(
         Array.isArray(trip.services)
           ? trip.services
-              .filter((svc) => svc?.id)
-              .map((svc) => ({
-                id: svc.id,
-                name: svc.name || svc.title || `Service #${svc.id}`,
-              }))
+            .filter((svc) => svc?.id)
+            .map((svc) => ({
+              id: svc.id,
+              name: svc.name || svc.title || `Service #${svc.id}`,
+            }))
           : []
       );
     } else {
@@ -136,7 +132,6 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
   useEffect(() => {
     if (!open) return;
     const query = debouncedSubscriptionSearch;
-
     if (!query) {
       setSubscriptionOptions([]);
       setLoadingSubscriptions(false);
@@ -148,15 +143,8 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
     async function fetchSubscriptions() {
       setLoadingSubscriptions(true);
       try {
-        const res = await api.get("/subscription", {
-          params: { search: query, query, page: 1, limit: 5 },
-        });
-        const data = res.data?.data ?? res.data ?? {};
-        const rows = getArrayFromResponse(data, ["subscriptions", "items", "data"]);
-
-        if (!cancelled) {
-          setSubscriptionOptions(Array.isArray(rows) ? rows.slice(0, 5) : []);
-        }
+        const rows = await subscriptionApi.searchSubscriptions(query);
+        if (!cancelled) setSubscriptionOptions(rows);
       } catch {
         if (!cancelled) setSubscriptionOptions([]);
       } finally {
@@ -165,15 +153,12 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
     }
 
     fetchSubscriptions();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [debouncedSubscriptionSearch, open]);
 
   useEffect(() => {
     if (!open) return;
     const query = debouncedUserSearch;
-
     if (!query) {
       setUserOptions([]);
       setLoadingUsers(false);
@@ -185,15 +170,8 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
     async function fetchUsers() {
       setLoadingUsers(true);
       try {
-        const res = await api.get("/user", {
-          params: { search: query, query, page: 1, limit: 5 },
-        });
-        const data = res.data?.data ?? res.data ?? {};
-        const rows = getArrayFromResponse(data, ["users", "items", "data"]);
-
-        if (!cancelled) {
-          setUserOptions(Array.isArray(rows) ? rows.slice(0, 5) : []);
-        }
+        const rows = await userApi.searchUsers(query);
+        if (!cancelled) setUserOptions(rows);
       } catch {
         if (!cancelled) setUserOptions([]);
       } finally {
@@ -202,15 +180,12 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
     }
 
     fetchUsers();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [debouncedUserSearch, open]);
 
   useEffect(() => {
     if (!open) return;
     const query = debouncedServiceSearch;
-
     if (!query) {
       setServiceOptions([]);
       setLoadingServices(false);
@@ -222,15 +197,8 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
     async function fetchServices() {
       setLoadingServices(true);
       try {
-        const res = await api.get("/service/list", {
-          params: { search: query, query, page: 1, limit: 5 },
-        });
-        const data = res.data?.data ?? res.data ?? {};
-        const rows = getArrayFromResponse(data, ["services", "items", "data"]);
-
-        if (!cancelled) {
-          setServiceOptions(Array.isArray(rows) ? rows.slice(0, 5) : []);
-        }
+        const rows = await servicesApi.searchServices(query);
+        if (!cancelled) setServiceOptions(rows);
       } catch {
         if (!cancelled) setServiceOptions([]);
       } finally {
@@ -239,9 +207,7 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
     }
 
     fetchServices();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [debouncedServiceSearch, open]);
 
   function setField(name, value) {
@@ -288,10 +254,10 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
       };
 
       if (isEditMode) {
-        const res = await api.put(`/trip/update/${trip.id}`, payload);
-        onUpdated?.(res.data?.data);
+        const updated = await tripApi.updateTrip(trip.id, payload);
+        onUpdated?.(updated);
       } else {
-        await api.post("/trip/create", payload);
+        await tripApi.createTrip(payload);
         onCreated?.();
       }
 
