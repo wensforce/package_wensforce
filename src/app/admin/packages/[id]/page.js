@@ -16,6 +16,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import api from "../../../axios/axios";
+import Link from "next/link";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
@@ -30,11 +31,6 @@ function formatPrice(value) {
 function discountPct(regular, discounted) {
   if (!regular || !discounted || discounted >= regular) return null;
   return Math.round(((regular - discounted) / regular) * 100);
-}
-
-function getThumbnailUrl(key) {
-  if (!key) return null;
-  return `${BASE_URL}/${key}`;
 }
 
 export default function PackageDetailPage() {
@@ -57,7 +53,9 @@ export default function PackageDetailPage() {
         const res = await api.get(`/package/${packageId}`);
         setPackageData(res.data?.data ?? null);
       } catch (err) {
-        setError(err?.response?.data?.message || "Failed to load package details.");
+        setError(
+          err?.response?.data?.message || "Failed to load package details.",
+        );
       } finally {
         setLoading(false);
       }
@@ -67,7 +65,11 @@ export default function PackageDetailPage() {
   }, [packageId]);
 
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this package? This action cannot be undone.")) {
+    if (
+      !confirm(
+        "Are you sure you want to delete this package? This action cannot be undone.",
+      )
+    ) {
       return;
     }
 
@@ -77,7 +79,9 @@ export default function PackageDetailPage() {
       await api.delete(`/package/${packageId}`);
       router.push("/admin/packages");
     } catch (err) {
-      setDeleteError(err?.response?.data?.message || "Failed to delete package.");
+      setDeleteError(
+        err?.response?.data?.message || "Failed to delete package.",
+      );
       setDeleting(false);
     }
   };
@@ -111,7 +115,9 @@ export default function PackageDetailPage() {
               <AlertCircle size={24} className="shrink-0 text-red-600" />
               <div>
                 <h3 className="font-semibold text-red-900">Error</h3>
-                <p className="text-red-800 mt-1">{error || "Package not found."}</p>
+                <p className="text-red-800 mt-1">
+                  {error || "Package not found."}
+                </p>
               </div>
             </div>
           </div>
@@ -120,12 +126,14 @@ export default function PackageDetailPage() {
     );
   }
 
-  const pct = discountPct(packageData.regularPrice, packageData.discountedPrice);
-  const thumbnailUrl = getThumbnailUrl(packageData.thumbnailUrlKey);
+  const pct = discountPct(
+    packageData.regularPrice,
+    packageData.discountedPrice,
+  );
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] py-8">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8 rounded-[32px] border border-[#E8E3DB] bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -158,9 +166,9 @@ export default function PackageDetailPage() {
             <div className="rounded-[24px] border border-[#E8E3DB] bg-white overflow-hidden shadow-sm">
               {/* Thumbnail */}
               <div className="relative h-64 w-full bg-[#F0EDE8] flex items-center justify-center overflow-hidden">
-                {thumbnailUrl ? (
+                {packageData.thumbnailUrl ? (
                   <img
-                    src={thumbnailUrl}
+                    src={packageData.thumbnailUrl}
                     alt={packageData.name}
                     className="h-full w-full object-cover"
                   />
@@ -229,7 +237,9 @@ export default function PackageDetailPage() {
 
               {packageData.description && (
                 <div className="mb-6">
-                  <label className="text-xs font-semibold text-[#4A5568]">Description</label>
+                  <label className="text-xs font-semibold text-[#4A5568]">
+                    Description
+                  </label>
                   <p className="mt-2 text-sm text-[#2D3748] leading-relaxed">
                     {packageData.description}
                   </p>
@@ -238,13 +248,17 @@ export default function PackageDetailPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-semibold text-[#4A5568]">Vehicle Type</label>
+                  <label className="text-xs font-semibold text-[#4A5568]">
+                    Vehicle Type
+                  </label>
                   <p className="mt-2 text-sm font-medium text-[#0B1E3F]">
                     {packageData.vehicleType || "—"}
                   </p>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-[#4A5568]">Vehicle Model</label>
+                  <label className="text-xs font-semibold text-[#4A5568]">
+                    Vehicle Model
+                  </label>
                   <p className="mt-2 text-sm font-medium text-[#0B1E3F]">
                     {packageData.vehicleModel || "—"}
                   </p>
@@ -263,7 +277,9 @@ export default function PackageDetailPage() {
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center gap-2 text-[#718096]">
                     <Shield size={16} />
-                    <span className="text-xs font-semibold">Bodyguard Type</span>
+                    <span className="text-xs font-semibold">
+                      Bodyguard Type
+                    </span>
                   </div>
                   <p className="text-sm font-semibold text-[#0B1E3F]">
                     {packageData.bodyguardType || "—"}
@@ -288,53 +304,72 @@ export default function PackageDetailPage() {
                     <span className="text-xs font-semibold">Validity</span>
                   </div>
                   <p className="text-sm font-semibold text-[#0B1E3F]">
-                    {packageData.validity ? `${packageData.validity} month${packageData.validity > 1 ? "s" : ""}` : "—"}
+                    {packageData.validity
+                      ? `${packageData.validity} month${packageData.validity > 1 ? "s" : ""}`
+                      : "—"}
                   </p>
                 </div>
               </div>
             </div>
 
             {/* Included Services */}
-            {packageData.packageServices && packageData.packageServices.length > 0 && (
-              <div className="rounded-[24px] border border-[#E8E3DB] bg-white p-6 shadow-sm">
-                <p className="text-xs font-semibold uppercase tracking-wider text-[#718096] mb-4">
-                  Included Services
-                </p>
+            {packageData.packageServices &&
+              packageData.packageServices.length > 0 && (
+                <div className="rounded-[24px] border border-[#E8E3DB] bg-white p-6 shadow-sm">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-[#718096] mb-4">
+                    Included Services
+                  </p>
 
-                <div className="space-y-3">
-                  {packageData.packageServices.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-start gap-4 pb-3 border-b border-[#E8E3DB] last:border-b-0"
-                    >
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-[#0B1E3F]">
-                          {item.service?.title || "Unknown Service"}
-                        </h4>
-                        {item.service?.description && (
-                          <p className="mt-1 text-sm text-[#4A5568]">
-                            {item.service.description}
+                  <div className="space-y-3">
+                    {packageData.packageServices.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-start gap-4 pb-3 border-b border-[#E8E3DB] last:border-b-0"
+                      >
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-[#0B1E3F]">
+                            {item.service?.title || "Unknown Service"}
+                          </h4>
+                          {item.service?.description && (
+                            <p className="mt-1 text-sm text-[#4A5568]">
+                              {item.service.description}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="text-right">
+                          <p className="text-xs font-semibold text-[#718096]">
+                            Quantity
                           </p>
-                        )}
-                        {item.service?.thumbnailUrlKey && (
-                          <div className="mt-3 h-24 w-24 rounded-lg overflow-hidden bg-[#F0EDE8]">
-                            <img
-                              src={getThumbnailUrl(item.service.thumbnailUrlKey)}
-                              alt={item.service.title}
-                              className="h-full w-full object-cover"
+                          <p className="text-lg font-bold text-[#0B1E3F]">
+                            {item.count || 1}
+                          </p>
+                        </div>
+
+                        <Link
+                          href={`/admin/services/${item.service?.id}`}
+                          className="p-2 self-center-safe rounded-lg bg-[#F7FAFC] hover:bg-[#4A90E2] text-[#0B1E3F] hover:text-white transition-all"
+                          title="View service details"
+                        >
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
                             />
-                          </div>
-                        )}
+                          </svg>
+                        </Link>
                       </div>
-                      <div className="text-right">
-                        <p className="text-xs font-semibold text-[#718096]">Quantity</p>
-                        <p className="text-lg font-bold text-[#0B1E3F]">{item.count || 1}</p>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* Meta Information */}
             <div className="rounded-[24px] border border-[#E8E3DB] bg-white p-6 shadow-sm">
@@ -345,30 +380,38 @@ export default function PackageDetailPage() {
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-[#4A5568]">Package ID</span>
-                  <span className="font-mono text-[#0B1E3F]">{packageData.id}</span>
+                  <span className="font-mono text-[#0B1E3F]">
+                    {packageData.id}
+                  </span>
                 </div>
                 <div className="flex justify-between pt-3 border-t border-[#E8E3DB]">
                   <span className="text-[#4A5568]">Created</span>
                   <span className="text-[#0B1E3F]">
-                    {new Date(packageData.createdAt).toLocaleDateString("en-IN", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {new Date(packageData.createdAt).toLocaleDateString(
+                      "en-IN",
+                      {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      },
+                    )}
                   </span>
                 </div>
                 <div className="flex justify-between pt-3 border-t border-[#E8E3DB]">
                   <span className="text-[#4A5568]">Last Updated</span>
                   <span className="text-[#0B1E3F]">
-                    {new Date(packageData.updatedAt).toLocaleDateString("en-IN", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {new Date(packageData.updatedAt).toLocaleDateString(
+                      "en-IN",
+                      {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      },
+                    )}
                   </span>
                 </div>
               </div>
@@ -392,7 +435,9 @@ export default function PackageDetailPage() {
         {/* Action Buttons */}
         <div className="mt-8 flex gap-3 sm:justify-end">
           <button
-            onClick={() => router.push(`/admin/packages/edit/${packageData.id}`)}
+            onClick={() =>
+              router.push(`/admin/packages/edit/${packageData.id}`)
+            }
             className="inline-flex items-center gap-2 rounded-full border border-[#0B1E3F] bg-[#0B1E3F] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#152d5a]"
           >
             <Pencil size={18} /> Update

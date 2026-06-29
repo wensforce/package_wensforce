@@ -14,6 +14,7 @@ import {
   ChevronRight,
   LogOut,
   X,
+  Hash,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import api from "@/app/axios/axios";
@@ -25,6 +26,9 @@ const navItems = [
   { label: "Packages", href: "/admin/packages", icon: Package },
   { label: "Services", href: "/admin/services", icon: Wrench },
   { label: "Users", href: "/admin/users", icon: Users },
+  { label: "Coupons", href: "/admin/coupons", icon: Hash },
+  { label: "Subscriptions", href: "/admin/subscriptions", icon: CalendarCheck },
+  { label: "Trips", href: "/admin/trips", icon: CalendarCheck },
 ];
 
 function SidebarContent({ collapsed, setCollapsed, onClose, isMobile }) {

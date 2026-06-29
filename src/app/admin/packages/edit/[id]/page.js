@@ -35,7 +35,7 @@ export default function PackageEditPage() {
 
   return (
     <div className="min-h-screen bg-[#F8F6F1] py-8">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8 rounded-[32px] border border-[#E8E3DB] bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">

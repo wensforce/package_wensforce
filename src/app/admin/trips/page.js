@@ -1,0 +1,252 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { CarTaxiFront, CalendarDays, Eye, CheckCircle2, Clock3, XCircle, Ban } from "lucide-react";
+import api from "../../axios/axios";
+import AdminTable from "../components/AdminTable";
+import CreateTripModal from "../components/modals/CreateTripModal";
+
+const PAGE_LIMIT = 10;
+
+const COLUMNS = [
+  { key: "id", label: "#" },
+  { key: "assignmentId", label: "Assignment" },
+  { key: "user", label: "User" },
+  { key: "route", label: "Route" },
+  { key: "tripDate", label: "Trip Date" },
+  { key: "tripType", label: "Trip Type" },
+  { key: "services", label: "Services" },
+  { key: "status", label: "Status" },
+  { key: "actions", label: "Actions" },
+];
+
+function formatDate(iso) {
+  if (!iso) return "-";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "-";
+
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function getStatusUI(status) {
+  const s = String(status || "pending").toUpperCase();
+
+  if (["CONFIRMED", "COMPLETED", "ACTIVE"].includes(s)) {
+    return {
+      className: "bg-green-100 text-green-700",
+      icon: <CheckCircle2 size={11} />,
+      label: s,
+    };
+  }
+
+  if (["CANCELLED", "CANCELED"].includes(s)) {
+    return {
+      className: "bg-gray-200 text-gray-700",
+      icon: <Ban size={11} />,
+      label: s,
+    };
+  }
+
+  if (["FAILED", "REJECTED"].includes(s)) {
+    return {
+      className: "bg-red-100 text-red-700",
+      icon: <XCircle size={11} />,
+      label: s,
+    };
+  }
+
+  return {
+    className: "bg-amber-100 text-amber-700",
+    icon: <Clock3 size={11} />,
+    label: s,
+  };
+}
+
+export default function TripsPage() {
+  const router = useRouter();
+
+  const [trips, setTrips] = useState([]);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: PAGE_LIMIT,
+    total: 0,
+    totalPages: 1,
+  });
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
+  const [tripDate, setTripDate] = useState("");
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [showCreate, setShowCreate] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setSearch(searchInput), 400);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, tripDate]);
+
+  const fetchTrips = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const params = { page, limit: PAGE_LIMIT };
+      if (search.trim()) params.search = search.trim();
+      if (tripDate) params.tripDate = tripDate;
+
+      const res = await api.get("/trip/get-all", { params });
+      const data = res.data?.data ?? {};
+
+      const rows = Array.isArray(data.trips) ? data.trips : [];
+      const total = Number(data.meta?.total ?? rows.length ?? 0);
+      const currentPage = Number(data.meta?.page ?? page);
+      const limit = Number(data.meta?.limit ?? PAGE_LIMIT);
+      const totalPages = Number(data.meta?.totalPages ?? Math.max(1, Math.ceil(total / limit)));
+
+      setTrips(rows);
+      setPagination({
+        page: currentPage,
+        limit,
+        total,
+        totalPages: Math.max(1, totalPages),
+      });
+    } catch (err) {
+      setError(err?.response?.data?.message || "Failed to fetch trips");
+    } finally {
+      setLoading(false);
+    }
+  }, [page, search, tripDate]);
+
+  useEffect(() => {
+    fetchTrips();
+  }, [fetchTrips]);
+
+  function renderCell(trip, key) {
+    const status = getStatusUI(trip.status);
+
+    switch (key) {
+      case "id":
+        return <span className="font-mono text-xs font-medium text-[#0B1E3F]">#{trip.id}</span>;
+      case "assignmentId":
+        return <span className="text-xs font-mono text-[#4A5568]">{trip.assignmentId || "-"}</span>;
+      case "user":
+        return (
+          <div className="max-w-45">
+            <p className="text-sm font-medium text-[#1A202C] truncate" title={trip.user?.name || ""}>
+              {trip.user?.name || `#${trip.userId ?? "-"}`}
+            </p>
+            <p className="text-xs text-[#4A5568] truncate">{trip.user?.mobileNumber || "-"}</p>
+          </div>
+        );
+      case "route":
+        return (
+          <div className="max-w-65">
+            <p className="text-xs text-[#1A202C] truncate" title={trip.pickupLocation || ""}>
+              {trip.pickupLocation || "-"}
+            </p>
+            <p className="text-[11px] text-[#A0AEC0]">to</p>
+            <p className="text-xs text-[#1A202C] truncate" title={trip.dropLocation || ""}>
+              {trip.dropLocation || "-"}
+            </p>
+          </div>
+        );
+      case "tripDate":
+        return <span className="text-xs text-[#4A5568] whitespace-nowrap">{formatDate(trip.tripDate)}</span>;
+      case "tripType":
+        return (
+          <span className="inline-flex items-center rounded-md border border-[#CBD5E0] bg-[#FAF6EC] px-2 py-1 text-xs font-semibold text-[#0B1E3F] uppercase tracking-wide">
+            {String(trip.tripType || "-").replace(/-/g, " ")}
+          </span>
+        );
+      case "services": {
+        const services = Array.isArray(trip.services) ? trip.services : [];
+        if (!services.length) return <span className="text-xs text-[#A0AEC0]">None</span>;
+
+        const label = services.slice(0, 2).map((s) => s?.name).filter(Boolean).join(", ");
+        const extra = services.length > 2 ? ` +${services.length - 2}` : "";
+
+        return (
+          <span className="text-xs text-[#4A5568]" title={services.map((s) => s?.name).filter(Boolean).join(", ")}>
+            {label || "Services"}
+            {extra}
+          </span>
+        );
+      }
+      case "status":
+        return (
+          <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.className}`}>
+            {status.icon} {status.label}
+          </span>
+        );
+      case "actions":
+        return (
+          <button
+            onClick={() => {
+              sessionStorage.setItem(`trip_${trip.id}`, JSON.stringify(trip));
+              router.push(`/admin/trips/${trip.id}`);
+            }}
+            className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
+          >
+            <Eye size={14} /> View
+          </button>
+        );
+      default:
+        return null;
+    }
+  }
+
+  return (
+    <>
+      <AdminTable
+        icon={<CarTaxiFront size={18} className="text-[#C9A24B]" />}
+        title="Trips"
+        subtitle={`${pagination.total} total trip${pagination.total !== 1 ? "s" : ""}`}
+        searchPlaceholder="Search by pickup, drop, assignment, type, user..."
+        searchValue={searchInput}
+        onSearchChange={setSearchInput}
+        columns={COLUMNS}
+        rows={trips}
+        renderCell={renderCell}
+        rowKey={(trip) => trip.id}
+        loading={loading}
+        error={error}
+        pagination={pagination}
+        onPageChange={setPage}
+        onRefresh={fetchTrips}
+        onCreate={() => setShowCreate(true)}
+        createLabel="New Trip"
+        toolbarFilters={(
+          <div className="w-full sm:w-auto">
+            <div className="relative">
+              <CalendarDays size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A0AEC0]" />
+              <input
+                type="date"
+                value={tripDate}
+                onChange={(e) => setTripDate(e.target.value)}
+                className="w-full sm:w-44 rounded-lg border border-[#CBD5E0] bg-white pl-9 pr-3 py-2 text-sm text-[#1A202C] focus:border-[#C9A24B] focus:outline-none"
+                title="Filter by trip date"
+              />
+            </div>
+          </div>
+        )}
+        emptyIcon={<CarTaxiFront size={32} />}
+        emptyText="No trips found"
+      />
+
+      <CreateTripModal
+        open={showCreate}
+        onClose={() => setShowCreate(false)}
+        onCreated={fetchTrips}
+      />
+    </>
+  );
+}

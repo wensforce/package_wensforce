@@ -53,6 +53,7 @@ import {
  * @property {React.ReactNode} [emptyIcon] - Icon shown in the empty-state row
  * @property {string} [emptyText] - Text shown when there are no rows (default: "No records found")
  * @property {React.ReactNode} [headerActions] - Extra ReactNode rendered before the action buttons
+ * @property {React.ReactNode} [toolbarFilters] - Optional controls rendered in the table toolbar (e.g. date filter)
  */
 
 /**
@@ -86,6 +87,7 @@ export default function AdminTable({
   emptyIcon,
   emptyText = "No records found",
   headerActions,
+  toolbarFilters,
 }) {
   const hasTabs = tabs.length > 0;
 
@@ -174,16 +176,20 @@ export default function AdminTable({
               </div>
             )}
 
-            {/* Search */}
-            <div className="flex items-center gap-2 bg-[#FAF6EC] border border-[#CBD5E0] rounded-lg px-3 py-1.5">
-              <Search size={14} className="text-[#A0AEC0]" />
-              <input
-                type="text"
-                placeholder={searchPlaceholder}
-                value={searchValue}
-                onChange={(e) => onSearchChange(e.target.value)}
-                className="text-sm bg-transparent outline-none text-[#1A202C] placeholder:text-[#A0AEC0] w-full sm:w-48"
-              />
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:ml-auto w-full sm:w-auto">
+              {toolbarFilters}
+
+              {/* Search */}
+              <div className="flex items-center gap-2 bg-[#FAF6EC] border border-[#CBD5E0] rounded-lg px-3 py-1.5 w-full sm:w-auto">
+                <Search size={14} className="text-[#A0AEC0]" />
+                <input
+                  type="text"
+                  placeholder={searchPlaceholder}
+                  value={searchValue}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  className="text-sm bg-transparent outline-none text-[#1A202C] placeholder:text-[#A0AEC0] w-full sm:w-48"
+                />
+              </div>
             </div>
           </div>
 
