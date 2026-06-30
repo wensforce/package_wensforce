@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AlertTriangle, Loader2 } from "lucide-react";
-import api from "../../../axios/axios";
+import { paymentApi } from "../apis/payments.api";
 import PaymentDetailHeader from "../../components/payment/PaymentDetailHeader";
 import PaymentOverviewCard from "../../components/payment/PaymentOverviewCard";
 
@@ -37,16 +37,18 @@ export default function PaymentDetailPage() {
           }
         }
 
-        const res = await api.get(`/payment/${paymentId}`);
-        setPayment(res.data?.data || null);
+        const data = await paymentApi.getPaymentById(paymentId);
+        setPayment(data);
       } catch (err) {
-        setError(err?.response?.data?.message || "Failed to fetch payment details.");
+        setError(
+          err?.response?.data?.message || "Failed to fetch payment details.",
+        );
       } finally {
         if (!silent) setLoading(false);
         else setRefreshing(false);
       }
     },
-    [paymentId]
+    [paymentId],
   );
 
   useEffect(() => {
@@ -57,7 +59,10 @@ export default function PaymentDetailPage() {
     return (
       <div className="p-8 min-h-[60vh] flex items-center justify-center">
         <div className="text-center">
-          <Loader2 size={32} className="animate-spin text-[#C9A24B] mx-auto mb-3" />
+          <Loader2
+            size={32}
+            className="animate-spin text-[#C9A24B] mx-auto mb-3"
+          />
           <p className="text-sm text-[#4A5568]">Loading payment details...</p>
         </div>
       </div>
@@ -76,7 +81,9 @@ export default function PaymentDetailPage() {
 
           <div className="p-8 text-center">
             <AlertTriangle size={34} className="mx-auto text-red-500 mb-3" />
-            <h2 className="text-lg font-semibold text-[#1A202C] mb-2">Unable to load payment</h2>
+            <h2 className="text-lg font-semibold text-[#1A202C] mb-2">
+              Unable to load payment
+            </h2>
             <p className="text-sm text-[#4A5568] mb-5">{error}</p>
             <button
               onClick={() => fetchPayment()}

@@ -3,13 +3,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Users, Eye, Pencil } from "lucide-react";
-import api from "../../axios/axios";
+import { userApi } from "./apis/user.api";
 import AdminTable from "../components/AdminTable";
 import UserCreateUpdateModal from "../components/modals/UserCreateUpdateModal";
 import { formatDate } from "../components/user/userUtils";
 
-const PAGE_LIMIT = 10;
 
+const PAGE_LIMIT = 10;
 const COLUMNS = [
   { key: "id", label: "#" },
   { key: "name", label: "Name" },
@@ -53,26 +53,11 @@ export default function UsersPage() {
     setError(null);
 
     try {
-      const params = { page, limit: PAGE_LIMIT };
-      if (search.trim()) params.search = search.trim();
-
-      const res = await api.get("/user", { params });
-      const data = res.data?.data ?? {};
-
-      const rows = Array.isArray(data.users) ? data.users : [];
-      const total = Number(data.meta?.totalUsers ?? rows.length ?? 0);
-      const currentPage = Number(data.meta?.currentPage ?? page);
-      const totalPages = Number(data.meta?.totalPages ?? Math.max(1, Math.ceil(total / PAGE_LIMIT)));
-      const limit = Number(data.meta?.pageSize ?? PAGE_LIMIT);
-
+      const { rows, pagination } = await userApi.fetchUsers({ page, search });
       setUsers(rows);
-      setPagination({
-        page: currentPage,
-        limit,
-        total,
-        totalPages: Math.max(1, totalPages),
-      });
+      setPagination(pagination);
     } catch (err) {
+      console.log(err)
       setError(err?.response?.data?.message || "Failed to load users.");
     } finally {
       setLoading(false);
@@ -86,13 +71,27 @@ export default function UsersPage() {
   function renderCell(user, key) {
     switch (key) {
       case "id":
-        return <span className="font-mono text-xs font-medium text-[#0B1E3F]">#{user.id}</span>;
+        return (
+          <span className="font-mono text-xs font-medium text-[#0B1E3F]">
+            #{user.id}
+          </span>
+        );
       case "name":
-        return <span className="text-sm font-medium text-[#1A202C]">{user.name || "-"}</span>;
+        return (
+          <span className="text-sm font-medium text-[#1A202C]">
+            {user.name || "-"}
+          </span>
+        );
       case "email":
-        return <span className="text-xs text-[#4A5568]">{user.email || "-"}</span>;
+        return (
+          <span className="text-xs text-[#4A5568]">{user.email || "-"}</span>
+        );
       case "mobileNumber":
-        return <span className="text-xs text-[#4A5568]">{user.mobileNumber || "-"}</span>;
+        return (
+          <span className="text-xs text-[#4A5568]">
+            {user.mobileNumber || "-"}
+          </span>
+        );
       case "role":
         return (
           <span className="inline-flex items-center rounded-md border border-[#CBD5E0] bg-[#FAF6EC] px-2 py-1 text-xs font-semibold text-[#0B1E3F] uppercase tracking-wide">
@@ -100,9 +99,15 @@ export default function UsersPage() {
           </span>
         );
       case "city":
-        return <span className="text-xs text-[#4A5568]">{user.city || "-"}</span>;
+        return (
+          <span className="text-xs text-[#4A5568]">{user.city || "-"}</span>
+        );
       case "createdAt":
-        return <span className="text-xs text-[#4A5568] whitespace-nowrap">{formatDate(user.createdAt)}</span>;
+        return (
+          <span className="text-xs text-[#4A5568] whitespace-nowrap">
+            {formatDate(user.createdAt)}
+          </span>
+        );
       case "actions":
         return (
           <div className="flex items-center gap-2">

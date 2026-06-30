@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AlertTriangle, Loader2 } from "lucide-react";
-import api from "../../../axios/axios";
+import { couponApi } from "../apis/coupons.api";
 import Modal from "../../components/Modal";
 import CouponCreateModal from "../../components/modals/CouponCreateModal";
 import CouponDetailHeader from "../../components/coupon/CouponDetailHeader";
@@ -32,17 +32,18 @@ export default function CouponDetailPage() {
       setError(null);
 
       try {
-        const res = await api.get(`/coupon/${couponId}`);
-        const couponData = res.data?.data;
-        setCoupon(couponData || null);
+        const couponData = await couponApi.getCouponById(couponId);
+        setCoupon(couponData);
       } catch (err) {
-        setError(err?.response?.data?.message || "Failed to fetch coupon details.");
+        setError(
+          err?.response?.data?.message || "Failed to fetch coupon details.",
+        );
       } finally {
         if (!silent) setLoading(false);
         else setRefreshing(false);
       }
     },
-    [couponId]
+    [couponId],
   );
 
   useEffect(() => {
@@ -55,7 +56,7 @@ export default function CouponDetailPage() {
     setShowDeleteConfirm(false);
 
     try {
-      await api.delete(`/coupon/${couponId}`);
+      await couponApi.deleteCoupon(couponId);
       router.push("/admin/coupons");
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to delete coupon.");
@@ -68,7 +69,10 @@ export default function CouponDetailPage() {
     return (
       <div className="p-8 min-h-[60vh] flex items-center justify-center">
         <div className="text-center">
-          <Loader2 size={32} className="animate-spin text-[#C9A24B] mx-auto mb-3" />
+          <Loader2
+            size={32}
+            className="animate-spin text-[#C9A24B] mx-auto mb-3"
+          />
           <p className="text-sm text-[#4A5568]">Loading coupon details...</p>
         </div>
       </div>
@@ -88,7 +92,9 @@ export default function CouponDetailPage() {
 
           <div className="p-8 text-center">
             <AlertTriangle size={34} className="mx-auto text-red-500 mb-3" />
-            <h2 className="text-lg font-semibold text-[#1A202C] mb-2">Unable to load coupon</h2>
+            <h2 className="text-lg font-semibold text-[#1A202C] mb-2">
+              Unable to load coupon
+            </h2>
             <p className="text-sm text-[#4A5568] mb-5">{error}</p>
             <button
               onClick={() => fetchCoupon()}
@@ -158,7 +164,8 @@ export default function CouponDetailPage() {
       >
         <div className="p-6">
           <p className="text-[#4A5568] text-sm mb-6">
-            Are you sure you want to delete coupon <strong>{coupon?.code}</strong>?
+            Are you sure you want to delete coupon{" "}
+            <strong>{coupon?.code}</strong>?
           </p>
           <div className="flex items-center justify-end gap-3">
             <button

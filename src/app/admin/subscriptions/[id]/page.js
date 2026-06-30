@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AlertTriangle, Loader2 } from "lucide-react";
-import api from "../../../axios/axios";
+import { subscriptionApi } from "../apis/subscription.api";
 import Modal from "../../components/Modal";
 import SubscriptionDetailHeader from "../../components/subscription/SubscriptionDetailHeader";
 import SubscriptionOverviewCard from "../../components/subscription/SubscriptionOverviewCard";
@@ -42,16 +42,19 @@ export default function SubscriptionDetailPage() {
           }
         }
 
-        const res = await api.get(`/subscription/${subscriptionId}`);
-        setSubscription(res.data?.data || null);
+        const data = await subscriptionApi.getSubscriptionById(subscriptionId);
+        setSubscription(data);
       } catch (err) {
-        setError(err?.response?.data?.message || "Failed to fetch subscription details.");
+        setError(
+          err?.response?.data?.message ||
+            "Failed to fetch subscription details.",
+        );
       } finally {
         if (!silent) setLoading(false);
         else setRefreshing(false);
       }
     },
-    [subscriptionId]
+    [subscriptionId],
   );
 
   useEffect(() => {
@@ -71,15 +74,19 @@ export default function SubscriptionDetailPage() {
     setError(null);
 
     try {
-      const payload = adminRemarks.trim() ? { adminRemarks: adminRemarks.trim() } : {};
-      const endpoint = actionType === "verify" ? "verify" : "cancel";
-      await api.put(`/subscription/${subscriptionId}/${endpoint}`, payload);
+      await subscriptionApi.updateSubscriptionAction(
+        subscriptionId,
+        actionType,
+        adminRemarks,
+      );
 
       setActionType(null);
       setAdminRemarks("");
       await fetchSubscription({ silent: true });
     } catch (err) {
-      setActionError(err?.response?.data?.message || `Failed to ${actionType} subscription.`);
+      setActionError(
+        err?.response?.data?.message || `Failed to ${actionType} subscription.`,
+      );
     } finally {
       setActionLoading(null);
     }
@@ -95,8 +102,13 @@ export default function SubscriptionDetailPage() {
     return (
       <div className="p-8 min-h-[60vh] flex items-center justify-center">
         <div className="text-center">
-          <Loader2 size={32} className="animate-spin text-[#C9A24B] mx-auto mb-3" />
-          <p className="text-sm text-[#4A5568]">Loading subscription details...</p>
+          <Loader2
+            size={32}
+            className="animate-spin text-[#C9A24B] mx-auto mb-3"
+          />
+          <p className="text-sm text-[#4A5568]">
+            Loading subscription details...
+          </p>
         </div>
       </div>
     );
@@ -119,7 +131,9 @@ export default function SubscriptionDetailPage() {
 
           <div className="p-8 text-center">
             <AlertTriangle size={34} className="mx-auto text-red-500 mb-3" />
-            <h2 className="text-lg font-semibold text-[#1A202C] mb-2">Unable to load subscription</h2>
+            <h2 className="text-lg font-semibold text-[#1A202C] mb-2">
+              Unable to load subscription
+            </h2>
             <p className="text-sm text-[#4A5568] mb-5">{error}</p>
             <button
               onClick={() => fetchSubscription()}
@@ -173,7 +187,11 @@ export default function SubscriptionDetailPage() {
           setActionType(null);
           setActionError(null);
         }}
-        title={actionType === "verify" ? "Verify Subscription" : "Cancel Subscription"}
+        title={
+          actionType === "verify"
+            ? "Verify Subscription"
+            : "Cancel Subscription"
+        }
         description={
           actionType === "verify"
             ? "Add optional remarks before verifying this subscription."
@@ -188,7 +206,9 @@ export default function SubscriptionDetailPage() {
           )}
 
           <div className="space-y-1.5">
-            <label className="block text-sm font-semibold text-[#0B1E3F]">Admin Remarks</label>
+            <label className="block text-sm font-semibold text-[#0B1E3F]">
+              Admin Remarks
+            </label>
             <textarea
               value={adminRemarks}
               onChange={(e) => setAdminRemarks(e.target.value)}
@@ -219,7 +239,9 @@ export default function SubscriptionDetailPage() {
               type="submit"
               disabled={Boolean(actionLoading)}
               className={`text-sm font-semibold text-white rounded-lg px-4 py-2 transition-colors disabled:opacity-60 ${
-                actionType === "verify" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
+                actionType === "verify"
+                  ? "bg-green-600 hover:bg-green-700"
+                  : "bg-red-600 hover:bg-red-700"
               }`}
             >
               {actionLoading === "verify"

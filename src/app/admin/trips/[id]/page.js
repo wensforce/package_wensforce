@@ -18,7 +18,7 @@ import {
   Repeat,
   ConciergeBell,
 } from "lucide-react";
-import api from "../../../axios/axios";
+import { tripApi } from "../apis/trips.api";
 import Modal from "../../components/Modal";
 import CreateTripModal from "../../components/modals/CreateTripModal";
 
@@ -99,16 +99,18 @@ export default function TripDetailPage() {
           }
         }
 
-        const res = await api.get(`/trip/${tripId}`);
-        setTrip(res.data?.data || null);
+        const data = await tripApi.getTripById(tripId);
+        setTrip(data);
       } catch (err) {
-        setError(err?.response?.data?.message || "Failed to fetch trip details.");
+        setError(
+          err?.response?.data?.message || "Failed to fetch trip details.",
+        );
       } finally {
         if (!silent) setLoading(false);
         else setRefreshing(false);
       }
     },
-    [tripId]
+    [tripId],
   );
 
   useEffect(() => {
@@ -117,7 +119,13 @@ export default function TripDetailPage() {
 
   const status = String(trip?.status || "").toLowerCase();
   const isCancelled = ["cancelled", "canceled"].includes(status);
-  const canApprove = !["confirmed", "completed", "active", "cancelled", "canceled"].includes(status);
+  const canApprove = ![
+    "confirmed",
+    "completed",
+    "active",
+    "cancelled",
+    "canceled",
+  ].includes(status);
   const canComplete = ["confirmed", "active"].includes(status);
   const canCancel = !["completed", "cancelled", "canceled"].includes(status);
   const statusUI = useMemo(() => getStatusUI(trip?.status), [trip?.status]);
@@ -136,7 +144,7 @@ export default function TripDetailPage() {
     setApproveError(null);
 
     try {
-      await api.post(`/trip/approve/${tripId}`, { assignmentId });
+      await tripApi.approveTrip(tripId, assignmentId);
 
       setShowApproveModal(false);
       await fetchTrip({ silent: true });
@@ -155,7 +163,7 @@ export default function TripDetailPage() {
     setShowDeleteConfirm(false);
 
     try {
-      await api.delete(`/trip/delete/${tripId}`);
+      await tripApi.deleteTrip(tripId);
       router.push("/admin/trips");
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to delete trip.");
@@ -171,11 +179,13 @@ export default function TripDetailPage() {
     setError(null);
 
     try {
-      await api.post(`/trip/complete/${tripId}`);
+      await tripApi.completeTrip(tripId);
       setShowCompleteModal(false);
       await fetchTrip({ silent: true });
     } catch (err) {
-      setError(err?.response?.data?.message || "Failed to mark trip as completed.");
+      setError(
+        err?.response?.data?.message || "Failed to mark trip as completed.",
+      );
     } finally {
       setCompleting(false);
     }
@@ -195,7 +205,7 @@ export default function TripDetailPage() {
     setCancelError(null);
 
     try {
-      await api.post(`/trip/cancel/${tripId}`, { reason });
+      await tripApi.cancelTrip(tripId, reason);
       setShowCancelModal(false);
       setCancelReason("");
       await fetchTrip({ silent: true });
@@ -210,7 +220,10 @@ export default function TripDetailPage() {
     return (
       <div className="p-8 min-h-[60vh] flex items-center justify-center">
         <div className="text-center">
-          <Loader2 size={32} className="animate-spin text-[#C9A24B] mx-auto mb-3" />
+          <Loader2
+            size={32}
+            className="animate-spin text-[#C9A24B] mx-auto mb-3"
+          />
           <p className="text-sm text-[#4A5568]">Loading trip details...</p>
         </div>
       </div>
@@ -229,7 +242,9 @@ export default function TripDetailPage() {
               <ArrowLeft size={16} /> Back
             </button>
 
-            <h1 className="text-xl md:text-2xl font-bold text-[#0B1E3F]">Trip Details</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-[#0B1E3F]">
+              Trip Details
+            </h1>
 
             <button
               onClick={() => fetchTrip()}
@@ -241,7 +256,9 @@ export default function TripDetailPage() {
 
           <div className="p-8 text-center">
             <AlertTriangle size={34} className="mx-auto text-red-500 mb-3" />
-            <h2 className="text-lg font-semibold text-[#1A202C] mb-2">Unable to load trip</h2>
+            <h2 className="text-lg font-semibold text-[#1A202C] mb-2">
+              Unable to load trip
+            </h2>
             <p className="text-sm text-[#4A5568] mb-5">{error}</p>
             <button
               onClick={() => fetchTrip()}
@@ -275,15 +292,26 @@ export default function TripDetailPage() {
               <ArrowLeft size={16} /> Back
             </button>
 
-            <h1 className="text-xl md:text-2xl font-bold text-[#0B1E3F]">Trip Details</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-[#0B1E3F]">
+              Trip Details
+            </h1>
 
             <div className="flex items-center justify-end gap-2">
               <button
                 onClick={() => fetchTrip({ silent: true })}
-                disabled={refreshing || approving || completing || cancelling || deleting}
+                disabled={
+                  refreshing ||
+                  approving ||
+                  completing ||
+                  cancelling ||
+                  deleting
+                }
                 className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[#0B1E3F] text-white text-sm font-semibold hover:bg-[#152d5a] transition-colors disabled:opacity-60"
               >
-                <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
+                <RefreshCw
+                  size={14}
+                  className={refreshing ? "animate-spin" : ""}
+                />
                 {refreshing ? "Refreshing" : "Refresh"}
               </button>
 
@@ -306,8 +334,12 @@ export default function TripDetailPage() {
           <div className="p-6 space-y-6">
             <section className="bg-[#FAF6EC] rounded-2xl border border-[#E2E8F0] p-5">
               <div className="flex items-center justify-between gap-4 mb-4">
-                <h2 className="text-base font-semibold text-[#0B1E3F]">Trip Overview</h2>
-                <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${statusUI.className}`}>
+                <h2 className="text-base font-semibold text-[#0B1E3F]">
+                  Trip Overview
+                </h2>
+                <span
+                  className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${statusUI.className}`}
+                >
                   {statusUI.icon} {statusUI.label}
                 </span>
               </div>
@@ -319,23 +351,33 @@ export default function TripDetailPage() {
                 </div>
                 <div>
                   <dt className="text-[#718096] mb-1">Assignment ID</dt>
-                  <dd className="text-[#1A202C] font-semibold">{trip.assignmentId || "-"}</dd>
+                  <dd className="text-[#1A202C] font-semibold">
+                    {trip.assignmentId || "-"}
+                  </dd>
                 </div>
                 <div>
                   <dt className="text-[#718096] mb-1">Trip Date</dt>
-                  <dd className="text-[#1A202C] font-semibold">{formatDate(trip.tripDate)}</dd>
+                  <dd className="text-[#1A202C] font-semibold">
+                    {formatDate(trip.tripDate)}
+                  </dd>
                 </div>
                 <div>
                   <dt className="text-[#718096] mb-1">Pickup</dt>
-                  <dd className="text-[#1A202C] font-semibold">{trip.pickupLocation || "-"}</dd>
+                  <dd className="text-[#1A202C] font-semibold">
+                    {trip.pickupLocation || "-"}
+                  </dd>
                 </div>
                 <div>
                   <dt className="text-[#718096] mb-1">Drop</dt>
-                  <dd className="text-[#1A202C] font-semibold">{trip.dropLocation || "-"}</dd>
+                  <dd className="text-[#1A202C] font-semibold">
+                    {trip.dropLocation || "-"}
+                  </dd>
                 </div>
                 <div>
                   <dt className="text-[#718096] mb-1">Trip Type</dt>
-                  <dd className="text-[#1A202C] font-semibold">{trip.tripType || "-"}</dd>
+                  <dd className="text-[#1A202C] font-semibold">
+                    {trip.tripType || "-"}
+                  </dd>
                 </div>
               </dl>
             </section>
@@ -345,17 +387,30 @@ export default function TripDetailPage() {
                 <h3 className="text-sm font-semibold text-[#0B1E3F] inline-flex items-center gap-2">
                   <BadgeCheck size={14} className="text-green-600" /> Approve
                 </h3>
-                <p className="text-xs text-[#4A5568] mt-2">Assign an Assignment ID and verify this trip.</p>
+                <p className="text-xs text-[#4A5568] mt-2">
+                  Assign an Assignment ID and verify this trip.
+                </p>
                 <button
                   onClick={() => {
                     setApproveAssignmentId(trip?.assignmentId || "");
                     setApproveError(null);
                     setShowApproveModal(true);
                   }}
-                  disabled={!canApprove || approving || completing || cancelling || deleting}
+                  disabled={
+                    !canApprove ||
+                    approving ||
+                    completing ||
+                    cancelling ||
+                    deleting
+                  }
                   className="mt-4 inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition-colors disabled:opacity-60"
                 >
-                  <CheckCircle2 size={14} /> {approving ? "Approving" : canApprove ? "Approve Trip" : "Already Approved"}
+                  <CheckCircle2 size={14} />{" "}
+                  {approving
+                    ? "Approving"
+                    : canApprove
+                      ? "Approve Trip"
+                      : "Already Approved"}
                 </button>
               </div>
 
@@ -363,13 +418,26 @@ export default function TripDetailPage() {
                 <h3 className="text-sm font-semibold text-[#0B1E3F] inline-flex items-center gap-2">
                   <CheckCircle2 size={14} className="text-[#C9A24B]" /> Complete
                 </h3>
-                <p className="text-xs text-[#4A5568] mt-2">Mark this trip as completed after service delivery.</p>
+                <p className="text-xs text-[#4A5568] mt-2">
+                  Mark this trip as completed after service delivery.
+                </p>
                 <button
                   onClick={() => setShowCompleteModal(true)}
-                  disabled={!canComplete || completing || approving || cancelling || deleting}
+                  disabled={
+                    !canComplete ||
+                    completing ||
+                    approving ||
+                    cancelling ||
+                    deleting
+                  }
                   className="mt-4 inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[#0B1E3F] text-white text-sm font-semibold hover:bg-[#152d5a] transition-colors disabled:opacity-60"
                 >
-                  <CheckCircle2 size={14} /> {completing ? "Completing" : canComplete ? "Mark Completed" : "Not Allowed"}
+                  <CheckCircle2 size={14} />{" "}
+                  {completing
+                    ? "Completing"
+                    : canComplete
+                      ? "Mark Completed"
+                      : "Not Allowed"}
                 </button>
               </div>
 
@@ -377,17 +445,31 @@ export default function TripDetailPage() {
                 <h3 className="text-sm font-semibold text-[#7F1D1D] inline-flex items-center gap-2">
                   <Ban size={14} className="text-red-600" /> Cancel
                 </h3>
-                <p className="text-xs text-[#7F1D1D] mt-2">Cancel this trip when it cannot be served.</p>
+                <p className="text-xs text-[#7F1D1D] mt-2">
+                  Cancel this trip when it cannot be served.
+                </p>
                 <button
                   onClick={() => {
                     setCancelReason("");
                     setCancelError(null);
                     setShowCancelModal(true);
                   }}
-                  disabled={!canCancel || cancelling || approving || completing || deleting || isCancelled}
+                  disabled={
+                    !canCancel ||
+                    cancelling ||
+                    approving ||
+                    completing ||
+                    deleting ||
+                    isCancelled
+                  }
                   className="mt-4 inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition-colors disabled:opacity-60"
                 >
-                  <Ban size={14} /> {cancelling ? "Cancelling" : isCancelled ? "Already Cancelled" : "Cancel Trip"}
+                  <Ban size={14} />{" "}
+                  {cancelling
+                    ? "Cancelling"
+                    : isCancelled
+                      ? "Already Cancelled"
+                      : "Cancel Trip"}
                 </button>
               </div>
             </section>
@@ -396,7 +478,10 @@ export default function TripDetailPage() {
               <h3 className="text-sm font-semibold text-red-700 inline-flex items-center gap-2">
                 <ShieldAlert size={14} /> Danger Zone
               </h3>
-              <p className="text-xs text-red-700 mt-2">Delete is permanent and should be used only for incorrect records.</p>
+              <p className="text-xs text-red-700 mt-2">
+                Delete is permanent and should be used only for incorrect
+                records.
+              </p>
 
               <button
                 onClick={() => setShowDeleteConfirm(true)}
@@ -412,9 +497,15 @@ export default function TripDetailPage() {
                 <h3 className="text-sm font-semibold text-[#0B1E3F] mb-4 inline-flex items-center gap-2">
                   <UserRound size={14} className="text-[#C9A24B]" /> User
                 </h3>
-                <p className="text-sm font-semibold text-[#1A202C]">{trip.user?.name || `User #${trip.userId}`}</p>
-                <p className="text-xs text-[#4A5568] mt-1">{trip.user?.email || "-"}</p>
-                <p className="text-xs text-[#4A5568] mt-1">{trip.user?.mobileNumber || "-"}</p>
+                <p className="text-sm font-semibold text-[#1A202C]">
+                  {trip.user?.name || `User #${trip.userId}`}
+                </p>
+                <p className="text-xs text-[#4A5568] mt-1">
+                  {trip.user?.email || "-"}
+                </p>
+                <p className="text-xs text-[#4A5568] mt-1">
+                  {trip.user?.mobileNumber || "-"}
+                </p>
                 {trip.user?.id && (
                   <Link
                     href={`/admin/users/${trip.user.id}`}
@@ -429,10 +520,18 @@ export default function TripDetailPage() {
                 <h3 className="text-sm font-semibold text-[#0B1E3F] mb-4 inline-flex items-center gap-2">
                   <Repeat size={14} className="text-[#C9A24B]" /> Subscription
                 </h3>
-                <p className="text-sm font-semibold text-[#1A202C]">#{trip.subscription?.id || trip.subscriptionId || "-"}</p>
-                <p className="text-xs text-[#4A5568] mt-1 uppercase">{trip.subscription?.status || "-"}</p>
-                <p className="text-xs text-[#4A5568] mt-1">Start: {formatDate(trip.subscription?.startDate)}</p>
-                <p className="text-xs text-[#4A5568] mt-1">End: {formatDate(trip.subscription?.endDate)}</p>
+                <p className="text-sm font-semibold text-[#1A202C]">
+                  #{trip.subscription?.id || trip.subscriptionId || "-"}
+                </p>
+                <p className="text-xs text-[#4A5568] mt-1 uppercase">
+                  {trip.subscription?.status || "-"}
+                </p>
+                <p className="text-xs text-[#4A5568] mt-1">
+                  Start: {formatDate(trip.subscription?.startDate)}
+                </p>
+                <p className="text-xs text-[#4A5568] mt-1">
+                  End: {formatDate(trip.subscription?.endDate)}
+                </p>
                 {(trip.subscription?.id || trip.subscriptionId) && (
                   <Link
                     href={`/admin/subscriptions/${trip.subscription?.id || trip.subscriptionId}`}
@@ -528,7 +627,8 @@ export default function TripDetailPage() {
               disabled={approving}
               className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-green-600 rounded-lg px-4 py-2 hover:bg-green-700 transition-colors disabled:opacity-60"
             >
-              <CheckCircle2 size={14} /> {approving ? "Approving..." : "Confirm"}
+              <CheckCircle2 size={14} />{" "}
+              {approving ? "Approving..." : "Confirm"}
             </button>
           </div>
         </div>
@@ -557,7 +657,8 @@ export default function TripDetailPage() {
               disabled={completing}
               className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-[#0B1E3F] rounded-lg px-4 py-2 hover:bg-[#152d5a] transition-colors disabled:opacity-60"
             >
-              <CheckCircle2 size={14} /> {completing ? "Completing..." : "Confirm Complete"}
+              <CheckCircle2 size={14} />{" "}
+              {completing ? "Completing..." : "Confirm Complete"}
             </button>
           </div>
         </div>
@@ -610,7 +711,8 @@ export default function TripDetailPage() {
               disabled={cancelling}
               className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-red-600 rounded-lg px-4 py-2 hover:bg-red-700 transition-colors disabled:opacity-60"
             >
-              <Ban size={14} /> {cancelling ? "Cancelling..." : "Confirm Cancel"}
+              <Ban size={14} />{" "}
+              {cancelling ? "Cancelling..." : "Confirm Cancel"}
             </button>
           </div>
         </div>

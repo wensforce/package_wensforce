@@ -1,6 +1,6 @@
 import api from "@/app/axios/axios";
 import { uploadImageToS3, rollbackS3Upload } from "../../utils/s3Upload";
-
+const PAGE_LIMIT = 10;
 function getArrayFromResponse(data, keys) {
   for (const key of keys) {
     const value = data?.[key];
@@ -10,6 +10,29 @@ function getArrayFromResponse(data, keys) {
 }
 
 export const servicesApi = {
+  /**
+   * Fetch paginated services with optional search.
+   * @param {object} options
+   * @param {number} options.page   - Current page number
+   * @param {string} options.search - Search query string (title)
+   * @returns {Promise<{ rows: Array, pagination: object }>}
+   */
+  fetchServices: async ({ page, search }) => {
+    const params = { page, limit: PAGE_LIMIT };
+    if (search && search.trim()) params.search = search.trim();
+
+    const res = await api.get("/service/list", { params });
+    const { services: rows, pagination: pg } = res.data.data;
+
+    return {
+      rows,
+      pagination: {
+        ...pg,
+        totalPages: Math.max(1, Math.ceil(pg.total / pg.limit)),
+      },
+    };
+  },
+
   /**
    * Search services by query string.
    * @param {string} query - Search term (service name)
@@ -23,7 +46,15 @@ export const servicesApi = {
     const rows = getArrayFromResponse(data, ["services", "items", "data"]);
     return Array.isArray(rows) ? rows.slice(0, 5) : [];
   },
-
+/**
+   * Fetch a single service by ID.
+   * @param {number|string} id - Service ID
+   * @returns {Promise<object|null>}
+   */
+  getServiceById: async (id) => {
+    const res = await api.get(`/service/${id}`);
+    return res.data?.data ?? null;
+  },
   /**
    * Create a new service.
    * Handles S3 upload and rolls back on API failure.
@@ -84,5 +115,13 @@ export const servicesApi = {
       if (uploadedKey) await rollbackS3Upload(uploadedKey);
       throw err;
     }
+  },
+  /**
+   * Delete a service by ID.
+   * @param {number|string} id - Service ID to delete
+   * @returns {Promise<void>}
+   */
+  deleteService: async (id) => {
+    await api.delete(`/service/${id}`);
   },
 };

@@ -17,8 +17,7 @@ import {
   Hash,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import api from "@/app/axios/axios";
-
+import { authApi } from "./auth.api";
 const navItems = [
   { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { label: "Bookings", href: "/admin/bookings", icon: CalendarCheck },
@@ -36,13 +35,13 @@ function SidebarContent({ collapsed, setCollapsed, onClose, isMobile }) {
   const { logout } = useAuth();
   const router = useRouter();
 
-  const handleLogout = () => {
-    api.post("/auth/logout").finally(() => {
-      logout();
-      if (isMobile) onClose();
-      router.push("/");
-    });
-  };
+ const handleLogout = () => {
+  authApi.logout().finally(() => {
+    logout();
+    if (isMobile) onClose();
+    router.push("/");
+  });
+};
 
   return (
     <div className="flex flex-col h-full">

@@ -2,8 +2,15 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CreditCard, CheckCircle2, Clock3, XCircle, Ban, Eye } from "lucide-react";
-import api from "../../axios/axios";
+import {
+  CreditCard,
+  CheckCircle2,
+  Clock3,
+  XCircle,
+  Ban,
+  Eye,
+} from "lucide-react";
+import { paymentApi } from "./apis/payments.api";
 import AdminTable from "../components/AdminTable";
 
 const PAGE_LIMIT = 10;
@@ -99,24 +106,12 @@ export default function PaymentsPage() {
     setError(null);
 
     try {
-      const params = { page, limit: PAGE_LIMIT };
-      if (search.trim()) params.search = search.trim();
-
-      const res = await api.get("/payment", { params });
-      const data = res.data?.data ?? {};
-
-      const rows = Array.isArray(data.payments) ? data.payments : [];
-      const total = Number(data.totalCount ?? rows.length ?? 0);
-      const currentPage = Number(data.page ?? page);
-      const limit = Number(data.limit ?? PAGE_LIMIT);
-
-      setPayments(rows);
-      setPagination({
-        page: currentPage,
-        limit,
-        total,
-        totalPages: Math.max(1, Math.ceil(total / limit)),
+      const { rows, pagination } = await paymentApi.fetchPayments({
+        page,
+        search,
       });
+      setPayments(rows);
+      setPagination(pagination);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load payments.");
     } finally {
@@ -133,27 +128,49 @@ export default function PaymentsPage() {
 
     switch (key) {
       case "id":
-        return <span className="font-mono text-xs font-medium text-[#0B1E3F]">#{payment.id}</span>;
+        return (
+          <span className="font-mono text-xs font-medium text-[#0B1E3F]">
+            #{payment.id}
+          </span>
+        );
       case "user":
         return (
           <div className="max-w-45">
-            <p className="text-sm font-medium text-[#1A202C] truncate" title={payment.user?.name || ""}>
+            <p
+              className="text-sm font-medium text-[#1A202C] truncate"
+              title={payment.user?.name || ""}
+            >
               {payment.user?.name || "Guest"}
             </p>
           </div>
         );
       case "package":
         return (
-          <span className="text-sm text-[#1A202C] font-medium" title={payment.package?.name || ""}>
+          <span
+            className="text-sm text-[#1A202C] font-medium"
+            title={payment.package?.name || ""}
+          >
             {payment.package?.name || `#${payment.packageId ?? "-"}`}
           </span>
         );
       case "amount":
-        return <span className="text-xs text-[#4A5568] whitespace-nowrap">{formatMoney(payment.amount)}</span>;
+        return (
+          <span className="text-xs text-[#4A5568] whitespace-nowrap">
+            {formatMoney(payment.amount)}
+          </span>
+        );
       case "discount":
-        return <span className="text-xs text-[#4A5568] whitespace-nowrap">{formatMoney(payment.discountAmount)}</span>;
+        return (
+          <span className="text-xs text-[#4A5568] whitespace-nowrap">
+            {formatMoney(payment.discountAmount)}
+          </span>
+        );
       case "finalAmount":
-        return <span className="text-sm font-semibold text-[#0B1E3F] whitespace-nowrap">{formatMoney(payment.finalAmount)}</span>;
+        return (
+          <span className="text-sm font-semibold text-[#0B1E3F] whitespace-nowrap">
+            {formatMoney(payment.finalAmount)}
+          </span>
+        );
       case "coupon":
         return payment.couponCode ? (
           <span className="inline-flex items-center rounded-md border border-[#CBD5E0] bg-[#FAF6EC] px-2 py-1 text-xs font-semibold text-[#0B1E3F] uppercase tracking-wide">
@@ -164,13 +181,18 @@ export default function PaymentsPage() {
         );
       case "order":
         return (
-          <span className="text-xs font-mono text-[#4A5568]" title={payment.cashfreeOrderId || ""}>
+          <span
+            className="text-xs font-mono text-[#4A5568]"
+            title={payment.cashfreeOrderId || ""}
+          >
             {payment.cashfreeOrderId || "-"}
           </span>
         );
       case "status":
         return (
-          <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.className}`}>
+          <span
+            className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.className}`}
+          >
             {status.icon} {status.label}
           </span>
         );
@@ -178,7 +200,10 @@ export default function PaymentsPage() {
         return (
           <button
             onClick={() => {
-              sessionStorage.setItem(`payment_${payment.id}`, JSON.stringify(payment));
+              sessionStorage.setItem(
+                `payment_${payment.id}`,
+                JSON.stringify(payment),
+              );
               router.push(`/admin/payments/${payment.id}`);
             }}
             className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"

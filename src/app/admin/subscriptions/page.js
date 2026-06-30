@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Repeat, CheckCircle2, Clock3, XCircle, Ban, Eye } from "lucide-react";
-import api from "../../axios/axios";
+import { subscriptionApi } from "./apis/subscription.api";
 import AdminTable from "../components/AdminTable";
 import CreateSubscriptionModal from "../components/modals/CreateSubscriptionModal";
 
@@ -130,24 +130,12 @@ export default function SubscriptionsPage() {
     setError(null);
 
     try {
-      const params = { page, limit: PAGE_LIMIT };
-      if (search.trim()) params.search = search.trim();
-
-      const res = await api.get("/subscription", { params });
-      const data = res.data?.data ?? {};
-
-      const rows = Array.isArray(data.subscriptions) ? data.subscriptions : [];
-      const total = Number(data.total ?? rows.length ?? 0);
-      const currentPage = Number(data.page ?? page);
-      const limit = Number(data.limit ?? PAGE_LIMIT);
-
-      setSubscriptions(rows);
-      setPagination({
-        page: currentPage,
-        limit,
-        total,
-        totalPages: Math.max(1, Math.ceil(total / limit)),
+      const { rows, pagination } = await subscriptionApi.fetchSubscriptions({
+        page,
+        search,
       });
+      setSubscriptions(rows);
+      setPagination(pagination);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load subscriptions.");
     } finally {
@@ -164,12 +152,20 @@ export default function SubscriptionsPage() {
 
     switch (key) {
       case "id":
-        return <span className="font-mono text-xs font-medium text-[#0B1E3F]">#{sub.id}</span>;
+        return (
+          <span className="font-mono text-xs font-medium text-[#0B1E3F]">
+            #{sub.id}
+          </span>
+        );
       case "user":
         return (
           <div>
-            <p className="text-sm font-medium text-[#1A202C]">#{sub.user?.id ?? sub.userId ?? "-"}</p>
-            <p className="text-xs text-[#4A5568]">{sub.user?.mobileNumber || "-"}</p>
+            <p className="text-sm font-medium text-[#1A202C]">
+              #{sub.user?.id ?? sub.userId ?? "-"}
+            </p>
+            <p className="text-xs text-[#4A5568]">
+              {sub.user?.mobileNumber || "-"}
+            </p>
           </div>
         );
       case "package":
@@ -185,20 +181,33 @@ export default function SubscriptionsPage() {
           </span>
         );
       case "vehicleType":
-        return <span className="text-xs text-[#4A5568]">{sub.vehicleType || "-"}</span>;
+        return (
+          <span className="text-xs text-[#4A5568]">
+            {sub.vehicleType || "-"}
+          </span>
+        );
       case "bodyguardType":
-        return <span className="text-xs text-[#4A5568]">{sub.bodyguardType || "-"}</span>;
+        return (
+          <span className="text-xs text-[#4A5568]">
+            {sub.bodyguardType || "-"}
+          </span>
+        );
       case "daysLeft": {
         const daysMeta = getDaysLeftMeta(sub.endDate);
         return (
-          <span className={`text-xs whitespace-nowrap ${daysMeta.className}`} title={daysMeta.title}>
+          <span
+            className={`text-xs whitespace-nowrap ${daysMeta.className}`}
+            title={daysMeta.title}
+          >
             {daysMeta.text}
           </span>
         );
       }
       case "status":
         return (
-          <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.className}`}>
+          <span
+            className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.className}`}
+          >
             {status.icon} {status.label}
           </span>
         );
@@ -206,7 +215,10 @@ export default function SubscriptionsPage() {
         return (
           <button
             onClick={() => {
-              sessionStorage.setItem(`subscription_${sub.id}`, JSON.stringify(sub));
+              sessionStorage.setItem(
+                `subscription_${sub.id}`,
+                JSON.stringify(sub),
+              );
               router.push(`/admin/subscriptions/${sub.id}`);
             }}
             className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"

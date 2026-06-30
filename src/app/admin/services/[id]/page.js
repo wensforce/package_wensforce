@@ -9,7 +9,7 @@ import {
   RotateCcw,
   Loader,
 } from "lucide-react";
-import api from "../../../axios/axios";
+import { servicesApi } from "../apis/services.api";
 import ServiceCreateModal from "../../components/modals/ServiceCreateModal";
 import Modal from "../../components/Modal";
 
@@ -54,13 +54,11 @@ export default function ServiceDetailPage() {
         }
 
         // If not in cache, fetch from API
-        const res = await api.get(`/service/${serviceId}`);
-        console.log("Fetched service from API:", res.data.data);
-        const serviceData = res.data.data;
+        const serviceData = await servicesApi.getServiceById(serviceId);
         setService(serviceData);
       } catch (err) {
         setError(
-          err?.response?.data?.message || "Failed to load service details."
+          err?.response?.data?.message || "Failed to load service details.",
         );
       } finally {
         setLoading(false);
@@ -77,12 +75,11 @@ export default function ServiceDetailPage() {
     setError(null);
 
     try {
-      const res = await api.get(`/service/${serviceId}`);
-      const serviceData = res.data.data;
+      const serviceData = await servicesApi.getServiceById(serviceId);
       setService(serviceData);
     } catch (err) {
       setError(
-        err?.response?.data?.message || "Failed to refresh service details."
+        err?.response?.data?.message || "Failed to refresh service details.",
       );
     } finally {
       setRefreshing(false);
@@ -95,12 +92,10 @@ export default function ServiceDetailPage() {
     setShowDeleteConfirm(false);
 
     try {
-      await api.delete(`/service/${serviceId}`);
+      await servicesApi.deleteService(serviceId);
       router.push("/admin/services");
     } catch (err) {
-      setError(
-        err?.response?.data?.message || "Failed to delete the service."
-      );
+      setError(err?.response?.data?.message || "Failed to delete the service.");
     } finally {
       setDeleting(false);
     }
@@ -114,8 +109,13 @@ export default function ServiceDetailPage() {
     return (
       <div className="min-h-screen bg-[#F8F6F1] flex items-center justify-center">
         <div className="text-center">
-          <Loader size={40} className="animate-spin text-[#C9A24B] mx-auto mb-3" />
-          <p className="text-[#4A5568] font-medium text-sm">Loading service details...</p>
+          <Loader
+            size={40}
+            className="animate-spin text-[#C9A24B] mx-auto mb-3"
+          />
+          <p className="text-[#4A5568] font-medium text-sm">
+            Loading service details...
+          </p>
         </div>
       </div>
     );
@@ -132,13 +132,17 @@ export default function ServiceDetailPage() {
             >
               <ArrowLeft size={16} /> Back
             </button>
-            <h1 className="text-2xl font-bold text-[#0B1E3F]">Service Details</h1>
+            <h1 className="text-2xl font-bold text-[#0B1E3F]">
+              Service Details
+            </h1>
             <div className="w-20"></div>
           </div>
 
           <div className="p-6">
             <div className="bg-white rounded-lg p-8 text-center border border-[#E8E3DB]">
-              <div className="text-red-600 font-semibold mb-2 text-sm">Error Loading Service</div>
+              <div className="text-red-600 font-semibold mb-2 text-sm">
+                Error Loading Service
+              </div>
               <p className="text-[#4A5568] text-sm mb-4">{error}</p>
               <button
                 onClick={handleRefresh}
@@ -157,7 +161,9 @@ export default function ServiceDetailPage() {
     return (
       <div className="min-h-screen bg-[#F8F6F1] flex items-center justify-center">
         <div className="text-center">
-          <p className="text-[#4A5568] font-medium text-sm">Service not found</p>
+          <p className="text-[#4A5568] font-medium text-sm">
+            Service not found
+          </p>
         </div>
       </div>
     );
@@ -187,7 +193,10 @@ export default function ServiceDetailPage() {
               disabled={refreshing}
               className="inline-flex items-center gap-2 px-3 py-2 bg-[#C9A24B] text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm cursor-pointer"
             >
-              <RotateCcw size={16} className={refreshing ? "animate-spin" : ""} />
+              <RotateCcw
+                size={16}
+                className={refreshing ? "animate-spin" : ""}
+              />
               {refreshing ? "Refreshing" : "Refresh"}
             </button>
             <button
@@ -247,20 +256,25 @@ export default function ServiceDetailPage() {
                   )}
                 </div>
                 <p className="text-xs text-[#4A5568] mb-4">
-                  ID: <span className="font-mono font-semibold">{service.id}</span>
+                  ID:{" "}
+                  <span className="font-mono font-semibold">{service.id}</span>
                 </p>
               </div>
 
               {/* Quick Info */}
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <p className="text-[#4A5568] text-xs font-semibold mb-1">Created</p>
+                  <p className="text-[#4A5568] text-xs font-semibold mb-1">
+                    Created
+                  </p>
                   <p className="text-[#1A202C] font-medium text-xs">
                     {formatDate(service.createdAt)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[#4A5568] text-xs font-semibold mb-1">Updated</p>
+                  <p className="text-[#4A5568] text-xs font-semibold mb-1">
+                    Updated
+                  </p>
                   <p className="text-[#1A202C] font-medium text-xs">
                     {formatDate(service.updatedAt)}
                   </p>
@@ -288,7 +302,9 @@ export default function ServiceDetailPage() {
                     Status
                   </p>
                   <p className="text-sm font-semibold text-[#1A202C]">
-                    {service.isActive ? "Active and visible" : "Inactive and hidden"}
+                    {service.isActive
+                      ? "Active and visible"
+                      : "Inactive and hidden"}
                   </p>
                 </div>
                 <div className="inline-flex items-center gap-2 rounded-full px-3 py-2 bg-[#F3F7F8] text-xs font-semibold text-[#42525C]">
@@ -309,7 +325,12 @@ export default function ServiceDetailPage() {
                   <h3 className="text-sm font-semibold text-[#4A5568] uppercase tracking-wide">
                     Features
                   </h3>
-                  <span className="text-xs text-[#718096]">{Array.isArray(service.features) ? service.features.length : "1"} item(s)</span>
+                  <span className="text-xs text-[#718096]">
+                    {Array.isArray(service.features)
+                      ? service.features.length
+                      : "1"}{" "}
+                    item(s)
+                  </span>
                 </div>
                 <ul className="space-y-3">
                   {Array.isArray(service.features) ? (
@@ -318,7 +339,10 @@ export default function ServiceDetailPage() {
                         key={idx}
                         className="rounded-2xl bg-[#F8F9FA] px-4 py-3 text-[#1A202C] text-sm flex items-start gap-3"
                       >
-                        <CheckCircle2 size={16} className="text-green-600 mt-1" />
+                        <CheckCircle2
+                          size={16}
+                          className="text-green-600 mt-1"
+                        />
                         <span>{feature}</span>
                       </li>
                     ))
@@ -349,7 +373,10 @@ export default function ServiceDetailPage() {
               disabled={refreshing}
               className="w-full sm:w-auto px-5 py-3 bg-[#C9A24B] text-white rounded-3xl font-semibold hover:bg-[#A68239] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm inline-flex items-center justify-center gap-2 cursor-pointer"
             >
-              <RotateCcw size={16} className={refreshing ? "animate-spin" : ""} />
+              <RotateCcw
+                size={16}
+                className={refreshing ? "animate-spin" : ""}
+              />
               {refreshing ? "Refreshing" : "Refresh"}
             </button>
             <button
@@ -371,7 +398,8 @@ export default function ServiceDetailPage() {
       >
         <div className="p-6">
           <p className="text-[#4A5568] text-sm mb-6">
-            Are you sure you want to delete <strong>{service?.title}</strong>? All associated data will be permanently removed.
+            Are you sure you want to delete <strong>{service?.title}</strong>?
+            All associated data will be permanently removed.
           </p>
           <div className="flex gap-3 justify-end">
             <button

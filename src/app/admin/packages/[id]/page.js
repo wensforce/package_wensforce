@@ -15,7 +15,7 @@ import {
   AlertCircle,
   CheckCircle,
 } from "lucide-react";
-import api from "../../../axios/axios";
+import { packageApi } from "../apis/packages.api"; 
 import Link from "next/link";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
@@ -50,8 +50,8 @@ export default function PackageDetailPage() {
       setLoading(true);
       setError(null);
       try {
-        const res = await api.get(`/package/${packageId}`);
-        setPackageData(res.data?.data ?? null);
+        const data = await packageApi.getPackageById(packageId);
+setPackageData(data);
       } catch (err) {
         setError(
           err?.response?.data?.message || "Failed to load package details.",
@@ -76,7 +76,7 @@ export default function PackageDetailPage() {
     setDeleting(true);
     setDeleteError(null);
     try {
-      await api.delete(`/package/${packageId}`);
+      await packageApi.deletePackage(packageId);
       router.push("/admin/packages");
     } catch (err) {
       setDeleteError(

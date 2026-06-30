@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Loader2, Package, ArrowLeft } from "lucide-react";
-import api from "../../../../axios/axios";
-import PackageForm from "../../../components/package/PackageForm";
+import { packageApi } from "../../apis/packages.api";
 
 export default function PackageEditPage() {
   const router = useRouter();
@@ -21,10 +20,12 @@ export default function PackageEditPage() {
       setLoading(true);
       setError(null);
       try {
-        const res = await api.get(`/package/${packageId}`);
-        setPackageData(res.data?.data ?? null);
+        const data = await packageApi.getPackageById(packageId);
+        setPackageData(data);
       } catch (err) {
-        setError(err?.response?.data?.message || "Failed to load package details.");
+        setError(
+          err?.response?.data?.message || "Failed to load package details.",
+        );
       } finally {
         setLoading(false);
       }
@@ -43,8 +44,12 @@ export default function PackageEditPage() {
                 <Package size={20} />
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#718096]">Package admin</p>
-                <h1 className="mt-2 text-3xl font-semibold text-[#0B1E3F]">Edit package</h1>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#718096]">
+                  Package admin
+                </p>
+                <h1 className="mt-2 text-3xl font-semibold text-[#0B1E3F]">
+                  Edit package
+                </h1>
               </div>
             </div>
             <button
@@ -59,7 +64,10 @@ export default function PackageEditPage() {
 
         {loading ? (
           <div className="rounded-[32px] border border-[#E8E3DB] bg-white p-12 text-center text-[#4A5568]">
-            <Loader2 size={24} className="mx-auto mb-4 animate-spin text-[#0B1E3F]" />
+            <Loader2
+              size={24}
+              className="mx-auto mb-4 animate-spin text-[#0B1E3F]"
+            />
             Loading package...
           </div>
         ) : error ? (

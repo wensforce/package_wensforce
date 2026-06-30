@@ -2,8 +2,16 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CarTaxiFront, CalendarDays, Eye, CheckCircle2, Clock3, XCircle, Ban } from "lucide-react";
-import api from "../../axios/axios";
+import {
+  CarTaxiFront,
+  CalendarDays,
+  Eye,
+  CheckCircle2,
+  Clock3,
+  XCircle,
+  Ban,
+} from "lucide-react";
+import { tripApi } from "./apis/trips.api";
 import AdminTable from "../components/AdminTable";
 import CreateTripModal from "../components/modals/CreateTripModal";
 
@@ -99,26 +107,13 @@ export default function TripsPage() {
     setError(null);
 
     try {
-      const params = { page, limit: PAGE_LIMIT };
-      if (search.trim()) params.search = search.trim();
-      if (tripDate) params.tripDate = tripDate;
-
-      const res = await api.get("/trip/get-all", { params });
-      const data = res.data?.data ?? {};
-
-      const rows = Array.isArray(data.trips) ? data.trips : [];
-      const total = Number(data.meta?.total ?? rows.length ?? 0);
-      const currentPage = Number(data.meta?.page ?? page);
-      const limit = Number(data.meta?.limit ?? PAGE_LIMIT);
-      const totalPages = Number(data.meta?.totalPages ?? Math.max(1, Math.ceil(total / limit)));
-
-      setTrips(rows);
-      setPagination({
-        page: currentPage,
-        limit,
-        total,
-        totalPages: Math.max(1, totalPages),
+      const { rows, pagination } = await tripApi.fetchTrips({
+        page,
+        search,
+        tripDate,
       });
+      setTrips(rows);
+      setPagination(pagination);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to fetch trips");
     } finally {
@@ -135,32 +130,55 @@ export default function TripsPage() {
 
     switch (key) {
       case "id":
-        return <span className="font-mono text-xs font-medium text-[#0B1E3F]">#{trip.id}</span>;
+        return (
+          <span className="font-mono text-xs font-medium text-[#0B1E3F]">
+            #{trip.id}
+          </span>
+        );
       case "assignmentId":
-        return <span className="text-xs font-mono text-[#4A5568]">{trip.assignmentId || "-"}</span>;
+        return (
+          <span className="text-xs font-mono text-[#4A5568]">
+            {trip.assignmentId || "-"}
+          </span>
+        );
       case "user":
         return (
           <div className="max-w-45">
-            <p className="text-sm font-medium text-[#1A202C] truncate" title={trip.user?.name || ""}>
+            <p
+              className="text-sm font-medium text-[#1A202C] truncate"
+              title={trip.user?.name || ""}
+            >
               {trip.user?.name || `#${trip.userId ?? "-"}`}
             </p>
-            <p className="text-xs text-[#4A5568] truncate">{trip.user?.mobileNumber || "-"}</p>
+            <p className="text-xs text-[#4A5568] truncate">
+              {trip.user?.mobileNumber || "-"}
+            </p>
           </div>
         );
       case "route":
         return (
           <div className="max-w-65">
-            <p className="text-xs text-[#1A202C] truncate" title={trip.pickupLocation || ""}>
+            <p
+              className="text-xs text-[#1A202C] truncate"
+              title={trip.pickupLocation || ""}
+            >
               {trip.pickupLocation || "-"}
             </p>
             <p className="text-[11px] text-[#A0AEC0]">to</p>
-            <p className="text-xs text-[#1A202C] truncate" title={trip.dropLocation || ""}>
+            <p
+              className="text-xs text-[#1A202C] truncate"
+              title={trip.dropLocation || ""}
+            >
               {trip.dropLocation || "-"}
             </p>
           </div>
         );
       case "tripDate":
-        return <span className="text-xs text-[#4A5568] whitespace-nowrap">{formatDate(trip.tripDate)}</span>;
+        return (
+          <span className="text-xs text-[#4A5568] whitespace-nowrap">
+            {formatDate(trip.tripDate)}
+          </span>
+        );
       case "tripType":
         return (
           <span className="inline-flex items-center rounded-md border border-[#CBD5E0] bg-[#FAF6EC] px-2 py-1 text-xs font-semibold text-[#0B1E3F] uppercase tracking-wide">
@@ -169,13 +187,24 @@ export default function TripsPage() {
         );
       case "services": {
         const services = Array.isArray(trip.services) ? trip.services : [];
-        if (!services.length) return <span className="text-xs text-[#A0AEC0]">None</span>;
+        if (!services.length)
+          return <span className="text-xs text-[#A0AEC0]">None</span>;
 
-        const label = services.slice(0, 2).map((s) => s?.name).filter(Boolean).join(", ");
+        const label = services
+          .slice(0, 2)
+          .map((s) => s?.name)
+          .filter(Boolean)
+          .join(", ");
         const extra = services.length > 2 ? ` +${services.length - 2}` : "";
 
         return (
-          <span className="text-xs text-[#4A5568]" title={services.map((s) => s?.name).filter(Boolean).join(", ")}>
+          <span
+            className="text-xs text-[#4A5568]"
+            title={services
+              .map((s) => s?.name)
+              .filter(Boolean)
+              .join(", ")}
+          >
             {label || "Services"}
             {extra}
           </span>
@@ -183,7 +212,9 @@ export default function TripsPage() {
       }
       case "status":
         return (
-          <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.className}`}>
+          <span
+            className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.className}`}
+          >
             {status.icon} {status.label}
           </span>
         );
@@ -224,10 +255,13 @@ export default function TripsPage() {
         onRefresh={fetchTrips}
         onCreate={() => setShowCreate(true)}
         createLabel="New Trip"
-        toolbarFilters={(
+        toolbarFilters={
           <div className="w-full sm:w-auto">
             <div className="relative">
-              <CalendarDays size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A0AEC0]" />
+              <CalendarDays
+                size={14}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A0AEC0]"
+              />
               <input
                 type="date"
                 value={tripDate}
@@ -237,7 +271,7 @@ export default function TripsPage() {
               />
             </div>
           </div>
-        )}
+        }
         emptyIcon={<CarTaxiFront size={32} />}
         emptyText="No trips found"
       />

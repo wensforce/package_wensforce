@@ -5,9 +5,9 @@ import { Loader2, PlusCircle, Search, UserRound, Repeat, ConciergeBell, X } from
 import Modal from "../Modal";
 
 import { subscriptionApi } from "../../subscriptions/apis/subscription.api";
-import { userApi } from "../../user/apis/user.api";
-import { servicesApi } from "../../service/apis/service.api";
-import { tripApi } from "../../trip/apis/trip.api";
+import { userApi } from "../../users/apis/user.api";
+import { servicesApi } from "../../services/apis/services.api";
+import { tripApi } from "../../trips/apis/trips.api";
 
 const INITIAL_FORM = {
   assignmentId: "",

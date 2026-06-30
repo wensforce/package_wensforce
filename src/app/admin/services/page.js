@@ -10,7 +10,7 @@ import {
   Pencil,
   Image as ImageIcon,
 } from "lucide-react";
-import api from "../../axios/axios";
+import { servicesApi } from "./apis/services.api";
 import AdminTable from "../components/AdminTable";
 import ServiceCreateModal from "../components/modals/ServiceCreateModal";
 
@@ -74,16 +74,12 @@ export default function ServicesPage() {
     setLoading(true);
     setError(null);
     try {
-      const params = { page, limit: PAGE_LIMIT };
-      if (search.trim()) params.search = search.trim();
-
-      const res = await api.get("/service/list", { params });
-      const { services: rows, pagination: pg } = res.data.data;
-      setServices(rows);
-      setPagination({
-        ...pg,
-        totalPages: Math.max(1, Math.ceil(pg.total / pg.limit)),
+      const { rows, pagination } = await servicesApi.fetchServices({
+        page,
+        search,
       });
+      setServices(rows);
+      setPagination(pagination);
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to load services.");
     } finally {

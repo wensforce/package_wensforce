@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { AlertTriangle, Loader2 } from "lucide-react";
-import api from "../../../axios/axios";
+import { userApi } from "../apis/user.api";
 import UserDetailHeader from "../../components/user/UserDetailHeader";
 import UserOverviewCard from "../../components/user/UserOverviewCard";
 import UserCreateUpdateModal from "../../components/modals/UserCreateUpdateModal";
@@ -35,16 +35,18 @@ export default function UserDetailPage() {
           }
         }
 
-        const res = await api.get(`/user/${userId}`);
-        setUser(res.data?.data || null);
+        const data = await userApi.getUserById(userId);
+        setUser(data);
       } catch (err) {
-        setError(err?.response?.data?.message || "Failed to fetch user details.");
+        setError(
+          err?.response?.data?.message || "Failed to fetch user details.",
+        );
       } finally {
         if (!silent) setLoading(false);
         else setRefreshing(false);
       }
     },
-    [userId]
+    [userId],
   );
 
   useEffect(() => {
@@ -55,7 +57,10 @@ export default function UserDetailPage() {
     return (
       <div className="p-8 min-h-[60vh] flex items-center justify-center">
         <div className="text-center">
-          <Loader2 size={32} className="animate-spin text-[#C9A24B] mx-auto mb-3" />
+          <Loader2
+            size={32}
+            className="animate-spin text-[#C9A24B] mx-auto mb-3"
+          />
           <p className="text-sm text-[#4A5568]">Loading user details...</p>
         </div>
       </div>
@@ -75,7 +80,9 @@ export default function UserDetailPage() {
 
           <div className="p-8 text-center">
             <AlertTriangle size={34} className="mx-auto text-red-500 mb-3" />
-            <h2 className="text-lg font-semibold text-[#1A202C] mb-2">Unable to load user</h2>
+            <h2 className="text-lg font-semibold text-[#1A202C] mb-2">
+              Unable to load user
+            </h2>
             <p className="text-sm text-[#4A5568] mb-5">{error}</p>
             <button
               onClick={() => fetchUser()}
