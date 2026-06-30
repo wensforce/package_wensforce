@@ -15,8 +15,9 @@ import {
   AlertCircle,
   CheckCircle,
 } from "lucide-react";
-import { packageApi } from "../apis/packages.api"; 
+import { packageApi } from "../apis/packages.api";
 import Link from "next/link";
+import { useFetchList } from "../../hooks/useFetchList";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
@@ -39,8 +40,8 @@ export default function PackageDetailPage() {
   const packageId = params?.id;
 
   const [packageData, setPackageData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const { loading, setLoading, error, setError } = useFetchList();
+
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(null);
 
@@ -51,7 +52,7 @@ export default function PackageDetailPage() {
       setError(null);
       try {
         const data = await packageApi.getPackageById(packageId);
-setPackageData(data);
+        setPackageData(data);
       } catch (err) {
         setError(
           err?.response?.data?.message || "Failed to load package details.",

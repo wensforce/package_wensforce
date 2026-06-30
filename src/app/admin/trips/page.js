@@ -14,6 +14,8 @@ import {
 import { tripApi } from "./apis/trips.api";
 import AdminTable from "../components/AdminTable";
 import CreateTripModal from "../components/modals/CreateTripModal";
+import { useFetchList } from "../hooks/useFetchList";
+import { useModal } from "../hooks/useModal";
 
 const PAGE_LIMIT = 10;
 
@@ -79,28 +81,27 @@ export default function TripsPage() {
   const router = useRouter();
 
   const [trips, setTrips] = useState([]);
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: PAGE_LIMIT,
-    total: 0,
-    totalPages: 1,
-  });
-  const [searchInput, setSearchInput] = useState("");
-  const [search, setSearch] = useState("");
-  const [tripDate, setTripDate] = useState("");
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [showCreate, setShowCreate] = useState(false);
 
-  useEffect(() => {
-    const t = setTimeout(() => setSearch(searchInput), 400);
-    return () => clearTimeout(t);
-  }, [searchInput]);
+  const {
+    page,
+    setPage,
+    loading,
+    setLoading,
+    error,
+    setError,
+    searchInput,
+    setSearchInput,
+    pagination,
+    setPagination,
+    search,
+  } = useFetchList(PAGE_LIMIT);
+
+  const [tripDate, setTripDate] = useState("");
+  const createModal = useModal();
 
   useEffect(() => {
     setPage(1);
-  }, [search, tripDate]);
+  }, [tripDate, setPage]);
 
   const fetchTrips = useCallback(async () => {
     setLoading(true);
@@ -253,7 +254,7 @@ export default function TripsPage() {
         pagination={pagination}
         onPageChange={setPage}
         onRefresh={fetchTrips}
-        onCreate={() => setShowCreate(true)}
+        onCreate={createModal.open}
         createLabel="New Trip"
         toolbarFilters={
           <div className="w-full sm:w-auto">
@@ -277,8 +278,8 @@ export default function TripsPage() {
       />
 
       <CreateTripModal
-        open={showCreate}
-        onClose={() => setShowCreate(false)}
+        open={createModal.isOpen}
+        onClose={createModal.close}
         onCreated={fetchTrips}
       />
     </>

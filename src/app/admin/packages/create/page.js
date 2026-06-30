@@ -2,8 +2,7 @@
 
 import { Package, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import PackageForm from "../../components/package/PackageForm";
-
+import PackageForm from "@/app/admin/components/package/PackageForm";
 export default function PackageCreatePage() {
   const router = useRouter();
 

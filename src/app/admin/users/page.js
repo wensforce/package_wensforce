@@ -7,6 +7,8 @@ import { userApi } from "./apis/user.api";
 import AdminTable from "../components/AdminTable";
 import UserCreateUpdateModal from "../components/modals/UserCreateUpdateModal";
 import { formatDate } from "../components/user/userUtils";
+import { useFetchList } from "../hooks/useFetchList";
+import { useModal } from "../hooks/useModal";
 
 
 const PAGE_LIMIT = 10;
@@ -24,29 +26,23 @@ const COLUMNS = [
 export default function UsersPage() {
   const router = useRouter();
   const [users, setUsers] = useState([]);
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: PAGE_LIMIT,
-    total: 0,
-    totalPages: 1,
-  });
-  const [searchInput, setSearchInput] = useState("");
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [showCreate, setShowCreate] = useState(false);
-  const [showEdit, setShowEdit] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
 
-  useEffect(() => {
-    const t = setTimeout(() => setSearch(searchInput), 400);
-    return () => clearTimeout(t);
-  }, [searchInput]);
+  const {
+    page,
+    setPage,
+    loading,
+    setLoading,
+    error,
+    setError,
+    searchInput,
+    setSearchInput,
+    pagination,
+    setPagination,
+    search,
+  } = useFetchList(PAGE_LIMIT);
 
-  useEffect(() => {
-    setPage(1);
-  }, [search]);
+  const createModal = useModal();
+  const editModal = useModal();
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -121,10 +117,7 @@ export default function UsersPage() {
               <Eye size={14} /> View
             </button>
             <button
-              onClick={() => {
-                setSelectedUser(user);
-                setShowEdit(true);
-              }}
+              onClick={() => editModal.open(user)}
               className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-md bg-[#FAF6EC] text-[#4A5568] hover:bg-[#EFE7D6] transition-colors"
             >
               <Pencil size={14} /> Edit
@@ -154,22 +147,22 @@ export default function UsersPage() {
         pagination={pagination}
         onPageChange={setPage}
         onRefresh={fetchUsers}
-        onCreate={() => setShowCreate(true)}
+        onCreate={createModal.open}
         createLabel="New User"
         emptyIcon={<Users size={32} />}
         emptyText="No users found"
       />
 
       <UserCreateUpdateModal
-        open={showCreate}
-        onClose={() => setShowCreate(false)}
+        open={createModal.isOpen}
+        onClose={createModal.close}
         onCreated={fetchUsers}
       />
 
       <UserCreateUpdateModal
-        open={showEdit}
-        onClose={() => setShowEdit(false)}
-        user={selectedUser}
+        open={editModal.isOpen}
+        onClose={editModal.close}
+        user={editModal.data}
         onUpdated={fetchUsers}
       />
     </>

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Loader2, Package, ArrowLeft } from "lucide-react";
 import { packageApi } from "../../apis/packages.api";
+import { useFetchList } from "@/app/admin/hooks/useFetchList";
+import PackageForm from "@/app/admin/components/package/PackageForm";
 
 export default function PackageEditPage() {
   const router = useRouter();
@@ -11,8 +13,7 @@ export default function PackageEditPage() {
   const packageId = params?.id;
 
   const [packageData, setPackageData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+const { loading, setLoading, error, setError } = useFetchList();
 
   useEffect(() => {
     const fetchPackage = async () => {

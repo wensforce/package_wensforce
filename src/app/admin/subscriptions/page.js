@@ -6,6 +6,8 @@ import { Repeat, CheckCircle2, Clock3, XCircle, Ban, Eye } from "lucide-react";
 import { subscriptionApi } from "./apis/subscription.api";
 import AdminTable from "../components/AdminTable";
 import CreateSubscriptionModal from "../components/modals/CreateSubscriptionModal";
+import { useFetchList } from "../hooks/useFetchList";
+import { useModal } from "../hooks/useModal";
 
 const PAGE_LIMIT = 10;
 
@@ -103,27 +105,22 @@ function getStatusUI(status) {
 export default function SubscriptionsPage() {
   const router = useRouter();
   const [subscriptions, setSubscriptions] = useState([]);
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: PAGE_LIMIT,
-    total: 0,
-    totalPages: 1,
-  });
-  const [searchInput, setSearchInput] = useState("");
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [showCreate, setShowCreate] = useState(false);
 
-  useEffect(() => {
-    const t = setTimeout(() => setSearch(searchInput), 400);
-    return () => clearTimeout(t);
-  }, [searchInput]);
+  const {
+    page,
+    setPage,
+    loading,
+    setLoading,
+    error,
+    setError,
+    searchInput,
+    setSearchInput,
+    pagination,
+    setPagination,
+    search,
+  } = useFetchList(PAGE_LIMIT);
 
-  useEffect(() => {
-    setPage(1);
-  }, [search]);
+  const createModal = useModal();
 
   const fetchSubscriptions = useCallback(async () => {
     setLoading(true);
@@ -249,15 +246,15 @@ export default function SubscriptionsPage() {
         pagination={pagination}
         onPageChange={setPage}
         onRefresh={fetchSubscriptions}
-        onCreate={() => setShowCreate(true)}
+        onCreate={createModal.open}
         createLabel="New Subscription"
         emptyIcon={<Repeat size={32} />}
         emptyText="No subscriptions found"
       />
 
       <CreateSubscriptionModal
-        open={showCreate}
-        onClose={() => setShowCreate(false)}
+        open={createModal.isOpen}
+        onClose={createModal.close}
         onCreated={fetchSubscriptions}
       />
     </>

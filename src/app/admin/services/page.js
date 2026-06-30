@@ -13,6 +13,8 @@ import {
 import { servicesApi } from "./apis/services.api";
 import AdminTable from "../components/AdminTable";
 import ServiceCreateModal from "../components/modals/ServiceCreateModal";
+import { useFetchList } from "../hooks/useFetchList";
+import { useModal } from "../hooks/useModal";
 
 const PAGE_LIMIT = 10;
 
@@ -48,27 +50,22 @@ function truncateWords(text, maxWords) {
 export default function ServicesPage() {
   const router = useRouter();
   const [services, setServices] = useState([]);
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: PAGE_LIMIT,
-    total: 0,
-    totalPages: 1,
-  });
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [searchInput, setSearchInput] = useState("");
-  const [showCreate, setShowCreate] = useState(false);
 
-  useEffect(() => {
-    const t = setTimeout(() => setSearch(searchInput), 400);
-    return () => clearTimeout(t);
-  }, [searchInput]);
+  const {
+    page,
+    setPage,
+    loading,
+    setLoading,
+    error,
+    setError,
+    searchInput,
+    setSearchInput,
+    pagination,
+    setPagination,
+    search,
+  } = useFetchList(PAGE_LIMIT);
 
-  useEffect(() => {
-    setPage(1);
-  }, [search]);
+  const createModal = useModal();
 
   const fetchServices = useCallback(async () => {
     setLoading(true);
@@ -184,15 +181,15 @@ export default function ServicesPage() {
         pagination={pagination}
         onPageChange={setPage}
         onRefresh={fetchServices}
-        onCreate={() => setShowCreate(true)}
+        onCreate={createModal.open}
         createLabel="New Service"
         emptyIcon={<Layers size={32} />}
         emptyText="No services found"
       />
 
       <ServiceCreateModal
-        open={showCreate}
-        onClose={() => setShowCreate(false)}
+        open={createModal.isOpen}
+        onClose={createModal.close}
         onCreated={fetchServices}
       />
     </>

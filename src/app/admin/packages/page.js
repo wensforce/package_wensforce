@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Package, CheckCircle2, XCircle, Eye, Pencil } from "lucide-react";
 import { packageApi } from "./apis/packages.api";
 import AdminTable from "../components/AdminTable";
-
+import { useFetchList } from "../hooks/useFetchList";
 const PAGE_LIMIT = 10;
 
 function formatAmount(val, currency) {
@@ -28,28 +28,22 @@ export default function PackagesPage() {
   const router = useRouter();
 
   const [packages, setPackages] = useState([]);
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: PAGE_LIMIT,
-    total: 0,
-    totalPages: 1,
-  });
-  const [page, setPage] = useState(1);
-  const [searchInput, setSearchInput] = useState("");
-  const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
-  // Debounce search
-  useEffect(() => {
-    const t = setTimeout(() => setSearch(searchInput), 400);
-    return () => clearTimeout(t);
-  }, [searchInput]);
 
-  // Reset to page 1 on search change
-  useEffect(() => {
-    setPage(1);
-  }, [search]);
+  const {
+      search,
+      
+      page,
+      setPage,
+      loading,
+      setLoading,
+      error,
+      setError,
+      searchInput,
+      setSearchInput,
+      pagination,
+      setPagination,
+    } = useFetchList();
 
   const fetchPackages = useCallback(async () => {
     setLoading(true);

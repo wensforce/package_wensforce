@@ -6,16 +6,16 @@ import { AlertTriangle, Loader2 } from "lucide-react";
 import { paymentApi } from "../apis/payments.api";
 import PaymentDetailHeader from "../../components/payment/PaymentDetailHeader";
 import PaymentOverviewCard from "../../components/payment/PaymentOverviewCard";
-
+import { useFetchList } from "../../hooks/useFetchList";
 export default function PaymentDetailPage() {
   const router = useRouter();
   const params = useParams();
   const paymentId = params?.id;
 
   const [payment, setPayment] = useState(null);
-  const [loading, setLoading] = useState(false);
+    const { loading, setLoading, error, setError } = useFetchList();
+
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState(null);
 
   const fetchPayment = useCallback(
     async ({ silent = false } = {}) => {

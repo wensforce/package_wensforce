@@ -9,19 +9,21 @@ import CouponCreateModal from "../../components/modals/CouponCreateModal";
 import CouponDetailHeader from "../../components/coupon/CouponDetailHeader";
 import CouponOverviewCard from "../../components/coupon/CouponOverviewCard";
 import CouponPackagesCard from "../../components/coupon/CouponPackagesCard";
-
+import { useFetchList } from "../../hooks/useFetchList";
+import { useModal } from "../../hooks/useModal";
 export default function CouponDetailPage() {
   const router = useRouter();
   const params = useParams();
   const couponId = params?.id;
 
   const [coupon, setCoupon] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { loading, setLoading, error, setError } = useFetchList();
+
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState(null);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  const editModal = useModal();
+  const deleteModal = useModal();
 
   const fetchCoupon = useCallback(
     async ({ silent = false } = {}) => {
@@ -53,7 +55,7 @@ export default function CouponDetailPage() {
   async function handleDeleteConfirm() {
     setDeleting(true);
     setError(null);
-    setShowDeleteConfirm(false);
+    deleteModal.close();
 
     try {
       await couponApi.deleteCoupon(couponId);
@@ -123,8 +125,8 @@ export default function CouponDetailPage() {
           <CouponDetailHeader
             onBack={() => router.push("/admin/coupons")}
             onRefresh={() => fetchCoupon({ silent: true })}
-            onEdit={() => setShowEditModal(true)}
-            onDelete={() => setShowDeleteConfirm(true)}
+            onEdit={() => editModal.open()}
+            onDelete={() => deleteModal.open()}
             refreshing={refreshing}
             deleting={deleting}
           />
@@ -143,8 +145,8 @@ export default function CouponDetailPage() {
       </div>
 
       <CouponCreateModal
-        open={showEditModal}
-        onClose={() => setShowEditModal(false)}
+        open={editModal.isOpen}
+        onClose={editModal.close}
         coupon={coupon}
         onUpdated={(updatedCoupon) => {
           if (updatedCoupon) {
@@ -152,13 +154,13 @@ export default function CouponDetailPage() {
           } else {
             fetchCoupon({ silent: true });
           }
-          setShowEditModal(false);
+          editModal.close();
         }}
       />
 
       <Modal
-        open={showDeleteConfirm}
-        onClose={() => !deleting && setShowDeleteConfirm(false)}
+        open={deleteModal.isOpen}
+        onClose={() => !deleting && deleteModal.close()}
         title="Delete Coupon"
         description="This action cannot be undone."
       >
@@ -169,7 +171,7 @@ export default function CouponDetailPage() {
           </p>
           <div className="flex items-center justify-end gap-3">
             <button
-              onClick={() => setShowDeleteConfirm(false)}
+              onClick={() => deleteModal.close()}
               disabled={deleting}
               className="text-sm font-medium text-[#4A5568] border border-[#CBD5E0] bg-white rounded-lg px-4 py-2 hover:bg-[#FAF6EC] transition-colors disabled:opacity-50"
             >

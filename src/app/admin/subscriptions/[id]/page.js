@@ -7,16 +7,16 @@ import { subscriptionApi } from "../apis/subscription.api";
 import Modal from "../../components/Modal";
 import SubscriptionDetailHeader from "../../components/subscription/SubscriptionDetailHeader";
 import SubscriptionOverviewCard from "../../components/subscription/SubscriptionOverviewCard";
-
+import { useFetchList } from "../../hooks/useFetchList";
 export default function SubscriptionDetailPage() {
   const router = useRouter();
   const params = useParams();
   const subscriptionId = params?.id;
 
   const [subscription, setSubscription] = useState(null);
-  const [loading, setLoading] = useState(false);
+   const { loading, setLoading, error, setError } = useFetchList();
+
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState(null);
   const [actionType, setActionType] = useState(null);
   const [adminRemarks, setAdminRemarks] = useState("");
   const [actionLoading, setActionLoading] = useState(null);

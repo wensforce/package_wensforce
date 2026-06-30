@@ -44,11 +44,11 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
         services:
           Array.isArray(initialData.services) && initialData.services.length > 0
             ? initialData.services.map((service) => ({
-              id: service.id ?? "",
-              title: service.title ?? service.name ?? "",
-              query: service.title ?? service.name ?? "",
-              count: service.count ?? 1,
-            }))
+                id: service.id ?? "",
+                title: service.title ?? service.name ?? "",
+                query: service.title ?? service.name ?? "",
+                count: service.count ?? 1,
+              }))
             : [{ ...emptyServiceItem }],
         vehicleType: initialData.vehicleType ?? "",
         vehicleModel: initialData.vehicleModel ?? "",
@@ -237,7 +237,12 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
       };
 
       if (isEditMode) {
-        await packageApi.updatePackage(packageId, payload, thumbnail, existingThumbnailKey);
+        await packageApi.updatePackage(
+          packageId,
+          payload,
+          thumbnail,
+          existingThumbnailKey,
+        );
       } else {
         await packageApi.createPackage(payload, thumbnail);
       }
@@ -291,7 +296,9 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
           <div className="rounded-3xl border border-[#E8E3DB] bg-white p-6 shadow-sm">
             <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <h3 className="text-xl font-semibold text-[#0B1E3F]">Package details</h3>
+                <h3 className="text-xl font-semibold text-[#0B1E3F]">
+                  Package details
+                </h3>
                 <p className="mt-1 text-sm text-[#4A5568]">
                   Set the name, description, and pricing for this package.
                 </p>
@@ -368,7 +375,9 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
           <div className="rounded-3xl border border-[#E8E3DB] bg-white p-6 shadow-sm">
             <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h3 className="text-xl font-semibold text-[#0B1E3F]">Package services</h3>
+                <h3 className="text-xl font-semibold text-[#0B1E3F]">
+                  Package services
+                </h3>
                 <p className="mt-1 text-sm text-[#4A5568]">
                   Add service items included in this package.
                 </p>
@@ -390,7 +399,9 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                   className="grid gap-4 rounded-3xl border border-[#E8E3DB] bg-[#FAF6EC] p-4 sm:grid-cols-[2.4fr_0.9fr_auto] items-start"
                 >
                   <div className="relative space-y-1.5">
-                    <label className="block text-sm font-semibold text-[#0B1E3F]">Service</label>
+                    <label className="block text-sm font-semibold text-[#0B1E3F]">
+                      Service
+                    </label>
                     <div className="relative">
                       <div className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-[#A0AEC0]">
                         <Search size={16} />
@@ -398,26 +409,33 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                       <input
                         type="text"
                         value={serviceItem.query}
-                        onChange={(e) => handleServiceQueryChange(index, e.target.value)}
+                        onChange={(e) =>
+                          handleServiceQueryChange(index, e.target.value)
+                        }
                         disabled={saving}
                         placeholder="Search service…"
                         className="w-full rounded-3xl border border-[#CBD5E0] bg-white px-12 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60"
                       />
                     </div>
-                    {serviceSuggestions[index] && serviceSuggestions[index].length > 0 && (
-                      <div className="absolute left-0 right-0 z-20 mt-2 overflow-hidden rounded-3xl border border-[#CBD5E0] bg-white shadow-lg">
-                        {serviceSuggestions[index].map((option) => (
-                          <button
-                            type="button"
-                            key={option.id}
-                            onClick={() => selectServiceSuggestion(index, option)}
-                            className="w-full px-4 py-3 text-left text-sm text-[#1A202C] hover:bg-[#F5F5F5]"
-                          >
-                            {option.title ?? option.name ?? `Service ${option.id}`}
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                    {serviceSuggestions[index] &&
+                      serviceSuggestions[index].length > 0 && (
+                        <div className="absolute left-0 right-0 z-20 mt-2 overflow-hidden rounded-3xl border border-[#CBD5E0] bg-white shadow-lg">
+                          {serviceSuggestions[index].map((option) => (
+                            <button
+                              type="button"
+                              key={option.id}
+                              onClick={() =>
+                                selectServiceSuggestion(index, option)
+                              }
+                              className="w-full px-4 py-3 text-left text-sm text-[#1A202C] hover:bg-[#F5F5F5]"
+                            >
+                              {option.title ??
+                                option.name ??
+                                `Service ${option.id}`}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     {serviceItem.id && (
                       <div className="mt-1 rounded-3xl bg-[#F0F8FF] px-3 py-2 text-xs text-[#0B1E3F]">
                         Selected: {serviceItem.title}
@@ -426,19 +444,28 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="block text-sm font-semibold text-[#0B1E3F]">Count</label>
+                    <label className="block text-sm font-semibold text-[#0B1E3F]">
+                      Count
+                    </label>
                     <input
                       type="number"
                       min="1"
                       value={serviceItem.count}
-                      onChange={(e) => handleServiceChange(index, "count", e.target.value)}
+                      onChange={(e) =>
+                        handleServiceChange(index, "count", e.target.value)
+                      }
                       disabled={saving}
                       className="w-full rounded-3xl border border-[#CBD5E0] bg-white px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60"
                     />
                   </div>
 
                   <div className="flex flex-col space-y-1.5">
-                    <span className="block text-sm select-none invisible" aria-hidden="true">Remove</span>
+                    <span
+                      className="block text-sm select-none invisible"
+                      aria-hidden="true"
+                    >
+                      Remove
+                    </span>
                     <button
                       type="button"
                       onClick={() => removeServiceRow(index)}
@@ -470,10 +497,14 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                 onChange={handleFileChange}
                 disabled={saving}
               />
-
+              {console.log(preview, "thumbnail preview")}
               {preview ? (
                 <div className="relative w-full overflow-hidden rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC]">
-                  <img src={preview} alt="Thumbnail preview" className="h-72 w-full object-cover" />
+                  <img
+                    src={preview}
+                    alt="Thumbnail preview"
+                    className="h-72 w-full object-cover"
+                  />
                   <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     <button
                       type="button"
@@ -510,14 +541,18 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
 
           <div className="rounded-3xl border border-[#E8E3DB] bg-white p-6 shadow-sm">
             <div className="mb-6">
-              <h3 className="text-xl font-semibold text-[#0B1E3F]">Vehicle details</h3>
+              <h3 className="text-xl font-semibold text-[#0B1E3F]">
+                Vehicle details
+              </h3>
               <p className="mt-1 text-sm text-[#4A5568]">
                 Match the package to the proper vehicle and bodyguard setup.
               </p>
             </div>
             <div className="space-y-4">
               <div className="space-y-1.5">
-                <label className="block text-sm font-semibold text-[#0B1E3F]">Vehicle type</label>
+                <label className="block text-sm font-semibold text-[#0B1E3F]">
+                  Vehicle type
+                </label>
                 <input
                   name="vehicleType"
                   value={form.vehicleType}
@@ -528,7 +563,9 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="block text-sm font-semibold text-[#0B1E3F]">Vehicle model</label>
+                <label className="block text-sm font-semibold text-[#0B1E3F]">
+                  Vehicle model
+                </label>
                 <input
                   name="vehicleModel"
                   value={form.vehicleModel}
@@ -539,7 +576,9 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="block text-sm font-semibold text-[#0B1E3F]">Bodyguard type</label>
+                <label className="block text-sm font-semibold text-[#0B1E3F]">
+                  Bodyguard type
+                </label>
                 <input
                   name="bodyguardType"
                   value={form.bodyguardType}
@@ -551,7 +590,9 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-semibold text-[#0B1E3F]">Trips</label>
+                  <label className="block text-sm font-semibold text-[#0B1E3F]">
+                    Trips
+                  </label>
                   <input
                     name="trips"
                     type="number"
@@ -564,7 +605,9 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="block text-sm font-semibold text-[#0B1E3F]">Validity (months)</label>
+                  <label className="block text-sm font-semibold text-[#0B1E3F]">
+                    Validity (months)
+                  </label>
                   <input
                     name="validity"
                     type="number"
@@ -583,7 +626,9 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
           <div className="rounded-3xl border border-[#E8E3DB] bg-[#FAF6EC] p-6 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold text-[#0B1E3F]">Active status</p>
+                <p className="text-sm font-semibold text-[#0B1E3F]">
+                  Active status
+                </p>
                 <p className="mt-1 text-sm text-[#4A5568]">
                   When active, this package is visible to customers.
                 </p>
@@ -592,14 +637,18 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                 type="button"
                 role="switch"
                 aria-checked={form.isActive}
-                onClick={() => setForm((prev) => ({ ...prev, isActive: !prev.isActive }))}
+                onClick={() =>
+                  setForm((prev) => ({ ...prev, isActive: !prev.isActive }))
+                }
                 disabled={saving}
-                className={`relative h-7 w-14 rounded-full transition-colors duration-200 focus:outline-none ${form.isActive ? "bg-[#0B1E3F]" : "bg-[#CBD5E0]"
-                  }`}
+                className={`relative h-7 w-14 rounded-full transition-colors duration-200 focus:outline-none ${
+                  form.isActive ? "bg-[#0B1E3F]" : "bg-[#CBD5E0]"
+                }`}
               >
                 <span
-                  className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform duration-200 ${form.isActive ? "translate-x-7" : "translate-x-0"
-                    }`}
+                  className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform duration-200 ${
+                    form.isActive ? "translate-x-7" : "translate-x-0"
+                  }`}
                 />
               </button>
             </div>
@@ -620,8 +669,12 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
         >
           {saving && <Loader2 size={16} className="animate-spin" />}
           {saving
-            ? isEditMode ? "Saving…" : "Creating…"
-            : isEditMode ? "Save package" : "Create package"}
+            ? isEditMode
+              ? "Saving…"
+              : "Creating…"
+            : isEditMode
+              ? "Save package"
+              : "Create package"}
         </button>
       </div>
     </form>

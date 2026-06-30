@@ -12,7 +12,8 @@ import {
 import { servicesApi } from "../apis/services.api";
 import ServiceCreateModal from "../../components/modals/ServiceCreateModal";
 import Modal from "../../components/Modal";
-
+import { useFetchList } from "../../hooks/useFetchList"; 
+import { useModal } from "../../hooks/useModal";
 function formatDate(iso) {
   if (!iso) return "—";
   return new Date(iso).toLocaleString("en-IN", {
@@ -30,12 +31,14 @@ export default function ServiceDetailPage() {
   const serviceId = params?.id;
 
   const [service, setService] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const { loading, setLoading, error, setError } = useFetchList();
+
   const [refreshing, setRefreshing] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Modal state, driven by the useModal hook
+  const updateModal = useModal();
+  const deleteModal = useModal();
 
   useEffect(() => {
     const loadService = async () => {
@@ -89,7 +92,7 @@ export default function ServiceDetailPage() {
   const handleDeleteConfirm = async () => {
     setDeleting(true);
     setError(null);
-    setShowDeleteConfirm(false);
+    deleteModal.close();
 
     try {
       await servicesApi.deleteService(serviceId);
@@ -102,7 +105,7 @@ export default function ServiceDetailPage() {
   };
 
   const handleDelete = () => {
-    setShowDeleteConfirm(true);
+    deleteModal.open();
   };
 
   if (loading) {
@@ -183,7 +186,7 @@ export default function ServiceDetailPage() {
           <h1 className="text-2xl font-bold text-[#0B1E3F]">Service Details</h1>
           <div className="flex flex-wrap items-center gap-3 justify-end">
             <button
-              onClick={() => setShowUpdateModal(true)}
+              onClick={() => updateModal.open()}
               className="inline-flex items-center gap-2 px-3 py-2 bg-[#F5F5F5] text-[#1A202C] rounded transition-colors hover:bg-[#E2E8F0] font-medium text-sm cursor-pointer"
             >
               Edit
@@ -363,7 +366,7 @@ export default function ServiceDetailPage() {
               Back
             </button>
             <button
-              onClick={() => setShowUpdateModal(true)}
+              onClick={() => updateModal.open()}
               className="w-full sm:w-auto px-5 py-3 bg-white text-[#1A202C] rounded-3xl font-semibold border border-[#E8E3DB] hover:bg-[#F5F6F7] transition-colors text-sm cursor-pointer"
             >
               Edit
@@ -391,8 +394,8 @@ export default function ServiceDetailPage() {
       </div>
 
       <Modal
-        open={showDeleteConfirm}
-        onClose={() => !deleting && setShowDeleteConfirm(false)}
+        open={deleteModal.isOpen}
+        onClose={() => !deleting && deleteModal.close()}
         title="Delete Service"
         description="This action cannot be undone."
       >
@@ -403,7 +406,7 @@ export default function ServiceDetailPage() {
           </p>
           <div className="flex gap-3 justify-end">
             <button
-              onClick={() => setShowDeleteConfirm(false)}
+              onClick={() => deleteModal.close()}
               disabled={deleting}
               className="px-4 py-2 bg-white text-[#1A202C] rounded-lg border border-[#E8E3DB] hover:bg-[#F5F6F7] transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
@@ -421,12 +424,12 @@ export default function ServiceDetailPage() {
       </Modal>
 
       <ServiceCreateModal
-        open={showUpdateModal}
-        onClose={() => setShowUpdateModal(false)}
+        open={updateModal.isOpen}
+        onClose={() => updateModal.close()}
         service={service}
         onUpdated={(updatedService) => {
           setService(updatedService);
-          setShowUpdateModal(false);
+          updateModal.close();
         }}
       />
     </div>

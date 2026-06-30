@@ -1400,8 +1400,7 @@ export default function BookingPageContent({
         value: isIntl ? intlTotalForeign : indiaTotalINR,
         phone: form.phone,
         userData: { fullName: form.name, email: form.email, city: form.city },
-      }); 
-
+      });
 
       const res = await fetch("/api/cashfree/create-order", {
         method: "POST",
@@ -1424,7 +1423,7 @@ export default function BookingPageContent({
           data.error || "Could not initiate payment. Please try again.",
         );
       }
-  
+
       await Promise.all([
         api.post("/booking", {
           packageName: plan.name,
@@ -1444,7 +1443,7 @@ export default function BookingPageContent({
             })
           : Promise.resolve(),
       ]);
-      
+
       const cashfree = await load({
         mode:
           process.env.NEXT_PUBLIC_CASHFREE_ENV === "production"

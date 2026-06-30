@@ -35,18 +35,21 @@ function SidebarContent({ collapsed, setCollapsed, onClose, isMobile }) {
   const { logout } = useAuth();
   const router = useRouter();
 
- const handleLogout = () => {
-  authApi.logout().finally(() => {
-    logout();
-    if (isMobile) onClose();
-    router.push("/");
-  });
-};
+  const handleLogout = () => {
+    authApi.logout().finally(() => {
+      logout();
+      if (isMobile) onClose();
+      router.push("/");
+    });
+  };
 
   return (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <Link href="/" className="flex items-center justify-between px-4 py-5 border-b border-[#1E3A6F]">
+      <Link
+        href="/"
+        className="flex items-center justify-between px-4 py-5 border-b border-[#1E3A6F]"
+      >
         <div className="flex items-center gap-3 overflow-hidden">
           <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
             <img src="/Logo.png" alt="Wens Logo" />

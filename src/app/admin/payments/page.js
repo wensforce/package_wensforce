@@ -12,9 +12,9 @@ import {
 } from "lucide-react";
 import { paymentApi } from "./apis/payments.api";
 import AdminTable from "../components/AdminTable";
+import { useFetchList } from "../hooks/useFetchList";
 
 const PAGE_LIMIT = 10;
-
 const COLUMNS = [
   { key: "id", label: "#" },
   { key: "user", label: "User" },
@@ -80,26 +80,20 @@ function getStatusUI(status) {
 export default function PaymentsPage() {
   const router = useRouter();
   const [payments, setPayments] = useState([]);
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: PAGE_LIMIT,
-    total: 0,
-    totalPages: 1,
-  });
-  const [searchInput, setSearchInput] = useState("");
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const t = setTimeout(() => setSearch(searchInput), 400);
-    return () => clearTimeout(t);
-  }, [searchInput]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [search]);
+  const {
+    page,
+    setPage,
+    loading,
+    setLoading,
+    error,
+    setError,
+    searchInput,
+    setSearchInput,
+    pagination,
+    setPagination,
+    search,
+  } = useFetchList(PAGE_LIMIT);
 
   const fetchPayments = useCallback(async () => {
     setLoading(true);

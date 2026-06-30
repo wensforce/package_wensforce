@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, Search, X } from "lucide-react";
 import Modal from "../Modal";
+import {useFetchList} from "../../hooks/useFetchList";
 
 import { couponApi } from "../../coupons/apis/coupons.api";
 import { packageApi } from "../../packages/apis/packages.api";
@@ -41,8 +42,7 @@ export default function CouponCreateModal({
   const [packageSearch, setPackageSearch] = useState("");
   const [debouncedPackageSearch, setDebouncedPackageSearch] = useState("");
   const [loadingPackages, setLoadingPackages] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const { loading, setLoading, error, setError } = useFetchList();
 
   const isEditMode = Boolean(coupon?.id);
 
@@ -54,7 +54,9 @@ export default function CouponCreateModal({
         code: coupon.code || "",
         discountType: coupon.discountType || "percentage",
         discountValue: String(coupon.discountValue ?? ""),
-        expiryDate: coupon.validUntil ? toLocalDateTimeValue(coupon.validUntil) : "",
+        expiryDate: coupon.validUntil
+          ? toLocalDateTimeValue(coupon.validUntil)
+          : "",
         usageLimit: coupon.usageLimit != null ? String(coupon.usageLimit) : "",
       });
 
@@ -64,7 +66,7 @@ export default function CouponCreateModal({
           coupon.packages.reduce((acc, pkg) => {
             acc[pkg.id] = pkg.name || `Package #${pkg.id}`;
             return acc;
-          }, {})
+          }, {}),
         );
       } else {
         setSelectedPackages([]);
@@ -114,7 +116,9 @@ export default function CouponCreateModal({
 
     searchPackages();
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [debouncedPackageSearch, open]);
 
   const selectedCountLabel = useMemo(() => {
@@ -142,7 +146,7 @@ export default function CouponCreateModal({
 
   function togglePackage(id) {
     setSelectedPackages((prev) =>
-      prev.includes(id) ? prev.filter((pkgId) => pkgId !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((pkgId) => pkgId !== id) : [...prev, id],
     );
   }
 
@@ -200,7 +204,9 @@ export default function CouponCreateModal({
         discountType: form.discountType,
         discountValue: Number(form.discountValue),
         expiryDate: new Date(form.expiryDate).toISOString(),
-        ...(form.usageLimit !== "" ? { usageLimit: Number(form.usageLimit) } : {}),
+        ...(form.usageLimit !== ""
+          ? { usageLimit: Number(form.usageLimit) }
+          : {}),
         ...(selectedPackages.length > 0 ? { packageId: selectedPackages } : {}),
       };
 
@@ -215,7 +221,9 @@ export default function CouponCreateModal({
     } catch (err) {
       setError(
         err?.response?.data?.message ||
-          (isEditMode ? "Failed to update coupon." : "Failed to create coupon.")
+          (isEditMode
+            ? "Failed to update coupon."
+            : "Failed to create coupon."),
       );
     } finally {
       setLoading(false);
@@ -289,7 +297,9 @@ export default function CouponCreateModal({
               step="0.01"
               value={form.discountValue}
               onChange={handleFieldChange}
-              placeholder={form.discountType === "percentage" ? "e.g. 20" : "e.g. 500"}
+              placeholder={
+                form.discountType === "percentage" ? "e.g. 20" : "e.g. 500"
+              }
               disabled={loading}
               className="w-full text-sm rounded-lg border border-[#CBD5E0] bg-[#FAF6EC] px-3 py-2.5 text-[#1A202C] placeholder:text-[#A0AEC0] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60"
             />
@@ -330,13 +340,18 @@ export default function CouponCreateModal({
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="block text-sm font-semibold text-[#0B1E3F]">Applicable Packages</label>
+            <label className="block text-sm font-semibold text-[#0B1E3F]">
+              Applicable Packages
+            </label>
             <span className="text-xs text-[#4A5568]">{selectedCountLabel}</span>
           </div>
 
           <div className="rounded-lg border border-[#CBD5E0] bg-[#FAF6EC] p-3 space-y-3">
             <div className="relative">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A0AEC0]" />
+              <Search
+                size={14}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A0AEC0]"
+              />
               <input
                 type="text"
                 value={packageSearch}
@@ -347,13 +362,18 @@ export default function CouponCreateModal({
               />
             </div>
 
-            <div className={`rounded-lg ${packageSearch.trim() ? "border border-[#CBD5E0]" : ""} bg-white max-h-44 overflow-y-auto`}>
+            <div
+              className={`rounded-lg ${packageSearch.trim() ? "border border-[#CBD5E0]" : ""} bg-white max-h-44 overflow-y-auto`}
+            >
               {loadingPackages ? (
                 <div className="flex items-center gap-2 text-xs text-[#4A5568] px-3 py-2.5">
-                  <Loader2 size={14} className="animate-spin" /> Loading packages...
+                  <Loader2 size={14} className="animate-spin" /> Loading
+                  packages...
                 </div>
               ) : packageSearch.trim() && visibleSuggestions.length === 0 ? (
-                <p className="text-xs text-[#4A5568] px-3 py-2.5">No matching packages found.</p>
+                <p className="text-xs text-[#4A5568] px-3 py-2.5">
+                  No matching packages found.
+                </p>
               ) : (
                 visibleSuggestions.map((pkg) => (
                   <button
@@ -363,8 +383,12 @@ export default function CouponCreateModal({
                     disabled={loading}
                     className="w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left text-sm text-[#1A202C] hover:bg-[#FAF6EC] transition-colors disabled:opacity-60"
                   >
-                    <span className="truncate">{pkg.name || `Package #${pkg.id}`}</span>
-                    <span className="text-xs text-[#4A5568] shrink-0">#{pkg.id}</span>
+                    <span className="truncate">
+                      {pkg.name || `Package #${pkg.id}`}
+                    </span>
+                    <span className="text-xs text-[#4A5568] shrink-0">
+                      #{pkg.id}
+                    </span>
                   </button>
                 ))
               )}
@@ -377,7 +401,9 @@ export default function CouponCreateModal({
                     key={pkg.id}
                     className="inline-flex items-center gap-1.5 rounded-full border border-[#CBD5E0] bg-white px-3 py-1.5 text-xs text-[#1A202C]"
                   >
-                    <span className="max-w-45 truncate" title={pkg.name}>{pkg.name}</span>
+                    <span className="max-w-45 truncate" title={pkg.name}>
+                      {pkg.name}
+                    </span>
                     <button
                       type="button"
                       onClick={() => togglePackage(pkg.id)}
@@ -412,7 +438,13 @@ export default function CouponCreateModal({
             className="flex items-center gap-2 text-sm font-semibold text-white bg-[#0B1E3F] rounded-lg px-5 py-2 hover:bg-[#152d5a] transition-colors disabled:opacity-60"
           >
             {loading && <Loader2 size={14} className="animate-spin" />}
-            {loading ? (isEditMode ? "Updating..." : "Creating...") : isEditMode ? "Update Coupon" : "Create Coupon"}
+            {loading
+              ? isEditMode
+                ? "Updating..."
+                : "Creating..."
+              : isEditMode
+                ? "Update Coupon"
+                : "Create Coupon"}
           </button>
         </div>
       </form>

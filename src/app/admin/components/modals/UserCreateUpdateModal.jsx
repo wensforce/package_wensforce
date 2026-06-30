@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import Modal from "../Modal";
 import { userApi } from "../../users/apis/user.api";
-
+import { useFetchList } from "../../hooks/useFetchList";
 const ROLES = ["user", "admin", "ops"];
 const INITIAL_FORM = {
   name: "",
@@ -16,8 +16,8 @@ const INITIAL_FORM = {
 
 export default function UserCreateUpdateModal({ open, onClose, onCreated, onUpdated, user }) {
   const [form, setForm] = useState(INITIAL_FORM);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const { loading, setLoading, error, setError } = useFetchList();
+
 
   const isEditMode = Boolean(user?.id);
 

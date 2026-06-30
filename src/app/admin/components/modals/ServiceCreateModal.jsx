@@ -4,15 +4,15 @@ import { useState, useRef, useEffect } from "react";
 import { Loader2, ImagePlus, X } from "lucide-react";
 import Modal from "../Modal";
 import { servicesApi } from "../../services/apis/services.api";
-
+import { useFetchList } from "../../hooks/useFetchList";
 export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated, service }) {
   const initialForm = { title: "", description: "", isActive: true };
 
   const [form, setForm] = useState(initialForm);
   const [thumbnail, setThumbnail] = useState(null);
   const [preview, setPreview] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const { loading, setLoading, error, setError } = useFetchList();
+
   const fileInputRef = useRef(null);
   const isEditMode = Boolean(service);
 

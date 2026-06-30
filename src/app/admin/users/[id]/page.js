@@ -7,16 +7,16 @@ import { userApi } from "../apis/user.api";
 import UserDetailHeader from "../../components/user/UserDetailHeader";
 import UserOverviewCard from "../../components/user/UserOverviewCard";
 import UserCreateUpdateModal from "../../components/modals/UserCreateUpdateModal";
-
+import {usefetchList} from "../../hooks/useFetchList";
 export default function UserDetailPage() {
   const router = useRouter();
   const params = useParams();
   const userId = params?.id;
 
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+   const { loading, setLoading, error, setError } = useFetchList();
+
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState(null);
   const [showEdit, setShowEdit] = useState(false);
 
   const fetchUser = useCallback(

@@ -1,21 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import LoginModal from "../components/LoginModal";
 import { useRouter } from "next/navigation";
 import AdminSidebar from "./components/AdminSidebar";
 import { Menu } from "lucide-react";
-
+import { useModal } from "./hooks/useModal";
 export default function AdminLayout({ children }) {
   const { isLoggedIn, authLoading, user } = useAuth();
-  const [showModal, setShowModal] = useState(false);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const loginModal = useModal();
+  const mobileSidebar = useModal();
   const router = useRouter();
 
   useEffect(() => {
     if (authLoading) return;
-    if (!isLoggedIn) setShowModal(true);
+    if (!isLoggedIn) loginModal.open();
   }, [authLoading, isLoggedIn]);
 
   useEffect(() => {
@@ -39,14 +39,14 @@ export default function AdminLayout({ children }) {
   return (
     <div className="flex h-screen overflow-hidden bg-[#FAF6EC]">
       <AdminSidebar
-        mobileOpen={mobileSidebarOpen}
-        onMobileClose={() => setMobileSidebarOpen(false)}
+        mobileOpen={mobileSidebar.isOpen}
+        onMobileClose={() => mobileSidebar.close()}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Mobile top bar */}
         <header className="md:hidden flex items-center gap-3 px-4 py-3 bg-[#0B1E3F] border-b border-[#1E3A6F]">
           <button
-            onClick={() => setMobileSidebarOpen(true)}
+            onClick={() => mobileSidebar.open()}
             className="text-[#C9A24B] hover:text-white transition-colors"
           >
             <Menu size={22} />
@@ -58,11 +58,9 @@ export default function AdminLayout({ children }) {
             <span className="text-white font-semibold text-sm">Wens Admin</span>
           </div>
         </header>
-        <main className="flex-1 overflow-y-auto">
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
-      {showModal && <LoginModal onSuccess={() => setShowModal(false)} />}
+      {loginModal.isOpen && <LoginModal onSuccess={() => loginModal.close()} />}
     </div>
   );
 }

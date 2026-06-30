@@ -11,34 +11,66 @@ import {
 import { bookingApi } from "./apis/bookings.api";
 import AdminTable from "../components/AdminTable";
 import BookingViewModal from "../components/BookingViewModal";
+import { useFetchList } from "../hooks/useFetchList";
+import { useTabFilter } from "../hooks/useTabFilter";
+import { useModal } from "../hooks/useModal";
 
 const STATUS_CONFIG = {
-  confirmed: { label: "Confirmed", icon: CheckCircle2, cls: "bg-green-100 text-green-700" },
-  completed: { label: "Completed", icon: CheckCircle2, cls: "bg-green-100 text-green-700" },
-  pending:   { label: "Pending",   icon: AlertCircle,  cls: "bg-yellow-100 text-yellow-700" },
-  initiated: { label: "Initiated", icon: AlertCircle,  cls: "bg-blue-100 text-blue-600" },
-  cancelled: { label: "Cancelled", icon: XCircle,      cls: "bg-red-100 text-red-600" },
-  failed:    { label: "Failed",    icon: XCircle,      cls: "bg-red-100 text-red-700" },
+  confirmed: {
+    label: "Confirmed",
+    icon: CheckCircle2,
+    cls: "bg-green-100 text-green-700",
+  },
+  completed: {
+    label: "Completed",
+    icon: CheckCircle2,
+    cls: "bg-green-100 text-green-700",
+  },
+  pending: {
+    label: "Pending",
+    icon: AlertCircle,
+    cls: "bg-yellow-100 text-yellow-700",
+  },
+  initiated: {
+    label: "Initiated",
+    icon: AlertCircle,
+    cls: "bg-blue-100 text-blue-600",
+  },
+  cancelled: {
+    label: "Cancelled",
+    icon: XCircle,
+    cls: "bg-red-100 text-red-600",
+  },
+  failed: { label: "Failed", icon: XCircle, cls: "bg-red-100 text-red-700" },
 };
 
-const STATUS_TABS = ["all", "pending", "initiated", "completed", "cancelled", "failed"];
+const STATUS_TABS = [
+  "all",
+  "pending",
+  "initiated",
+  "completed",
+  "cancelled",
+  "failed",
+];
 
 const COLUMNS = [
-  { key: "id",       label: "#" },
+  { key: "id", label: "#" },
   { key: "customer", label: "Customer" },
-  { key: "package",  label: "Package" },
-  { key: "amount",   label: "Amount" },
-  { key: "orderId",  label: "Order ID" },
-  { key: "date",     label: "Date" },
-  { key: "city",     label: "City" },
-  { key: "status",   label: "Status" },
-  { key: "actions",  label: "" },
+  { key: "package", label: "Package" },
+  { key: "amount", label: "Amount" },
+  { key: "orderId", label: "Order ID" },
+  { key: "date", label: "Date" },
+  { key: "city", label: "City" },
+  { key: "status", label: "Status" },
+  { key: "actions", label: "" },
 ];
 
 function formatDate(iso) {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("en-IN", {
-    day: "2-digit", month: "short", year: "numeric",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
   });
 }
 
@@ -49,28 +81,34 @@ function formatAmount(val, currency) {
 }
 
 export default function BookingsPage() {
-  const [bookings, setBookings]     = useState([]);
-  const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 });
-  const [search, setSearch]         = useState("");
-  const [activeTab, setActiveTab]   = useState("all");
-  const [page, setPage]             = useState(1);
-  const [loading, setLoading]       = useState(false);
-  const [error, setError]           = useState(null);
-  const [viewBooking, setViewBooking] = useState(null);
-  const [searchInput, setSearchInput] = useState("");
+  const [bookings, setBookings] = useState([]);
 
-  useEffect(() => {
-    const t = setTimeout(() => setSearch(searchInput), 400);
-    return () => clearTimeout(t);
-  }, [searchInput]);
+  const {
+    page,
+    setPage,
+    loading,
+    setLoading,
+    error,
+    setError,
+    searchInput,
+    setSearchInput,
+    pagination,
+    setPagination,
+    search,
+  } = useFetchList();
 
-  useEffect(() => { setPage(1); }, [activeTab, search]);
+  const { activeTab, setActiveTab } = useTabFilter(setPage);
+  const viewBookingModal = useModal();
 
   const fetchBookings = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const { rows, pagination: pg } = await bookingApi.fetchBookings({ page, activeTab, search });
+      const { rows, pagination: pg } = await bookingApi.fetchBookings({
+        page,
+        activeTab,
+        search,
+      });
       setBookings(rows);
       setPagination(pg);
     } catch (err) {
@@ -80,18 +118,24 @@ export default function BookingsPage() {
     }
   }, [page, activeTab, search]);
 
-  useEffect(() => { fetchBookings(); }, [fetchBookings]);
+  useEffect(() => {
+    fetchBookings();
+  }, [fetchBookings]);
 
   function handleStatusUpdated(id, newStatus) {
     setBookings((prev) =>
-      prev.map((b) => (b.id === id ? { ...b, status: newStatus } : b))
+      prev.map((b) => (b.id === id ? { ...b, status: newStatus } : b)),
     );
   }
 
   function renderCell(b, key) {
     switch (key) {
       case "id":
-        return <span className="font-mono text-xs font-medium text-[#0B1E3F]">#{b.id}</span>;
+        return (
+          <span className="font-mono text-xs font-medium text-[#0B1E3F]">
+            #{b.id}
+          </span>
+        );
       case "customer":
         return (
           <div className="flex items-center gap-2.5">
@@ -99,32 +143,60 @@ export default function BookingsPage() {
               {b.user?.name?.charAt(0)?.toUpperCase() ?? "?"}
             </div>
             <div>
-              <p className="text-[#1A202C] font-medium text-xs leading-tight">{b.user?.name ?? "—"}</p>
-              <p className="text-[#A0AEC0] text-[11px]">{b.user?.mobileNumber ?? ""}</p>
+              <p className="text-[#1A202C] font-medium text-xs leading-tight">
+                {b.user?.name ?? "—"}
+              </p>
+              <p className="text-[#A0AEC0] text-[11px]">
+                {b.user?.mobileNumber ?? ""}
+              </p>
             </div>
           </div>
         );
       case "package":
-        return <span className="text-[#4A5568] font-medium">{b.packageName ?? "—"}</span>;
+        return (
+          <span className="text-[#4A5568] font-medium">
+            {b.packageName ?? "—"}
+          </span>
+        );
       case "amount":
-        return <span className="font-semibold text-[#0B1E3F]">{formatAmount(b.purchaseAmount, b.currency)}</span>;
+        return (
+          <span className="font-semibold text-[#0B1E3F]">
+            {formatAmount(b.purchaseAmount, b.currency)}
+          </span>
+        );
       case "orderId":
-        return b.cashfreeOrderId
-          ? <span className="font-mono text-[11px] text-[#4A5568] bg-[#FAF6EC] px-2 py-0.5 rounded">{b.cashfreeOrderId}</span>
-          : <span className="text-[#A0AEC0] text-xs">—</span>;
+        return b.cashfreeOrderId ? (
+          <span className="font-mono text-[11px] text-[#4A5568] bg-[#FAF6EC] px-2 py-0.5 rounded">
+            {b.cashfreeOrderId}
+          </span>
+        ) : (
+          <span className="text-[#A0AEC0] text-xs">—</span>
+        );
       case "date":
-        return <span className="text-[#4A5568] text-xs whitespace-nowrap">{formatDate(b.purchaseDate)}</span>;
+        return (
+          <span className="text-[#4A5568] text-xs whitespace-nowrap">
+            {formatDate(b.purchaseDate)}
+          </span>
+        );
       case "city":
         return (
           <span className="text-[#4A5568] text-xs">
-            {b.serviceCity && b.serviceCity !== "Not specified" ? b.serviceCity : "—"}
+            {b.serviceCity && b.serviceCity !== "Not specified"
+              ? b.serviceCity
+              : "—"}
           </span>
         );
       case "status": {
-        const cfg = STATUS_CONFIG[b.status] ?? { label: b.status, icon: AlertCircle, cls: "bg-gray-100 text-gray-600" };
+        const cfg = STATUS_CONFIG[b.status] ?? {
+          label: b.status,
+          icon: AlertCircle,
+          cls: "bg-gray-100 text-gray-600",
+        };
         const StatusIcon = cfg.icon;
         return (
-          <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${cfg.cls}`}>
+          <span
+            className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${cfg.cls}`}
+          >
             <StatusIcon size={11} />
             {cfg.label}
           </span>
@@ -133,7 +205,7 @@ export default function BookingsPage() {
       case "actions":
         return (
           <button
-            onClick={() => setViewBooking(b)}
+            onClick={() => viewBookingModal.open(b)}
             className="text-[#A0AEC0] hover:text-[#0B1E3F] transition-colors p-1.5 rounded-lg hover:bg-[#FAF6EC]"
           >
             <Eye size={15} />
@@ -170,10 +242,10 @@ export default function BookingsPage() {
         emptyText="No bookings found"
       />
 
-      {viewBooking && (
+      {viewBookingModal.isOpen && (
         <BookingViewModal
-          booking={viewBooking}
-          onClose={() => setViewBooking(null)}
+          booking={viewBookingModal.data}
+          onClose={viewBookingModal.close}
           onStatusUpdated={handleStatusUpdated}
         />
       )}

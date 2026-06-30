@@ -19,9 +19,10 @@ import {
   ConciergeBell,
 } from "lucide-react";
 import { tripApi } from "../apis/trips.api";
-import Modal from "../../components/Modal";
+import { useModal } from "../../hooks/useModal";
 import CreateTripModal from "../../components/modals/CreateTripModal";
-
+import { useFetchList } from "../../hooks/useFetchList";
+import Modal from "../../components/Modal";
 function formatDate(iso) {
   if (!iso) return "-";
   const date = new Date(iso);
@@ -66,18 +67,21 @@ export default function TripDetailPage() {
   const tripId = params?.id;
 
   const [trip, setTrip] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { loading, setLoading, error, setError } = useFetchList();  
+
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState(null);
   const [approving, setApproving] = useState(false);
   const [completing, setCompleting] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showApproveModal, setShowApproveModal] = useState(false);
-  const [showCompleteModal, setShowCompleteModal] = useState(false);
-  const [showCancelModal, setShowCancelModal] = useState(false);
+
+  // Modal state, all driven by the useModal hook
+  const editModal = useModal();
+  const approveModal = useModal();
+  const completeModal = useModal();
+  const cancelModal = useModal();
+  const deleteModal = useModal();
+
   const [approveAssignmentId, setApproveAssignmentId] = useState("");
   const [cancelReason, setCancelReason] = useState("");
   const [approveError, setApproveError] = useState(null);
@@ -146,7 +150,7 @@ export default function TripDetailPage() {
     try {
       await tripApi.approveTrip(tripId, assignmentId);
 
-      setShowApproveModal(false);
+      approveModal.close();
       await fetchTrip({ silent: true });
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to approve trip.");
@@ -160,7 +164,7 @@ export default function TripDetailPage() {
 
     setDeleting(true);
     setError(null);
-    setShowDeleteConfirm(false);
+    deleteModal.close();
 
     try {
       await tripApi.deleteTrip(tripId);
@@ -180,7 +184,7 @@ export default function TripDetailPage() {
 
     try {
       await tripApi.completeTrip(tripId);
-      setShowCompleteModal(false);
+      completeModal.close();
       await fetchTrip({ silent: true });
     } catch (err) {
       setError(
@@ -206,7 +210,7 @@ export default function TripDetailPage() {
 
     try {
       await tripApi.cancelTrip(tripId, reason);
-      setShowCancelModal(false);
+      cancelModal.close();
       setCancelReason("");
       await fetchTrip({ silent: true });
     } catch (err) {
@@ -316,7 +320,7 @@ export default function TripDetailPage() {
               </button>
 
               <button
-                onClick={() => setShowEditModal(true)}
+                onClick={() => editModal.open()}
                 disabled={approving || completing || cancelling || deleting}
                 className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-[#CBD5E0] bg-white text-[#1A202C] text-sm font-medium hover:bg-[#FAF6EC] transition-colors disabled:opacity-50"
               >
@@ -392,9 +396,9 @@ export default function TripDetailPage() {
                 </p>
                 <button
                   onClick={() => {
-                    setApproveAssignmentId(trip?.assignmentId || "");
                     setApproveError(null);
-                    setShowApproveModal(true);
+                    approveModal.open(trip?.assignmentId || "");
+                    setApproveAssignmentId(trip?.assignmentId || "");
                   }}
                   disabled={
                     !canApprove ||
@@ -422,7 +426,7 @@ export default function TripDetailPage() {
                   Mark this trip as completed after service delivery.
                 </p>
                 <button
-                  onClick={() => setShowCompleteModal(true)}
+                  onClick={() => completeModal.open()}
                   disabled={
                     !canComplete ||
                     completing ||
@@ -452,7 +456,7 @@ export default function TripDetailPage() {
                   onClick={() => {
                     setCancelReason("");
                     setCancelError(null);
-                    setShowCancelModal(true);
+                    cancelModal.open();
                   }}
                   disabled={
                     !canCancel ||
@@ -484,7 +488,7 @@ export default function TripDetailPage() {
               </p>
 
               <button
-                onClick={() => setShowDeleteConfirm(true)}
+                onClick={() => deleteModal.open()}
                 disabled={deleting || approving || completing || cancelling}
                 className="mt-4 inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition-colors disabled:opacity-60"
               >
@@ -568,23 +572,23 @@ export default function TripDetailPage() {
       </div>
 
       <CreateTripModal
-        open={showEditModal}
-        onClose={() => setShowEditModal(false)}
+        open={editModal.isOpen}
+        onClose={() => editModal.close()}
         trip={trip}
         onUpdated={async (updatedTrip) => {
           if (updatedTrip) {
             setTrip((prev) => ({ ...prev, ...updatedTrip }));
           }
-          setShowEditModal(false);
+          editModal.close();
           await fetchTrip({ silent: true });
         }}
       />
 
       <Modal
-        open={showApproveModal}
+        open={approveModal.isOpen}
         onClose={() => {
           if (approving) return;
-          setShowApproveModal(false);
+          approveModal.close();
           setApproveError(null);
         }}
         title="Approve Trip"
@@ -614,7 +618,7 @@ export default function TripDetailPage() {
           <div className="flex items-center justify-end gap-3">
             <button
               onClick={() => {
-                setShowApproveModal(false);
+                approveModal.close();
                 setApproveError(null);
               }}
               disabled={approving}
@@ -635,8 +639,8 @@ export default function TripDetailPage() {
       </Modal>
 
       <Modal
-        open={showCompleteModal}
-        onClose={() => !completing && setShowCompleteModal(false)}
+        open={completeModal.isOpen}
+        onClose={() => !completing && completeModal.close()}
         title="Mark Trip as Completed"
         description="This confirms the trip has been fully served."
       >
@@ -646,7 +650,7 @@ export default function TripDetailPage() {
           </p>
           <div className="flex items-center justify-end gap-3">
             <button
-              onClick={() => setShowCompleteModal(false)}
+              onClick={() => completeModal.close()}
               disabled={completing}
               className="text-sm font-medium text-[#4A5568] border border-[#CBD5E0] bg-white rounded-lg px-4 py-2 hover:bg-[#FAF6EC] transition-colors disabled:opacity-50"
             >
@@ -665,10 +669,10 @@ export default function TripDetailPage() {
       </Modal>
 
       <Modal
-        open={showCancelModal}
+        open={cancelModal.isOpen}
         onClose={() => {
           if (cancelling) return;
-          setShowCancelModal(false);
+          cancelModal.close();
           setCancelError(null);
         }}
         title="Cancel Trip"
@@ -698,7 +702,7 @@ export default function TripDetailPage() {
           <div className="flex items-center justify-end gap-3">
             <button
               onClick={() => {
-                setShowCancelModal(false);
+                cancelModal.close();
                 setCancelError(null);
               }}
               disabled={cancelling}
@@ -719,8 +723,8 @@ export default function TripDetailPage() {
       </Modal>
 
       <Modal
-        open={showDeleteConfirm}
-        onClose={() => !deleting && setShowDeleteConfirm(false)}
+        open={deleteModal.isOpen}
+        onClose={() => !deleting && deleteModal.close()}
         title="Delete Trip"
         description="This action cannot be undone."
       >
@@ -730,7 +734,7 @@ export default function TripDetailPage() {
           </p>
           <div className="flex items-center justify-end gap-3">
             <button
-              onClick={() => setShowDeleteConfirm(false)}
+              onClick={() => deleteModal.close()}
               disabled={deleting}
               className="text-sm font-medium text-[#4A5568] border border-[#CBD5E0] bg-white rounded-lg px-4 py-2 hover:bg-[#FAF6EC] transition-colors disabled:opacity-50"
             >
