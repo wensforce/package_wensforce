@@ -15,7 +15,6 @@ import AdminTable from "../components/AdminTable";
 import ServiceCreateModal from "../components/modals/ServiceCreateModal";
 import { useFetchList } from "../hooks/useFetchList";
 import { useModal } from "../hooks/useModal";
-
 const PAGE_LIMIT = 10;
 
 const COLUMNS = [
@@ -49,44 +48,48 @@ function truncateWords(text, maxWords) {
 
 export default function ServicesPage() {
   const router = useRouter();
-  const [services, setServices] = useState([]);
+
+  // pagination stays local — the hook doesn't manage it
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: PAGE_LIMIT,
+    total: 0,
+    totalPages: 1,
+  });
+
+  // create-modal visibility, now driven by useModal (no data needed here,
+  // so we just use isOpen/open/close and ignore `data`)
+  const {
+    isOpen: showCreate,
+    open: openCreateModal,
+    close: closeCreateModal,
+  } = useModal();
+
+  // stable wrapper: reads page/search from its own args, not closure
+  const fetchServicesForHook = useCallback(async ({ search, page }) => {
+    const { rows, pagination: pg } = await servicesApi.fetchServices({ page, search });
+    setPagination(pg);
+    return rows; // hook accepts a bare array return
+  }, []);
 
   const {
-    page,
-    setPage,
+    rows: services,
     loading,
-    setLoading,
     error,
-    setError,
     searchInput,
     setSearchInput,
-    pagination,
-    setPagination,
     search,
-  } = useFetchList(PAGE_LIMIT);
+    refetch,
+  } = useFetchList({
+    fetchFn: fetchServicesForHook,
+    params: { page },
+  });
 
-  const createModal = useModal();
-
-  const fetchServices = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const { rows, pagination } = await servicesApi.fetchServices({
-        page,
-        search,
-      });
-      setServices(rows);
-      setPagination(pagination);
-    } catch (err) {
-      setError(err?.response?.data?.message || "Failed to load services.");
-    } finally {
-      setLoading(false);
-    }
-  }, [page, search]);
-
+  // reset to page 1 when search changes (hook no longer does this itself)
   useEffect(() => {
-    fetchServices();
-  }, [fetchServices]);
+    setPage(1);
+  }, [search]);
 
   function renderCell(s, key) {
     switch (key) {
@@ -149,6 +152,7 @@ export default function ServicesPage() {
       case "actions":
         return (
           <button
+            type="button"
             onClick={() => {
               sessionStorage.setItem(`service_${s.id}`, JSON.stringify(s));
               router.push(`/admin/services/${s.id}`);
@@ -180,17 +184,17 @@ export default function ServicesPage() {
         error={error}
         pagination={pagination}
         onPageChange={setPage}
-        onRefresh={fetchServices}
-        onCreate={createModal.open}
+        onRefresh={refetch}
+        onCreate={openCreateModal}
         createLabel="New Service"
         emptyIcon={<Layers size={32} />}
         emptyText="No services found"
       />
 
       <ServiceCreateModal
-        open={createModal.isOpen}
-        onClose={createModal.close}
-        onCreated={fetchServices}
+        open={showCreate}
+        onClose={closeCreateModal}
+        onCreated={refetch}
       />
     </>
   );

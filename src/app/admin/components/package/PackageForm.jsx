@@ -58,7 +58,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
         isActive: initialData.isActive ?? true,
       });
       setExistingThumbnailKey(initialData.thumbnailUrlKey ?? null);
-      setPreview(initialData.thumbnailUrlKey ?? null);
+      setPreview(initialData.thumbnailUrl ?? null);
       setThumbnail(null);
       setError(null);
       if (fileInputRef.current) fileInputRef.current.value = "";

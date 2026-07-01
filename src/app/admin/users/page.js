@@ -9,8 +9,6 @@ import UserCreateUpdateModal from "../components/modals/UserCreateUpdateModal";
 import { formatDate } from "../components/user/userUtils";
 import { useFetchList } from "../hooks/useFetchList";
 import { useModal } from "../hooks/useModal";
-
-
 const PAGE_LIMIT = 10;
 const COLUMNS = [
   { key: "id", label: "#" },
@@ -25,44 +23,64 @@ const COLUMNS = [
 
 export default function UsersPage() {
   const router = useRouter();
-  const [users, setUsers] = useState([]);
+
+  // pagination stays local — the hook doesn't manage it
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: PAGE_LIMIT,
+    total: 0,
+    totalPages: 1,
+  });
+
+  // create-modal visibility — no data needed, so `data` is just ignored
+  const {
+    isOpen: showCreate,
+    open: openCreateModal,
+    close: closeCreateModal,
+  } = useModal();
+
+  // edit-modal visibility + the user being edited, both driven by useModal
+  const {
+    isOpen: showEdit,
+    data: selectedUser,
+    open: openEditModal,
+    close: closeEditModal,
+  } = useModal();
+
+  // stable wrapper: reads page/search from its own args, not closure
+  const fetchUsersForHook = useCallback(async ({ search, page }) => {
+    const { rows, pagination: pg } = await userApi.fetchUsers({ page, search });
+    setPagination(pg);
+    return rows;
+  }, []);
 
   const {
-    page,
-    setPage,
+    rows: users,
     loading,
-    setLoading,
     error,
-    setError,
     searchInput,
     setSearchInput,
-    pagination,
-    setPagination,
     search,
-  } = useFetchList(PAGE_LIMIT);
+    refetch,
+  } = useFetchList({
+    fetchFn: fetchUsersForHook,
+    params: { page },
+  });
 
-  const createModal = useModal();
-  const editModal = useModal();
-
-  const fetchUsers = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const { rows, pagination } = await userApi.fetchUsers({ page, search });
-      setUsers(rows);
-      setPagination(pagination);
-    } catch (err) {
-      console.log(err)
-      setError(err?.response?.data?.message || "Failed to load users.");
-    } finally {
-      setLoading(false);
-    }
-  }, [page, search]);
-
+  // reset to page 1 when search changes
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    setPage(1);
+  }, [search]);
+
+  function handleView(user) {
+    try {
+      sessionStorage.setItem(`user_${user.id}`, JSON.stringify(user));
+    } catch (err) {
+      console.warn("Could not cache user for detail view:", err);
+    }
+    router.push(`/admin/users/${user.id}`);
+  }
 
   function renderCell(user, key) {
     switch (key) {
@@ -108,16 +126,15 @@ export default function UsersPage() {
         return (
           <div className="flex items-center gap-2">
             <button
-              onClick={() => {
-                sessionStorage.setItem(`user_${user.id}`, JSON.stringify(user));
-                router.push(`/admin/users/${user.id}`);
-              }}
+              type="button"
+              onClick={() => handleView(user)}
               className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
             >
               <Eye size={14} /> View
             </button>
             <button
-              onClick={() => editModal.open(user)}
+              type="button"
+              onClick={() => openEditModal(user)}
               className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-md bg-[#FAF6EC] text-[#4A5568] hover:bg-[#EFE7D6] transition-colors"
             >
               <Pencil size={14} /> Edit
@@ -146,24 +163,24 @@ export default function UsersPage() {
         error={error}
         pagination={pagination}
         onPageChange={setPage}
-        onRefresh={fetchUsers}
-        onCreate={createModal.open}
+        onRefresh={refetch}
+        onCreate={openCreateModal}
         createLabel="New User"
         emptyIcon={<Users size={32} />}
         emptyText="No users found"
       />
 
       <UserCreateUpdateModal
-        open={createModal.isOpen}
-        onClose={createModal.close}
-        onCreated={fetchUsers}
+        open={showCreate}
+        onClose={closeCreateModal}
+        onCreated={refetch}
       />
 
       <UserCreateUpdateModal
-        open={editModal.isOpen}
-        onClose={editModal.close}
-        user={editModal.data}
-        onUpdated={fetchUsers}
+        open={showEdit}
+        onClose={closeEditModal}
+        user={selectedUser}
+        onUpdated={refetch}
       />
     </>
   );

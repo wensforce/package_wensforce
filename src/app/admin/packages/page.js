@@ -27,44 +27,46 @@ const COLUMNS = [
 export default function PackagesPage() {
   const router = useRouter();
 
-  const [packages, setPackages] = useState([]);
+  // pagination is local — this page's own concern, not the hook's
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: PAGE_LIMIT,
+    total: 0,
+    totalPages: 1,
+  });
 
+  // stable wrapper: reads page/search from its own args, not from closure
+  const fetchPackagesForHook = useCallback(async ({ search, page }) => {
+    const { rows, pagination: pg } = await packageApi.fetchPackages({ page, search });
+    setPagination(pg);
+    return rows; // hook accepts a bare array return
+  }, []);
 
   const {
-      search,
-      
-      page,
-      setPage,
-      loading,
-      setLoading,
-      error,
-      setError,
-      searchInput,
-      setSearchInput,
-      pagination,
-      setPagination,
-    } = useFetchList();
+    rows: packages,
+    setRows: setPackages,
+    loading,
+    error,
+    searchInput,
+    setSearchInput,
+    search,
+    refetch,
+  } = useFetchList({
+    fetchFn: fetchPackagesForHook,
+    params: { page }, // page flows into fetchFn's args; changing it triggers a refetch
+  });
 
-  const fetchPackages = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const { rows, pagination } = await packageApi.fetchPackages({
-        page,
-        search,
-      });
-      setPackages(rows);
-      setPagination(pagination);
-    } catch (err) {
-      setError(err?.response?.data?.message || "Failed to load packages.");
-    } finally {
-      setLoading(false);
-    }
-  }, [page, search]);
-
+  // reset to page 1 when search changes (hook no longer does this itself)
   useEffect(() => {
-    fetchPackages();
-  }, [fetchPackages]);
+    setPage(1);
+  }, [search]);
+
+  function handleStatusUpdated(id, newStatus) {
+    setPackages((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, isActive: newStatus } : p)),
+    );
+  }
 
   function renderCell(row, key) {
     switch (key) {
@@ -129,6 +131,7 @@ export default function PackagesPage() {
         return (
           <div className="flex items-center justify-end gap-1">
             <button
+              type="button"
               onClick={() => router.push(`/admin/packages/${row.id}`)}
               className="text-[#A0AEC0] hover:text-[#0B1E3F] transition-colors p-1.5 rounded-lg hover:bg-[#FAF6EC]"
               title="View"
@@ -136,6 +139,7 @@ export default function PackagesPage() {
               <Eye size={15} />
             </button>
             <button
+              type="button"
               onClick={() => router.push(`/admin/packages/edit/${row.id}`)}
               className="text-[#A0AEC0] hover:text-[#C9A24B] transition-colors p-1.5 rounded-lg hover:bg-[#FAF6EC]"
               title="Edit"
@@ -165,7 +169,7 @@ export default function PackagesPage() {
       error={error}
       pagination={pagination}
       onPageChange={setPage}
-      onRefresh={fetchPackages}
+      onRefresh={refetch}
       onCreate={() => router.push("/admin/packages/create")}
       createLabel="New Package"
       emptyIcon={<Package size={32} />}

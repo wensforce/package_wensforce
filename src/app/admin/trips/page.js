@@ -16,7 +16,6 @@ import AdminTable from "../components/AdminTable";
 import CreateTripModal from "../components/modals/CreateTripModal";
 import { useFetchList } from "../hooks/useFetchList";
 import { useModal } from "../hooks/useModal";
-
 const PAGE_LIMIT = 10;
 
 const COLUMNS = [
@@ -47,84 +46,71 @@ function getStatusUI(status) {
   const s = String(status || "pending").toUpperCase();
 
   if (["CONFIRMED", "COMPLETED", "ACTIVE"].includes(s)) {
-    return {
-      className: "bg-green-100 text-green-700",
-      icon: <CheckCircle2 size={11} />,
-      label: s,
-    };
+    return { className: "bg-green-100 text-green-700", icon: <CheckCircle2 size={11} />, label: s };
   }
-
   if (["CANCELLED", "CANCELED"].includes(s)) {
-    return {
-      className: "bg-gray-200 text-gray-700",
-      icon: <Ban size={11} />,
-      label: s,
-    };
+    return { className: "bg-gray-200 text-gray-700", icon: <Ban size={11} />, label: s };
   }
-
   if (["FAILED", "REJECTED"].includes(s)) {
-    return {
-      className: "bg-red-100 text-red-700",
-      icon: <XCircle size={11} />,
-      label: s,
-    };
+    return { className: "bg-red-100 text-red-700", icon: <XCircle size={11} />, label: s };
   }
-
-  return {
-    className: "bg-amber-100 text-amber-700",
-    icon: <Clock3 size={11} />,
-    label: s,
-  };
+  return { className: "bg-amber-100 text-amber-700", icon: <Clock3 size={11} />, label: s };
 }
 
 export default function TripsPage() {
   const router = useRouter();
 
-  const [trips, setTrips] = useState([]);
+  // pagination + date filter stay local — the hook doesn't manage them
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: PAGE_LIMIT,
+    total: 0,
+    totalPages: 1,
+  });
+  const [tripDate, setTripDate] = useState("");
+
+  // create-modal visibility, now driven by useModal (no data needed here,
+  // so we just use isOpen/open/close and ignore `data`)
+  const {
+    isOpen: showCreate,
+    open: openCreateModal,
+    close: closeCreateModal,
+  } = useModal();
+
+  // stable wrapper: reads search/page/tripDate from its own args, not closure
+  const fetchTripsForHook = useCallback(async ({ search, page, tripDate }) => {
+    const { rows, pagination: pg } = await tripApi.fetchTrips({ page, search, tripDate });
+    setPagination(pg);
+    return rows;
+  }, []);
 
   const {
-    page,
-    setPage,
+    rows: trips,
     loading,
-    setLoading,
     error,
-    setError,
     searchInput,
     setSearchInput,
-    pagination,
-    setPagination,
     search,
-  } = useFetchList(PAGE_LIMIT);
+    refetch,
+  } = useFetchList({
+    fetchFn: fetchTripsForHook,
+    params: { page, tripDate }, // either changing triggers a refetch
+  });
 
-  const [tripDate, setTripDate] = useState("");
-  const createModal = useModal();
-
+  // reset to page 1 whenever search or the date filter changes
   useEffect(() => {
     setPage(1);
-  }, [tripDate, setPage]);
+  }, [search, tripDate]);
 
-  const fetchTrips = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
+  function handleView(trip) {
     try {
-      const { rows, pagination } = await tripApi.fetchTrips({
-        page,
-        search,
-        tripDate,
-      });
-      setTrips(rows);
-      setPagination(pagination);
+      sessionStorage.setItem(`trip_${trip.id}`, JSON.stringify(trip));
     } catch (err) {
-      setError(err?.response?.data?.message || "Failed to fetch trips");
-    } finally {
-      setLoading(false);
+      console.warn("Could not cache trip for detail view:", err);
     }
-  }, [page, search, tripDate]);
-
-  useEffect(() => {
-    fetchTrips();
-  }, [fetchTrips]);
+    router.push(`/admin/trips/${trip.id}`);
+  }
 
   function renderCell(trip, key) {
     const status = getStatusUI(trip.status);
@@ -145,10 +131,7 @@ export default function TripsPage() {
       case "user":
         return (
           <div className="max-w-45">
-            <p
-              className="text-sm font-medium text-[#1A202C] truncate"
-              title={trip.user?.name || ""}
-            >
+            <p className="text-sm font-medium text-[#1A202C] truncate" title={trip.user?.name || ""}>
               {trip.user?.name || `#${trip.userId ?? "-"}`}
             </p>
             <p className="text-xs text-[#4A5568] truncate">
@@ -159,17 +142,11 @@ export default function TripsPage() {
       case "route":
         return (
           <div className="max-w-65">
-            <p
-              className="text-xs text-[#1A202C] truncate"
-              title={trip.pickupLocation || ""}
-            >
+            <p className="text-xs text-[#1A202C] truncate" title={trip.pickupLocation || ""}>
               {trip.pickupLocation || "-"}
             </p>
             <p className="text-[11px] text-[#A0AEC0]">to</p>
-            <p
-              className="text-xs text-[#1A202C] truncate"
-              title={trip.dropLocation || ""}
-            >
+            <p className="text-xs text-[#1A202C] truncate" title={trip.dropLocation || ""}>
               {trip.dropLocation || "-"}
             </p>
           </div>
@@ -191,20 +168,13 @@ export default function TripsPage() {
         if (!services.length)
           return <span className="text-xs text-[#A0AEC0]">None</span>;
 
-        const label = services
-          .slice(0, 2)
-          .map((s) => s?.name)
-          .filter(Boolean)
-          .join(", ");
+        const label = services.slice(0, 2).map((s) => s?.name).filter(Boolean).join(", ");
         const extra = services.length > 2 ? ` +${services.length - 2}` : "";
 
         return (
           <span
             className="text-xs text-[#4A5568]"
-            title={services
-              .map((s) => s?.name)
-              .filter(Boolean)
-              .join(", ")}
+            title={services.map((s) => s?.name).filter(Boolean).join(", ")}
           >
             {label || "Services"}
             {extra}
@@ -213,19 +183,15 @@ export default function TripsPage() {
       }
       case "status":
         return (
-          <span
-            className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.className}`}
-          >
+          <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.className}`}>
             {status.icon} {status.label}
           </span>
         );
       case "actions":
         return (
           <button
-            onClick={() => {
-              sessionStorage.setItem(`trip_${trip.id}`, JSON.stringify(trip));
-              router.push(`/admin/trips/${trip.id}`);
-            }}
+            type="button"
+            onClick={() => handleView(trip)}
             className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
           >
             <Eye size={14} /> View
@@ -253,8 +219,8 @@ export default function TripsPage() {
         error={error}
         pagination={pagination}
         onPageChange={setPage}
-        onRefresh={fetchTrips}
-        onCreate={createModal.open}
+        onRefresh={refetch}
+        onCreate={openCreateModal}
         createLabel="New Trip"
         toolbarFilters={
           <div className="w-full sm:w-auto">
@@ -278,9 +244,9 @@ export default function TripsPage() {
       />
 
       <CreateTripModal
-        open={createModal.isOpen}
-        onClose={createModal.close}
-        onCreated={fetchTrips}
+        open={showCreate}
+        onClose={closeCreateModal}
+        onCreated={refetch}
       />
     </>
   );

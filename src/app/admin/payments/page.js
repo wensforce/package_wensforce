@@ -15,6 +15,7 @@ import AdminTable from "../components/AdminTable";
 import { useFetchList } from "../hooks/useFetchList";
 
 const PAGE_LIMIT = 10;
+
 const COLUMNS = [
   { key: "id", label: "#" },
   { key: "user", label: "User" },
@@ -47,75 +48,62 @@ function getStatusUI(status) {
   const s = String(status || "PENDING").toUpperCase();
 
   if (s === "SUCCESS" || s === "COMPLETED" || s === "PAID") {
-    return {
-      className: "bg-green-100 text-green-700",
-      icon: <CheckCircle2 size={11} />,
-      label: s,
-    };
+    return { className: "bg-green-100 text-green-700", icon: <CheckCircle2 size={11} />, label: s };
   }
-
   if (s === "FAILED") {
-    return {
-      className: "bg-red-100 text-red-700",
-      icon: <XCircle size={11} />,
-      label: s,
-    };
+    return { className: "bg-red-100 text-red-700", icon: <XCircle size={11} />, label: s };
   }
-
   if (s === "CANCELLED") {
-    return {
-      className: "bg-gray-200 text-gray-700",
-      icon: <Ban size={11} />,
-      label: s,
-    };
+    return { className: "bg-gray-200 text-gray-700", icon: <Ban size={11} />, label: s };
   }
-
-  return {
-    className: "bg-amber-100 text-amber-700",
-    icon: <Clock3 size={11} />,
-    label: s,
-  };
+  return { className: "bg-amber-100 text-amber-700", icon: <Clock3 size={11} />, label: s };
 }
 
 export default function PaymentsPage() {
   const router = useRouter();
-  const [payments, setPayments] = useState([]);
+
+  // pagination stays local — the hook doesn't manage it
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: PAGE_LIMIT,
+    total: 0,
+    totalPages: 1,
+  });
+
+  // stable wrapper: reads page/search from its own args, not closure
+  const fetchPaymentsForHook = useCallback(async ({ search, page }) => {
+    const { rows, pagination: pg } = await paymentApi.fetchPayments({ page, search });
+    setPagination(pg);
+    return rows;
+  }, []);
 
   const {
-    page,
-    setPage,
+    rows: payments,
     loading,
-    setLoading,
     error,
-    setError,
     searchInput,
     setSearchInput,
-    pagination,
-    setPagination,
     search,
-  } = useFetchList(PAGE_LIMIT);
+    refetch,
+  } = useFetchList({
+    fetchFn: fetchPaymentsForHook,
+    params: { page },
+  });
 
-  const fetchPayments = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const { rows, pagination } = await paymentApi.fetchPayments({
-        page,
-        search,
-      });
-      setPayments(rows);
-      setPagination(pagination);
-    } catch (err) {
-      setError(err?.response?.data?.message || "Failed to load payments.");
-    } finally {
-      setLoading(false);
-    }
-  }, [page, search]);
-
+  // reset to page 1 when search changes
   useEffect(() => {
-    fetchPayments();
-  }, [fetchPayments]);
+    setPage(1);
+  }, [search]);
+
+  function handleView(payment) {
+    try {
+      sessionStorage.setItem(`payment_${payment.id}`, JSON.stringify(payment));
+    } catch (err) {
+      console.warn("Could not cache payment for detail view:", err);
+    }
+    router.push(`/admin/payments/${payment.id}`);
+  }
 
   function renderCell(payment, key) {
     const status = getStatusUI(payment.status);
@@ -130,20 +118,14 @@ export default function PaymentsPage() {
       case "user":
         return (
           <div className="max-w-45">
-            <p
-              className="text-sm font-medium text-[#1A202C] truncate"
-              title={payment.user?.name || ""}
-            >
+            <p className="text-sm font-medium text-[#1A202C] truncate" title={payment.user?.name || ""}>
               {payment.user?.name || "Guest"}
             </p>
           </div>
         );
       case "package":
         return (
-          <span
-            className="text-sm text-[#1A202C] font-medium"
-            title={payment.package?.name || ""}
-          >
+          <span className="text-sm text-[#1A202C] font-medium" title={payment.package?.name || ""}>
             {payment.package?.name || `#${payment.packageId ?? "-"}`}
           </span>
         );
@@ -175,31 +157,21 @@ export default function PaymentsPage() {
         );
       case "order":
         return (
-          <span
-            className="text-xs font-mono text-[#4A5568]"
-            title={payment.cashfreeOrderId || ""}
-          >
+          <span className="text-xs font-mono text-[#4A5568]" title={payment.cashfreeOrderId || ""}>
             {payment.cashfreeOrderId || "-"}
           </span>
         );
       case "status":
         return (
-          <span
-            className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.className}`}
-          >
+          <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.className}`}>
             {status.icon} {status.label}
           </span>
         );
       case "actions":
         return (
           <button
-            onClick={() => {
-              sessionStorage.setItem(
-                `payment_${payment.id}`,
-                JSON.stringify(payment),
-              );
-              router.push(`/admin/payments/${payment.id}`);
-            }}
+            type="button"
+            onClick={() => handleView(payment)}
             className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
           >
             <Eye size={14} /> View
@@ -226,7 +198,7 @@ export default function PaymentsPage() {
       error={error}
       pagination={pagination}
       onPageChange={setPage}
-      onRefresh={fetchPayments}
+      onRefresh={refetch}
       emptyIcon={<CreditCard size={32} />}
       emptyText="No payments found"
     />

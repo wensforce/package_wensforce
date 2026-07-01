@@ -25,21 +25,13 @@ const COLUMNS = [
 
 function getDaysLeftMeta(endDate) {
   if (!endDate) {
-    return {
-      text: "-",
-      className: "text-[#A0AEC0]",
-      title: "No end date",
-    };
+    return { text: "-", className: "text-[#A0AEC0]", title: "No end date" };
   }
 
   const now = new Date();
   const end = new Date(endDate);
   if (Number.isNaN(end.getTime())) {
-    return {
-      text: "Invalid",
-      className: "text-red-600",
-      title: "Invalid end date",
-    };
+    return { text: "Invalid", className: "text-red-600", title: "Invalid end date" };
   }
 
   const msPerDay = 1000 * 60 * 60 * 24;
@@ -72,77 +64,71 @@ function getStatusUI(status) {
   const s = String(status || "pending").toUpperCase();
 
   if (s === "ACTIVE") {
-    return {
-      className: "bg-green-100 text-green-700",
-      icon: <CheckCircle2 size={11} />,
-      label: s,
-    };
+    return { className: "bg-green-100 text-green-700", icon: <CheckCircle2 size={11} />, label: s };
   }
-
   if (s === "EXPIRED") {
-    return {
-      className: "bg-red-100 text-red-700",
-      icon: <XCircle size={11} />,
-      label: s,
-    };
+    return { className: "bg-red-100 text-red-700", icon: <XCircle size={11} />, label: s };
   }
-
   if (s === "CANCELLED") {
-    return {
-      className: "bg-gray-200 text-gray-700",
-      icon: <Ban size={11} />,
-      label: s,
-    };
+    return { className: "bg-gray-200 text-gray-700", icon: <Ban size={11} />, label: s };
   }
-
-  return {
-    className: "bg-amber-100 text-amber-700",
-    icon: <Clock3 size={11} />,
-    label: s,
-  };
+  return { className: "bg-amber-100 text-amber-700", icon: <Clock3 size={11} />, label: s };
 }
 
 export default function SubscriptionsPage() {
   const router = useRouter();
-  const [subscriptions, setSubscriptions] = useState([]);
+
+  // pagination stays local — the hook doesn't manage it
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: PAGE_LIMIT,
+    total: 0,
+    totalPages: 1,
+  });
+
+  // create-modal visibility, now driven by useModal (no data needed here,
+  // so we just use isOpen/open/close and ignore `data`)
+  const {
+    isOpen: showCreate,
+    open: openCreateModal,
+    close: closeCreateModal,
+  } = useModal();
+
+  // stable wrapper: reads page/search from its own args, not closure
+  const fetchSubscriptionsForHook = useCallback(async ({ search, page }) => {
+    const { rows, pagination: pg } = await subscriptionApi.fetchSubscriptions({ page, search });
+    setPagination(pg);
+    return rows;
+  }, []);
 
   const {
-    page,
-    setPage,
+    rows: subscriptions,
     loading,
-    setLoading,
     error,
-    setError,
     searchInput,
     setSearchInput,
-    pagination,
-    setPagination,
     search,
-  } = useFetchList(PAGE_LIMIT);
+    refetch,
+  } = useFetchList({
+    fetchFn: fetchSubscriptionsForHook,
+    params: { page },
+  });
 
-  const createModal = useModal();
-
-  const fetchSubscriptions = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const { rows, pagination } = await subscriptionApi.fetchSubscriptions({
-        page,
-        search,
-      });
-      setSubscriptions(rows);
-      setPagination(pagination);
-    } catch (err) {
-      setError(err?.response?.data?.message || "Failed to load subscriptions.");
-    } finally {
-      setLoading(false);
-    }
-  }, [page, search]);
-
+  // reset to page 1 when search changes
   useEffect(() => {
-    fetchSubscriptions();
-  }, [fetchSubscriptions]);
+    setPage(1);
+  }, [search]);
+
+  function handleView(sub) {
+    try {
+      sessionStorage.setItem(`subscription_${sub.id}`, JSON.stringify(sub));
+    } catch (err) {
+      // storage full/disabled — non-fatal, detail page will fetch fresh instead
+      console.warn("Could not cache subscription for detail view:", err);
+    }
+    router.push(`/admin/subscriptions/${sub.id}`);
+  }
 
   function renderCell(sub, key) {
     const status = getStatusUI(sub.status);
@@ -178,46 +164,28 @@ export default function SubscriptionsPage() {
           </span>
         );
       case "vehicleType":
-        return (
-          <span className="text-xs text-[#4A5568]">
-            {sub.vehicleType || "-"}
-          </span>
-        );
+        return <span className="text-xs text-[#4A5568]">{sub.vehicleType || "-"}</span>;
       case "bodyguardType":
-        return (
-          <span className="text-xs text-[#4A5568]">
-            {sub.bodyguardType || "-"}
-          </span>
-        );
+        return <span className="text-xs text-[#4A5568]">{sub.bodyguardType || "-"}</span>;
       case "daysLeft": {
         const daysMeta = getDaysLeftMeta(sub.endDate);
         return (
-          <span
-            className={`text-xs whitespace-nowrap ${daysMeta.className}`}
-            title={daysMeta.title}
-          >
+          <span className={`text-xs whitespace-nowrap ${daysMeta.className}`} title={daysMeta.title}>
             {daysMeta.text}
           </span>
         );
       }
       case "status":
         return (
-          <span
-            className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.className}`}
-          >
+          <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.className}`}>
             {status.icon} {status.label}
           </span>
         );
       case "actions":
         return (
           <button
-            onClick={() => {
-              sessionStorage.setItem(
-                `subscription_${sub.id}`,
-                JSON.stringify(sub),
-              );
-              router.push(`/admin/subscriptions/${sub.id}`);
-            }}
+            type="button"
+            onClick={() => handleView(sub)}
             className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
           >
             <Eye size={14} /> View
@@ -245,17 +213,17 @@ export default function SubscriptionsPage() {
         error={error}
         pagination={pagination}
         onPageChange={setPage}
-        onRefresh={fetchSubscriptions}
-        onCreate={createModal.open}
+        onRefresh={refetch}
+        onCreate={openCreateModal}
         createLabel="New Subscription"
         emptyIcon={<Repeat size={32} />}
         emptyText="No subscriptions found"
       />
 
       <CreateSubscriptionModal
-        open={createModal.isOpen}
-        onClose={createModal.close}
-        onCreated={fetchSubscriptions}
+        open={showCreate}
+        onClose={closeCreateModal}
+        onCreated={refetch}
       />
     </>
   );

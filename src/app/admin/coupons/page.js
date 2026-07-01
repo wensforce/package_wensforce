@@ -15,7 +15,6 @@ import AdminTable from "../components/AdminTable";
 import CouponCreateModal from "../components/modals/CouponCreateModal";
 import { useFetchList } from "../hooks/useFetchList";
 import { useModal } from "../hooks/useModal";
-
 const PAGE_LIMIT = 10;
 
 const COLUMNS = [
@@ -51,44 +50,48 @@ function formatDiscount(coupon) {
 
 export default function CouponsPage() {
   const router = useRouter();
-  const [coupons, setCoupons] = useState([]);
+
+  // pagination stays local — the hook doesn't manage it
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: PAGE_LIMIT,
+    total: 0,
+    totalPages: 1,
+  });
+
+  // create-modal visibility, now driven by useModal (no data needed here,
+  // so we just use isOpen/open/close and ignore `data`)
+  const {
+    isOpen: showCreate,
+    open: openCreateModal,
+    close: closeCreateModal,
+  } = useModal();
+
+  // stable wrapper: reads page/search from its own args, not closure
+  const fetchCouponsForHook = useCallback(async ({ search, page }) => {
+    const { rows, pagination: pg } = await couponApi.fetchCoupons({ page, search });
+    setPagination(pg);
+    return rows;
+  }, []);
 
   const {
-    page,
-    setPage,
+    rows: coupons,
     loading,
-    setLoading,
     error,
-    setError,
     searchInput,
     setSearchInput,
-    pagination,
-    setPagination,
     search,
-  } = useFetchList(PAGE_LIMIT);
+    refetch,
+  } = useFetchList({
+    fetchFn: fetchCouponsForHook,
+    params: { page },
+  });
 
-  const createModal = useModal();
-
-  const fetchCoupons = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const { rows, pagination } = await couponApi.fetchCoupons({
-        page,
-        search,
-      });
-      setCoupons(rows);
-      setPagination(pagination);
-    } catch (err) {
-      setError(err?.response?.data?.message || "Failed to load coupons.");
-    } finally {
-      setLoading(false);
-    }
-  }, [page, search]);
-
+  // reset to page 1 when search changes
   useEffect(() => {
-    fetchCoupons();
-  }, [fetchCoupons]);
+    setPage(1);
+  }, [search]);
 
   function renderCell(coupon, key) {
     switch (key) {
@@ -139,6 +142,7 @@ export default function CouponsPage() {
       case "actions":
         return (
           <button
+            type="button"
             onClick={() => router.push(`/admin/coupons/${coupon.id}`)}
             className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors"
           >
@@ -149,7 +153,6 @@ export default function CouponsPage() {
         return null;
     }
   }
-
   return (
     <>
       <AdminTable
@@ -167,17 +170,17 @@ export default function CouponsPage() {
         error={error}
         pagination={pagination}
         onPageChange={setPage}
-        onRefresh={fetchCoupons}
-        onCreate={createModal.open}
+        onRefresh={refetch}
+        onCreate={openCreateModal}
         createLabel="New Coupon"
         emptyIcon={<TicketPercent size={32} />}
         emptyText="No coupons found"
       />
 
       <CouponCreateModal
-        open={createModal.isOpen}
-        onClose={createModal.close}
-        onCreated={fetchCoupons}
+        open={showCreate}
+        onClose={closeCreateModal}
+        onCreated={refetch}
       />
     </>
   );
