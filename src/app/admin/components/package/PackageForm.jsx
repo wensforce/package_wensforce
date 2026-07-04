@@ -220,7 +220,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
       return "Trips must be a positive integer.";
     if (!form.validity || Number(form.validity) <= 0)
       return "Validity must be a positive integer.";
-    // if (!form.category) return "Category is required.";
+    if (!form.category) return "Category is required.";
 
     const serviceItems = form.services.filter((item) => item.id !== "");
     if (serviceItems.length === 0) return "At least one service is required.";
@@ -271,7 +271,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
         trips: Number(form.trips),
         validity: Number(form.validity),
         isActive: form.isActive,
-        category: form.category,
+        category: form.category.toLowerCase().trim(),
         tags: form.tags.trim(),
         services: form.services
           .filter((item) => item.id !== "")
@@ -763,7 +763,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
         <button
           type="submit"
           disabled={saving}
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-[#0B1E3F] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#0B1E3F]/10 hover:bg-[#152d5a] transition-colors disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-2 cursor-pointer rounded-full bg-[#0B1E3F] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#0B1E3F]/10 hover:bg-[#152d5a] transition-colors disabled:opacity-50"
         >
           {saving && <Loader2 size={16} className="animate-spin" />}
           {saving
