@@ -38,7 +38,10 @@ export default function PackagesPage() {
 
   // stable wrapper: reads page/search from its own args, not from closure
   const fetchPackagesForHook = useCallback(async ({ search, page }) => {
-    const { rows, pagination: pg } = await packageApi.fetchPackages({ page, search });
+    const { rows, pagination: pg } = await packageApi.fetchPackages({
+      page,
+      search,
+    });
     setPagination(pg);
     return rows; // hook accepts a bare array return
   }, []);
@@ -99,17 +102,31 @@ export default function PackagesPage() {
             )}
           </div>
         );
-      case "price":
+      case "price": {
+        const hasDiscount =
+          row.discountedPrice != null &&
+          Number(row.discountedPrice) < Number(row.regularPrice);
         return (
-          <span className="font-semibold text-[#0B1E3F]">
-            {formatAmount(row.price ?? row.basePrice, row.currency)}
-          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="font-semibold text-[#0B1E3F]">
+              {formatAmount(
+                hasDiscount ? row.discountedPrice : row.regularPrice,
+                row.currency,
+              )}
+            </span>
+            {hasDiscount && (
+              <span className="text-xs text-[#A0AEC0] line-through">
+                {formatAmount(row.regularPrice, row.currency)}
+              </span>
+            )}
+          </div>
         );
+      }
       case "duration":
         return (
           <span className="text-[#4A5568] text-sm">
-            {row.duration
-              ? `${row.duration} ${row.durationUnit || "days"}`
+            {row.validity
+              ? `${row.validity} month${row.validity !== 1 ? "s" : ""}`
               : "—"}
           </span>
         );
@@ -152,7 +169,6 @@ export default function PackagesPage() {
         return row[key] ?? "—";
     }
   }
-
   return (
     <AdminTable
       icon={<Package size={18} className="text-[#C9A24B]" />}

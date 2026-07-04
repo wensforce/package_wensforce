@@ -265,6 +265,25 @@ export default function PackageDetailPage() {
                   </p>
                 </div>
               </div>
+
+              <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-[#E8E3DB]">
+                <div>
+                  <label className="text-xs font-semibold text-[#4A5568]">
+                    Category
+                  </label>
+                  <p className="mt-2 text-sm font-medium text-[#0B1E3F] capitalize">
+                    {packageData.category ? packageData.category.replace(/_/g, " ") : "—"}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-[#4A5568]">
+                    Tags
+                  </label>
+                  <p className="mt-2 text-sm font-medium text-[#0B1E3F]">
+                    {packageData.tags || "—"}
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Package Details Grid */}

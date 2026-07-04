@@ -20,9 +20,12 @@ const initialFormState = {
   trips: "",
   validity: "",
   isActive: true,
+  category: "",
+  tags: "",
 };
 
 export default function PackageForm({ packageId, initialData, onSaved }) {
+  
   const isEditMode = Boolean(packageId);
   const [form, setForm] = useState(initialFormState);
   const [thumbnail, setThumbnail] = useState(null);
@@ -36,18 +39,20 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
 
   useEffect(() => {
     if (initialData) {
+      console.log(initialData.thumbnailUrlKey,"initialdata")
       setForm({
         name: initialData.name ?? "",
         description: initialData.description ?? "",
         regularPrice: initialData.regularPrice ?? "",
         discountedPrice: initialData.discountedPrice ?? "",
         services:
-          Array.isArray(initialData.services) && initialData.services.length > 0
-            ? initialData.services.map((service) => ({
-                id: service.id ?? "",
-                title: service.title ?? service.name ?? "",
-                query: service.title ?? service.name ?? "",
-                count: service.count ?? 1,
+          Array.isArray(initialData.packageServices) &&
+          initialData.packageServices.length > 0
+            ? initialData.packageServices.map((ps) => ({
+                id: ps.service?.id ?? "",
+                title: ps.service?.title ?? ps.service?.name ?? "",
+                query: ps.service?.title ?? ps.service?.name ?? "",
+                count: ps.count ?? 1,
               }))
             : [{ ...emptyServiceItem }],
         vehicleType: initialData.vehicleType ?? "",
@@ -56,6 +61,8 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
         trips: initialData.trips ?? "",
         validity: initialData.validity ?? "",
         isActive: initialData.isActive ?? true,
+        category: initialData.category ?? "",
+        tags: initialData.tags ?? "",
       });
       setExistingThumbnailKey(initialData.thumbnailUrlKey ?? null);
       setPreview(initialData.thumbnailUrl ?? null);
@@ -134,7 +141,32 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
     }, 300);
   }
 
+  // Returns the set of service ids already chosen in *other* rows, so we
+  // can both filter suggestions and validate a new selection against them.
+  function getSelectedServiceIds(excludeIndex) {
+    return new Set(
+      form.services
+        .filter((item, idx) => idx !== excludeIndex && item.id !== "")
+        .map((item) => String(item.id)),
+    );
+  }
+
   function selectServiceSuggestion(index, service) {
+    const alreadyUsed = getSelectedServiceIds(index);
+
+    if (alreadyUsed.has(String(service.id))) {
+      setError(
+        `"${service.title ?? service.name ?? "This service"}" is already added to this package.`,
+      );
+      // Remove it from the suggestion list for this row so it can't be picked again.
+      setServiceSuggestions((prev) => ({
+        ...prev,
+        [index]: (prev[index] ?? []).filter((s) => s.id !== service.id),
+      }));
+      return;
+    }
+
+    setError(null);
     setForm((prev) => {
       const services = [...prev.services];
       services[index] = {
@@ -188,6 +220,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
       return "Trips must be a positive integer.";
     if (!form.validity || Number(form.validity) <= 0)
       return "Validity must be a positive integer.";
+    // if (!form.category) return "Category is required.";
 
     const serviceItems = form.services.filter((item) => item.id !== "");
     if (serviceItems.length === 0) return "At least one service is required.";
@@ -197,6 +230,16 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
         return "Each service ID must be a positive integer.";
       if (item.count && Number(item.count) <= 0)
         return "Service count must be a positive integer.";
+    }
+
+    // Guard against duplicate services slipping through (e.g. programmatic edits).
+    const seenIds = new Set();
+    for (const item of serviceItems) {
+      const idKey = String(item.id);
+      if (seenIds.has(idKey)) {
+        return `Duplicate service detected: "${item.title || idKey}". Please remove the duplicate.`;
+      }
+      seenIds.add(idKey);
     }
 
     if (!existingThumbnailKey && !thumbnail)
@@ -228,6 +271,8 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
         trips: Number(form.trips),
         validity: Number(form.validity),
         isActive: form.isActive,
+        category: form.category,
+        tags: form.tags.trim(),
         services: form.services
           .filter((item) => item.id !== "")
           .map((item) => ({
@@ -349,7 +394,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                     onChange={handleFieldChange}
                     disabled={saving}
                     placeholder="₹ 1999"
-                    className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60"
+                    className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-moz-appearance]:textfield"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -365,7 +410,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                     onChange={handleFieldChange}
                     disabled={saving}
                     placeholder="₹ 1499"
-                    className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60"
+                    className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-moz-appearance]:textfield"
                   />
                 </div>
               </div>
@@ -376,7 +421,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
             <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h3 className="text-xl font-semibold text-[#0B1E3F]">
-                  Package services
+                  Package services<span className="text-red-500">*</span>
                 </h3>
                 <p className="mt-1 text-sm text-[#4A5568]">
                   Add service items included in this package.
@@ -393,34 +438,39 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
             </div>
 
             <div className="space-y-4">
-              {form.services.map((serviceItem, index) => (
-                <div
-                  key={index}
-                  className="grid gap-4 rounded-3xl border border-[#E8E3DB] bg-[#FAF6EC] p-4 sm:grid-cols-[2.4fr_0.9fr_auto] items-start"
-                >
-                  <div className="relative space-y-1.5">
-                    <label className="block text-sm font-semibold text-[#0B1E3F]">
-                      Service
-                    </label>
-                    <div className="relative">
-                      <div className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-[#A0AEC0]">
-                        <Search size={16} />
+              {form.services.map((serviceItem, index) => {
+                const selectedElsewhere = getSelectedServiceIds(index);
+                const visibleSuggestions = (
+                  serviceSuggestions[index] ?? []
+                ).filter((option) => !selectedElsewhere.has(String(option.id)));
+
+                return (
+                  <div
+                    key={index}
+                    className="grid gap-4 rounded-3xl border border-[#E8E3DB] bg-[#FAF6EC] p-4 sm:grid-cols-[2.4fr_0.9fr_auto] items-start"
+                  >
+                    <div className="relative space-y-1.5">
+                      <label className="block text-sm font-semibold text-[#0B1E3F]">
+                        Service
+                      </label>
+                      <div className="relative">
+                        <div className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-[#A0AEC0]">
+                          <Search size={16} />
+                        </div>
+                        <input
+                          type="text"
+                          value={serviceItem.query}
+                          onChange={(e) =>
+                            handleServiceQueryChange(index, e.target.value)
+                          }
+                          disabled={saving}
+                          placeholder="Search service…"
+                          className="w-full rounded-3xl border border-[#CBD5E0] bg-white px-12 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60"
+                        />
                       </div>
-                      <input
-                        type="text"
-                        value={serviceItem.query}
-                        onChange={(e) =>
-                          handleServiceQueryChange(index, e.target.value)
-                        }
-                        disabled={saving}
-                        placeholder="Search service…"
-                        className="w-full rounded-3xl border border-[#CBD5E0] bg-white px-12 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60"
-                      />
-                    </div>
-                    {serviceSuggestions[index] &&
-                      serviceSuggestions[index].length > 0 && (
+                      {visibleSuggestions.length > 0 && (
                         <div className="absolute left-0 right-0 z-20 mt-2 overflow-hidden rounded-3xl border border-[#CBD5E0] bg-white shadow-lg">
-                          {serviceSuggestions[index].map((option) => (
+                          {visibleSuggestions.map((option) => (
                             <button
                               type="button"
                               key={option.id}
@@ -436,48 +486,96 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                           ))}
                         </div>
                       )}
-                    {serviceItem.id && (
-                      <div className="mt-1 rounded-3xl bg-[#F0F8FF] px-3 py-2 text-xs text-[#0B1E3F]">
-                        Selected: {serviceItem.title}
-                      </div>
-                    )}
-                  </div>
+                      {serviceItem.id && (
+                        <div className="mt-1 rounded-3xl bg-[#F0F8FF] px-3 py-2 text-xs text-[#0B1E3F]">
+                          Selected: {serviceItem.title}
+                        </div>
+                      )}
+                    </div>
 
-                  <div className="space-y-1.5">
-                    <label className="block text-sm font-semibold text-[#0B1E3F]">
-                      Count
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={serviceItem.count}
-                      onChange={(e) =>
-                        handleServiceChange(index, "count", e.target.value)
-                      }
-                      disabled={saving}
-                      className="w-full rounded-3xl border border-[#CBD5E0] bg-white px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60"
-                    />
-                  </div>
+                    <div className="space-y-1.5">
+                      <label className="block text-sm font-semibold text-[#0B1E3F]">
+                        Count
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={serviceItem.count}
+                        onChange={(e) =>
+                          handleServiceChange(index, "count", e.target.value)
+                        }
+                        disabled={saving}
+                        className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-moz-appearance]:textfield"
+                      />
+                    </div>
 
-                  <div className="flex flex-col space-y-1.5">
-                    <span
-                      className="block text-sm select-none invisible"
-                      aria-hidden="true"
-                    >
-                      Remove
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => removeServiceRow(index)}
-                      disabled={saving || form.services.length === 1}
-                      className="inline-flex h-[46px] w-full items-center justify-center gap-1.5 rounded-full bg-red-100 px-4 text-sm font-semibold text-red-700 hover:bg-red-200 transition-colors disabled:opacity-50"
-                    >
-                      <Trash2 size={16} />
-                      Remove
-                    </button>
+                    <div className="flex flex-col space-y-1.5">
+                      <span
+                        className="block text-sm select-none invisible"
+                        aria-hidden="true"
+                      >
+                        Remove
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeServiceRow(index)}
+                        disabled={saving || form.services.length === 1}
+                        className="inline-flex h-[46px] w-full items-center justify-center gap-1.5 rounded-full bg-red-100 px-4 text-sm font-semibold text-red-700 hover:bg-red-200 transition-colors disabled:opacity-50"
+                      >
+                        <Trash2 size={16} />
+                        Remove
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-[#E8E3DB] bg-white p-6 shadow-sm">
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold text-[#0B1E3F]">
+                Category &amp; Tags
+              </h3>
+              <p className="mt-1 text-sm text-[#4A5568]">
+                Define the category and tags to organize this package.
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-[#0B1E3F]">
+                  Category <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="category"
+                  value={form.category}
+                  onChange={handleFieldChange}
+                  disabled={saving}
+                  className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-5 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60"
+                >
+                  <option value="">Select category</option>
+                  <option value="membership">Membership</option>
+                  <option value="welcome_india">Welcome India</option>
+                  <option value="corporate">Corporate</option>
+                  <option value="pilgrims">Pilgrims</option>
+                  <option value="multi-region">Multi-Region</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-[#0B1E3F]">
+                  Tags
+                </label>
+                <input
+                  name="tags"
+                  value={form.tags}
+                  onChange={handleFieldChange}
+                  disabled={saving}
+                  placeholder="e.g. VIP, luxury, travel"
+                  className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -497,9 +595,9 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                 onChange={handleFileChange}
                 disabled={saving}
               />
-              {console.log(preview, "thumbnail preview")}
               {preview ? (
                 <div className="relative w-full overflow-hidden rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC]">
+                  {/* {console.log(preview,"thumbnail url")} */}
                   <img
                     src={preview}
                     alt="Thumbnail preview"
@@ -551,7 +649,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
             <div className="space-y-4">
               <div className="space-y-1.5">
                 <label className="block text-sm font-semibold text-[#0B1E3F]">
-                  Vehicle type
+                  Vehicle type <span className="text-red-500">*</span>
                 </label>
                 <input
                   name="vehicleType"
@@ -564,7 +662,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
               </div>
               <div className="space-y-1.5">
                 <label className="block text-sm font-semibold text-[#0B1E3F]">
-                  Vehicle model
+                  Vehicle model <span className="text-red-500">*</span>
                 </label>
                 <input
                   name="vehicleModel"
@@ -577,7 +675,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
               </div>
               <div className="space-y-1.5">
                 <label className="block text-sm font-semibold text-[#0B1E3F]">
-                  Bodyguard type
+                  Bodyguard type <span className="text-red-500">*</span>
                 </label>
                 <input
                   name="bodyguardType"
@@ -591,7 +689,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <label className="block text-sm font-semibold text-[#0B1E3F]">
-                    Trips
+                    Trips <span className="text-red-500">*</span>
                   </label>
                   <input
                     name="trips"
@@ -601,12 +699,12 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                     onChange={handleFieldChange}
                     disabled={saving}
                     placeholder="10"
-                    className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60"
+                    className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-moz-appearance]:textfield"
                   />
                 </div>
                 <div className="space-y-1.5">
                   <label className="block text-sm font-semibold text-[#0B1E3F]">
-                    Validity (months)
+                    Validity (months)<span className="text-red-500">*</span>
                   </label>
                   <input
                     name="validity"
@@ -616,7 +714,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                     onChange={handleFieldChange}
                     disabled={saving}
                     placeholder="12"
-                    className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60"
+                    className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-moz-appearance]:textfield"
                   />
                 </div>
               </div>

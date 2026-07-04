@@ -71,7 +71,6 @@ export const packageApi = {
       ...payload,
       ...(uploadedKey && { thumbnailUrlKey: uploadedKey }),
     };
-
     try {
       await api.post("/package", finalPayload);
     } catch (err) {
@@ -105,7 +104,7 @@ export const packageApi = {
           ? { thumbnailUrlKey: existingThumbnailKey }
           : {}),
     };
-
+    console.log("Final thumbnail key for update:", finalPayload.thumbnailUrlKey); // Debug log
     try {
       await api.put(`/package/${packageId}`, finalPayload);
     } catch (err) {

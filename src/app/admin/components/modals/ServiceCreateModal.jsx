@@ -66,6 +66,10 @@ export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated
       setError("Title is required.");
       return;
     }
+    if (!form.description.trim() ) {
+      setError("Description is required.");
+      return;
+    }
     setLoading(true);
     setError(null);
 
@@ -128,7 +132,7 @@ export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated
         </div>
 
         <div className="space-y-1.5">
-          <label className="block text-sm font-semibold text-[#0B1E3F]">Description</label>
+          <label className="block text-sm font-semibold text-[#0B1E3F]">Description<span className="text-red-500">*</span></label>
           <textarea
             name="description"
             value={form.description}
