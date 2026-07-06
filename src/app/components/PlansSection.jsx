@@ -18,6 +18,7 @@ export default function PlansSection() {
     const fetchPackages = async () => {
       try {
         const res = await api.get("/package/user");
+        console.log(res.data.data,"package for users")
         setPackages(res?.data?.data || []);
       } catch (err) {
         console.error("Failed to fetch packages:", err);
