@@ -5,20 +5,39 @@ import { Check, ArrowRight, Sparkles } from "lucide-react";
 import api from "../axios/axios";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
+import { useDispatch,useSelector } from "react-redux";
+import { setPackages } from "../membership/slices/package-slice";
 const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
 
 export default function PlansSection() {
-  const [packages, setPackages] = useState([]);
+  const [packages, setPackagesLocal] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const router = useRouter();
+  const dispatch=useDispatch();
+    const storePackages=useSelector((state)=>state.packages.value)
 
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-        const res = await api.get("/package/user");
-        setPackages(res?.data?.data || []);
+       // If Redux already has data, use it
+        if (storePackages.length > 0) {
+          console.log("Store hit");
+          setPackagesLocal(storePackages);
+        } else {
+          console.log("API hit");
+
+          const res = await api.get("/package/user");
+
+          const data = res?.data?.data || [];
+
+          // Save to local state
+          setPackagesLocal(data);
+
+          // Save to Redux
+          dispatch(setPackages(data));
+        }
+
       } catch (err) {
         console.error("Failed to fetch packages:", err);
         setError(true);

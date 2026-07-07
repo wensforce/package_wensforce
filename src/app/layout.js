@@ -10,6 +10,7 @@ import { Analytics } from "@vercel/analytics/next";
 import MetaPixelInit from "./components/MetaPixelInit";
 import { AuthProvider } from "./context/AuthContext";
 import { Toaster } from "sonner";
+import Providers from "./provider";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -153,21 +154,23 @@ export default function RootLayout({ children }) {
         </noscript>
 
         {/* <GTMPageTracker /> */}
-        <AuthProvider>
-          {children}
-          <MetaPixelInit />
-          <FloatingWhatsApp />
-          <LiveActivityTicker />
-          <Toaster
-            position="top-center"
-            toastOptions={{
-              style: {
-                fontFamily: "var(--font-inter)",
-                fontSize: "13px",
-              },
-            }}
-          />
-        </AuthProvider>
+        <Providers>
+          <AuthProvider>
+            {children}
+            <MetaPixelInit />
+            <FloatingWhatsApp />
+            <LiveActivityTicker />
+            <Toaster
+              position="top-center"
+              toastOptions={{
+                style: {
+                  fontFamily: "var(--font-inter)",
+                  fontSize: "13px",
+                },
+              }}
+            />
+          </AuthProvider>
+        </Providers>
         <Analytics />
       </body>
     </html>

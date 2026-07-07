@@ -5,7 +5,9 @@ import { useParams, notFound } from "next/navigation";
 import api from "@/app/axios/axios";
 import PlanVideoPlayer from "../../components/PlanVideoPlayer";
 import MetaViewTracker from "@/app/components/MetaViewTracker";
-
+import { useDispatch, useSelector } from "react-redux";
+import { setPackages } from "@/app/membership/slices/package-slice";
+import { setPackage,getPackageById } from "@/app/membership/slices/detailed-package-slice";
 import Header from "../sections/Header";
 import Footer from "../sections/Footer";
 import HeroSection from "../sections/HeroSection";
@@ -28,6 +30,10 @@ function getServiceImage(service) {
 
 export default function PlanDetailPage() {
   const { id } = useParams();
+  const dispatch = useDispatch();
+
+  const storePackages = useSelector((state) => state.packages.value);
+  const detailedPlan = useSelector(getPackageById(id));
 
   const [plan, setPlan] = useState(null);
   const [otherPlans, setOtherPlans] = useState([]);
@@ -42,6 +48,41 @@ export default function PlanDetailPage() {
       setError(false);
 
       try {
+        // ── Tier 1: detailedPackages store has this specific plan ──
+        if (detailedPlan) {
+          console.log("Detailed store hit");
+          setPlan(detailedPlan);
+
+          if (storePackages && storePackages.length > 0) {
+            // otherPlans already in packages store
+            setOtherPlans(storePackages.filter((p) => String(p.id) !== String(id)));
+          } else {
+            // detailedPlan found but no list yet — fetch list only
+            const allPlansRes = await api.get("/package/user");
+            const allPlans = allPlansRes?.data?.data || [];
+            setOtherPlans(allPlans.filter((p) => String(p.id) !== String(id)));
+            dispatch(setPackages(allPlans));
+          }
+
+          setLoading(false);
+          return;
+        }
+
+        // ── Tier 2: packages (list) store has this plan ──
+        if (storePackages && storePackages.length > 0) {
+          const foundPlan = storePackages.find((p) => String(p.id) === String(id));
+          if (foundPlan) {
+            console.log("Packages store hit");
+            setPlan(foundPlan);
+            setOtherPlans(storePackages.filter((p) => String(p.id) !== String(id)));
+            dispatch(setPackage(foundPlan)); // promote into detailedPackages cache
+            setLoading(false);
+            return;
+          }
+        }
+
+        // ── Tier 3: full API hit ──
+        console.log("API hit");
         const [planRes, allPlansRes] = await Promise.all([
           api.get(`/package/${id}`),
           api.get("/package/user"),
@@ -56,7 +97,11 @@ export default function PlanDetailPage() {
         }
 
         setPlan(fetchedPlan);
-        setOtherPlans(allPlans.filter((p) => p.id !== fetchedPlan.id));
+        setOtherPlans(allPlans.filter((p) => String(p.id) !== String(fetchedPlan.id)));
+
+        // Save to both stores
+        dispatch(setPackage(fetchedPlan));
+        dispatch(setPackages(allPlans));
       } catch (err) {
         console.error("Failed to fetch plan data", err);
         setError(true);
