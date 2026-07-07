@@ -33,7 +33,7 @@ export default function HeroSection({ plan, waUrl }) {
         <img
           src={plan.thumbnailUrl}
           alt={plan.name}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover object-center"
           style={{ filter: 'brightness(0.75) saturate(0.9)' }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/25" />
@@ -187,4 +187,4 @@ export default function HeroSection({ plan, waUrl }) {
       </div>
     </>
   );
-}
+}
