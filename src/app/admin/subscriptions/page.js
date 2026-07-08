@@ -98,6 +98,7 @@ export default function SubscriptionsPage() {
   // stable wrapper: reads page/search from its own args, not closure
   const fetchSubscriptionsForHook = useCallback(async ({ search, page }) => {
     const { rows, pagination: pg } = await subscriptionApi.fetchSubscriptions({ page, search });
+    console.log(rows)
     setPagination(pg);
     return rows;
   }, []);
