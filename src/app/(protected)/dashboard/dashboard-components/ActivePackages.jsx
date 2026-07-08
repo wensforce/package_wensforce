@@ -21,6 +21,8 @@ import { useAuth } from "../../../context/AuthContext";
 import api from "../../../axios/axios";
 import { toast } from "sonner";
 import RequestTripModal from "./RequestTrip";
+import { useDispatch, useSelector } from "react-redux";
+import { setActivePackages } from "../slices/active-packages-slice";
 // ── Config ────────────────────────────────────────────────────────────────────
 const ASSETS_BASE = process.env.NEXT_PUBLIC_ASSETS_URL ?? "";
 
@@ -421,49 +423,102 @@ function LoadingSkeleton() {
 // ── ActivePackages (default export) ──────────────────────────────────────────
 export default function ActivePackages() {
   const { user, isLoggedIn } = useAuth();
+  const dispatch = useDispatch();
+
+  const storePlans = useSelector((state) => state.activePackages.value);
+
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [tripModalPlan, setTripModalPlan] = useState(null);
+
+  // Always hits the API — used by both initial cache-miss load and manual refresh.
+  async function fetchFromApi({ isRefresh = false } = {}) {
+    if (isRefresh) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+
+    try {
+      const { data } = await api.get("/subscription/my");
+      const fetchedPlans = normalisePlans(data?.data);
+      setPlans(fetchedPlans);
+      dispatch(setActivePackages(fetchedPlans));
+      if (isRefresh) toast.success("Memberships refreshed");
+    } catch {
+      toast.error("Failed to load your memberships. Please try again.");
+      if (!isRefresh) setPlans([]);
+    } finally {
+      if (isRefresh) {
+        setRefreshing(false);
+      } else {
+        setLoading(false);
+      }
+    }
+  }
 
   useEffect(() => {
     if (!isLoggedIn || !user) return;
 
-    async function fetchPlans() {
-      try {
-        const { data } = await api.get("/subscription/my");
-        console.log(data)
-        setPlans(normalisePlans(data?.data));
-      } catch {
-        toast.error("Failed to load your memberships. Please try again.");
-        setPlans([]);
-      } finally {
-        setLoading(false);
-      }
+    // ── Store hit: use cached active packages, skip API call ──
+    if (storePlans && storePlans.length > 0) {
+      console.log("Active packages store hit");
+      setPlans(storePlans);
+      setLoading(false);
+      return;
     }
 
-    fetchPlans();
+    // ── Store miss: fetch from API and populate store ──
+    fetchFromApi();
   }, [isLoggedIn, user]);
+
+  function handleRefresh() {
+    if (refreshing || loading) return;
+    fetchFromApi({ isRefresh: true });
+  }
 
   return (
     <>
       <div className="space-y-4">
         {/* Section heading */}
-        <div>
-          <h2
-            className="text-xl font-bold"
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2
+              className="text-xl font-bold"
+              style={{
+                color: "var(--color-navy)",
+                fontFamily: "var(--font-playfair)",
+              }}
+            >
+              Active Packages
+            </h2>
+            <p
+              className="text-sm mt-0.5"
+              style={{ color: "var(--color-text-tertiary)" }}
+            >
+              View your current active packages and available trips
+            </p>
+          </div>
+
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing || loading}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all hover:opacity-85 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
             style={{
               color: "var(--color-navy)",
-              fontFamily: "var(--font-playfair)",
+              borderColor: "var(--color-border)",
+              background: "var(--color-white)",
             }}
           >
-            Active Packages
-          </h2>
-          <p
-            className="text-sm mt-0.5"
-            style={{ color: "var(--color-text-tertiary)" }}
-          >
-            View your current active packages and available trips
-          </p>
+            <RefreshCw
+              size={13}
+              style={{
+                animation: refreshing ? "spin 0.8s linear infinite" : "none",
+              }}
+            />
+            {refreshing ? "Refreshing..." : "Refresh"}
+          </button>
         </div>
 
         {/* Loading */}
@@ -540,6 +595,17 @@ export default function ActivePackages() {
           onClose={() => setTripModalPlan(null)}
         />
       )}
+
+      <style jsx>{`
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
     </>
   );
 }

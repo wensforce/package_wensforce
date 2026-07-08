@@ -7,7 +7,7 @@ import {
   LogOut,
   ShoppingBag,
   Navigation,
-  Package,
+  Package,ArrowLeft,
   CreditCard,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
@@ -67,49 +67,50 @@ export default function DashboardPage() {
 
         {/* ── Sticky header ── */}
         <header
-          className="sticky top-0 z-40 border-b backdrop-blur-sm"
-          style={{
-            background: "rgba(250,246,236,0.92)",
-            borderColor: "var(--color-border)",
-          }}
+          className="sticky top-0 z-40 h-14 border-b bg-black border-white/8 backdrop-blur-sm"
         >
-          <div className="max-w-5xl mx-auto px-5 h-14 flex items-center justify-between">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-7 h-7 flex-shrink-0">
-                <img
-                  src="/Logo.png"
-                  alt="WENS Force"
-                  className="w-full h-full object-contain"
-                />
-              </div>
-              <span
-                className="text-base font-semibold"
-                style={{
-                  color: "var(--color-navy)",
-                  fontFamily: "var(--font-playfair)",
-                }}
+          <div className="max-w-5xl mx-auto px-3 sm:px-5 h-14 flex items-center justify-between gap-2">
+            {/* Left: Back button + Logo */}
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <Link
+                href="/"
+                className="flex items-center gap-1.5 text-white/60 hover:text-white text-sm transition-colors shrink-0"
               >
-                WENS Force
-              </span>
-            </Link>
+                <ArrowLeft size={15} />
+                <span className="hidden sm:inline">Back</span>
+              </Link>
+
+              <span className="w-px h-5 bg-white/10 shrink-0" />
+
+              <Link href="/" className="flex items-center gap-2 min-w-0 shrink-0">
+                <div className="w-6 h-6 sm:w-7 sm:h-7 flex-shrink-0">
+                  <img
+                    src="/Logo.png"
+                    alt="WENS Force"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <span
+                  className="text-sm sm:text-base font-semibold text-[#C9A24B] truncate"
+                  style={{
+                    fontFamily: "var(--font-playfair)",
+                  }}
+                >
+                  WENS Force
+                </span>
+              </Link>
+            </div>
 
             {/* Logout */}
             <button
               onClick={handleLogout}
-              className="flex cursor-pointer items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg transition-all hover:opacity-70"
-              style={{
-                color: "var(--color-text-secondary)",
-                border: "1px solid var(--color-border)",
-                background: "var(--color-white)",
-              }}
+              className="flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-white/70 px-2.5 sm:px-3 py-1.5 rounded-full border border-white/15 hover:border-white/30 hover:text-white transition-all shrink-0"
             >
               <LogOut size={12} />
-              Sign out
+              <span className="hidden sm:inline">Sign out</span>
             </button>
           </div>
         </header>
-
         {/* ── Main ── */}
         <main className="max-w-5xl mx-auto px-5 py-8 space-y-6">
 

@@ -16,6 +16,6 @@ const packageSlice=createSlice({
     }
 })
 
-export const {setPackages,removePackages}=packageSlice.actions;
+export const {setPackages}=packageSlice.actions;
 
 export default packageSlice.reducer;

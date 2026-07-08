@@ -20,7 +20,6 @@ import { useAuth } from "../../context/AuthContext";
 import { authApi } from "./auth.api";
 const navItems = [
   { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-  { label: "Bookings", href: "/admin/bookings", icon: CalendarCheck },
   { label: "Payments", href: "/admin/payments", icon: CreditCard },
   { label: "Packages", href: "/admin/packages", icon: Package },
   { label: "Services", href: "/admin/services", icon: Wrench },

@@ -9,30 +9,30 @@ import {
   ChevronRight,
   Package,
   Calendar,
+  RefreshCw,
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import api from "../../../axios/axios";
 import { toast } from "sonner";
-
+import { useDispatch, useSelector } from "react-redux";
+import { setTripHistory } from "../slices/trip-history-slice";
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function formatDateTime(dateStr) {
   if (!dateStr) return "—";
   const date = new Date(dateStr);
-  
-  // Date format e.g. "07 Jul 2026"
+
   const formattedDate = date.toLocaleDateString("en-IN", {
     day: "2-digit",
     month: "short",
     year: "numeric",
   });
-  
-  // Time format e.g. "10:30 AM"
+
   const formattedTime = date.toLocaleTimeString("en-IN", {
     hour: "2-digit",
     minute: "2-digit",
     hour12: true,
   });
-  
+
   return `${formattedDate}, ${formattedTime}`;
 }
 
@@ -172,10 +172,8 @@ function TripCard({ trip }) {
 
         {/* Route Locations (Pickup & Drop) */}
         <div className="relative pl-5 space-y-3">
-          {/* Vertical dotted connecting line */}
           <div className="absolute left-[4px] top-1.5 bottom-1.5 w-px border-l border-dashed border-slate-300" />
 
-          {/* Pickup location */}
           <div className="relative">
             <div className="absolute left-[-21px] top-1 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-50" />
             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pickup Location</div>
@@ -184,7 +182,6 @@ function TripCard({ trip }) {
             </div>
           </div>
 
-          {/* Drop location */}
           <div className="relative">
             <div className="absolute left-[-21px] top-1 w-2.5 h-2.5 rounded-full bg-rose-500 ring-4 ring-rose-50" />
             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Drop Location</div>
@@ -289,27 +286,62 @@ function EmptyState() {
 // ── TripHistory (Default Export) ──────────────────────────────────────────────
 export default function TripHistory() {
   const { user, isLoggedIn } = useAuth();
+  const dispatch = useDispatch();
+
+  const storeTrips = useSelector((state) => state.tripHistory.value);
+
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [showAll, setShowAll] = useState(false);
 
   const PREVIEW_COUNT = 6; // Fits grid layouts perfectly
 
-  useEffect(() => {
-    if (!isLoggedIn || !user) return;
-    async function fetchTrips() {
-      try {
-        const { data } = await api.get("/trip/mine");
-        setTrips(Array.isArray(data?.data) ? data.data : []);
-      } catch {
-        toast.error("Failed to load trip history. Please try again.");
-        setTrips([]);
-      } finally {
+  // Always hits the API — used by both initial cache-miss load and manual refresh.
+  async function fetchFromApi({ isRefresh = false } = {}) {
+    if (isRefresh) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
+
+    try {
+      const { data } = await api.get("/trip/mine");
+      const fetchedTrips = Array.isArray(data?.data) ? data.data : [];
+      setTrips(fetchedTrips);
+      dispatch(setTripHistory(fetchedTrips));
+      if (isRefresh) toast.success("Trip history refreshed");
+    } catch {
+      toast.error("Failed to load trip history. Please try again.");
+      if (!isRefresh) setTrips([]);
+    } finally {
+      if (isRefresh) {
+        setRefreshing(false);
+      } else {
         setLoading(false);
       }
     }
-    fetchTrips();
+  }
+
+  useEffect(() => {
+    if (!isLoggedIn || !user) return;
+
+    // ── Store hit: use cached trip history, skip API call ──
+    if (storeTrips && storeTrips.length > 0) {
+      console.log("Trip history store hit");
+      setTrips(storeTrips);
+      setLoading(false);
+      return;
+    }
+
+    // ── Store miss: fetch from API and populate store ──
+    fetchFromApi();
   }, [isLoggedIn, user]);
+
+  function handleRefresh() {
+    if (refreshing || loading) return;
+    fetchFromApi({ isRefresh: true });
+  }
 
   const displayed = showAll ? trips : trips.slice(0, PREVIEW_COUNT);
   const hasMore = trips.length > PREVIEW_COUNT;
@@ -317,16 +349,37 @@ export default function TripHistory() {
   return (
     <div className="space-y-4">
       {/* Heading */}
-      <div>
-        <h2
-          className="text-xl font-bold"
-          style={{ color: "var(--color-navy)", fontFamily: "var(--font-playfair)" }}
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2
+            className="text-xl font-bold"
+            style={{ color: "var(--color-navy)", fontFamily: "var(--font-playfair)" }}
+          >
+            Trip History
+          </h2>
+          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>
+            View all your trip requests and their status
+          </p>
+        </div>
+
+        <button
+          onClick={handleRefresh}
+          disabled={refreshing || loading}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all hover:opacity-85 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+          style={{
+            color: "var(--color-navy)",
+            borderColor: "var(--color-border)",
+            background: "var(--color-white)",
+          }}
         >
-          Trip History
-        </h2>
-        <p className="text-sm mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>
-          View all your trip requests and their status
-        </p>
+          <RefreshCw
+            size={13}
+            style={{
+              animation: refreshing ? "spin 0.8s linear infinite" : "none",
+            }}
+          />
+          {refreshing ? "Refreshing..." : "Refresh"}
+        </button>
       </div>
 
       {/* Skeletons Loader */}
@@ -352,9 +405,7 @@ export default function TripHistory() {
 
       {/* View All Footer */}
       {!loading && hasMore && (
-        <div
-          className="flex justify-center pt-2"
-        >
+        <div className="flex justify-center pt-2">
           <button
             onClick={() => setShowAll((p) => !p)}
             className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-85 active:scale-[0.98] border shadow-sm bg-white"
@@ -371,6 +422,17 @@ export default function TripHistory() {
           </button>
         </div>
       )}
+
+      <style jsx>{`
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
     </div>
   );
 }
