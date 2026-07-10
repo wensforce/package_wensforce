@@ -1,1050 +1,40 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { load } from "@cashfreepayments/cashfree-js";
-import { Check, Shield, ArrowLeft, Gem, Crown } from "lucide-react";
-import { plans as mainPlans } from "../data/plans";
-import { plans as welcomePlans } from "../data/welcomeIndia";
+import {load} from "@cashfreepayments/cashfree-js"
+import {
+  Check,
+  Shield,
+  ArrowLeft,
+  Lock,
+  Car,
+  Users,
+  RotateCcw,
+  Calendar,
+  Headphones,
+  Star,
+  MapPin,
+  User,
+  Mail,
+  Globe,
+  IndianRupee,
+} from "lucide-react";
 import { useMetaEvents } from "../hooks/useMetaEvents";
 import api from "../axios/axios";
 import { useAuth } from "../context/AuthContext";
 
-const plans = [...mainPlans, ...welcomePlans];
-const welcomePlanIds = new Set(welcomePlans.map((p) => p.id));
+import {
+  INR,
+  WA_NUMBER,
+  GST_RATE,
+  CITIES,
+  CURRENCIES,
+  ZERO_DECIMAL,
+  THREE_DECIMAL,
+} from "../(protected)/booking/booking-helpers";
 
-// Fixed USD prices for Welcome India plans (not exchange-rate based)
-const WELCOME_USD_PRICES = {
-  "comfortable-arrival": 100,
-  "arrive-in-style": 150,
-  "arrival-in-grandeur": 370,
-  "ultimate-convoy-matrix": 900,
-  "end-to-end-concierge": 2100,
-};
-
-const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
-const WA_NUMBER = "917304607954";
-const GST_RATE = 0.18;
-
-// Top international currencies — keep codes in sync with API routes
-const CURRENCIES = [
-  // ── Common / High-traffic ──────────────────────────────────────────────────
-  {
-    code: "USD",
-    name: "US Dollar",
-    flag: "🇺🇸",
-    symbol: "$",
-    country: "United States",
-  },
-  {
-    code: "GBP",
-    name: "British Pound",
-    flag: "🇬🇧",
-    symbol: "£",
-    country: "United Kingdom",
-  },
-  {
-    code: "THB",
-    name: "Thai Baht",
-    flag: "🇹🇭",
-    symbol: "฿",
-    country: "Thailand",
-  },
-  {
-    code: "AED",
-    name: "UAE Dirham",
-    flag: "🇦🇪",
-    symbol: "AED ",
-    country: "United Arab Emirates",
-  },
-  {
-    code: "EUR",
-    name: "Euro",
-    flag: "🇪🇺",
-    symbol: "€",
-    country: "European Union",
-  },
-  {
-    code: "AUD",
-    name: "Australian Dollar",
-    flag: "🇦🇺",
-    symbol: "A$",
-    country: "Australia",
-  },
-  {
-    code: "CNY",
-    name: "Chinese Yuan",
-    flag: "🇨🇳",
-    symbol: "¥",
-    country: "China",
-  },
-  {
-    code: "LKR",
-    name: "Sri Lankan Rupee",
-    flag: "🇱🇰",
-    symbol: "LKR ",
-    country: "Sri Lanka",
-  },
-  {
-    code: "MYR",
-    name: "Malaysian Ringgit",
-    flag: "🇲🇾",
-    symbol: "MYR ",
-    country: "Malaysia",
-  },
-  {
-    code: "VND",
-    name: "Vietnamese Dong",
-    flag: "🇻🇳",
-    symbol: "₫",
-    country: "Vietnam",
-  },
-  {
-    code: "SGD",
-    name: "Singapore Dollar",
-    flag: "🇸🇬",
-    symbol: "S$",
-    country: "Singapore",
-  },
-  {
-    code: "SAR",
-    name: "Saudi Riyal",
-    flag: "🇸🇦",
-    symbol: "SAR ",
-    country: "Saudi Arabia",
-  },
-  {
-    code: "ZAR",
-    name: "South African Rand",
-    flag: "🇿🇦",
-    symbol: "ZAR ",
-    country: "South Africa",
-  },
-  {
-    code: "CHF",
-    name: "Swiss Franc",
-    flag: "🇨🇭",
-    symbol: "Fr ",
-    country: "Switzerland",
-  },
-  {
-    code: "CAD",
-    name: "Canadian Dollar",
-    flag: "🇨🇦",
-    symbol: "C$",
-    country: "Canada",
-  },
-  {
-    code: "NPR",
-    name: "Nepalese Rupee",
-    flag: "🇳🇵",
-    symbol: "NPR ",
-    country: "Nepal",
-  },
-  {
-    code: "OMR",
-    name: "Omani Rial",
-    flag: "🇴🇲",
-    symbol: "OMR ",
-    country: "Oman",
-  },
-  {
-    code: "HKD",
-    name: "Hong Kong Dollar",
-    flag: "🇭🇰",
-    symbol: "HK$",
-    country: "Hong Kong",
-  },
-  {
-    code: "BDT",
-    name: "Bangladeshi Taka",
-    flag: "🇧🇩",
-    symbol: "৳",
-    country: "Bangladesh",
-  },
-  {
-    code: "JPY",
-    name: "Japanese Yen",
-    flag: "🇯🇵",
-    symbol: "¥",
-    country: "Japan",
-  },
-  {
-    code: "SEK",
-    name: "Swedish Krona",
-    flag: "🇸🇪",
-    symbol: "SEK ",
-    country: "Sweden",
-  },
-  {
-    code: "QAR",
-    name: "Qatari Riyal",
-    flag: "🇶🇦",
-    symbol: "QAR ",
-    country: "Qatar",
-  },
-  {
-    code: "NZD",
-    name: "New Zealand Dollar",
-    flag: "🇳🇿",
-    symbol: "NZ$",
-    country: "New Zealand",
-  },
-  {
-    code: "ILS",
-    name: "Israeli New Shekel",
-    flag: "🇮🇱",
-    symbol: "₪",
-    country: "Israel",
-  },
-  {
-    code: "KWD",
-    name: "Kuwaiti Dinar",
-    flag: "🇰🇼",
-    symbol: "KWD ",
-    country: "Kuwait",
-  },
-  {
-    code: "BHD",
-    name: "Bahraini Dinar",
-    flag: "🇧🇭",
-    symbol: "BHD ",
-    country: "Bahrain",
-  },
-  {
-    code: "DKK",
-    name: "Danish Krone",
-    flag: "🇩🇰",
-    symbol: "kr ",
-    country: "Denmark",
-  },
-  {
-    code: "KES",
-    name: "Kenyan Shilling",
-    flag: "🇰🇪",
-    symbol: "KES ",
-    country: "Kenya",
-  },
-  {
-    code: "MUR",
-    name: "Mauritian Rupee",
-    flag: "🇲🇺",
-    symbol: "MUR ",
-    country: "Mauritius",
-  },
-  {
-    code: "NOK",
-    name: "Norwegian Krone",
-    flag: "🇳🇴",
-    symbol: "NOK ",
-    country: "Norway",
-  },
-  {
-    code: "PHP",
-    name: "Philippine Peso",
-    flag: "🇵🇭",
-    symbol: "₱",
-    country: "Philippines",
-  },
-  {
-    code: "RUB",
-    name: "Russian Ruble",
-    flag: "🇷🇺",
-    symbol: "₽",
-    country: "Russia",
-  },
-  // ── A ──────────────────────────────────────────────────────────────────────
-  {
-    code: "AFN",
-    name: "Afghan Afghani",
-    flag: "🇦🇫",
-    symbol: "؋",
-    country: "Afghanistan",
-  },
-  {
-    code: "ALL",
-    name: "Albanian Lek",
-    flag: "🇦🇱",
-    symbol: "L ",
-    country: "Albania",
-  },
-  {
-    code: "DZD",
-    name: "Algerian Dinar",
-    flag: "🇩🇿",
-    symbol: "DZD ",
-    country: "Algeria",
-  },
-  {
-    code: "AOA",
-    name: "Angolan Kwanza",
-    flag: "🇦🇴",
-    symbol: "Kz ",
-    country: "Angola",
-  },
-  {
-    code: "XCD",
-    name: "East Caribbean Dollar",
-    flag: "🌴",
-    symbol: "EC$",
-    country: "East Caribbean",
-  },
-  {
-    code: "ARS",
-    name: "Argentine Peso",
-    flag: "🇦🇷",
-    symbol: "$",
-    country: "Argentina",
-  },
-  {
-    code: "AMD",
-    name: "Armenian Dram",
-    flag: "🇦🇲",
-    symbol: "AMD ",
-    country: "Armenia",
-  },
-  {
-    code: "AWG",
-    name: "Aruban Florin",
-    flag: "🇦🇼",
-    symbol: "ƒ",
-    country: "Aruba",
-  },
-  {
-    code: "AZN",
-    name: "Azerbaijani Manat",
-    flag: "🇦🇿",
-    symbol: "₼",
-    country: "Azerbaijan",
-  },
-  // ── B ──────────────────────────────────────────────────────────────────────
-  {
-    code: "BSD",
-    name: "Bahamian Dollar",
-    flag: "🇧🇸",
-    symbol: "$",
-    country: "Bahamas",
-  },
-  {
-    code: "BBD",
-    name: "Barbadian Dollar",
-    flag: "🇧🇧",
-    symbol: "$",
-    country: "Barbados",
-  },
-  {
-    code: "BZD",
-    name: "Belize Dollar",
-    flag: "🇧🇿",
-    symbol: "BZ$",
-    country: "Belize",
-  },
-  {
-    code: "XOF",
-    name: "West African CFA Franc",
-    flag: "🌍",
-    symbol: "XOF ",
-    country: "West Africa",
-  },
-  {
-    code: "BMD",
-    name: "Bermudian Dollar",
-    flag: "🇧🇲",
-    symbol: "$",
-    country: "Bermuda",
-  },
-  {
-    code: "BTN",
-    name: "Bhutanese Ngultrum",
-    flag: "🇧🇹",
-    symbol: "Nu ",
-    country: "Bhutan",
-  },
-  {
-    code: "BOB",
-    name: "Bolivian Boliviano",
-    flag: "🇧🇴",
-    symbol: "Bs ",
-    country: "Bolivia",
-  },
-  {
-    code: "BWP",
-    name: "Botswana Pula",
-    flag: "🇧🇼",
-    symbol: "P ",
-    country: "Botswana",
-  },
-  {
-    code: "BAM",
-    name: "Bosnia-Herzegovina Mark",
-    flag: "🇧🇦",
-    symbol: "KM ",
-    country: "Bosnia & Herzegovina",
-  },
-  {
-    code: "BRL",
-    name: "Brazilian Real",
-    flag: "🇧🇷",
-    symbol: "R$",
-    country: "Brazil",
-  },
-  {
-    code: "BND",
-    name: "Brunei Dollar",
-    flag: "🇧🇳",
-    symbol: "$",
-    country: "Brunei",
-  },
-  {
-    code: "BGN",
-    name: "Bulgarian Lev",
-    flag: "🇧🇬",
-    symbol: "лв ",
-    country: "Bulgaria",
-  },
-  {
-    code: "BIF",
-    name: "Burundian Franc",
-    flag: "🇧🇮",
-    symbol: "Fr ",
-    country: "Burundi",
-  },
-  // ── C ──────────────────────────────────────────────────────────────────────
-  {
-    code: "KHR",
-    name: "Cambodian Riel",
-    flag: "🇰🇭",
-    symbol: "៛",
-    country: "Cambodia",
-  },
-  {
-    code: "XAF",
-    name: "Central African CFA",
-    flag: "🌍",
-    symbol: "XAF ",
-    country: "Central Africa",
-  },
-  {
-    code: "CVE",
-    name: "Cape Verdean Escudo",
-    flag: "🇨🇻",
-    symbol: "$",
-    country: "Cape Verde",
-  },
-  {
-    code: "KYD",
-    name: "Cayman Islands Dollar",
-    flag: "🇰🇾",
-    symbol: "$",
-    country: "Cayman Islands",
-  },
-  {
-    code: "CLP",
-    name: "Chilean Peso",
-    flag: "🇨🇱",
-    symbol: "$",
-    country: "Chile",
-  },
-  {
-    code: "COP",
-    name: "Colombian Peso",
-    flag: "🇨🇴",
-    symbol: "$",
-    country: "Colombia",
-  },
-  {
-    code: "KMF",
-    name: "Comorian Franc",
-    flag: "🇰🇲",
-    symbol: "Fr ",
-    country: "Comoros",
-  },
-  {
-    code: "CRC",
-    name: "Costa Rican Colón",
-    flag: "🇨🇷",
-    symbol: "₡",
-    country: "Costa Rica",
-  },
-  {
-    code: "CZK",
-    name: "Czech Koruna",
-    flag: "🇨🇿",
-    symbol: "Kč ",
-    country: "Czech Republic",
-  },
-  // ── D ──────────────────────────────────────────────────────────────────────
-  {
-    code: "CDF",
-    name: "Congolese Franc",
-    flag: "🇨🇩",
-    symbol: "Fr ",
-    country: "DR Congo",
-  },
-  {
-    code: "DJF",
-    name: "Djiboutian Franc",
-    flag: "🇩🇯",
-    symbol: "Fr ",
-    country: "Djibouti",
-  },
-  {
-    code: "DOP",
-    name: "Dominican Peso",
-    flag: "🇩🇴",
-    symbol: "$",
-    country: "Dominican Republic",
-  },
-  // ── E ──────────────────────────────────────────────────────────────────────
-  {
-    code: "EGP",
-    name: "Egyptian Pound",
-    flag: "🇪🇬",
-    symbol: "£",
-    country: "Egypt",
-  },
-  {
-    code: "ERN",
-    name: "Eritrean Nakfa",
-    flag: "🇪🇷",
-    symbol: "Nfk ",
-    country: "Eritrea",
-  },
-  {
-    code: "ETB",
-    name: "Ethiopian Birr",
-    flag: "🇪🇹",
-    symbol: "Br ",
-    country: "Ethiopia",
-  },
-  // ── F ──────────────────────────────────────────────────────────────────────
-  {
-    code: "FJD",
-    name: "Fijian Dollar",
-    flag: "🇫🇯",
-    symbol: "$",
-    country: "Fiji",
-  },
-  {
-    code: "FKP",
-    name: "Falkland Islands Pound",
-    flag: "🇫🇰",
-    symbol: "£",
-    country: "Falkland Islands",
-  },
-  // ── G ──────────────────────────────────────────────────────────────────────
-  {
-    code: "GMD",
-    name: "Gambian Dalasi",
-    flag: "🇬🇲",
-    symbol: "D ",
-    country: "Gambia",
-  },
-  {
-    code: "GEL",
-    name: "Georgian Lari",
-    flag: "🇬🇪",
-    symbol: "₾",
-    country: "Georgia",
-  },
-  {
-    code: "GHS",
-    name: "Ghanaian Cedi",
-    flag: "🇬🇭",
-    symbol: "GH₵",
-    country: "Ghana",
-  },
-  {
-    code: "GIP",
-    name: "Gibraltar Pound",
-    flag: "🇬🇮",
-    symbol: "£",
-    country: "Gibraltar",
-  },
-  {
-    code: "GTQ",
-    name: "Guatemalan Quetzal",
-    flag: "🇬🇹",
-    symbol: "Q ",
-    country: "Guatemala",
-  },
-  {
-    code: "GNF",
-    name: "Guinean Franc",
-    flag: "🇬🇳",
-    symbol: "Fr ",
-    country: "Guinea",
-  },
-  {
-    code: "GYD",
-    name: "Guyanese Dollar",
-    flag: "🇬🇾",
-    symbol: "$",
-    country: "Guyana",
-  },
-  // ── H ──────────────────────────────────────────────────────────────────────
-  {
-    code: "HTG",
-    name: "Haitian Gourde",
-    flag: "🇭🇹",
-    symbol: "G ",
-    country: "Haiti",
-  },
-  {
-    code: "HNL",
-    name: "Honduran Lempira",
-    flag: "🇭🇳",
-    symbol: "L ",
-    country: "Honduras",
-  },
-  {
-    code: "HUF",
-    name: "Hungarian Forint",
-    flag: "🇭🇺",
-    symbol: "Ft ",
-    country: "Hungary",
-  },
-  // ── I ──────────────────────────────────────────────────────────────────────
-  {
-    code: "ISK",
-    name: "Icelandic Króna",
-    flag: "🇮🇸",
-    symbol: "kr ",
-    country: "Iceland",
-  },
-  {
-    code: "IDR",
-    name: "Indonesian Rupiah",
-    flag: "🇮🇩",
-    symbol: "Rp ",
-    country: "Indonesia",
-  },
-  {
-    code: "IQD",
-    name: "Iraqi Dinar",
-    flag: "🇮🇶",
-    symbol: "IQD ",
-    country: "Iraq",
-  },
-  // ── J ──────────────────────────────────────────────────────────────────────
-  {
-    code: "JMD",
-    name: "Jamaican Dollar",
-    flag: "🇯🇲",
-    symbol: "$",
-    country: "Jamaica",
-  },
-  {
-    code: "JOD",
-    name: "Jordanian Dinar",
-    flag: "🇯🇴",
-    symbol: "JOD ",
-    country: "Jordan",
-  },
-  // ── K ──────────────────────────────────────────────────────────────────────
-  {
-    code: "KZT",
-    name: "Kazakhstani Tenge",
-    flag: "🇰🇿",
-    symbol: "₸",
-    country: "Kazakhstan",
-  },
-  {
-    code: "KGS",
-    name: "Kyrgyzstani Som",
-    flag: "🇰🇬",
-    symbol: "с ",
-    country: "Kyrgyzstan",
-  },
-  {
-    code: "KRW",
-    name: "South Korean Won",
-    flag: "🇰🇷",
-    symbol: "₩",
-    country: "South Korea",
-  },
-  // ── L ──────────────────────────────────────────────────────────────────────
-  { code: "LAK", name: "Lao Kip", flag: "🇱🇦", symbol: "₭", country: "Laos" },
-  {
-    code: "LBP",
-    name: "Lebanese Pound",
-    flag: "🇱🇧",
-    symbol: "LBP ",
-    country: "Lebanon",
-  },
-  {
-    code: "LRD",
-    name: "Liberian Dollar",
-    flag: "🇱🇷",
-    symbol: "$",
-    country: "Liberia",
-  },
-  {
-    code: "LYD",
-    name: "Libyan Dinar",
-    flag: "🇱🇾",
-    symbol: "LYD ",
-    country: "Libya",
-  },
-  // ── M ──────────────────────────────────────────────────────────────────────
-  {
-    code: "MAD",
-    name: "Moroccan Dirham",
-    flag: "🇲🇦",
-    symbol: "MAD ",
-    country: "Morocco",
-  },
-  {
-    code: "MDL",
-    name: "Moldovan Leu",
-    flag: "🇲🇩",
-    symbol: "L ",
-    country: "Moldova",
-  },
-  {
-    code: "MGA",
-    name: "Malagasy Ariary",
-    flag: "🇲🇬",
-    symbol: "Ar ",
-    country: "Madagascar",
-  },
-  {
-    code: "MKD",
-    name: "Macedonian Denar",
-    flag: "🇲🇰",
-    symbol: "den ",
-    country: "North Macedonia",
-  },
-  {
-    code: "MNT",
-    name: "Mongolian Tögrög",
-    flag: "🇲🇳",
-    symbol: "₮",
-    country: "Mongolia",
-  },
-  {
-    code: "MOP",
-    name: "Macanese Pataca",
-    flag: "🇲🇴",
-    symbol: "P ",
-    country: "Macau",
-  },
-  {
-    code: "MRU",
-    name: "Mauritanian Ouguiya",
-    flag: "🇲🇷",
-    symbol: "UM ",
-    country: "Mauritania",
-  },
-  {
-    code: "MVR",
-    name: "Maldivian Rufiyaa",
-    flag: "🇲🇻",
-    symbol: "Rf ",
-    country: "Maldives",
-  },
-  {
-    code: "MWK",
-    name: "Malawian Kwacha",
-    flag: "🇲🇼",
-    symbol: "MK ",
-    country: "Malawi",
-  },
-  {
-    code: "MXN",
-    name: "Mexican Peso",
-    flag: "🇲🇽",
-    symbol: "$",
-    country: "Mexico",
-  },
-  {
-    code: "MZN",
-    name: "Mozambican Metical",
-    flag: "🇲🇿",
-    symbol: "MT ",
-    country: "Mozambique",
-  },
-  // ── N ──────────────────────────────────────────────────────────────────────
-  {
-    code: "NAD",
-    name: "Namibian Dollar",
-    flag: "🇳🇦",
-    symbol: "$",
-    country: "Namibia",
-  },
-  {
-    code: "NGN",
-    name: "Nigerian Naira",
-    flag: "🇳🇬",
-    symbol: "₦",
-    country: "Nigeria",
-  },
-  {
-    code: "NIO",
-    name: "Nicaraguan Córdoba",
-    flag: "🇳🇮",
-    symbol: "C$",
-    country: "Nicaragua",
-  },
-  // ── P ──────────────────────────────────────────────────────────────────────
-  {
-    code: "PGK",
-    name: "Papua New Guinean Kina",
-    flag: "🇵🇬",
-    symbol: "K ",
-    country: "Papua New Guinea",
-  },
-  {
-    code: "PYG",
-    name: "Paraguayan Guaraní",
-    flag: "🇵🇾",
-    symbol: "₲",
-    country: "Paraguay",
-  },
-  {
-    code: "PEN",
-    name: "Peruvian Sol",
-    flag: "🇵🇪",
-    symbol: "S/",
-    country: "Peru",
-  },
-  {
-    code: "PLN",
-    name: "Polish Złoty",
-    flag: "🇵🇱",
-    symbol: "zł ",
-    country: "Poland",
-  },
-  // ── R ──────────────────────────────────────────────────────────────────────
-  {
-    code: "RON",
-    name: "Romanian Leu",
-    flag: "🇷🇴",
-    symbol: "lei ",
-    country: "Romania",
-  },
-  {
-    code: "RSD",
-    name: "Serbian Dinar",
-    flag: "🇷🇸",
-    symbol: "din ",
-    country: "Serbia",
-  },
-  {
-    code: "RWF",
-    name: "Rwandan Franc",
-    flag: "🇷🇼",
-    symbol: "Fr ",
-    country: "Rwanda",
-  },
-  // ── S ──────────────────────────────────────────────────────────────────────
-  {
-    code: "SBD",
-    name: "Solomon Islands Dollar",
-    flag: "🇸🇧",
-    symbol: "$",
-    country: "Solomon Islands",
-  },
-  {
-    code: "SCR",
-    name: "Seychellois Rupee",
-    flag: "🇸🇨",
-    symbol: "SR ",
-    country: "Seychelles",
-  },
-  {
-    code: "SHP",
-    name: "Saint Helena Pound",
-    flag: "🇸🇭",
-    symbol: "£",
-    country: "Saint Helena",
-  },
-  {
-    code: "SLL",
-    name: "Sierra Leonean Leone",
-    flag: "🇸🇱",
-    symbol: "Le ",
-    country: "Sierra Leone",
-  },
-  {
-    code: "SOS",
-    name: "Somali Shilling",
-    flag: "🇸🇴",
-    symbol: "Sh ",
-    country: "Somalia",
-  },
-  {
-    code: "SRD",
-    name: "Surinamese Dollar",
-    flag: "🇸🇷",
-    symbol: "$",
-    country: "Suriname",
-  },
-  {
-    code: "SZL",
-    name: "Swazi Lilangeni",
-    flag: "🇸🇿",
-    symbol: "L ",
-    country: "Eswatini",
-  },
-  // ── T ──────────────────────────────────────────────────────────────────────
-  {
-    code: "TJS",
-    name: "Tajikistani Somoni",
-    flag: "🇹🇯",
-    symbol: "SM ",
-    country: "Tajikistan",
-  },
-  {
-    code: "TMT",
-    name: "Turkmenistani Manat",
-    flag: "🇹🇲",
-    symbol: "T ",
-    country: "Turkmenistan",
-  },
-  {
-    code: "TND",
-    name: "Tunisian Dinar",
-    flag: "🇹🇳",
-    symbol: "TND ",
-    country: "Tunisia",
-  },
-  {
-    code: "TOP",
-    name: "Tongan Paʻanga",
-    flag: "🇹🇴",
-    symbol: "T$",
-    country: "Tonga",
-  },
-  {
-    code: "TTD",
-    name: "Trinidad & Tobago Dollar",
-    flag: "🇹🇹",
-    symbol: "$",
-    country: "Trinidad & Tobago",
-  },
-  {
-    code: "TRY",
-    name: "Turkish Lira",
-    flag: "🇹🇷",
-    symbol: "₺",
-    country: "Turkey",
-  },
-  {
-    code: "TWD",
-    name: "New Taiwan Dollar",
-    flag: "🇹🇼",
-    symbol: "NT$",
-    country: "Taiwan",
-  },
-  {
-    code: "TZS",
-    name: "Tanzanian Shilling",
-    flag: "🇹🇿",
-    symbol: "Sh ",
-    country: "Tanzania",
-  },
-  // ── U ──────────────────────────────────────────────────────────────────────
-  {
-    code: "UAH",
-    name: "Ukrainian Hryvnia",
-    flag: "🇺🇦",
-    symbol: "₴",
-    country: "Ukraine",
-  },
-  {
-    code: "UGX",
-    name: "Ugandan Shilling",
-    flag: "🇺🇬",
-    symbol: "Sh ",
-    country: "Uganda",
-  },
-  {
-    code: "UYU",
-    name: "Uruguayan Peso",
-    flag: "🇺🇾",
-    symbol: "$",
-    country: "Uruguay",
-  },
-  {
-    code: "UZS",
-    name: "Uzbekistani Som",
-    flag: "🇺🇿",
-    symbol: "UZS ",
-    country: "Uzbekistan",
-  },
-  // ── V–Z ────────────────────────────────────────────────────────────────────
-  {
-    code: "VUV",
-    name: "Vanuatu Vatu",
-    flag: "🇻🇺",
-    symbol: "Vt ",
-    country: "Vanuatu",
-  },
-  {
-    code: "WST",
-    name: "Samoan Tālā",
-    flag: "🇼🇸",
-    symbol: "T ",
-    country: "Samoa",
-  },
-  {
-    code: "XPF",
-    name: "CFP Franc",
-    flag: "🇵🇫",
-    symbol: "Fr ",
-    country: "French Polynesia",
-  },
-  {
-    code: "YER",
-    name: "Yemeni Rial",
-    flag: "🇾🇪",
-    symbol: "YER ",
-    country: "Yemen",
-  },
-  {
-    code: "ZMW",
-    name: "Zambian Kwacha",
-    flag: "🇿🇲",
-    symbol: "ZK ",
-    country: "Zambia",
-  },
-];
-
-// Currencies with no decimal places
-const ZERO_DECIMAL = new Set([
-  "JPY",
-  "KRW",
-  "IDR",
-  "VND",
-  "BIF",
-  "CLP",
-  "DJF",
-  "GNF",
-  "ISK",
-  "KMF",
-  "MGA",
-  "PYG",
-  "RWF",
-  "UGX",
-  "VUV",
-  "XAF",
-  "XOF",
-  "XPF",
-]);
-// Currencies with 3 decimal places
-const THREE_DECIMAL = new Set([
-  "KWD",
-  "BHD",
-  "OMR",
-  "JOD",
-  "TND",
-  "IQD",
-  "LYD",
-]);
-
-// Format an amount in a foreign currency
 const fmtForeign = (amount, code) => {
   if (amount === null || amount === undefined || isNaN(amount)) return "…";
   const decimals = ZERO_DECIMAL.has(code) ? 0 : THREE_DECIMAL.has(code) ? 3 : 2;
@@ -1052,57 +42,72 @@ const fmtForeign = (amount, code) => {
   return sym + Number(amount).toFixed(decimals);
 };
 
-// Round foreign amount up to the appropriate decimal precision
 const roundForeign = (amount, code) => {
   if (ZERO_DECIMAL.has(code)) return Math.ceil(amount);
   if (THREE_DECIMAL.has(code)) return Math.ceil(amount * 1000) / 1000;
   return Math.ceil(amount * 100) / 100;
 };
 
-const CITIES = [
-  "Mumbai",
-  "Delhi NCR",
-  "Bangalore",
-  "Hyderabad",
-  "Chennai",
-  "Pune",
-  "Kolkata",
-  "Ahmedabad",
-  "Jaipur",
-  "Lucknow",
-  "Other",
-];
-
-const TIER_HIGHLIGHTS = Object.fromEntries(
-  plans.map((p) => [
-    p.id,
-    p.privileges.map((priv) => ({
-      text:
-        !welcomePlanIds.has(p.id) && priv.worth
-          ? `${priv.title} (worth ₹${priv.worth.toLocaleString("en-IN")})`
-          : priv.title,
-      bold: !welcomePlanIds.has(p.id) && !!priv.worth,
-    })),
-  ]),
-);
-
-const PLAN_IMAGES = Object.fromEntries(plans.map((p) => [p.id, p.image]));
-
-const PLAN_ACCENTS = {
-  essential: { color: "#94a3b8", badge: null },
-  executive: { color: "#60a5fa", badge: null },
-  premium: { color: "#9ca3af", badge: null },
-  elite: { color: "#C9A24B", badge: "◆ Best Value" },
-  sovereign: { color: "#c0c0c0", badge: "Ultra Exclusive" },
+/* ─────────────────────────────────────────────────────────────────────────
+   PACKAGE CAPSULES
+───────────────────────────────────────────────────────────────────────── */
+const formatVehicleType = (v) => {
+  if (!v) return "";
+  const u = v.toUpperCase();
+  return ["SUV", "MPV", "EV", "VIP", "VAN", "MUV"].includes(u)
+    ? u
+    : v.charAt(0).toUpperCase() + v.slice(1).toLowerCase();
 };
 
-// ── Success State ────────────────────────────────────────────────────────────
-function SuccessState({ plan, form }) {
-  const waMsg = `Hi WENS Force! I just reserved the ${plan.name} Membership (${INR(plan.price)}/yr).\n\nName: ${form.name}\nMobile: ${form.phone}\nCity: ${form.city || "Not specified"}\n\nPlease send the payment link to complete my booking.`;
+const buildCapsules = (pkg) => {
+  const items = [];
+  if (pkg.trips)
+    items.push({
+      Icon: RotateCcw,
+      text: `${pkg.trips} Trip${pkg.trips !== 1 ? "s" : ""}`,
+    });
+  if (pkg.validity)
+    items.push({
+      Icon: Calendar,
+      text: `${pkg.validity} Month${pkg.validity !== 1 ? "s" : ""} Validity`,
+    });
+  if (pkg.vehicleModel && pkg.vehicleType)
+    items.push({
+      Icon: Car,
+      text: `${pkg.vehicleModel} · ${formatVehicleType(pkg.vehicleType)}`,
+    });
+  else if (pkg.vehicleModel) items.push({ Icon: Car, text: pkg.vehicleModel });
+  else if (pkg.vehicleType)
+    items.push({ Icon: Car, text: formatVehicleType(pkg.vehicleType) });
+  if (pkg.bodyguardType)
+    items.push({ Icon: Shield, text: `${pkg.bodyguardType} Security` });
+  return items;
+};
 
+const SERVICE_ICONS = [
+  Star,
+  Headphones,
+  MapPin,
+  Users,
+  Lock,
+  Car,
+  Shield,
+  Check,
+];
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SUCCESS STATE
+───────────────────────────────────────────────────────────────────────── */
+function SuccessState({ packageData, form }) {
+  const price = packageData.discountedPrice;
+  const waMsg = encodeURIComponent(
+    `Hi WENS Force! I just reserved the ${packageData.name} Package (${INR(price)}/yr).\n\nName: ${form.name}\nMobile: ${form.phone}\nCity: ${form.city || "Not specified"}\n\nPlease send the payment link.`,
+  );
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#0a0a0a" }}>
-      {/* Atmospheric orb */}
+    <div
+      className="min-h-screen flex items-center justify-center px-6 py-20"
+      style={{ backgroundColor: "#0a0a0a" }}
+    >
       <div
         className="fixed top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full blur-[120px] pointer-events-none opacity-30"
         style={{
@@ -1110,141 +115,119 @@ function SuccessState({ plan, form }) {
             "radial-gradient(ellipse, rgba(201,162,75,0.35) 0%, transparent 70%)",
         }}
       />
-
-      <div className="relative min-h-screen flex flex-col items-center justify-center px-6 py-20">
-        <div className="max-w-lg w-full">
-          {/* Check icon */}
-          <div className="flex justify-center mb-8">
-            <div
-              className="w-20 h-20 rounded-full flex items-center justify-center shadow-2xl"
-              style={{
-                background: "linear-gradient(135deg, #C9A24B, #f0c940)",
-                boxShadow:
-                  "0 0 0 8px rgba(201,162,75,0.12), 0 16px 48px rgba(201,162,75,0.4)",
-              }}
-            >
-              <Check size={36} strokeWidth={3} className="text-black" />
-            </div>
-          </div>
-
-          {/* Status label */}
-          <p
-            className="text-center text-[9px] font-bold tracking-[0.55em] uppercase mb-3"
-            style={{ color: "#C9A24B" }}
-          >
-            Spot Reserved
-          </p>
-
-          {/* Heading */}
-          <h1 className="font-serif-display text-center text-4xl sm:text-5xl font-bold text-white mb-4 leading-tight">
-            You&apos;re In,
-            <br />
-            {form.name.split(" ")[0]}!
-          </h1>
-
-          <p className="text-center text-white/50 text-base font-light leading-relaxed mb-2">
-            Your{" "}
-            <strong className="text-[#C9A24B] font-semibold">
-              {plan.name} Membership
-            </strong>{" "}
-            founding spot is secured.
-          </p>
-          <p className="text-center text-white/40 text-sm font-light leading-relaxed mb-10">
-            Our concierge will call{" "}
-            <span className="text-white/65">{form.phone}</span> within 12 hours
-            to complete payment.
-          </p>
-
-          {/* Timeline */}
-          <div className="relative flex items-start justify-center gap-0 mb-10 px-4">
-            {/* Connector lines */}
-            <div
-              className="absolute top-4 left-[calc(50%-60px)] right-[calc(50%-60px)] h-px"
-              style={{ background: "rgba(201,162,75,0.2)" }}
-            />
-
-            {[
-              { label: "Spot Reserved", sub: "Right now", done: true },
-              { label: "Concierge Calls", sub: "Within 12 hours", done: false },
-              {
-                label: "Membership Active",
-                sub: "After 24 hours",
-                done: false,
-              },
-            ].map((s, i) => (
-              <div
-                key={i}
-                className="flex flex-col items-center relative z-10 w-28"
-              >
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold mb-3 border-2"
-                  style={{
-                    backgroundColor: s.done
-                      ? "#C9A24B"
-                      : "rgba(255,255,255,0.06)",
-                    borderColor: s.done ? "#C9A24B" : "rgba(255,255,255,0.12)",
-                    color: s.done ? "#000" : "rgba(255,255,255,0.3)",
-                  }}
-                >
-                  {s.done ? (
-                    <Check size={13} strokeWidth={3} />
-                  ) : (
-                    <span>{i + 1}</span>
-                  )}
-                </div>
-                <p
-                  className={`text-[11px] font-semibold text-center leading-tight ${s.done ? "text-[#C9A24B]" : "text-white/35"}`}
-                >
-                  {s.label}
-                </p>
-                <p className="text-[10px] text-white/20 text-center mt-0.5">
-                  {s.sub}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* WhatsApp CTA */}
-          <a
-            href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(waMsg)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2.5 w-full py-4 rounded-2xl font-bold text-white text-sm mb-3 transition-all hover:opacity-90 hover:shadow-xl hover:-translate-y-0.5"
+      <div className="relative max-w-lg w-full">
+        <div className="flex justify-center mb-8">
+          <div
+            className="w-20 h-20 rounded-full flex items-center justify-center"
             style={{
-              backgroundColor: "#25D366",
-              boxShadow: "0 8px 24px rgba(37,211,102,0.25)",
+              background: "linear-gradient(135deg,#C9A24B,#f0c940)",
+              boxShadow:
+                "0 0 0 8px rgba(201,162,75,0.12),0 16px 48px rgba(201,162,75,0.4)",
             }}
           >
-            <svg viewBox="0 0 32 32" width="18" height="18" fill="white">
-              <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.668 4.799 1.836 6.793L2 30l7.393-1.812A13.918 13.918 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2z" />
-            </svg>
-            Connect on WhatsApp Now
-          </a>
-          <p className="text-center text-white/25 text-xs mb-8">
-            Can&apos;t wait for the call? Message us to fast-track your
-            activation.
-          </p>
-
-          <Link
-            href="/"
-            className="flex items-center justify-center gap-1.5 text-white/20 text-xs hover:text-white/45 transition-colors"
-          >
-            <ArrowLeft size={12} />
-            Back to wensforce.com
-          </Link>
+            <Check size={36} strokeWidth={3} className="text-black" />
+          </div>
         </div>
+        <p
+          className="text-center text-[9px] font-bold tracking-[0.55em] uppercase mb-3"
+          style={{ color: "#C9A24B" }}
+        >
+          Spot Reserved
+        </p>
+        <h1 className="text-center text-4xl sm:text-5xl font-bold text-white mb-4 leading-tight">
+          You&apos;re In,
+          <br />
+          {form.name.split(" ")[0]}!
+        </h1>
+        <p className="text-center text-white/50 text-base font-light mb-2">
+          Your <strong className="text-[#C9A24B]">{packageData.name}</strong>{" "}
+          founding spot is secured.
+        </p>
+        <p className="text-center text-white/40 text-sm font-light mb-10">
+          Our concierge will call{" "}
+          <span className="text-white/65">{form.phone}</span> within 12 hours.
+        </p>
+        <div className="relative flex items-start justify-center mb-10 px-4">
+          <div
+            className="absolute top-4 left-[calc(50%-60px)] right-[calc(50%-60px)] h-px"
+            style={{ background: "rgba(201,162,75,0.2)" }}
+          />
+          {[
+            { label: "Spot Reserved", sub: "Right now", done: true },
+            { label: "Concierge Calls", sub: "Within 12 hours", done: false },
+            { label: "Package Active", sub: "After payment", done: false },
+          ].map((s, i) => (
+            <div
+              key={i}
+              className="flex flex-col items-center relative z-10 w-28"
+            >
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold mb-3 border-2"
+                style={{
+                  backgroundColor: s.done
+                    ? "#C9A24B"
+                    : "rgba(255,255,255,0.06)",
+                  borderColor: s.done ? "#C9A24B" : "rgba(255,255,255,0.12)",
+                  color: s.done ? "#000" : "rgba(255,255,255,0.3)",
+                }}
+              >
+                {s.done ? (
+                  <Check size={13} strokeWidth={3} />
+                ) : (
+                  <span>{i + 1}</span>
+                )}
+              </div>
+              <p
+                className={`text-[11px] font-semibold text-center leading-tight ${s.done ? "text-[#C9A24B]" : "text-white/35"}`}
+              >
+                {s.label}
+              </p>
+              <p className="text-[10px] text-white/20 text-center mt-0.5">
+                {s.sub}
+              </p>
+            </div>
+          ))}
+        </div>
+        <a
+          href={`https://wa.me/${WA_NUMBER}?text=${waMsg}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-2.5 w-full py-4 rounded-2xl font-bold text-white text-sm mb-3 hover:opacity-90 transition-all"
+          style={{
+            backgroundColor: "#25D366",
+            boxShadow: "0 8px 24px rgba(37,211,102,0.25)",
+          }}
+        >
+          <svg viewBox="0 0 32 32" width="18" height="18" fill="white">
+            <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.668 4.799 1.836 6.793L2 30l7.393-1.812A13.918 13.918 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2z" />
+          </svg>
+          Connect on WhatsApp Now
+        </a>
+        <Link
+          href="/"
+          className="flex items-center justify-center gap-1.5 text-white/20 text-xs hover:text-white/45 transition-colors"
+        >
+          <ArrowLeft size={12} /> Back to wensforce.com
+        </Link>
       </div>
     </div>
   );
 }
 
-// ── Main Component ────────────────────────────────────────────────────────────
+/* ─────────────────────────────────────────────────────────────────────────
+   MAIN COMPONENT
+   Props:
+     packageData   — the `data` object from packages API response
+     foundingSpots — spots already taken (0-100)
+───────────────────────────────────────────────────────────────────────── */
 export default function BookingPageContent({
-  plan,
-  anchorPrice,
-  foundingSpots,
+  packageData,
+  foundingSpots = 30,
 }) {
   const { user } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -1255,86 +238,90 @@ export default function BookingPageContent({
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [payError, setPayError] = useState("");
-  const searchParams = useSearchParams();
+
   const urlCurrency = searchParams.get("currency");
-  const initCurrency =
-    urlCurrency && urlCurrency !== "INR" ? urlCurrency : "USD";
   const initMethod =
     urlCurrency && urlCurrency !== "INR" ? "international" : "india";
+  const initCurrency =
+    urlCurrency && urlCurrency !== "INR" ? urlCurrency : "USD";
 
   const [paymentMethod, setPaymentMethod] = useState(initMethod);
   const [selectedCurrency, setSelectedCurrency] = useState(initCurrency);
-  const [currencyRate, setCurrencyRate] = useState(94); // INR per 1 unit of selectedCurrency
+  const [currencyRate, setCurrencyRate] = useState(94);
   const [currencyRateLoading, setCurrencyRateLoading] = useState(false);
 
-  const isFixedUSD = selectedCurrency === "USD" && welcomePlanIds.has(plan.id);
+  const price = packageData?.discountedPrice || 0;
+  const anchorPrice = packageData?.regularPrice || 0;
+  const hasDiscount = anchorPrice > price;
+  const isIndia = paymentMethod === "india";
 
+  /* pre-fill from auth */
   useEffect(() => {
-    if (user) {
-      const rawPhone = (user.mobileNumber || "").replace(/\D/g, "");
-      // Strip country code: if more than 10 digits, take the last 10
-      const phone = rawPhone.length > 10 ? rawPhone.slice(-10) : rawPhone;
-      setForm((f) => ({
-        ...f,
-        name: user.name || "",
-        email: user.email || "",
-        phone: paymentMethod === "india" ? phone : user.mobileNumber || "",
-      }));
-    }
-  }, [user, paymentMethod]);
+    if (!user) return;
+    const raw = (user.mobileNumber || "").replace(/\D/g, "");
+    const phone = raw.length > 10 ? raw.slice(-10) : raw;
+    setForm((f) => ({
+      ...f,
+      name: user.name || "",
+      email: user.email || "",
+      phone: isIndia ? phone : user.mobileNumber || "",
+    }));
+  }, [user, paymentMethod]); // eslint-disable-line
 
+  /* exchange rate */
   useEffect(() => {
-    if (paymentMethod === "india" || isFixedUSD) return;
+    if (isIndia) return;
     setCurrencyRateLoading(true);
     fetch(`/api/exchange-rate?currency=${selectedCurrency}`)
       .then((r) => r.json())
       .then((d) => setCurrencyRate(d.rate || 94))
       .catch(() => {})
       .finally(() => setCurrencyRateLoading(false));
-  }, [paymentMethod, selectedCurrency, isFixedUSD]);
+  }, [paymentMethod, selectedCurrency]); // eslint-disable-line
 
-  const highlights = TIER_HIGHLIGHTS[plan.id] || [];
-  const planAccent = PLAN_ACCENTS[plan.id] || PLAN_ACCENTS.essential;
-  const isIndia = paymentMethod === "india";
-  const currencyData =
-    CURRENCIES.find((c) => c.code === selectedCurrency) ?? CURRENCIES[0];
-  const isWelcomeIndia = welcomePlanIds.has(plan.id);
-  const effectiveGstRate = isWelcomeIndia ? 0 : GST_RATE;
-  const gstLabel = isWelcomeIndia ? "All Inclusive" : "GST 18% Extra";
-  // India pricing
-  const gstAmount = Math.ceil(plan.price * effectiveGstRate);
-  const indiaTotalINR = plan.price + gstAmount;
+  /* check if packageData is still loading */
+  if (!packageData || !packageData.id) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#FAF6EC] px-6">
+        <div className="relative flex flex-col items-center">
+          <div className="w-12 h-12 rounded-full border-2 border-[#C9A24B]/20 border-t-[#C9A24B] animate-spin mb-4" />
+          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-gray-400">
+            Loading Package Details...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
-  // International pricing
-  const intlGstAmount = Math.ceil(plan.price * effectiveGstRate);
-  const intlTotalINR = plan.price + intlGstAmount;
-  const intlTotalForeign = isFixedUSD
-    ? (WELCOME_USD_PRICES[plan.id] ?? null)
-    : currencyRateLoading
-      ? null
-      : roundForeign(intlTotalINR / currencyRate, selectedCurrency);
+  /* pricing */
+  const gstAmount = Math.ceil(price * GST_RATE);
+  const indiaTotalINR = price + gstAmount;
+  const intlGstAmount = Math.ceil(price * GST_RATE);
+  const intlTotalINR = price + intlGstAmount;
+  const intlTotalForeign = currencyRateLoading
+    ? null
+    : roundForeign(intlTotalINR / currencyRate, selectedCurrency);
 
-  // Convert any INR amount to the selected foreign currency (for line-item display)
-  const toForeign = (inrAmount) => {
-    if (isFixedUSD) {
-      // For welcome plans with fixed USD, scale proportionally from plan base price
-      const usdBase = WELCOME_USD_PRICES[plan.id] ?? 0;
-      const scaled = Math.round((inrAmount / (plan.price || 1)) * usdBase);
-      return fmtForeign(scaled, "USD");
-    }
-    return currencyRateLoading
+  const toForeign = (inrAmount) =>
+    currencyRateLoading
       ? "…"
       : fmtForeign(
           roundForeign(inrAmount / currencyRate, selectedCurrency),
           selectedCurrency,
         );
-  };
 
+  const currencyData =
+    CURRENCIES.find((c) => c.code === selectedCurrency) ?? CURRENCIES[0];
   const spotsLeft = 100 - foundingSpots;
-  const displayPrice = isIndia
-    ? INR(indiaTotalINR)
-    : fmtForeign(intlTotalForeign, selectedCurrency);
+  const intlPriceForeign = currencyRateLoading
+    ? null
+    : roundForeign(price / currencyRate, selectedCurrency);
 
+  const displayPrice = isIndia
+    ? INR(price)
+    : fmtForeign(intlPriceForeign, selectedCurrency);
+
+  /* handlers */
   const handleMethodChange = (method) => {
     setPaymentMethod(method);
     if (method !== "india") setSelectedCurrency("USD");
@@ -1348,21 +335,19 @@ export default function BookingPageContent({
       e.name = "Please enter your full name";
     if (isIndia) {
       if (!form.phone.match(/^\d{10}$/))
-        e.phone = "Enter a valid 10-digit mobile number";
+        e.phone = "Enter a valid 10-digit number";
     } else {
-      const cleaned = form.phone.replace(/[\s\-()+]/g, "");
-      if (cleaned.length < 7 || !/^\d+$/.test(cleaned))
+      const c = form.phone.replace(/[\s\-()+]/g, "");
+      if (c.length < 7 || !/^\d+$/.test(c))
         e.phone = "Enter a valid international number";
     }
-    if (!form.email.trim()) {
-      e.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+    if (!form.email.trim()) e.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()))
       e.email = "Enter a valid email address";
-    }
     return e;
   };
 
-  const { trackLead } = useMetaEvents();
+  // const { trackLead } = useMetaEvents();
 
   const handlePaymentSubmit = async (method) => {
     const formErrors = validate();
@@ -1373,7 +358,6 @@ export default function BookingPageContent({
     setErrors({});
     setPayError("");
     setLoading(true);
-
     try {
       const isIntl = method !== "india";
       const payload = isIntl
@@ -1383,8 +367,8 @@ export default function BookingPageContent({
             customerName: form.name.trim(),
             customerPhone: form.phone,
             customerEmail: form.email.trim(),
-            planId: plan.id,
-            planName: plan.name,
+            packageId: packageData.id,
+            planName: packageData.name,
           }
         : {
             amount: indiaTotalINR,
@@ -1392,50 +376,54 @@ export default function BookingPageContent({
             customerName: form.name.trim(),
             customerPhone: form.phone,
             customerEmail: form.email.trim(),
-            planId: plan.id,
-            planName: plan.name,
+            packageId: packageData.id,
+            planName: packageData.name,
           };
 
-      await trackLead({
-        value: isIntl ? intlTotalForeign : indiaTotalINR,
-        phone: form.phone,
-        userData: { fullName: form.name, email: form.email, city: form.city },
-      });
+      // await trackLead({
+      //   value: isIntl ? intlTotalForeign : indiaTotalINR,
+      //   phone: form.phone,
+      //   userData: { fullName: form.name, email: form.email, city: form.city },
+      // });
 
-      const res = await fetch("/api/cashfree/create-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
+      // const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/payment/create-order`, {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify(payload),
+      // });
+      console.log(payload,"payload")
+      const res = await api.post('/payment/create-order',payload)
+      console.log(res,"res")
+      const data = res.data?.data;
+
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
         event: "pay_button_click",
-        conversion_value: "0", // your existing price variable
-        currency: isIndia ? "INR" : selectedCurrency, // or your currency variable
+        conversion_value: "0",
+        currency: isIndia ? "INR" : selectedCurrency,
         customer_name: form.name.trim() || "Unknown",
         customer_phone: form.phone || "Unknown",
         service_city: form.city || "Unknown",
-        plan_name: plan.name || "Unknown", // your existing plan variable
+        plan_name: packageData.name || "Unknown",
       });
-      if (!res.ok || !data.payment_session_id) {
+
+      if (!res.ok || !data.payment_session_id)
         throw new Error(
           data.error || "Could not initiate payment. Please try again.",
         );
-      }
 
       await Promise.all([
         api.post("/booking", {
-          packageName: plan.name,
-          packageId: plan.id,
-          validity: plan.validity,
+          packageName: packageData.name,
+          packageId: packageData.id,
+          validity: packageData.validity,
           serviceCity: form.city || "Not specified",
           cashfreeId: data.order_id,
           currency: isIndia ? "INR" : selectedCurrency,
           purchaseAmount: isIndia ? indiaTotalINR : intlTotalForeign,
           purchaseDate: new Date().toISOString(),
         }),
-        !user.name || !user.email || (!user.city && form.city)
+        !user?.name || !user?.email || (!user?.city && form.city)
           ? api.put("/auth/update-profile", {
               name: form.name.trim(),
               email: form.email.trim(),
@@ -1460,386 +448,564 @@ export default function BookingPageContent({
     }
   };
 
-  if (submitted) return <SuccessState plan={plan} form={form} />;
+  if (submitted) return <SuccessState packageData={packageData} form={form} />;
 
+  const capsules = buildCapsules(packageData);
+
+  /* ── JSX ──────────────────────────────────────────────────────────────── */
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#FAF6EC" }}>
-      {/* Subtle dot-grid texture */}
+    <div>
+      {/* In-card header bar */}
       <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 1px 1px, rgba(201,162,75,0.18) 1px, transparent 0)",
-          backgroundSize: "38px 38px",
-        }}
-      />
-
-      {/* ── Sticky Header ── */}
-      <header
-        className="sticky top-0 z-40 border-b border-[#C9A24B]/15 backdrop-blur-md"
-        style={{ backgroundColor: "rgba(250,246,236,0.97)" }}
+        className="flex items-center justify-between gap-2 px-3 sm:px-6 py-3 border-b"
+        style={{ borderColor: "rgba(201,162,75,0.12)" }}
       >
-        <div className="max-w-5xl mx-auto px-6 py-3.5 flex items-center justify-between">
-          <Link
-            href={`/membership/${plan.id}`}
-            className="flex items-center gap-2 text-gray-500 hover:text-gray-900 text-sm font-light transition-colors"
-          >
-            <ArrowLeft size={14} />
-            Back
-          </Link>
-          <span className="text-[#C9A24B] font-bold text-[10px] tracking-[0.35em] uppercase hidden sm:block">
-            WENS Force · Secure Checkout
-          </span>
-          <div className="flex items-center gap-1.5 text-gray-400 text-[11px]">
-            <Shield
-              size={12}
-              strokeWidth={1.5}
-              style={{ color: "rgba(201,162,75,0.6)" }}
-            />
-            Secure &amp; Encrypted
-          </div>
+        {/* Left */}
+        <button
+          onClick={() => router.back()}
+          className="flex items-center gap-1.5 text-gray-400 hover:text-gray-700 text-xs transition-colors flex-shrink-0"
+        >
+          <ArrowLeft size={13} />
+          <span className="hidden xs:inline">Back</span>
+        </button>
+
+        {/* Center */}
+        <p className="flex-1 text-center text-[#C9A24B] font-bold text-[11px] sm:text-[15px] tracking-[0.12em] sm:tracking-[0.32em] uppercase truncate px-2">
+          WENS Force · Secure Checkout
+        </p>
+
+        {/* Right */}
+        <div className="flex items-center justify-end gap-1 text-[10px] text-gray-400 flex-shrink-0">
+          <Shield
+            size={11}
+            strokeWidth={1.5}
+            style={{ color: "rgba(201,162,75,0.65)" }}
+          />
+          <span className="hidden md:inline">Secure &amp; Encrypted</span>
         </div>
-      </header>
-
-      {/* ── Page Grid ── */}
-      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-10 lg:py-14 grid grid-cols-1 lg:grid-cols-[1fr_440px] gap-10 items-start">
-        {/* ── LEFT: Plan showcase ── */}
-        <div className="lg:sticky lg:top-24">
-          {/* Plan image card */}
-          <div
-            className="relative overflow-hidden rounded-2xl mb-8 group"
-            style={{ height: 270, boxShadow: "0 24px 64px rgba(0,0,0,0.45)" }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={PLAN_IMAGES[plan.id]}
-              alt={plan.name}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              style={{ filter: "brightness(0.6) saturate(0.85)" }}
-            />
-            {/* Overlays */}
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.2) 55%, transparent 100%)",
-              }}
-            />
-            <div
-              className="absolute inset-0"
-              style={{
-                background: `linear-gradient(135deg, rgba(${plan.id === "elite" ? "201,162,75" : plan.id === "sovereign" ? "192,192,192" : "0,0,0"},0.25) 0%, transparent 60%)`,
-              }}
-            />
-
-            {/* Top-right badge */}
-            {planAccent.badge && (
-              <div className="absolute top-4 right-4">
-                <span
-                  className="text-[9px] font-bold tracking-[0.3em] uppercase px-3 py-1.5 rounded-full backdrop-blur-sm"
-                  style={{
-                    background: "rgba(201,162,75,0.2)",
-                    color: "#C9A24B",
-                    border: "1px solid rgba(201,162,75,0.3)",
-                  }}
-                >
-                  {planAccent.badge}
-                </span>
-              </div>
-            )}
-
-            {/* Plan identity overlay */}
-            <div className="absolute bottom-0 left-0 right-0 px-6 pb-6">
-              <p
-                className="text-[9px] font-bold tracking-[0.5em] uppercase mb-1"
-                style={{ color: planAccent.color, opacity: 0.7 }}
-              >
-                Membership {String(plan.packageNo || "").padStart(2, "0")}
-              </p>
-              <h1
-                className="font-serif-display font-bold text-white leading-none mb-1.5"
-                style={{
-                  fontSize: "clamp(32px,4vw,42px)",
-                  color:
-                    plan.id === "elite"
-                      ? "#f0c940"
-                      : plan.id === "sovereign"
-                        ? "#d8d8d8"
-                        : "white",
-                }}
-              >
-                {plan.name}
-              </h1>
-              <p className="text-white/40 text-xs font-light italic">
-                {plan.tagline}
-              </p>
-            </div>
-          </div>
-
-          {/* Price block */}
-          <div className="mb-7">
-            {anchorPrice && isIndia && (
-              <span className="text-gray-400 text-sm line-through block mb-1">
-                {INR(anchorPrice)}*
-              </span>
-            )}
-            <div className="flex items-end gap-3 flex-wrap">
-              <span
-                className="font-black tabular-nums leading-none"
-                style={{
-                  fontSize: "clamp(30px,4vw,40px)",
-                  color: plan.id === "elite" ? "#C9A24B" : "#0B1E3F",
-                }}
-              >
-                {isIndia
-                  ? `${INR(indiaTotalINR)}`
-                  : `${fmtForeign(intlTotalForeign, selectedCurrency)}`}
-                *
-              </span>
-              <span className="text-[11px] font-semibold text-gray-400 mb-1">
-                {gstLabel}
-              </span>
-              {!isWelcomeIndia && (
-                <span className="text-gray-400 text-sm font-light mb-1">
-                  / year, all-inclusive
-                </span>
-              )}
-              {anchorPrice && (
-                <span
-                  className="mb-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full"
-                  style={{
-                    background: "rgba(201,162,75,0.18)",
-                    color: "#C9A24B",
-                  }}
-                >
-                  Save {INR(anchorPrice - plan.price)}
-                </span>
-              )}
-            </div>
-            <p className="text-[#C9A24B] text-xs mt-2 font-medium">
-              ₹{plan.freePerksWorth.toLocaleString("en-IN")} in privileges
-              included
-            </p>
-          </div>
-
-          {/* Founding spots progress */}
-          <div
-            className="mb-8 p-4 rounded-xl border"
-            style={{
-              backgroundColor: "rgba(201,162,75,0.08)",
-              borderColor: "rgba(201,162,75,0.22)",
-            }}
-          >
-            <div className="flex items-center justify-between mb-2.5">
-              <span className="text-[#C9A24B] text-[11px] font-semibold tracking-wide">
-                Founding 100 Programme
-              </span>
-              <span className="text-gray-500 text-[11px]">
-                {foundingSpots} of 100 confirmed
-              </span>
-            </div>
-            <div className="h-1.5 rounded-full bg-[#C9A24B]/15 overflow-hidden">
-              <div
-                className="h-full rounded-full"
-                style={{
-                  width: `${foundingSpots}%`,
-                  background: "linear-gradient(90deg,#C9A24B,#f0c940)",
-                  transition: "width 1s ease",
-                }}
-              />
-            </div>
-            <p className="text-gray-500 text-[10px] mt-2 leading-relaxed">
-              Charter members lock this price permanently — no annual increases,
-              ever.
-            </p>
-          </div>
-
-          {/* Highlights */}
-          <p className="text-[9px] font-bold text-gray-400 tracking-[0.45em] uppercase mb-4">
-            What&apos;s Included
-          </p>
-          <ul className="space-y-3">
-            {highlights.map((h, i) => (
-              <li key={i} className="flex items-start gap-3">
+      </div>
+      <div
+        className="flex items-start justify-center p-3 sm:p-5 min-h-screen"
+        style={{ backgroundColor: "#FAF6EC" }}
+      >
+        {/* ── Single white card ── */}
+        <div
+          className="w-full max-w-5xl flex flex-col lg:flex-row overflow-hidden rounded-2xl"
+          style={{
+            background: "white",
+            boxShadow: "0 24px 80px rgba(0,0,0,0.18)",
+            border: "1px solid rgba(201,162,75,0.15)",
+          }}
+        >
+          {/* ════════════════════════════════════════════════════════════
+            LEFT — thumbnail card + info below (matches screenshot)
+        ════════════════════════════════════════════════════════════ */}
+          <div className="flex flex-col flex-shrink-0 w-full lg:w-[44%] overflow-y-auto">
+            <div className="flex flex-col   ">
+              {/* ── Thumbnail (partial height, not full) ── */}
+              {/* Wrapper adds the side margins */}
+              <div className="px-4 sm:px-5 pt-4 w-full">
                 <div
-                  className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
-                  style={{ background: "rgba(201,162,75,0.2)" }}
+                  className="relative w-full overflow-hidden"
+                  style={{
+                    borderRadius: "16px",
+                    height: "clamp(220px, 52vw, 340px)",
+                  }}
                 >
-                  <Check
-                    size={10}
-                    strokeWidth={3}
-                    style={{ color: "#C9A24B" }}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={packageData.thumbnailUrl}
+                    alt={packageData.name}
+                    className="absolute inset-0 w-full h-full object-cover object-center"
+                    style={{ filter: "brightness(0.52) saturate(0.85)" }}
                   />
-                </div>
-                <span
-                  className={`text-sm leading-snug ${h.bold ? "text-gray-900 font-semibold" : "text-gray-500 font-light"}`}
-                >
-                  {h.text}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
 
-        {/* ── RIGHT: Form card ── */}
-        <div>
+                  {/* Gradient */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background:
+                        "linear-gradient(to top, rgba(0,0,0,0.90) 0%, rgba(0,0,0,0.45) 45%, rgba(0,0,0,0.05) 75%, transparent 100%)",
+                    }}
+                  />
+
+                  {/* Text block */}
+                  <div
+                    className="absolute bottom-0 left-0 right-0"
+                    style={{
+                      padding: "clamp(14px, 3.5vw, 24px)",
+                      paddingTop: "clamp(48px, 10vw, 90px)",
+                    }}
+                  >
+                    <p
+                      className="font-semibold uppercase tracking-[0.45em]"
+                      style={{
+                        color: "#C9A24B",
+                        fontSize: "clamp(7.5px, 1.1vw, 10px)",
+                        marginBottom: "clamp(3px, 0.6vw, 6px)",
+                      }}
+                    >
+                      Membership{" "}
+                      {String(packageData.id || "01").padStart(2, "0")}
+                    </p>
+
+                    <h2
+                      className="font-black text-white uppercase leading-none"
+                      style={{
+                        fontSize: "clamp(26px, 6vw, 44px)",
+                        letterSpacing: "0.02em",
+                        marginBottom: "clamp(4px, 0.8vw, 8px)",
+                      }}
+                    >
+                      {packageData.name}
+                    </h2>
+
+                    {packageData.tagline && (
+                      <p
+                        className="text-white/60 font-light leading-snug"
+                        style={{ fontSize: "clamp(11px, 1.5vw, 14px)" }}
+                      >
+                        {packageData.tagline}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* ── Info section below thumbnail ── */}
+              <div className="px-5 pt-5 pb-4 space-y-4">
+                {/* Price row */}
+                <div>
+                  <div className="flex items-end gap-3 flex-wrap mb-1">
+                    <span
+                      className="font-black tabular-nums text-gray-900 leading-none"
+                      style={{ fontSize: "clamp(24px, 3vw, 32px)" }}
+                    >
+                      {displayPrice}
+                    </span>
+                    <span className="text-gray-400 text-xs mb-1">
+                      GST 18% Extra · / year, all-inclusive
+                    </span>
+                    {hasDiscount && (
+                      <span
+                        className="text-[11px] font-bold px-2.5 py-0.5 rounded-full border mb-1"
+                        style={{
+                          color: "#C9A24B",
+                          borderColor: "rgba(201,162,75,0.4)",
+                          background: "rgba(201,162,75,0.07)",
+                        }}
+                      >
+                        Save {INR(anchorPrice - price)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Capsules section */}
+                {capsules.length > 0 && (
+                  <div
+                    className="rounded-xl p-3.5"
+                    style={{
+                      background: "#fafaf8",
+                      border: "1px solid rgba(201,162,75,0.18)",
+                    }}
+                  >
+                    <div className="flex flex-wrap gap-2">
+                      {capsules.map(({ Icon, text }, i) => (
+                        <span
+                          key={i}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium"
+                          style={{
+                            background: "rgba(201,162,75,0.08)",
+                            color: "#6b5a2e",
+                            border: "1px solid rgba(201,162,75,0.22)",
+                          }}
+                        >
+                          <Icon
+                            size={11}
+                            strokeWidth={2}
+                            style={{ color: "#C9A24B" }}
+                          />
+                          {text}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* What's Included */}
+                {packageData.packageServices?.length > 0 && (
+                  <div>
+                    <p
+                      className="text-[9px] font-bold tracking-[0.4em] uppercase mb-3"
+                      style={{ color: "#888" }}
+                    >
+                      What&apos;s Included
+                    </p>
+                    <ul className="space-y-0">
+                      {packageData.packageServices.slice(0, 6).map((ps, i) => {
+                        const IconComp =
+                          SERVICE_ICONS[i % SERVICE_ICONS.length];
+                        return (
+                          <li
+                            key={ps.service?.id ?? i}
+                            className="flex items-center justify-between gap-3 py-2.5"
+                            style={{
+                              borderBottom:
+                                i <
+                                Math.min(
+                                  packageData.packageServices.length,
+                                  6,
+                                ) -
+                                  1
+                                  ? "1px solid rgba(0,0,0,0.05)"
+                                  : "none",
+                            }}
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <div
+                                className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
+                                style={{ background: "rgba(201,162,75,0.15)" }}
+                              >
+                                <Check
+                                  size={10}
+                                  strokeWidth={3}
+                                  style={{ color: "#C9A24B" }}
+                                />
+                              </div>
+                              <span className="text-gray-700 text-[13px] font-light">
+                                {ps.count > 1 ? `${ps.count}× ` : ""}
+                                {ps.service?.title ?? "Included Service"}
+                              </span>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* ════════════════════════════════════════════════════════════
+            RIGHT — header bar + scrollable form
+        ════════════════════════════════════════════════════════════ */}
           <div
-            className="overflow-hidden rounded-2xl"
-            style={{
-              background: "white",
-              border: "1px solid rgba(201,162,75,0.18)",
-              boxShadow:
-                "0 8px 40px rgba(0,0,0,0.1), 0 0 0 1px rgba(201,162,75,0.1)",
-            }}
+            className="flex-1 flex flex-col border-t lg:border-t-0 lg:border-l"
+            style={{ borderColor: "rgba(201,162,75,0.15)", minHeight: 0 }}
           >
             {/* Gold accent line */}
             <div
+              className="flex-shrink-0"
               style={{
-                height: 3,
+                height: 2,
                 background:
                   "linear-gradient(90deg,#C9A24B 0%,#f0c940 50%,#C9A24B 100%)",
               }}
             />
 
-            {/* Card header */}
-            <div
-              className="px-7 py-5 border-b"
-              style={{
-                borderColor: "rgba(201,162,75,0.1)",
-                background:
-                  "linear-gradient(135deg,rgba(254,253,248,1) 0%,rgba(255,255,255,1) 100%)",
-              }}
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <h2 className="text-[15px] font-bold text-gray-900 mb-0.5">
-                    Reserve Your Founding Spot
-                  </h2>
-                  <p className="text-gray-400 text-xs">
-                    <span className="font-semibold text-gray-600">
-                      {spotsLeft}
-                    </span>{" "}
-                    of 100 spots remaining
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xl font-black text-gray-900 tabular-nums">
-                    {displayPrice}
-                  </p>
-                  <p className="text-gray-400 text-[10px] mt-0.5">per year</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Form body */}
-            <div className="p-6 sm:p-7">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handlePaymentSubmit(paymentMethod);
-                }}
-                className="space-y-5"
-              >
-                {/* Payment region */}
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-400 mb-2.5 tracking-[0.22em] uppercase">
-                    Payment Region
-                  </label>
-                  <div className="grid grid-cols-2 gap-2.5">
-                    {/* India */}
-                    <button
-                      type="button"
-                      onClick={() => handleMethodChange("india")}
-                      className={`relative py-3.5 px-4 rounded-xl border-2 transition-all text-left ${
-                        isIndia
-                          ? "border-[#C9A24B] bg-amber-50/70"
-                          : "border-gray-200 bg-white hover:border-amber-200"
-                      }`}
+            {/* Scrollable form area */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="px-6 py-4">
+                {/* Reserve spot header row */}
+                <div
+                  className="flex items-start justify-between gap-4 pb-4 mb-4 border-b"
+                  style={{ borderColor: "rgba(201,162,75,0.1)" }}
+                >
+                  <div>
+                    <h2 className="text-[15px] font-bold text-gray-900 mb-0.5">
+                      Reserve Your Founding Spot
+                    </h2>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p
+                      className="text-xl font-black tabular-nums"
+                      style={{ color: "#C9A24B" }}
                     >
-                      {isIndia && (
-                        <span
-                          className="absolute top-3 right-3 w-4 h-4 rounded-full flex items-center justify-center"
-                          style={{ backgroundColor: "#C9A24B" }}
-                        >
-                          <Check
-                            size={9}
-                            strokeWidth={3.5}
-                            className="text-black"
-                          />
-                        </span>
-                      )}
-                      <div className="flex items-center gap-3">
-                        <span className="text-xl">🇮🇳</span>
-                        <div>
-                          <div
-                            className={`text-sm font-bold ${isIndia ? "text-amber-800" : "text-gray-700"}`}
+                      {displayPrice}
+                    </p>
+                    <p className="text-gray-400 text-[10px] mt-0.5">per year</p>
+                  </div>
+                </div>
+
+                {/* ── FORM ── */}
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handlePaymentSubmit(paymentMethod);
+                  }}
+                  className="space-y-4"
+                >
+                  {/* Payment Region */}
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-400 mb-2 tracking-[0.22em] uppercase">
+                      Payment Region
+                    </label>
+                    <div className="grid grid-cols-2 gap-2 ">
+                      {/* India */}
+                      <button
+                        type="button"
+                        onClick={() => handleMethodChange("india")}
+                        className={`relative py-3 px-3.5 rounded-xl border-2 transition-all text-left cursor-pointer ${
+                          isIndia
+                            ? "border-[#C9A24B] bg-amber-50/70"
+                            : "border-gray-200 bg-white hover:border-amber-200"
+                        }`}
+                      >
+                        {isIndia && (
+                          <span
+                            className="absolute top-2.5 right-2.5 w-4 h-4 rounded-full flex items-center justify-center"
+                            style={{ backgroundColor: "#C9A24B" }}
                           >
-                            India
-                          </div>
-                          <div
-                            className={`text-xs font-semibold tabular-nums ${isIndia ? "text-amber-600" : "text-gray-400"}`}
-                          >
-                            {INR(plan.price)}* · INR
+                            <Check
+                              size={9}
+                              strokeWidth={3.5}
+                              className="text-black"
+                            />
+                          </span>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">
+                            <IndianRupee />
+                          </span>
+                          <div>
+                            <div
+                              className={`text-sm font-bold ${isIndia ? "text-amber-800" : "text-gray-700"}`}
+                            >
+                              India
+                            </div>
+                            <div
+                              className={`text-[11px] font-semibold tabular-nums ${isIndia ? "text-amber-600" : "text-gray-400"}`}
+                            >
+                              {INR(price)}* · INR
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </button>
+                      </button>
 
-                    {/* International */}
-                    <button
-                      type="button"
-                      onClick={() => handleMethodChange("international")}
-                      className={`relative py-3.5 px-4 rounded-xl border-2 transition-all text-left ${
-                        !isIndia
-                          ? "border-[#C9A24B] bg-amber-50/70"
-                          : "border-gray-200 bg-white hover:border-amber-200"
-                      }`}
-                    >
-                      {!isIndia && (
-                        <span
-                          className="absolute top-3 right-3 w-4 h-4 rounded-full flex items-center justify-center"
-                          style={{ backgroundColor: "#C9A24B" }}
-                        >
-                          <Check
-                            size={9}
-                            strokeWidth={3.5}
-                            className="text-black"
-                          />
-                        </span>
-                      )}
-                      <div className="flex items-center gap-3">
-                        <span className="text-xl">🌍</span>
-                        <div>
-                          <div
-                            className={`text-sm font-bold ${!isIndia ? "text-amber-800" : "text-gray-700"}`}
+                      {/* International */}
+                      <button
+                        type="button"
+                        onClick={() => handleMethodChange("international")}
+                        className={`relative py-3 px-3.5 rounded-xl border-2 transition-all text-left cursor-pointer ${
+                          !isIndia
+                            ? "border-[#C9A24B] bg-amber-50/70"
+                            : "border-gray-200 bg-white hover:border-amber-200"
+                        }`}
+                      >
+                        {!isIndia && (
+                          <span
+                            className="absolute top-2.5 right-2.5 w-4 h-4 rounded-full flex items-center justify-center"
+                            style={{ backgroundColor: "#C9A24B" }}
                           >
-                            International
-                          </div>
-                          <div
-                            className={`text-xs font-semibold ${!isIndia ? "text-amber-600" : "text-gray-400"}`}
-                          >
-                            Multi-currency
+                            <Check
+                              size={9}
+                              strokeWidth={3.5}
+                              className="text-black"
+                            />
+                          </span>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">
+                            <Globe />
+                          </span>
+                          <div>
+                            <div
+                              className={`text-sm font-bold ${!isIndia ? "text-amber-800" : "text-gray-700"}`}
+                            >
+                              International
+                            </div>
+                            <div
+                              className={`text-[11px] font-semibold ${!isIndia ? "text-amber-600" : "text-gray-400"}`}
+                            >
+                              Multi-currency
+                            </div>
                           </div>
                         </div>
+                      </button>
+                    </div>
+
+                    {/* Currency selector */}
+                    {!isIndia && (
+                      <div className="mt-2.5">
+                        <label className="block text-[10px] font-bold text-gray-400 mb-1.5 tracking-[0.22em] uppercase">
+                          Select Currency
+                        </label>
+                        <div className="relative">
+                          <select
+                            value={selectedCurrency}
+                            onChange={(e) =>
+                              setSelectedCurrency(e.target.value)
+                            }
+                            className="w-full pl-4 pr-8 py-2.5 rounded-xl border border-gray-200 focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/10 text-sm text-gray-700 outline-none transition-all bg-white appearance-none"
+                          >
+                            {CURRENCIES.map((c) => (
+                              <option key={c.code} value={c.code}>
+                                {c.flag} {c.code} — {c.name} ({c.country})
+                              </option>
+                            ))}
+                          </select>
+                          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">
+                            ▾
+                          </span>
+                        </div>
+                        {currencyRateLoading ? (
+                          <p className="text-[10px] text-amber-600 mt-1">
+                            Fetching live rate…
+                          </p>
+                        ) : (
+                          <p className="text-[10px] text-gray-400 mt-1">
+                            1 {selectedCurrency} ≈{" "}
+                            {INR(Math.round(currencyRate))} · live rate
+                          </p>
+                        )}
                       </div>
-                    </button>
+                    )}
                   </div>
 
-                  {/* Currency selector — shown only for international */}
-                  {!isIndia && (
-                    <div className="mt-3">
+                  {/* Row 1: Full Name + Phone */}
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Name */}
+                    <div>
                       <label className="block text-[10px] font-bold text-gray-400 mb-1.5 tracking-[0.22em] uppercase">
-                        Select Currency
+                        Full Name <span className="text-red-400">*</span>
                       </label>
-                      <div className="relative">
-                        <select
-                          value={selectedCurrency}
-                          onChange={(e) => setSelectedCurrency(e.target.value)}
-                          className="w-full pl-4 pr-8 py-3 rounded-xl border border-gray-200 focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/10 text-sm text-gray-700 outline-none transition-all bg-white appearance-none"
+                      <div
+                        className={`flex items-center border rounded-xl overflow-hidden transition-all ${errors.name ? "border-red-300 bg-red-50" : "border-gray-200 focus-within:border-[#C9A24B] focus-within:ring-2 focus-within:ring-[#C9A24B]/10 bg-white"}`}
+                      >
+                        <span className="pl-3 text-gray-300 shrink-0">
+                          <User size={14} />
+                        </span>
+                        <input
+                          type="text"
+                          value={form.name}
+                          onChange={(e) =>
+                            setForm({ ...form, name: e.target.value })
+                          }
+                          placeholder="e.g. Rajan Mehta"
+                          className="flex-1 px-2.5 py-2.5 text-sm text-gray-800 outline-none bg-transparent placeholder:text-gray-300"
+                        />
+                      </div>
+                      {errors.name && (
+                        <p className="text-red-500 text-[10px] mt-1">
+                          {errors.name}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Phone */}
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-400 mb-1.5 tracking-[0.22em] uppercase">
+                        {isIndia ? "Mobile No." : "WhatsApp No."}{" "}
+                        <span className="text-red-400">*</span>
+                      </label>
+                      {isIndia ? (
+                        <div
+                          className={`flex items-center border rounded-xl overflow-hidden transition-all ${errors.phone ? "border-red-300 bg-red-50" : "border-gray-200 focus-within:border-[#C9A24B] focus-within:ring-2 focus-within:ring-[#C9A24B]/10"}`}
                         >
-                          {CURRENCIES.map((c) => (
-                            <option key={c.code} value={c.code}>
-                              {c.flag} {c.code} — {c.name} ({c.country})
+                          <span className="px-2.5 py-2.5 text-xs text-gray-400 font-semibold border-r border-gray-200 bg-gray-50/80 shrink-0">
+                            +91
+                          </span>
+                          <input
+                            type="tel"
+                            value={form.phone}
+                            onChange={(e) =>
+                              setForm({
+                                ...form,
+                                phone: e.target.value
+                                  .replace(/\D/g, "")
+                                  .slice(0, 10),
+                              })
+                            }
+                            placeholder="98765 43210"
+                            className="flex-1 px-2.5 py-2.5 text-sm text-gray-800 outline-none bg-transparent placeholder:text-gray-300"
+                          />
+                        </div>
+                      ) : (
+                        <div
+                          className={`flex items-center border rounded-xl overflow-hidden transition-all ${errors.phone ? "border-red-300 bg-red-50" : "border-gray-200 focus-within:border-[#C9A24B] focus-within:ring-2 focus-within:ring-[#C9A24B]/10 bg-white"}`}
+                        >
+                          <span className="pl-3 shrink-0">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 32 32"
+                              width="24"
+                              height="24"
+                              fill="#25D366"
+                            >
+                              <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.668 4.799 1.836 6.793L2 30l7.393-1.812A13.918 13.918 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.6a11.543 11.543 0 01-5.88-1.604l-.42-.248-4.39 1.074 1.106-4.274-.272-.44A11.556 11.556 0 014.4 16C4.4 9.592 9.592 4.4 16 4.4S27.6 9.592 27.6 16 22.408 27.6 16 27.6zm6.327-8.627c-.348-.174-2.055-1.014-2.374-1.13-.318-.115-.55-.174-.78.174-.23.348-.894 1.13-1.097 1.362-.201.231-.404.26-.752.086-.348-.174-1.47-.542-2.799-1.727-1.034-.922-1.732-2.062-1.934-2.41-.202-.348-.022-.536.152-.71.156-.155.348-.405.522-.607.174-.202.23-.348.348-.58.115-.231.058-.434-.03-.607-.086-.174-.78-1.882-1.07-2.578-.282-.677-.568-.585-.78-.596-.201-.01-.434-.012-.665-.012-.23 0-.607.086-.926.434-.318.348-1.214 1.186-1.214 2.892 0 1.707 1.243 3.356 1.417 3.588.174.231 2.447 3.734 5.928 5.234.83.358 1.478.572 1.982.732.833.265 1.59.227 2.19.138.668-.1 2.055-.84 2.346-1.652.29-.81.29-1.505.202-1.652-.086-.145-.318-.231-.665-.405z" />
+                            </svg>
+                          </span>
+                          <input
+                            type="tel"
+                            value={form.phone}
+                            onChange={(e) =>
+                              setForm({ ...form, phone: e.target.value })
+                            }
+                            placeholder="+1 555 123 4567"
+                            className="flex-1 px-2.5 py-2.5 text-sm text-gray-800 outline-none bg-transparent placeholder:text-gray-300"
+                          />
+                        </div>
+                      )}
+                      {errors.phone && (
+                        <p className="text-red-500 text-[10px] mt-1">
+                          {errors.phone}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Row 2: Email + City */}
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Email */}
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-400 mb-1.5 tracking-[0.22em] uppercase">
+                        Email <span className="text-red-400">*</span>
+                      </label>
+                      <div
+                        className={`flex items-center border rounded-xl overflow-hidden transition-all ${errors.email ? "border-red-300 bg-red-50" : "border-gray-200 focus-within:border-[#C9A24B] focus-within:ring-2 focus-within:ring-[#C9A24B]/10 bg-white"}`}
+                      >
+                        <span className="pl-3 text-gray-300 shrink-0">
+                          <Mail size={14} />
+                        </span>
+                        <input
+                          type="email"
+                          value={form.email}
+                          onChange={(e) =>
+                            setForm({ ...form, email: e.target.value })
+                          }
+                          placeholder="john@example.com"
+                          className="flex-1 px-2.5 py-2.5 text-sm text-gray-800 outline-none bg-transparent placeholder:text-gray-300"
+                        />
+                      </div>
+                      {errors.email && (
+                        <p className="text-red-500 text-[10px] mt-1">
+                          {errors.email}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* City */}
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-400 mb-1.5 tracking-[0.22em] uppercase">
+                        Service City
+                      </label>
+                      <div className="relative flex items-center border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#C9A24B] focus-within:ring-2 focus-within:ring-[#C9A24B]/10 transition-all bg-white">
+                        <span className="pl-3 text-gray-300 shrink-0">
+                          <MapPin size={14} />
+                        </span>
+                        <select
+                          value={form.city}
+                          onChange={(e) =>
+                            setForm({ ...form, city: e.target.value })
+                          }
+                          className="flex-1 pl-2 pr-7 py-2.5 text-sm text-gray-700 outline-none bg-transparent appearance-none"
+                        >
+                          <option value="">Select City…</option>
+                          {CITIES.map((c) => (
+                            <option key={c} value={c}>
+                              {c}
                             </option>
                           ))}
                         </select>
@@ -1847,182 +1013,54 @@ export default function BookingPageContent({
                           ▾
                         </span>
                       </div>
-                      {currencyRateLoading && !isFixedUSD && (
-                        <p className="text-[10px] text-amber-600 mt-1">
-                          Fetching live rate…
-                        </p>
-                      )}
-                      {!currencyRateLoading && !isFixedUSD && (
-                        <p className="text-[10px] text-gray-400 mt-1">
-                          1 {selectedCurrency} ≈ {INR(Math.round(currencyRate))}{" "}
-                          · live rate
-                        </p>
-                      )}
-                      {isFixedUSD && (
-                        <p className="text-[10px] text-gray-400 mt-1">
-                          Fixed USD rate · all inclusive
-                        </p>
-                      )}
                     </div>
-                  )}
-                </div>
+                  </div>
 
-                {/* Full Name */}
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-400 mb-2 tracking-[0.22em] uppercase">
-                    Full Name <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    placeholder="e.g. Rajan Mehta"
-                    className={`w-full px-4 py-3 rounded-xl border text-sm text-gray-800 outline-none transition-all placeholder:text-gray-300 ${
-                      errors.name
-                        ? "border-red-300 bg-red-50"
-                        : "border-gray-200 focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/10 bg-white"
-                    }`}
-                  />
-                  {errors.name && (
-                    <p className="text-red-500 text-xs mt-1.5">{errors.name}</p>
-                  )}
-                </div>
-
-                {/* Phone */}
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-400 mb-2 tracking-[0.22em] uppercase">
-                    {isIndia ? "Mobile Number" : "Whatsapp Number"}{" "}
-                    <span className="text-red-400">*</span>
-                  </label>
-                  {isIndia ? (
-                    <div
-                      className={`flex items-center border rounded-xl overflow-hidden transition-all ${
-                        errors.phone
-                          ? "border-red-300 bg-red-50"
-                          : "border-gray-200 focus-within:border-[#C9A24B] focus-within:ring-2 focus-within:ring-[#C9A24B]/10"
-                      }`}
-                    >
-                      <span className="px-4 py-3 text-sm text-gray-400 font-medium border-r border-gray-200 bg-gray-50/80 shrink-0 tracking-wide">
-                        +91
-                      </span>
-                      <input
-                        type="tel"
-                        value={form.phone}
-                        onChange={(e) =>
-                          setForm({
-                            ...form,
-                            phone: e.target.value
-                              .replace(/\D/g, "")
-                              .slice(0, 10),
-                          })
-                        }
-                        placeholder="98765 43210"
-                        className="flex-1 px-4 py-3 text-sm text-gray-800 outline-none bg-transparent placeholder:text-gray-300"
-                      />
-                    </div>
-                  ) : (
-                    <input
-                      type="tel"
-                      value={form.phone}
-                      onChange={(e) =>
-                        setForm({ ...form, phone: e.target.value })
-                      }
-                      placeholder="e.g. +1 555 123 4567"
-                      className={`w-full px-4 py-3 rounded-xl border text-sm text-gray-800 outline-none transition-all placeholder:text-gray-300 ${
-                        errors.phone
-                          ? "border-red-300 bg-red-50"
-                          : "border-gray-200 focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/10 bg-white"
-                      }`}
-                    />
-                  )}
-                  {errors.phone && (
-                    <p className="text-red-500 text-xs mt-1.5">
-                      {errors.phone}
-                    </p>
-                  )}
-                </div>
-
-                {/* Email — mandatory for all */}
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-400 mb-2 tracking-[0.22em] uppercase">
-                    Email <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    value={form.email}
-                    onChange={(e) =>
-                      setForm({ ...form, email: e.target.value })
-                    }
-                    placeholder="e.g. john@example.com"
-                    className={`w-full px-4 py-3 rounded-xl border text-sm text-gray-800 outline-none transition-all placeholder:text-gray-300 ${
-                      errors.email
-                        ? "border-red-300 bg-red-50"
-                        : "border-gray-200 focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/10 bg-white"
-                    }`}
-                  />
-                  {errors.email && (
-                    <p className="text-red-500 text-xs mt-1.5">
-                      {errors.email}
-                    </p>
-                  )}
-                </div>
-
-                {/* City */}
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-400 mb-2 tracking-[0.22em] uppercase">
-                    Service City
-                  </label>
-                  <select
-                    value={form.city}
-                    onChange={(e) => setForm({ ...form, city: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/10 text-sm text-gray-700 outline-none transition-all bg-white appearance-none"
+                  {/* Order Summary */}
+                  <div
+                    className="rounded-xl border p-3.5"
+                    style={{
+                      backgroundColor: "#fafaf8",
+                      borderColor: "rgba(201,162,75,0.12)",
+                    }}
                   >
-                    <option value="">Select Service City…</option>
-                    {CITIES.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Order summary */}
-                <div
-                  className="rounded-xl border p-4"
-                  style={{
-                    backgroundColor: "#fafaf8",
-                    borderColor: "rgba(201,162,75,0.12)",
-                  }}
-                >
-                  <p className="text-[9px] font-bold text-gray-400 tracking-[0.3em] uppercase mb-3">
-                    Order Summary
-                  </p>
-                  {/* {anchorPrice && (
-                      <div className="flex justify-between items-center text-xs text-gray-400">
-                        <span>Regular price</span>
-                        <span className="line-through tabular-nums">{INR(anchorPrice)}</span>
-                      </div>
-                    )} */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600 text-sm">
-                        {plan.name} Membership
-                      </span>
-                      <div className="text-right">
-                        <span className="text-gray-700 text-sm font-semibold tabular-nums">
-                          {isIndia
-                            ? INR(plan.price) + "*"
-                            : toForeign(plan.price) + "*"}
-                        </span>
-
-                        {!isIndia && !currencyRateLoading && !isFixedUSD && (
-                          <p className="text-gray-400 text-[10px] tabular-nums">
-                            {INR(plan.price)}*
-                          </p>
-                        )}
-                      </div>
+                    <div className="flex items-center gap-2 mb-2.5">
+                      <svg
+                        viewBox="0 0 24 24"
+                        width="12"
+                        height="12"
+                        fill="none"
+                        stroke="#C9A24B"
+                        strokeWidth="1.6"
+                      >
+                        <path
+                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <p className="text-[9px] font-bold text-gray-400 tracking-[0.3em] uppercase">
+                        Order Summary
+                      </p>
                     </div>
-                    {!isWelcomeIndia && (
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 text-sm">
+                          {packageData.name}
+                        </span>
+                        <div className="text-right">
+                          <span className="text-gray-700 text-sm font-semibold tabular-nums">
+                            {isIndia
+                              ? INR(price) + "*"
+                              : toForeign(price) + "*"}
+                          </span>
+                          {!isIndia && !currencyRateLoading && (
+                            <p className="text-gray-400 text-[10px] tabular-nums">
+                              {INR(price)}*
+                            </p>
+                          )}
+                        </div>
+                      </div>
                       <div className="flex justify-between items-center">
                         <span className="flex items-center gap-1.5 text-xs text-gray-500">
                           <span className="bg-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
@@ -2044,221 +1082,212 @@ export default function BookingPageContent({
                           )}
                         </div>
                       </div>
-                    )}
-                  </div>
-
-                  <div
-                    className="flex justify-between items-end mt-3 pt-3 border-t"
-                    style={{ borderColor: "rgba(201,162,75,0.12)" }}
-                  >
-                    <span className="text-gray-900 text-sm font-bold">
-                      Total {isIndia ? "(INR)" : `(${selectedCurrency})`}
-                    </span>
-                    <div className="text-right">
-                      {isIndia ? (
-                        <span className="text-gray-900 text-lg font-black tabular-nums">
-                          {INR(indiaTotalINR)}
-                        </span>
-                      ) : (
-                        <>
+                    </div>
+                    <div
+                      className="flex justify-between items-end mt-2.5 pt-2.5 border-t"
+                      style={{ borderColor: "rgba(201,162,75,0.12)" }}
+                    >
+                      <span className="text-gray-900 text-sm font-bold">
+                        Total {isIndia ? "(INR)" : `(${selectedCurrency})`}
+                      </span>
+                      <div className="text-right">
+                        {isIndia ? (
                           <span className="text-gray-900 text-lg font-black tabular-nums">
-                            {fmtForeign(intlTotalForeign, selectedCurrency)}
+                            {INR(indiaTotalINR)}
                           </span>
-                          {!currencyRateLoading &&
-                            !isFixedUSD &&
-                            intlTotalForeign !== null && (
-                              <p className="text-gray-400 text-[10px] mt-0.5 tabular-nums">
-                                ≈ {INR(intlTotalINR)} · live rate
-                              </p>
-                            )}
-                        </>
-                      )}
+                        ) : (
+                          <>
+                            <span className="text-gray-900 text-lg font-black tabular-nums">
+                              {fmtForeign(intlTotalForeign, selectedCurrency)}
+                            </span>
+                            {!currencyRateLoading &&
+                              intlTotalForeign !== null && (
+                                <p className="text-gray-400 text-[10px] mt-0.5 tabular-nums">
+                                  ≈ {INR(intlTotalINR)} · live rate
+                                </p>
+                              )}
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
+
+                  {/* Pay button */}
+                  <button
+                    type="submit"
+                    id="pay-submit-btn"
+                    disabled={loading || (!isIndia && currencyRateLoading)}
+                    className="w-full cursor-pointer rounded-xl font-black tracking-wide transition-all hover:opacity-95 hover:-translate-y-0.5 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{
+                      background:
+                        "linear-gradient(135deg,#C9A24B 0%,#f0c940 50%,#C9A24B 100%)",
+                      color: "#000",
+                      boxShadow: "0 6px 24px rgba(201,162,75,0.45)",
+                      paddingTop: "13px",
+                      paddingBottom: "13px",
+                    }}
+                  >
+                    {loading ? (
+                      <span className="flex items-center justify-center gap-2 text-sm">
+                        <svg
+                          className="animate-spin w-4 h-4"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                        >
+                          <circle
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="rgba(0,0,0,0.2)"
+                            strokeWidth="3"
+                          />
+                          <path
+                            d="M12 2a10 10 0 0110 10"
+                            stroke="#000"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                        Processing…
+                      </span>
+                    ) : (
+                      <span className="flex flex-col items-center gap-0.5">
+                        <span className="flex items-center gap-2 text-[15px]">
+                          <Lock size={13} strokeWidth={2.5} />
+                          Pay{" "}
+                          {isIndia
+                            ? INR(indiaTotalINR)
+                            : fmtForeign(intlTotalForeign, selectedCurrency)}
+                        </span>
+                        <span className="text-[10px] font-semibold opacity-65 tracking-widest uppercase">
+                          Secure &amp; Encrypted Checkout
+                        </span>
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Note */}
+                  <p className="text-[11px] text-gray-500 leading-relaxed">
+                    <span className="font-semibold text-gray-600">Note:</span>{" "}
+                    Additional convenience charges may be applied during payment
+                    processing based on the selected payment method.
+                  </p>
+
+                  {/* SSL line */}
+                  <p className="text-center text-[11px] text-gray-400 flex items-center justify-center gap-1.5">
+                    <Shield
+                      size={11}
+                      strokeWidth={1.5}
+                      className="text-gray-300 shrink-0"
+                    />
+                    256-bit SSL encrypted · PCI-DSS compliant
+                  </p>
+
+                  {/* Error */}
+                  {payError && (
+                    <p className="text-center text-red-500 text-xs bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                      {payError}
+                    </p>
+                  )}
+                </form>
+
+                {/* WhatsApp section */}
+                <div className="mt-4">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex-1 h-px bg-gray-100" />
+                    <span className="text-[11px] text-gray-300 font-medium">
+                      or
+                    </span>
+                    <div className="flex-1 h-px bg-gray-100" />
+                  </div>
+                  <a
+                    href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`Hi WENS Force, I'm interested in the ${packageData.name} Package (${INR(price)}/yr). Can you send me more details?`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-semibold border-2 text-[#25D366] hover:bg-[#25D366]/5 transition-all"
+                    style={{ borderColor: "rgba(37,211,102,0.3)" }}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 32 32"
+                      width="28"
+                      height="28"
+                      fill="#25D366"
+                    >
+                      <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.668 4.799 1.836 6.793L2 30l7.393-1.812A13.918 13.918 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.6a11.543 11.543 0 01-5.88-1.604l-.42-.248-4.39 1.074 1.106-4.274-.272-.44A11.556 11.556 0 014.4 16C4.4 9.592 9.592 4.4 16 4.4S27.6 9.592 27.6 16 22.408 27.6 16 27.6zm6.327-8.627c-.348-.174-2.055-1.014-2.374-1.13-.318-.115-.55-.174-.78.174-.23.348-.894 1.13-1.097 1.362-.201.231-.404.26-.752.086-.348-.174-1.47-.542-2.799-1.727-1.034-.922-1.732-2.062-1.934-2.41-.202-.348-.022-.536.152-.71.156-.155.348-.405.522-.607.174-.202.23-.348.348-.58.115-.231.058-.434-.03-.607-.086-.174-.78-1.882-1.07-2.578-.282-.677-.568-.585-.78-.596-.201-.01-.434-.012-.665-.012-.23 0-.607.086-.926.434-.318.348-1.214 1.186-1.214 2.892 0 1.707 1.243 3.356 1.417 3.588.174.231 2.447 3.734 5.928 5.234.83.358 1.478.572 1.982.732.833.265 1.59.227 2.19.138.668-.1 2.055-.84 2.346-1.652.29-.81.29-1.505.202-1.652-.086-.145-.318-.231-.665-.405z" />
+                    </svg>
+                    Have questions? Chat on WhatsApp
+                  </a>
                 </div>
 
-                {/* Submit button */}
-                <button
-                  type="submit"
-                  id="pay-submit-btn"
-                  disabled={
-                    loading || (!isIndia && currencyRateLoading && !isFixedUSD)
-                  }
-                  className="w-full py-4 rounded-xl font-black text-md tracking-wide transition-all hover:opacity-95 hover:-translate-y-0.5 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:translate-y-0"
-                  style={{
-                    background:
-                      "linear-gradient(135deg,#C9A24B 0%,#f0c940 50%,#C9A24B 100%)",
-                    color: "#000",
-                    boxShadow: "0 6px 24px rgba(201,162,75,0.45)",
-                  }}
-                >
-                  {loading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <svg
-                        className="animate-spin w-4 h-4"
-                        viewBox="0 0 24 24"
-                        fill="none"
+                {/* Terms */}
+                <p className="text-center text-gray-400 text-[11px] mt-3 font-light leading-relaxed">
+                  By reserving, you agree to our{" "}
+                  <Link
+                    href="https://wensforce.com/disclaimer-terms-of-services/"
+                    target="_blank"
+                    className="underline hover:text-gray-600 transition-colors"
+                  >
+                    Terms &amp; Conditions
+                  </Link>{" "}
+                  and{" "}
+                  <Link
+                    href="https://wensforce.com/privacy-policy/"
+                    target="_blank"
+                    className="underline hover:text-gray-600 transition-colors"
+                  >
+                    Privacy Policy
+                  </Link>
+                  .
+                </p>
+
+                {/* Trust strip */}
+                <div className="flex items-center justify-center gap-5 mt-4 pb-4 flex-wrap">
+                  {[
+                    { Icon: Lock, title: "100% Secure", sub: "PCI DSS" },
+                    {
+                      Icon: Shield,
+                      title: "Trusted Members",
+                      sub: "Since 2023",
+                    },
+                    {
+                      Icon: Headphones,
+                      title: "24×7 Support",
+                      sub: "Always on",
+                    },
+                  ].map(({ Icon, title, sub }) => (
+                    <div key={title} className="flex items-center gap-1.5">
+                      <div
+                        className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
+                        style={{ background: "rgba(201,162,75,0.1)" }}
                       >
-                        <circle
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="rgba(0,0,0,0.2)"
-                          strokeWidth="3"
+                        <Icon
+                          size={13}
+                          strokeWidth={1.5}
+                          style={{ color: "#C9A24B" }}
                         />
-                        <path
-                          d="M12 2a10 10 0 0110 10"
-                          stroke="#000"
-                          strokeWidth="3"
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                      Processing…
-                    </span>
-                  ) : (
-                    <span className="flex items-center justify-center gap-2">
-                      {plan.id === "elite" && (
-                        <Gem size={14} strokeWidth={2.5} />
-                      )}
-                      {plan.id === "sovereign" && (
-                        <Crown size={14} strokeWidth={2.5} />
-                      )}
-                      {isIndia
-                        ? `Pay ${INR(indiaTotalINR)} · India`
-                        : `Pay ${fmtForeign(intlTotalForeign, selectedCurrency)} · ${currencyData.country}`}
-                    </span>
-                  )}
-                </button>
-
-                {/* Convenience fee note */}
-                <p className="text-[11px] text-gray-500 leading-relaxed">
-                  <span className="font-semibold text-gray-600">Note:</span>{" "}
-                  Additional convenience charges may be applied during payment
-                  processing based on the selected payment method.
-                </p>
-
-                {/* Security note */}
-                <p className="text-center text-[11px] text-gray-400 flex items-center justify-center gap-1.5">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    className="w-3 h-3 shrink-0"
-                  >
-                    <path
-                      d="M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6L12 2z"
-                      fill="#9ca3af"
-                    />
-                  </svg>
-                  256-bit SSL encrypted · PCI-DSS compliant
-                </p>
-
-                {/* Error */}
-                {payError && (
-                  <p className="text-center text-red-500 text-xs bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-                    {payError}
-                  </p>
-                )}
-              </form>
-            </div>
-
-            {/* WhatsApp divider */}
-            <div className="px-6 sm:px-7 pb-7">
-              <div className="flex items-center gap-3 mb-5">
-                <div className="flex-1 h-px bg-gray-100" />
-                <span className="text-[11px] text-gray-300 font-medium">
-                  or
-                </span>
-                <div className="flex-1 h-px bg-gray-100" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-semibold text-gray-600">
+                          {title}
+                        </p>
+                        <p className="text-[9px] text-gray-400">{sub}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-
-              <a
-                href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`Hi WENS Force, I'm interested in the ${plan.name} Membership (${INR(plan.price)}/yr). Can you send me more details?`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl text-sm font-semibold border-2 text-[#25D366] hover:bg-[#25D366]/5 transition-all"
-                style={{ borderColor: "rgba(37,211,102,0.3)" }}
-              >
-                <svg viewBox="0 0 32 32" width="16" height="16" fill="#25D366">
-                  <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.668 4.799 1.836 6.793L2 30l7.393-1.812A13.918 13.918 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2z" />
-                </svg>
-                Have questions? Chat on WhatsApp
-              </a>
-
-              {/* Trust badges */}
-              <div className="flex items-center justify-center gap-6 mt-5 flex-wrap">
-                {[
-                  { icon: "🔒", text: "Secure & Private" },
-                  { icon: "✓", text: "GST Registered" },
-                ].map(({ icon, text }) => (
-                  <span
-                    key={text}
-                    className="flex items-center gap-1.5 text-[10px] text-gray-400"
-                  >
-                    <span>{icon}</span> {text}
-                  </span>
-                ))}
-              </div>
+              {/* closes px-6 py-4 */}
             </div>
+            {/* closes overflow-y-auto */}
           </div>
-
-          {/* Below-card note */}
-          <p className="text-center text-gray-400 text-[11px] mt-4 font-light leading-relaxed px-4">
-            By reserving, you agree to our{" "}
-            <Link
-              href="https://wensforce.com/disclaimer-terms-of-services/"
-              target="_blank"
-              className="underline hover:text-gray-600 transition-colors"
-            >
-              Terms &amp; Conditions
-            </Link>{" "}
-            and{" "}
-            <Link
-              href="https://wensforce.com/privacy-policy/"
-              target="_blank"
-              className="underline hover:text-gray-600 transition-colors"
-            >
-              Privacy Policy
-            </Link>
-            .
-          </p>
+          {/* closes right flex-col */}
         </div>
-      </div>
+        {/* closes white card */}
 
-      {/* ── Mobile sticky bar ── */}
-      <div
-        className="fixed bottom-0 left-0 right-0 z-50 lg:hidden border-t border-white/8 px-4 py-3"
-        style={{
-          backgroundColor: "rgba(10,10,10,0.97)",
-          backdropFilter: "blur(12px)",
-        }}
-      >
-        <div className="flex items-center gap-3">
-          <div className="flex-1 min-w-0">
-            <p className="text-[#C9A24B] font-bold text-sm tabular-nums">
-              {displayPrice}
-              <span className="text-white/35 font-light text-xs"> /yr</span>
-            </p>
-            <p className="text-white/30 text-[10px]">
-              {foundingSpots} of 100 founding spots confirmed
-            </p>
-          </div>
-          <button
-            onClick={() =>
-              document
-                .querySelector("form")
-                ?.scrollIntoView({ behavior: "smooth" })
-            }
-            className="flex items-center gap-1.5 py-2.5 px-5 rounded-xl font-bold text-black text-sm whitespace-nowrap shrink-0"
-            style={{
-              background: "linear-gradient(135deg,#C9A24B,#f0c940)",
-              boxShadow: "0 4px 16px rgba(201,162,75,0.4)",
-            }}
-          >
-            Reserve Spot →
-          </button>
-        </div>
+       
+        <div className="h-20 lg:hidden" />
       </div>
-      <div className="h-20 lg:hidden" />
     </div>
   );
 }

@@ -169,6 +169,15 @@ export default function PackagesPage() {
         return row[key] ?? "—";
     }
   }
+
+  const handleImport = () => {
+    console.log("Import Packages clicked");
+  };
+
+  const handleExport = () => {
+    console.log("Export Packages clicked");
+  };
+
   return (
     <AdminTable
       icon={<Package size={18} className="text-[#C9A24B]" />}
@@ -186,6 +195,8 @@ export default function PackagesPage() {
       pagination={pagination}
       onPageChange={setPage}
       onRefresh={refetch}
+      onImport={handleImport}
+      onExport={handleExport}
       onCreate={() => router.push("/admin/packages/create")}
       createLabel="New Package"
       emptyIcon={<Package size={32} />}

@@ -167,6 +167,14 @@ export default function ServicesPage() {
     }
   }
 
+  const handleImport = () => {
+    console.log("Import Services clicked");
+  };
+
+  const handleExport = () => {
+    console.log("Export Services clicked");
+  };
+
   return (
     <>
       <AdminTable
@@ -185,6 +193,8 @@ export default function ServicesPage() {
         pagination={pagination}
         onPageChange={setPage}
         onRefresh={refetch}
+        onImport={handleImport}
+        onExport={handleExport}
         onCreate={openCreateModal}
         createLabel="New Service"
         emptyIcon={<Layers size={32} />}

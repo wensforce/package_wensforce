@@ -9,6 +9,7 @@ import {
   RefreshCw,
   Download,
   Plus,
+  Upload,
 } from "lucide-react";
 
 /**
@@ -81,6 +82,7 @@ export default function AdminTable({
   pagination,
   onPageChange,
   onRefresh,
+  onImport,
   onExport,
   onCreate,
   createLabel = "Create",
@@ -108,6 +110,24 @@ export default function AdminTable({
 
           <div className="flex items-center gap-2">
             {headerActions}
+            {onImport && (
+              <button
+                onClick={onImport}
+                className="flex items-center gap-1.5 text-sm font-semibold text-white bg-green-600 rounded-lg px-3 py-2 hover:bg-green-700 transition-colors"
+              >
+                <Upload size={14} />
+                Import
+              </button>
+            )}
+            {onExport && (
+              <button
+                onClick={onExport}
+                className="flex items-center gap-1.5 text-sm font-semibold text-white bg-red-600 rounded-lg px-3 py-2 hover:bg-red-700 transition-colors"
+              >
+                <Download size={14} />
+                Export
+              </button>
+            )}
             {onCreate && (
               <button
                 onClick={onCreate}
@@ -125,15 +145,6 @@ export default function AdminTable({
               <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
               Refresh
             </button>
-            {onExport && (
-              <button
-                onClick={onExport}
-                className="flex items-center gap-1.5 text-sm text-[#4A5568] border border-[#CBD5E0] bg-white rounded-lg px-3 py-2 hover:bg-[#FAF6EC] transition-colors"
-              >
-                <Download size={14} />
-                Export
-              </button>
-            )}
           </div>
         </div>
 
