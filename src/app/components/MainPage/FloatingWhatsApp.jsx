@@ -1,13 +1,14 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 
-const WA_NUMBER = '917304607954';
-const DEFAULT_MSG = "Hi WENS Force, I'm exploring your subscription. Can you help me find the right tier?";
+const WA_NUMBER = "917304607954";
+const DEFAULT_MSG =
+  "Hi WENS Force, I'm exploring your subscription. Can you help me find the right tier?";
 
-export default function FloatingWhatsApp({ tierContext = '' }) {
+export default function FloatingWhatsApp({ tierContext = "" }) {
   const [showBubble, setShowBubble] = useState(false);
-
+  
   const message = tierContext
     ? `Hi WENS Force, I'm interested in the ${tierContext} membership. Can you help?`
     : DEFAULT_MSG;
@@ -19,18 +20,24 @@ export default function FloatingWhatsApp({ tierContext = '' }) {
       {showBubble && (
         <div
           className="bg-white rounded-2xl rounded-br-sm shadow-2xl border border-gray-100 p-4 max-w-[240px] animate-scale-in"
-          style={{ boxShadow: '0 8px 32px rgba(11,30,63,0.18)' }}
+          style={{ boxShadow: "0 8px 32px rgba(11,30,63,0.18)" }}
         >
-          <p className="text-[11px] text-gray-500 uppercase tracking-widest mb-1 font-medium">WENS Concierge</p>
-          <p className="text-sm text-gray-800 font-medium leading-snug">Hello! I&apos;m Aanya.</p>
-          <p className="text-sm text-gray-600 font-light leading-snug mt-0.5">How may I help you today?</p>
+          <p className="text-[11px] text-gray-500 uppercase tracking-widest mb-1 font-medium">
+            WENS Concierge
+          </p>
+          <p className="text-sm text-gray-800 font-medium leading-snug">
+            Hello! I&apos;m Aanya.
+          </p>
+          <p className="text-sm text-gray-600 font-light leading-snug mt-0.5">
+            How may I help you today?
+          </p>
           <div className="mt-3 flex gap-2">
             <a
               href={waUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="flex-1 text-center text-xs font-semibold py-2 px-3 rounded-lg text-white"
-              style={{ backgroundColor: '#25D366' }}
+              style={{ backgroundColor: "#25D366" }}
             >
               Chat Now
             </a>
@@ -55,8 +62,8 @@ export default function FloatingWhatsApp({ tierContext = '' }) {
         style={{
           width: 60,
           height: 60,
-          backgroundColor: '#25D366',
-          boxShadow: '0 8px 24px rgba(37,211,102,0.4)',
+          backgroundColor: "#25D366",
+          boxShadow: "0 8px 24px rgba(37,211,102,0.4)",
         }}
         aria-label="Chat on WhatsApp"
       >

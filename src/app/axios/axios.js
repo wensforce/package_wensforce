@@ -24,7 +24,7 @@ export const clearTokens = () => {
 const api = axios.create({
   baseURL: BASE_URL,
   timeout: 15000,
-  withCredentials: true, 
+  withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -39,7 +39,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // ---------------------------------------------------------------------------
@@ -91,7 +91,10 @@ api.interceptors.response.use(
       const { data } = await axios.post(
         `${BASE_URL}/auth/refresh-token`,
         {},
-        { withCredentials: true, headers: { "Content-Type": "application/json" } }
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "application/json" },
+        },
       );
       const newAccessToken = data.data?.accessToken;
 
@@ -108,7 +111,7 @@ api.interceptors.response.use(
     } finally {
       isRefreshing = false;
     }
-  }
+  },
 );
 
 export default api;

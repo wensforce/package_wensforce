@@ -48,14 +48,14 @@ export default function RequestTripModal({ plan, onClose }) {
   const [tripDate, setTripDate] = useState("");
   const [tripType, setTripType] = useState("airport-transfer");
   const [selectedServices, setSelectedServices] = useState(
-    (plan.services ?? []).map((s) => s.id)
+    (plan.services ?? []).map((s) => s.id),
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Toggle service selection
   const handleToggleService = (id) => {
     setSelectedServices((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   };
 
@@ -87,11 +87,11 @@ export default function RequestTripModal({ plan, onClose }) {
           .map((svc) => ({
             name: svc.title,
             price: 1,
-            id:svc.id
+            id: svc.id,
           })),
-        };
+      };
       const response = await api.post("/trip/request", payload);
-      
+
       if (response.data?.success) {
         toast.success("Trip request submitted successfully!");
         onClose();
@@ -101,7 +101,8 @@ export default function RequestTripModal({ plan, onClose }) {
     } catch (error) {
       console.error("Error submitting trip request:", error);
       toast.error(
-        error.response?.data?.message || "An error occurred while submitting request."
+        error.response?.data?.message ||
+          "An error occurred while submitting request.",
       );
     } finally {
       setIsSubmitting(false);
@@ -193,11 +194,14 @@ export default function RequestTripModal({ plan, onClose }) {
                   {pkg.name ?? "—"}
                 </h4>
                 <p className="text-xs text-slate-400 mt-0.5 leading-tight">
-                  {tripsLeft} {tripsLeft === 1 ? "trip" : "trips"} left • Valid till{" "}
-                  {formatDate(plan.endDate)}
+                  {tripsLeft} {tripsLeft === 1 ? "trip" : "trips"} left • Valid
+                  till {formatDate(plan.endDate)}
                 </p>
               </div>
-              <ChevronDown size={18} className="text-slate-400 flex-shrink-0 mr-1" />
+              <ChevronDown
+                size={18}
+                className="text-slate-400 flex-shrink-0 mr-1"
+              />
             </div>
           </div>
 
@@ -346,7 +350,9 @@ export default function RequestTripModal({ plan, onClose }) {
               {plan.services && plan.services.length > 0 ? (
                 plan.services.map((svc) => {
                   const isSelected = selectedServices.includes(svc.id);
-                  const svcImg = getImageUrl(svc.thumbnailUrl ?? svc.thumbnailUrlKey);
+                  const svcImg = getImageUrl(
+                    svc.thumbnailUrl ?? svc.thumbnailUrlKey,
+                  );
 
                   return (
                     <div
@@ -371,7 +377,9 @@ export default function RequestTripModal({ plan, onClose }) {
                             : {}
                         }
                       >
-                        {isSelected && <Check size={12} className="stroke-[3]" />}
+                        {isSelected && (
+                          <Check size={12} className="stroke-[3]" />
+                        )}
                       </div>
 
                       {/* Service Thumbnail */}
@@ -399,8 +407,6 @@ export default function RequestTripModal({ plan, onClose }) {
                           {svc.count ?? 0} available
                         </p>
                       </div>
-
-                     
                     </div>
                   );
                 })
@@ -417,15 +423,15 @@ export default function RequestTripModal({ plan, onClose }) {
               style={{ background: "#f0f5ff", color: "#2b6cb0" }}
             >
               <Info size={14} className="flex-shrink-0 mt-0.5 text-blue-500" />
-              <span>You can only select services included in your package.</span>
+              <span>
+                You can only select services included in your package.
+              </span>
             </div>
           </div>
 
           {/* Footer Area */}
           <div className="space-y-4 pt-4 border-t border-slate-100 mt-2">
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-              
-
               {/* Submit Action Box */}
               <div className="w-full sm:flex-1 flex flex-col items-stretch">
                 <button

@@ -14,10 +14,15 @@ const INITIAL_FORM = {
   city: "",
 };
 
-export default function UserCreateUpdateModal({ open, onClose, onCreated, onUpdated, user }) {
+export default function UserCreateUpdateModal({
+  open,
+  onClose,
+  onCreated,
+  onUpdated,
+  user,
+}) {
   const [form, setForm] = useState(INITIAL_FORM);
   const { loading, setLoading, error, setError } = useFetchList();
-
 
   const isEditMode = Boolean(user?.id);
 
@@ -77,7 +82,10 @@ export default function UserCreateUpdateModal({ open, onClose, onCreated, onUpda
       return "No changes to update.";
     }
 
-    if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+    if (
+      form.email.trim() &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())
+    ) {
       return "Enter a valid email address.";
     }
 
@@ -107,7 +115,7 @@ export default function UserCreateUpdateModal({ open, onClose, onCreated, onUpda
 
       if (isEditMode) {
         const payload = Object.fromEntries(
-          Object.entries(cleaned).filter(([, value]) => value !== "")
+          Object.entries(cleaned).filter(([, value]) => value !== ""),
         );
 
         const updated = await userApi.updateUser(user.id, payload);
@@ -119,7 +127,10 @@ export default function UserCreateUpdateModal({ open, onClose, onCreated, onUpda
 
       onClose();
     } catch (err) {
-      setError(err?.response?.data?.message || (isEditMode ? "Failed to update user." : "Failed to create user."));
+      setError(
+        err?.response?.data?.message ||
+          (isEditMode ? "Failed to update user." : "Failed to create user."),
+      );
     } finally {
       setLoading(false);
     }
@@ -130,7 +141,9 @@ export default function UserCreateUpdateModal({ open, onClose, onCreated, onUpda
       open={open}
       onClose={() => !loading && onClose()}
       title={isEditMode ? "Edit User" : "New User"}
-      description={isEditMode ? "Update user details." : "Create a new user account."}
+      description={
+        isEditMode ? "Update user details." : "Create a new user account."
+      }
       size="lg"
     >
       <form onSubmit={handleSubmit} className="p-6 space-y-5">
@@ -142,7 +155,10 @@ export default function UserCreateUpdateModal({ open, onClose, onCreated, onUpda
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5 sm:col-span-2">
-            <label className="block text-sm font-semibold text-[#0B1E3F]">Name{!isEditMode ? <span className="text-red-500"> *</span> : null}</label>
+            <label className="block text-sm font-semibold text-[#0B1E3F]">
+              Name
+              {!isEditMode ? <span className="text-red-500"> *</span> : null}
+            </label>
             <input
               type="text"
               name="name"
@@ -155,7 +171,10 @@ export default function UserCreateUpdateModal({ open, onClose, onCreated, onUpda
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-sm font-semibold text-[#0B1E3F]">Email{!isEditMode ? <span className="text-red-500"> *</span> : null}</label>
+            <label className="block text-sm font-semibold text-[#0B1E3F]">
+              Email
+              {!isEditMode ? <span className="text-red-500"> *</span> : null}
+            </label>
             <input
               type="email"
               name="email"
@@ -168,7 +187,10 @@ export default function UserCreateUpdateModal({ open, onClose, onCreated, onUpda
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-sm font-semibold text-[#0B1E3F]">Mobile Number{!isEditMode ? <span className="text-red-500"> *</span> : null}</label>
+            <label className="block text-sm font-semibold text-[#0B1E3F]">
+              Mobile Number
+              {!isEditMode ? <span className="text-red-500"> *</span> : null}
+            </label>
             <input
               type="text"
               name="mobileNumber"
@@ -181,7 +203,10 @@ export default function UserCreateUpdateModal({ open, onClose, onCreated, onUpda
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-sm font-semibold text-[#0B1E3F]">Role{!isEditMode ? <span className="text-red-500"> *</span> : null}</label>
+            <label className="block text-sm font-semibold text-[#0B1E3F]">
+              Role
+              {!isEditMode ? <span className="text-red-500"> *</span> : null}
+            </label>
             <select
               name="role"
               value={form.role}
@@ -190,13 +215,18 @@ export default function UserCreateUpdateModal({ open, onClose, onCreated, onUpda
               className="w-full text-sm rounded-lg border border-[#CBD5E0] bg-[#FAF6EC] px-3 py-2.5 text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 disabled:opacity-60"
             >
               {ROLES.map((role) => (
-                <option key={role} value={role}>{role}</option>
+                <option key={role} value={role}>
+                  {role}
+                </option>
               ))}
             </select>
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-sm font-semibold text-[#0B1E3F]">City{!isEditMode ? <span className="text-red-500"> *</span> : null}</label>
+            <label className="block text-sm font-semibold text-[#0B1E3F]">
+              City
+              {!isEditMode ? <span className="text-red-500"> *</span> : null}
+            </label>
             <input
               type="text"
               name="city"
@@ -224,7 +254,13 @@ export default function UserCreateUpdateModal({ open, onClose, onCreated, onUpda
             className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-[#0B1E3F] rounded-lg px-5 py-2 hover:bg-[#152d5a] transition-colors disabled:opacity-60"
           >
             {loading && <Loader2 size={14} className="animate-spin" />}
-            {loading ? (isEditMode ? "Updating..." : "Creating...") : isEditMode ? "Update User" : "Create User"}
+            {loading
+              ? isEditMode
+                ? "Updating..."
+                : "Creating..."
+              : isEditMode
+                ? "Update User"
+                : "Create User"}
           </button>
         </div>
       </form>

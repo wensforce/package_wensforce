@@ -7,8 +7,14 @@ import { getStatusUI, formatDate, formatMoney } from "./paymentUtils";
 function Row({ label, value, mono = false, valueClassName = "" }) {
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-wide text-[#4A5568] mb-1">{label}</p>
-      <p className={`text-sm text-[#1A202C] ${mono ? "font-mono" : "font-medium"} ${valueClassName}`}>{value}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-[#4A5568] mb-1">
+        {label}
+      </p>
+      <p
+        className={`text-sm text-[#1A202C] ${mono ? "font-mono" : "font-medium"} ${valueClassName}`}
+      >
+        {value}
+      </p>
     </div>
   );
 }
@@ -21,7 +27,9 @@ function SectionCard({ icon, title, children, actions }) {
           <span className="w-8 h-8 rounded-lg bg-white border border-[#CBD5E0] text-[#0B1E3F] inline-flex items-center justify-center">
             {icon}
           </span>
-          <h3 className="text-sm font-semibold text-[#0B1E3F] uppercase tracking-wide">{title}</h3>
+          <h3 className="text-sm font-semibold text-[#0B1E3F] uppercase tracking-wide">
+            {title}
+          </h3>
         </div>
         {actions}
       </div>
@@ -40,29 +48,40 @@ export default function PaymentOverviewCard({ payment }) {
         <div>
           <p className="text-xs text-[#4A5568] mb-1">Payment</p>
           <h2 className="text-2xl font-bold text-[#0B1E3F]">#{payment.id}</h2>
-          <p className="text-xs text-[#4A5568] mt-1">User ID: {payment.userId ?? "-"}</p>
+          <p className="text-xs text-[#4A5568] mt-1">
+            User ID: {payment.userId ?? "-"}
+          </p>
         </div>
 
-        <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.className}`}>
+        <span
+          className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.className}`}
+        >
           {status.icon} {status.label}
         </span>
       </div>
 
       <div className="grid grid-cols-1 gap-4">
-         <SectionCard icon={<Wallet size={16} />} title="Payment Details">
+        <SectionCard icon={<Wallet size={16} />} title="Payment Details">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Row label="Amount" value={formatMoney(payment.amount)} />
             <Row label="Discount" value={formatMoney(payment.discountAmount)} />
-            <Row label="Final Amount" value={formatMoney(payment.finalAmount)} />
+            <Row
+              label="Final Amount"
+              value={formatMoney(payment.finalAmount)}
+            />
             <Row label="Coupon" value={payment.couponCode || "None"} mono />
 
             <Row label="Payment ID" value={payment.paymentId || "-"} mono />
-            <Row label="Cashfree Order ID" value={payment.cashfreeOrderId || "-"} mono />
+            <Row
+              label="Cashfree Order ID"
+              value={payment.cashfreeOrderId || "-"}
+              mono
+            />
             <Row label="Created" value={formatDate(payment.createdAt)} />
             <Row label="Updated" value={formatDate(payment.updatedAt)} />
           </div>
         </SectionCard>
-        
+
         <SectionCard
           icon={<UserRound size={16} />}
           title="User Details"
@@ -78,7 +97,11 @@ export default function PaymentOverviewCard({ payment }) {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Row label="Name" value={payment.user?.name || "-"} />
             <Row label="Email" value={payment.user?.email || "-"} />
-            <Row label="Mobile Number" value={payment.user?.mobileNumber || "-"} mono />
+            <Row
+              label="Mobile Number"
+              value={payment.user?.mobileNumber || "-"}
+              mono
+            />
           </div>
         </SectionCard>
 
@@ -88,7 +111,9 @@ export default function PaymentOverviewCard({ payment }) {
           actions={
             payment.packageId ? (
               <button
-                onClick={() => router.push(`/admin/packages/${payment.packageId}`)}
+                onClick={() =>
+                  router.push(`/admin/packages/${payment.packageId}`)
+                }
                 className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-md border border-[#CBD5E0] bg-white text-[#4A5568] hover:text-[#0B1E3F] hover:bg-[#FAF6EC] transition-colors"
               >
                 <ExternalLink size={12} /> View Package
@@ -97,9 +122,18 @@ export default function PaymentOverviewCard({ payment }) {
           }
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Row label="Package" value={payment.package?.name || `#${payment.packageId ?? "-"}`} />
-            <Row label="Regular Price" value={formatMoney(payment.package?.regularPrice)} />
-            <Row label="Discounted Price" value={formatMoney(payment.package?.discountedPrice)} />
+            <Row
+              label="Package"
+              value={payment.package?.name || `#${payment.packageId ?? "-"}`}
+            />
+            <Row
+              label="Regular Price"
+              value={formatMoney(payment.package?.regularPrice)}
+            />
+            <Row
+              label="Discounted Price"
+              value={formatMoney(payment.package?.discountedPrice)}
+            />
             <Row label="Package ID" value={payment.packageId ?? "-"} mono />
           </div>
           <Row
@@ -108,8 +142,6 @@ export default function PaymentOverviewCard({ payment }) {
             valueClassName="whitespace-pre-wrap"
           />
         </SectionCard>
-
-       
       </div>
     </div>
   );

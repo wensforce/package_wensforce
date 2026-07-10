@@ -13,7 +13,7 @@ export default function PaymentDetailPage() {
   const paymentId = params?.id;
 
   const [payment, setPayment] = useState(null);
-    const { loading, setLoading, error, setError } = useFetchList();
+  const { loading, setLoading, error, setError } = useFetchList();
 
   const [refreshing, setRefreshing] = useState(false);
 

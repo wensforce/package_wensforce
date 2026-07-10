@@ -31,7 +31,11 @@ function getDaysLeftMeta(endDate) {
   const now = new Date();
   const end = new Date(endDate);
   if (Number.isNaN(end.getTime())) {
-    return { text: "Invalid", className: "text-red-600", title: "Invalid end date" };
+    return {
+      text: "Invalid",
+      className: "text-red-600",
+      title: "Invalid end date",
+    };
   }
 
   const msPerDay = 1000 * 60 * 60 * 24;
@@ -64,15 +68,31 @@ function getStatusUI(status) {
   const s = String(status || "pending").toUpperCase();
 
   if (s === "ACTIVE") {
-    return { className: "bg-green-100 text-green-700", icon: <CheckCircle2 size={11} />, label: s };
+    return {
+      className: "bg-green-100 text-green-700",
+      icon: <CheckCircle2 size={11} />,
+      label: s,
+    };
   }
   if (s === "EXPIRED") {
-    return { className: "bg-red-100 text-red-700", icon: <XCircle size={11} />, label: s };
+    return {
+      className: "bg-red-100 text-red-700",
+      icon: <XCircle size={11} />,
+      label: s,
+    };
   }
   if (s === "CANCELLED") {
-    return { className: "bg-gray-200 text-gray-700", icon: <Ban size={11} />, label: s };
+    return {
+      className: "bg-gray-200 text-gray-700",
+      icon: <Ban size={11} />,
+      label: s,
+    };
   }
-  return { className: "bg-amber-100 text-amber-700", icon: <Clock3 size={11} />, label: s };
+  return {
+    className: "bg-amber-100 text-amber-700",
+    icon: <Clock3 size={11} />,
+    label: s,
+  };
 }
 
 export default function SubscriptionsPage() {
@@ -97,8 +117,10 @@ export default function SubscriptionsPage() {
 
   // stable wrapper: reads page/search from its own args, not closure
   const fetchSubscriptionsForHook = useCallback(async ({ search, page }) => {
-    const { rows, pagination: pg } = await subscriptionApi.fetchSubscriptions({ page, search });
-    console.log(rows)
+    const { rows, pagination: pg } = await subscriptionApi.fetchSubscriptions({
+      page,
+      search,
+    });
     setPagination(pg);
     return rows;
   }, []);
@@ -165,20 +187,33 @@ export default function SubscriptionsPage() {
           </span>
         );
       case "vehicleType":
-        return <span className="text-xs text-[#4A5568]">{sub.vehicleType || "-"}</span>;
+        return (
+          <span className="text-xs text-[#4A5568]">
+            {sub.vehicleType || "-"}
+          </span>
+        );
       case "bodyguardType":
-        return <span className="text-xs text-[#4A5568]">{sub.bodyguardType || "-"}</span>;
+        return (
+          <span className="text-xs text-[#4A5568]">
+            {sub.bodyguardType || "-"}
+          </span>
+        );
       case "daysLeft": {
         const daysMeta = getDaysLeftMeta(sub.endDate);
         return (
-          <span className={`text-xs whitespace-nowrap ${daysMeta.className}`} title={daysMeta.title}>
+          <span
+            className={`text-xs whitespace-nowrap ${daysMeta.className}`}
+            title={daysMeta.title}
+          >
             {daysMeta.text}
           </span>
         );
       }
       case "status":
         return (
-          <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.className}`}>
+          <span
+            className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.className}`}
+          >
             {status.icon} {status.label}
           </span>
         );

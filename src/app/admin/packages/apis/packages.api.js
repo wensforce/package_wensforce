@@ -15,7 +15,11 @@ export const packageApi = {
 
     const res = await api.get("/package", { params });
     const data = res.data?.data ?? res.data ?? {};
-    const rows = data.packages || data.data || data.items || (Array.isArray(data) ? data : []);
+    const rows =
+      data.packages ||
+      data.data ||
+      data.items ||
+      (Array.isArray(data) ? data : []);
     const pagination = data.pagination || {
       page,
       limit: PAGE_LIMIT,
@@ -39,10 +43,14 @@ export const packageApi = {
       params: { search: query, page: 1, limit: 5 },
     });
     const data = res.data?.data ?? res.data ?? {};
-    const rows = data.packages || data.data || data.items || (Array.isArray(data) ? data : []);
+    const rows =
+      data.packages ||
+      data.data ||
+      data.items ||
+      (Array.isArray(data) ? data : []);
     return Array.isArray(rows) ? rows.slice(0, 5) : [];
   },
-/**
+  /**
    * Fetch a single package by ID, including associated services.
    * @param {number|string} id - Package ID
    * @returns {Promise<object|null>} - Package data, or null if not found
@@ -88,7 +96,12 @@ export const packageApi = {
    * @param {string|null} existingThumbnailKey - Existing S3 key (if no new upload)
    * @returns {Promise<void>}
    */
-  updatePackage: async (packageId, payload, thumbnail, existingThumbnailKey) => {
+  updatePackage: async (
+    packageId,
+    payload,
+    thumbnail,
+    existingThumbnailKey,
+  ) => {
     let uploadedKey = null;
 
     if (thumbnail) {
@@ -104,7 +117,6 @@ export const packageApi = {
           ? { thumbnailUrlKey: existingThumbnailKey }
           : {}),
     };
-    console.log("Final thumbnail key for update:", finalPayload.thumbnailUrlKey); // Debug log
     try {
       await api.put(`/package/${packageId}`, finalPayload);
     } catch (err) {

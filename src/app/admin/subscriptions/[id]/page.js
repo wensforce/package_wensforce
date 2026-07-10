@@ -14,7 +14,7 @@ export default function SubscriptionDetailPage() {
   const subscriptionId = params?.id;
 
   const [subscription, setSubscription] = useState(null);
-   const { loading, setLoading, error, setError } = useFetchList();
+  const { loading, setLoading, error, setError } = useFetchList();
 
   const [refreshing, setRefreshing] = useState(false);
   const [actionType, setActionType] = useState(null);

@@ -19,7 +19,6 @@ export default function PackageCard({ pkg }) {
 
   return (
     <article className="flex flex-col bg-white rounded-2xl border border-neutral-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-
       {/* Thumbnail */}
       <div className="relative h-44 w-full overflow-hidden rounded-t-2xl bg-neutral-100">
         {pkg.thumbnailUrl ? (
@@ -36,7 +35,9 @@ export default function PackageCard({ pkg }) {
 
         <span
           className={`absolute top-3 right-3 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-            pkg.isActive ? "bg-emerald-500 text-white" : "bg-neutral-400 text-white"
+            pkg.isActive
+              ? "bg-emerald-500 text-white"
+              : "bg-neutral-400 text-white"
           }`}
         >
           {pkg.isActive ? "Active" : "Inactive"}
@@ -51,9 +52,10 @@ export default function PackageCard({ pkg }) {
 
       {/* Body */}
       <div className="flex flex-col flex-1 p-5 gap-4">
-
         <div>
-          <h2 className="text-base font-semibold text-neutral-900 truncate">{pkg.name}</h2>
+          <h2 className="text-base font-semibold text-neutral-900 truncate">
+            {pkg.name}
+          </h2>
           {pkg.description && (
             <p className="mt-1 text-sm text-neutral-500 line-clamp-2 leading-relaxed">
               {pkg.description}
@@ -65,11 +67,13 @@ export default function PackageCard({ pkg }) {
           <span className="text-xl font-bold text-[#0B1E3F]">
             {formatPrice(pkg.discountedPrice)}
           </span>
-          {pkg.regularPrice && pkg.discountedPrice && pkg.regularPrice !== pkg.discountedPrice && (
-            <span className="text-sm text-neutral-400 line-through">
-              {formatPrice(pkg.regularPrice)}
-            </span>
-          )}
+          {pkg.regularPrice &&
+            pkg.discountedPrice &&
+            pkg.regularPrice !== pkg.discountedPrice && (
+              <span className="text-sm text-neutral-400 line-through">
+                {formatPrice(pkg.regularPrice)}
+              </span>
+            )}
         </div>
 
         <div className="grid grid-cols-2 gap-y-2.5 gap-x-4 text-sm text-neutral-500">
@@ -113,7 +117,6 @@ export default function PackageCard({ pkg }) {
             <Pencil size={12} /> Edit
           </button>
         </div>
-
       </div>
     </article>
   );

@@ -92,7 +92,7 @@ export default function AdminTable({
   toolbarFilters,
 }) {
   const hasTabs = tabs.length > 0;
-  
+
   return (
     <>
       <div className="p-6 md:p-8 space-y-6">

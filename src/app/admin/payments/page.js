@@ -48,15 +48,31 @@ function getStatusUI(status) {
   const s = String(status || "PENDING").toUpperCase();
 
   if (s === "SUCCESS" || s === "COMPLETED" || s === "PAID") {
-    return { className: "bg-green-100 text-green-700", icon: <CheckCircle2 size={11} />, label: s };
+    return {
+      className: "bg-green-100 text-green-700",
+      icon: <CheckCircle2 size={11} />,
+      label: s,
+    };
   }
   if (s === "FAILED") {
-    return { className: "bg-red-100 text-red-700", icon: <XCircle size={11} />, label: s };
+    return {
+      className: "bg-red-100 text-red-700",
+      icon: <XCircle size={11} />,
+      label: s,
+    };
   }
   if (s === "CANCELLED") {
-    return { className: "bg-gray-200 text-gray-700", icon: <Ban size={11} />, label: s };
+    return {
+      className: "bg-gray-200 text-gray-700",
+      icon: <Ban size={11} />,
+      label: s,
+    };
   }
-  return { className: "bg-amber-100 text-amber-700", icon: <Clock3 size={11} />, label: s };
+  return {
+    className: "bg-amber-100 text-amber-700",
+    icon: <Clock3 size={11} />,
+    label: s,
+  };
 }
 
 export default function PaymentsPage() {
@@ -73,7 +89,10 @@ export default function PaymentsPage() {
 
   // stable wrapper: reads page/search from its own args, not closure
   const fetchPaymentsForHook = useCallback(async ({ search, page }) => {
-    const { rows, pagination: pg } = await paymentApi.fetchPayments({ page, search });
+    const { rows, pagination: pg } = await paymentApi.fetchPayments({
+      page,
+      search,
+    });
     setPagination(pg);
     return rows;
   }, []);
@@ -118,14 +137,20 @@ export default function PaymentsPage() {
       case "user":
         return (
           <div className="max-w-45">
-            <p className="text-sm font-medium text-[#1A202C] truncate" title={payment.user?.name || ""}>
+            <p
+              className="text-sm font-medium text-[#1A202C] truncate"
+              title={payment.user?.name || ""}
+            >
               {payment.user?.name || "Guest"}
             </p>
           </div>
         );
       case "package":
         return (
-          <span className="text-sm text-[#1A202C] font-medium" title={payment.package?.name || ""}>
+          <span
+            className="text-sm text-[#1A202C] font-medium"
+            title={payment.package?.name || ""}
+          >
             {payment.package?.name || `#${payment.packageId ?? "-"}`}
           </span>
         );
@@ -157,13 +182,18 @@ export default function PaymentsPage() {
         );
       case "order":
         return (
-          <span className="text-xs font-mono text-[#4A5568]" title={payment.cashfreeOrderId || ""}>
+          <span
+            className="text-xs font-mono text-[#4A5568]"
+            title={payment.cashfreeOrderId || ""}
+          >
             {payment.cashfreeOrderId || "-"}
           </span>
         );
       case "status":
         return (
-          <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.className}`}>
+          <span
+            className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.className}`}
+          >
             {status.icon} {status.label}
           </span>
         );

@@ -17,6 +17,7 @@ All API endpoints use Bearer token authentication. Base URL: `/api/v1`
 Manage services that can be bundled into packages. Services include bodyguard services, vehicle services, and other offerings.
 
 **Key Endpoints:**
+
 - `POST /create` - Create a new service
 - `GET /list` - List all services with pagination
 - `GET /:id` - Get service details
@@ -24,6 +25,7 @@ Manage services that can be bundled into packages. Services include bodyguard se
 - `DELETE /:id` - Delete a service
 
 **Key Fields:**
+
 - `title` - Service name
 - `description` - Service details
 - `thumbnailUrlKey` - S3 key for thumbnail image
@@ -38,6 +40,7 @@ Manage services that can be bundled into packages. Services include bodyguard se
 Manage packages that bundle multiple services with pricing, validity, and vehicle/bodyguard types.
 
 **Key Endpoints:**
+
 - `POST /create` - Create a new package
 - `GET /list` - List all packages with pagination
 - `GET /:id` - Get package details with associated services
@@ -46,6 +49,7 @@ Manage packages that bundle multiple services with pricing, validity, and vehicl
 - `GET /service/:serviceId` - Get packages by service
 
 **Key Fields:**
+
 - `name` - Package name (unique)
 - `regularPrice` / `discountedPrice` - Pricing
 - `vehicleType` / `vehicleModel` - Vehicle information
@@ -81,6 +85,7 @@ Handle user authentication, token management, and authorization.
 Manage coupon creation, validation, updates, and deletion with package-wise applicability.
 
 **Key Endpoints:**
+
 - `GET /` - List coupons with pagination and search
 - `GET /:id` - Get single coupon with package details
 - `GET /validate` - Validate coupon and calculate discount
@@ -89,6 +94,7 @@ Manage coupon creation, validation, updates, and deletion with package-wise appl
 - `DELETE /:id` - Delete coupon
 
 **Key Fields:**
+
 - `code` - Coupon code (unique)
 - `discountType` / `discountValue` - Discount definition
 - `usageLimit` / `usedCount` - Usage controls
@@ -104,6 +110,7 @@ Manage coupon creation, validation, updates, and deletion with package-wise appl
 Handle order creation, payment verification, webhook processing, and payment listing.
 
 **Key Endpoints:**
+
 - `POST /create-order` - Create payment order for a package
 - `GET /verify-payment/:orderId` - Verify payment status for a Cashfree order
 - `POST /webhook` - Process Cashfree webhook events
@@ -111,6 +118,7 @@ Handle order creation, payment verification, webhook processing, and payment lis
 - `GET /:id` - Get payment details by internal order ID
 
 **Key Fields:**
+
 - `packageId` - Package to purchase
 - `couponCode` - Optional coupon code
 - `cashfreeOrderId` - Payment gateway order identifier
@@ -126,6 +134,7 @@ Handle order creation, payment verification, webhook processing, and payment lis
 Manage subscription lifecycle including creation, listing, verification, and cancellation.
 
 **Key Endpoints:**
+
 - `GET /my` - Get current user's subscription
 - `POST /` - Create subscription
 - `GET /:id` - Get subscription details by ID
@@ -134,6 +143,7 @@ Manage subscription lifecycle including creation, listing, verification, and can
 - `PUT /:id/cancel` - Cancel a subscription
 
 **Key Fields:**
+
 - `userId` - Subscriber user ID
 - `packageId` - Linked package ID
 - `startDate` / `endDate` - Subscription period
@@ -149,12 +159,14 @@ Manage subscription lifecycle including creation, listing, verification, and can
 Manage users with create, list, detail, and update operations.
 
 **Key Endpoints:**
+
 - `POST /` - Create user
 - `GET /` - List users with pagination and search
 - `GET /:id` - Get user details by ID
 - `PUT /:id` - Update user
 
 **Key Fields:**
+
 - `name` - User name
 - `email` - User email (unique)
 - `mobileNumber` - User mobile number (unique)
@@ -170,6 +182,7 @@ Manage users with create, list, detail, and update operations.
 Manage trip lifecycle including request, approval, listing, update, and deletion.
 
 **Key Endpoints:**
+
 - `POST /request` - Request a trip
 - `POST /create` - Create and confirm trip (admin/ops)
 - `GET /mine` - Get current user's trips
@@ -180,6 +193,7 @@ Manage trip lifecycle including request, approval, listing, update, and deletion
 - `GET /:id` - Get trip details by ID
 
 **Key Fields:**
+
 - `subscriptionId` - Linked subscription ID
 - `assignmentId` - Internal assignment identifier
 - `pickupLocation` / `dropLocation` - Trip route points
@@ -196,7 +210,7 @@ Manage trip lifecycle including request, approval, listing, update, and deletion
 Both Service and Package APIs use the same thumbnail URL strategy:
 
 - **Request:** Send `thumbnailUrlKey` (S3 object key, e.g., `"packages/premium.jpg"`)
-- **Response:** 
+- **Response:**
   - Create/Update endpoints return only `thumbnailUrlKey`
   - List/Get endpoints return both `thumbnailUrlKey` (database key) and `thumbnailUrl` (presigned S3 URL)
   - `thumbnailUrl` is a presigned S3 URL with 1-hour expiration
@@ -238,9 +252,7 @@ Validation errors include an `errors` array:
 
 ```json
 {
-  "errors": [
-    { "msg": "Field is required", "path": "fieldName" }
-  ]
+  "errors": [{ "msg": "Field is required", "path": "fieldName" }]
 }
 ```
 
@@ -268,15 +280,15 @@ Response includes pagination metadata:
 
 Common HTTP Status Codes:
 
-| Status | Meaning                    |
-|--------|----------------------------|
-| 200    | Success                    |
-| 201    | Created                    |
-| 400    | Bad Request / Validation Error |
-| 401    | Unauthorized (Invalid token) |
+| Status | Meaning                              |
+| ------ | ------------------------------------ |
+| 200    | Success                              |
+| 201    | Created                              |
+| 400    | Bad Request / Validation Error       |
+| 401    | Unauthorized (Invalid token)         |
 | 403    | Forbidden (Insufficient permissions) |
-| 404    | Not Found                  |
-| 500    | Internal Server Error      |
+| 404    | Not Found                            |
+| 500    | Internal Server Error                |
 
 ---
 

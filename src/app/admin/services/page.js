@@ -68,7 +68,10 @@ export default function ServicesPage() {
 
   // stable wrapper: reads page/search from its own args, not closure
   const fetchServicesForHook = useCallback(async ({ search, page }) => {
-    const { rows, pagination: pg } = await servicesApi.fetchServices({ page, search });
+    const { rows, pagination: pg } = await servicesApi.fetchServices({
+      page,
+      search,
+    });
     setPagination(pg);
     return rows; // hook accepts a bare array return
   }, []);

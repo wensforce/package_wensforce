@@ -243,7 +243,6 @@ export async function POST(req) {
       order_id: data.order_id,
       payment_session_id: data.payment_session_id,
     });
-    
   } catch (err) {
     console.error("create-order error:", err);
     return NextResponse.json(

@@ -12,20 +12,20 @@ import {
   ArrowRight,
   Sparkles,
 } from "lucide-react";
-import { plans } from "../data/welcomeIndia";
+import { plans } from "../../data/welcomeIndia";
 
 const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
 
 const CURRENCIES = [
-  { code: "USD", flag: "🇺🇸", symbol: "$",  name: "US Dollar" },
-  { code: "EUR", flag: "🇪🇺", symbol: "€",  name: "Euro" },
-  { code: "JPY", flag: "🇯🇵", symbol: "¥",  name: "Japanese Yen" },
-  { code: "GBP", flag: "🇬🇧", symbol: "£",  name: "British Pound" },
-  { code: "CNY", flag: "🇨🇳", symbol: "¥",  name: "Chinese Yuan" },
+  { code: "USD", flag: "🇺🇸", symbol: "$", name: "US Dollar" },
+  { code: "EUR", flag: "🇪🇺", symbol: "€", name: "Euro" },
+  { code: "JPY", flag: "🇯🇵", symbol: "¥", name: "Japanese Yen" },
+  { code: "GBP", flag: "🇬🇧", symbol: "£", name: "British Pound" },
+  { code: "CNY", flag: "🇨🇳", symbol: "¥", name: "Chinese Yuan" },
   { code: "CHF", flag: "🇨🇭", symbol: "Fr", name: "Swiss Franc" },
   { code: "CAD", flag: "🇨🇦", symbol: "C$", name: "Canadian Dollar" },
   { code: "AUD", flag: "🇦🇺", symbol: "A$", name: "Australian Dollar" },
-  { code: "INR", flag: "🇮🇳", symbol: "₹",  name: "Indian Rupee" },
+  { code: "INR", flag: "🇮🇳", symbol: "₹", name: "Indian Rupee" },
 ];
 
 function fmtForeign(amount, code) {
@@ -33,7 +33,13 @@ function fmtForeign(amount, code) {
   if (!cur || !amount) return "";
   const num = Number(amount);
   const decimals = ["JPY", "KRW", "VND", "IDR"].includes(code) ? 0 : 2;
-  return cur.symbol + num.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  return (
+    cur.symbol +
+    num.toLocaleString("en-US", {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    })
+  );
 }
 
 const M = {
@@ -189,7 +195,7 @@ const M = {
     num: "P2",
     Icon: ShieldCheck,
     // short cta name , no maharani/maharaja in cta to save space
-    cta: "Book Royal Day", 
+    cta: "Book Royal Day",
     accent: "#c07840",
     imgFilter: "grayscale(20%) brightness(.52) contrast(1.08)",
     imgOverlay:
@@ -212,7 +218,15 @@ const M = {
   },
 };
 
-const ORDER = ["touch-red-carpet", "comfortable-arrival", "arrive-in-style", "maharani-maharaja", "arrival-in-grandeur", "ultimate-convoy-matrix", "end-to-end-concierge"];
+const ORDER = [
+  "touch-red-carpet",
+  "comfortable-arrival",
+  "arrive-in-style",
+  "maharani-maharaja",
+  "arrival-in-grandeur",
+  "ultimate-convoy-matrix",
+  "end-to-end-concierge",
+];
 
 // Fixed USD prices (not exchange-rate based)
 const USD_PRICES = {
@@ -227,11 +241,14 @@ const USD_PRICES = {
 
 export default function WelcomeIndiaCard() {
   const [currency, setCurrency] = useState("INR");
-  const [rate, setRate] = useState(1);       // INR per 1 unit of selected currency
+  const [rate, setRate] = useState(1); // INR per 1 unit of selected currency
   const [rateLoading, setRateLoading] = useState(false);
 
   useEffect(() => {
-    if (currency === "INR" || currency === "USD") { setRate(1); return; }
+    if (currency === "INR" || currency === "USD") {
+      setRate(1);
+      return;
+    }
     setRateLoading(true);
     fetch(`/api/exchange-rate?currency=${currency}`)
       .then((r) => r.json())
@@ -244,7 +261,8 @@ export default function WelcomeIndiaCard() {
     if (currency === "INR") return INR(inrAmount);
     if (currency === "USD" && planId && USD_PRICES[planId] !== undefined) {
       // For anchor/regular price, scale proportionally from the plan's base price
-      const basePlanPrice = plans.find((p) => p.id === planId)?.price ?? inrAmount;
+      const basePlanPrice =
+        plans.find((p) => p.id === planId)?.price ?? inrAmount;
       const usdBase = USD_PRICES[planId];
       const scaled = Math.round((inrAmount / basePlanPrice) * usdBase);
       return "$" + scaled.toLocaleString("en-US");
@@ -313,7 +331,6 @@ export default function WelcomeIndiaCard() {
       `}</style>
 
       <div className="max-w-[1280px] mx-auto">
-
         {/* Header */}
         <div className="text-center mb-6">
           <div className="inline-flex items-center gap-4 mb-[18px]">
@@ -327,17 +344,22 @@ export default function WelcomeIndiaCard() {
             Choose Your Package
           </h2>
           <p className="text-[13px] font-light text-[#8a7e6e] leading-[1.75] max-w-[320px] mx-auto">
-            Premium airport transfers &amp; luxury transport
-            — all-inclusive packages, book in minutes.
+            Premium airport transfers &amp; luxury transport — all-inclusive
+            packages, book in minutes.
           </p>
         </div>
 
         {/* Currency picker — centered, classic modern */}
         <div className="flex flex-col items-center gap-3 mb-12">
-          <span className="text-[8px] font-bold tracking-[.45em] uppercase text-[#a07838]">View prices in</span>
+          <span className="text-[8px] font-bold tracking-[.45em] uppercase text-[#a07838]">
+            View prices in
+          </span>
           <div
             className="inline-flex flex-wrap justify-center gap-1 p-1.5 rounded-2xl"
-            style={{ background: 'rgba(11,30,63,.07)', border: '1px solid rgba(184,146,74,.15)' }}
+            style={{
+              background: "rgba(11,30,63,.07)",
+              border: "1px solid rgba(184,146,74,.15)",
+            }}
           >
             {CURRENCIES.map((c) => {
               const active = currency === c.code;
@@ -348,23 +370,33 @@ export default function WelcomeIndiaCard() {
                   title={c.name}
                   className="inline-flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-all duration-200"
                   style={{
-                    background: active ? '#0B1E3F' : 'transparent',
-                    color: active ? '#f0d878' : '#7a6a50',
-                    boxShadow: active ? '0 2px 12px rgba(11,30,63,.22), inset 0 1px 0 rgba(255,255,255,.06)' : 'none',
-                    border: active ? '1px solid rgba(201,162,75,.35)' : '1px solid transparent',
+                    background: active ? "#0B1E3F" : "transparent",
+                    color: active ? "#f0d878" : "#7a6a50",
+                    boxShadow: active
+                      ? "0 2px 12px rgba(11,30,63,.22), inset 0 1px 0 rgba(255,255,255,.06)"
+                      : "none",
+                    border: active
+                      ? "1px solid rgba(201,162,75,.35)"
+                      : "1px solid transparent",
                   }}
                 >
                   <span className="text-[18px] leading-none">{c.flag}</span>
-                  <span className="text-[9px] font-black tracking-[.08em]">{c.code}</span>
+                  <span className="text-[9px] font-black tracking-[.08em]">
+                    {c.code}
+                  </span>
                 </button>
               );
             })}
           </div>
           {rateLoading && (
-            <span className="text-[9px] text-[#a07838] animate-pulse tracking-wider">Fetching rate…</span>
+            <span className="text-[9px] text-[#a07838] animate-pulse tracking-wider">
+              Fetching rate…
+            </span>
           )}
           {!rateLoading && currency !== "INR" && currency !== "USD" && (
-            <span className="text-[9px] text-[#a07838]/60 tracking-[.12em]">1 {currency} ≈ {INR(Math.round(rate))}</span>
+            <span className="text-[9px] text-[#a07838]/60 tracking-[.12em]">
+              1 {currency} ≈ {INR(Math.round(rate))}
+            </span>
           )}
         </div>
 
@@ -399,7 +431,9 @@ export default function WelcomeIndiaCard() {
                 }}
               >
                 {/* Image panel */}
-                <div className={`card-img-panel relative shrink-0 overflow-hidden ${isFullWidth ? "w-full h-80 xl:w-[45%] xl:h-auto" : "w-full h-[200px] xl:w-[48%] xl:h-auto"}`}>
+                <div
+                  className={`card-img-panel relative shrink-0 overflow-hidden ${isFullWidth ? "w-full h-80 xl:w-[45%] xl:h-auto" : "w-full h-[200px] xl:w-[48%] xl:h-auto"}`}
+                >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={plan.image}
@@ -446,17 +480,13 @@ export default function WelcomeIndiaCard() {
                         strokeWidth={1.5}
                         className="shrink-0"
                         style={{
-                          color: m.isElite
-                            ? m.accent
-                            : "rgba(255,255,255,.32)",
+                          color: m.isElite ? m.accent : "rgba(255,255,255,.32)",
                         }}
                       />
                       <span
                         className="text-[9.5px] font-black tracking-[.38em] uppercase"
                         style={{
-                          color: m.isElite
-                            ? m.accent
-                            : "rgba(255,255,255,.52)",
+                          color: m.isElite ? m.accent : "rgba(255,255,255,.52)",
                         }}
                       >
                         {plan.name}
@@ -583,9 +613,7 @@ export default function WelcomeIndiaCard() {
                         className="w-1 h-1 rounded-full shrink-0"
                         style={{
                           background: m.isElite ? m.accent : "white",
-                          boxShadow: m.isElite
-                            ? `0 0 6px ${m.accent}`
-                            : "none",
+                          boxShadow: m.isElite ? `0 0 6px ${m.accent}` : "none",
                         }}
                       />
                       <span className="font-bold">Selling Fast</span>
@@ -597,7 +625,9 @@ export default function WelcomeIndiaCard() {
                   </div>
 
                   {/* STATS */}
-                  <div className={`grid ${isFullWidth ? "grid-cols-2 xl:grid-cols-4" : "grid-cols-2"} gap-2 mb-[14px] relative`}>
+                  <div
+                    className={`grid ${isFullWidth ? "grid-cols-2 xl:grid-cols-4" : "grid-cols-2"} gap-2 mb-[14px] relative`}
+                  >
                     {[
                       { label: "Trips / Year", value: `${plan.trips} Trips` },
                       { label: "Vehicle", value: plan.vehicleType },

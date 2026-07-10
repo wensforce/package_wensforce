@@ -70,7 +70,10 @@ export default function CouponsPage() {
 
   // stable wrapper: reads page/search from its own args, not closure
   const fetchCouponsForHook = useCallback(async ({ search, page }) => {
-    const { rows, pagination: pg } = await couponApi.fetchCoupons({ page, search });
+    const { rows, pagination: pg } = await couponApi.fetchCoupons({
+      page,
+      search,
+    });
     setPagination(pg);
     return rows;
   }, []);

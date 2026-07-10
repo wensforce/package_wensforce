@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, Search, X } from "lucide-react";
 import Modal from "../Modal";
-import {useFetchList} from "../../hooks/useFetchList";
+import { useFetchList } from "../../hooks/useFetchList";
 
 import { couponApi } from "../../coupons/apis/coupons.api";
 import { packageApi } from "../../packages/apis/packages.api";
@@ -301,7 +301,7 @@ export default function CouponCreateModal({
                 form.discountType === "percentage" ? "e.g. 20" : "e.g. 500"
               }
               disabled={loading}
-             className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-moz-appearance]:textfield"
+              className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-moz-appearance]:textfield"
             />
           </div>
 

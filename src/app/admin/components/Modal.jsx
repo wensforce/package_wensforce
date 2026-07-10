@@ -40,7 +40,9 @@ export default function Modal({
   useEffect(() => {
     if (open) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [open]);
 
   if (!open) return null;
@@ -66,7 +68,10 @@ export default function Modal({
           <div className="flex items-start justify-between px-6 py-4 border-b border-[#CBD5E0] shrink-0">
             <div>
               {title && (
-                <h2 id="modal-title" className="text-lg font-bold text-[#0B1E3F] leading-tight">
+                <h2
+                  id="modal-title"
+                  className="text-lg font-bold text-[#0B1E3F] leading-tight"
+                >
                   {title}
                 </h2>
               )}
@@ -87,9 +92,7 @@ export default function Modal({
         )}
 
         {/* Scrollable body */}
-        <div className="overflow-y-auto flex-1">
-          {children}
-        </div>
+        <div className="overflow-y-auto flex-1">{children}</div>
       </div>
     </div>
   );

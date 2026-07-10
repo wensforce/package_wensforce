@@ -41,7 +41,7 @@ All responses follow a consistent envelope:
 All endpoints require a Bearer token in the `Authorization` header.
 
 | Header          | Value                  | Required |
-|-----------------|------------------------|----------|
+| --------------- | ---------------------- | -------- |
 | `Authorization` | `Bearer <accessToken>` | Yes      |
 
 Role access per endpoint is listed in each section.
@@ -58,14 +58,15 @@ Create a new service.
 
 ### Request Body
 
-| Field               | Type    | Required | Description                                |
-|---------------------|---------|----------|--------------------------------------------|
-| `title`             | string  | Yes      | Title of the service.                      |
-| `description`       | string  | Yes      | Description of the service.                |
-| `thumbnailUrlKey`   | string  | No       | S3 bucket key for the service thumbnail.   |
-| `isActive`          | boolean | No       | Whether the service is active.             |
+| Field             | Type    | Required | Description                              |
+| ----------------- | ------- | -------- | ---------------------------------------- |
+| `title`           | string  | Yes      | Title of the service.                    |
+| `description`     | string  | Yes      | Description of the service.              |
+| `thumbnailUrlKey` | string  | No       | S3 bucket key for the service thumbnail. |
+| `isActive`        | boolean | No       | Whether the service is active.           |
 
 **Example:**
+
 ```json
 {
   "title": "Home Cleaning",
@@ -78,6 +79,7 @@ Create a new service.
 ### Response
 
 #### Success `201 Created`
+
 ```json
 {
   "success": true,
@@ -98,13 +100,13 @@ Create a new service.
 
 #### Error Responses
 
-| Status | Message                          | Cause                    |
-|--------|----------------------------------|--------------------------|
-| `400`  | `"Service title is required"`    | Missing `title` field    |
+| Status | Message                             | Cause                       |
+| ------ | ----------------------------------- | --------------------------- |
+| `400`  | `"Service title is required"`       | Missing `title` field       |
 | `400`  | `"Service description is required"` | Missing `description` field |
-| `401`  | `"Unauthorized access"`          | Missing or invalid token |
-| `403`  | `"Access forbidden"`             | Role not permitted       |
-| `500`  | `"Failed to create service"`     | Server/DB error          |
+| `401`  | `"Unauthorized access"`             | Missing or invalid token    |
+| `403`  | `"Access forbidden"`                | Role not permitted          |
+| `500`  | `"Failed to create service"`        | Server/DB error             |
 
 ---
 
@@ -121,6 +123,7 @@ Retrieve all services.
 ### Response
 
 #### Success `200 OK`
+
 ```json
 {
   "success": true,
@@ -151,11 +154,11 @@ Retrieve all services.
 
 #### Error Responses
 
-| Status | Message                          | Cause                    |
-|--------|----------------------------------|--------------------------|
-| `401`  | `"Unauthorized access"`          | Missing or invalid token |
-| `403`  | `"Access forbidden"`             | Role not permitted       |
-| `500`  | `"Failed to retrieve services"`  | Server/DB error          |
+| Status | Message                         | Cause                    |
+| ------ | ------------------------------- | ------------------------ |
+| `401`  | `"Unauthorized access"`         | Missing or invalid token |
+| `403`  | `"Access forbidden"`            | Role not permitted       |
+| `500`  | `"Failed to retrieve services"` | Server/DB error          |
 
 ---
 
@@ -169,15 +172,16 @@ Retrieve a single service by its ID.
 
 ### Path Parameters
 
-| Parameter | Type    | Required | Description         |
-|-----------|---------|----------|---------------------|
-| `id`      | integer | Yes      | ID of the service.  |
+| Parameter | Type    | Required | Description        |
+| --------- | ------- | -------- | ------------------ |
+| `id`      | integer | Yes      | ID of the service. |
 
 **Example:** `GET /api/v1/service/1`
 
 ### Response
 
 #### Success `200 OK`
+
 ```json
 {
   "success": true,
@@ -199,13 +203,13 @@ Retrieve a single service by its ID.
 
 #### Error Responses
 
-| Status | Message                          | Cause                         |
-|--------|----------------------------------|-------------------------------|
-| `400`  | `"Service ID is required"`       | Missing `id` path param       |
-| `401`  | `"Unauthorized access"`          | Missing or invalid token      |
-| `403`  | `"Access forbidden"`             | Role not permitted            |
-| `404`  | `"Service not found"`            | No service with the given ID  |
-| `500`  | `"Failed to retrieve service"`   | Server/DB error               |
+| Status | Message                        | Cause                        |
+| ------ | ------------------------------ | ---------------------------- |
+| `400`  | `"Service ID is required"`     | Missing `id` path param      |
+| `401`  | `"Unauthorized access"`        | Missing or invalid token     |
+| `403`  | `"Access forbidden"`           | Role not permitted           |
+| `404`  | `"Service not found"`          | No service with the given ID |
+| `500`  | `"Failed to retrieve service"` | Server/DB error              |
 
 ---
 
@@ -219,20 +223,21 @@ Update an existing service by its ID.
 
 ### Path Parameters
 
-| Parameter | Type    | Required | Description         |
-|-----------|---------|----------|---------------------|
-| `id`      | integer | Yes      | ID of the service.  |
+| Parameter | Type    | Required | Description        |
+| --------- | ------- | -------- | ------------------ |
+| `id`      | integer | Yes      | ID of the service. |
 
 ### Request Body
 
-| Field               | Type    | Required | Description                          |
-|---------------------|---------|----------|--------------------------------------|
-| `title`             | string  | No       | Updated title of the service.        |
-| `description`       | string  | No       | Updated description.                 |
-| `thumbnailUrlKey`   | string  | No       | Updated S3 key for thumbnail image.  |
-| `isActive`          | boolean | No       | Updated active status.               |
+| Field             | Type    | Required | Description                         |
+| ----------------- | ------- | -------- | ----------------------------------- |
+| `title`           | string  | No       | Updated title of the service.       |
+| `description`     | string  | No       | Updated description.                |
+| `thumbnailUrlKey` | string  | No       | Updated S3 key for thumbnail image. |
+| `isActive`        | boolean | No       | Updated active status.              |
 
 **Example:** `PUT /api/v1/service/1`
+
 ```json
 {
   "title": "Premium Home Cleaning",
@@ -243,6 +248,7 @@ Update an existing service by its ID.
 ### Response
 
 #### Success `200 OK`
+
 ```json
 {
   "success": true,
@@ -261,12 +267,12 @@ Update an existing service by its ID.
 
 #### Error Responses
 
-| Status | Message                          | Cause                         |
-|--------|----------------------------------|-------------------------------|
-| `400`  | `"Service ID is required"`       | Missing `id` path param       |
-| `401`  | `"Unauthorized access"`          | Missing or invalid token      |
-| `403`  | `"Access forbidden"`             | Role not permitted            |
-| `500`  | `"Failed to update service"`     | Server/DB error               |
+| Status | Message                      | Cause                    |
+| ------ | ---------------------------- | ------------------------ |
+| `400`  | `"Service ID is required"`   | Missing `id` path param  |
+| `401`  | `"Unauthorized access"`      | Missing or invalid token |
+| `403`  | `"Access forbidden"`         | Role not permitted       |
+| `500`  | `"Failed to update service"` | Server/DB error          |
 
 ---
 
@@ -280,15 +286,16 @@ Delete a service by its ID.
 
 ### Path Parameters
 
-| Parameter | Type    | Required | Description         |
-|-----------|---------|----------|---------------------|
-| `id`      | integer | Yes      | ID of the service.  |
+| Parameter | Type    | Required | Description        |
+| --------- | ------- | -------- | ------------------ |
+| `id`      | integer | Yes      | ID of the service. |
 
 **Example:** `DELETE /api/v1/service/1`
 
 ### Response
 
 #### Success `200 OK`
+
 ```json
 {
   "success": true,
@@ -298,9 +305,9 @@ Delete a service by its ID.
 
 #### Error Responses
 
-| Status | Message                          | Cause                         |
-|--------|----------------------------------|-------------------------------|
-| `400`  | `"Service ID is required"`       | Missing `id` path param       |
-| `401`  | `"Unauthorized access"`          | Missing or invalid token      |
-| `403`  | `"Access forbidden"`             | Role not permitted            |
-| `500`  | `"Failed to delete service"`     | Server/DB error               |
+| Status | Message                      | Cause                    |
+| ------ | ---------------------------- | ------------------------ |
+| `400`  | `"Service ID is required"`   | Missing `id` path param  |
+| `401`  | `"Unauthorized access"`      | Missing or invalid token |
+| `403`  | `"Access forbidden"`         | Role not permitted       |
+| `500`  | `"Failed to delete service"` | Server/DB error          |

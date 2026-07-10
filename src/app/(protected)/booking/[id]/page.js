@@ -1,6 +1,6 @@
 "use client";
 import api from "@/app/axios/axios";
-import BookingPageContent from "@/app/components/BookingPageContent";
+import BookingPageContent from "@/app/components/Bookings/BookingPageContent";
 import { useParams } from "next/navigation";
 import React, { Suspense, useEffect, useState } from "react";
 

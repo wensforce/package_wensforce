@@ -18,7 +18,9 @@ import { plans as welcomeIndiaPlans } from "@/app/data/welcomeIndia";
 const WA_NUMBER = "917304607954";
 
 const allPlans = [...membershipPlans, ...welcomeIndiaPlans];
-const getPlanImage = (id) => allPlans.find((p) => p.id === id)?.image || membershipPlans.find((p) => p.id === "elite")?.image;
+const getPlanImage = (id) =>
+  allPlans.find((p) => p.id === id)?.image ||
+  membershipPlans.find((p) => p.id === "elite")?.image;
 
 // ── Loading Screen ────────────────────────────────────────────────────────────
 function LoadingScreen() {
@@ -92,7 +94,6 @@ function ConfirmationContent() {
             `/api/cashfree/verify-order?order_id=${encodeURIComponent(orderId)}`,
           );
           const data = await res.json();
-          console.log("Verification response:", data);
           window.dataLayer = window.dataLayer || [];
           window.dataLayer.push({
             event: "payment_status", // 👈 match GTM trigger
@@ -108,7 +109,6 @@ function ConfirmationContent() {
           setStatus(data.paid ? "success" : "failed");
         }
       } catch {
-
         setStatus("failed");
       }
     }

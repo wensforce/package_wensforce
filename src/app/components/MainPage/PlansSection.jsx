@@ -2,52 +2,11 @@
 
 import Link from "next/link";
 import { Check, ArrowRight, Sparkles } from "lucide-react";
-import api from "../axios/axios";
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useDispatch,useSelector } from "react-redux";
-import { setPackages } from "../membership/slices/package-slice";
 const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
 
-export default function PlansSection() {
-  const [packages, setPackagesLocal] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+export default function PlansSection({ packages }) {
   const router = useRouter();
-  const dispatch=useDispatch();
-    const storePackages=useSelector((state)=>state.packages.value)
-
-  useEffect(() => {
-    const fetchPackages = async () => {
-      try {
-       // If Redux already has data, use it
-        if (storePackages.length > 0) {
-          console.log("Store hit");
-          setPackagesLocal(storePackages);
-        } else {
-          console.log("API hit");
-
-          const res = await api.get("/package/user");
-
-          const data = res?.data?.data || [];
-
-          // Save to local state
-          setPackagesLocal(data);
-
-          // Save to Redux
-          dispatch(setPackages(data));
-        }
-
-      } catch (err) {
-        console.error("Failed to fetch packages:", err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchPackages();
-  }, []);
-
   return (
     <section id="plans" className="bg-[#EDE8DF] px-5 pt-[88px] pb-[112px]">
       <style>{`
@@ -170,64 +129,8 @@ export default function PlansSection() {
           </p>
         </div>
 
-        {/* ─── Loading skeletons ─── */}
-        {loading && (
-          <div className="grid grid-cols-2 gap-4 plans-grid">
-            {[0, 1].map((i) => (
-              <div
-                key={i}
-                className="flex plan-card rounded-2xl overflow-hidden"
-                style={{
-                  minHeight: 340,
-                  background: "rgba(10,13,22,.85)",
-                  border: "1px solid rgba(255,255,255,.07)",
-                }}
-              >
-                <div
-                  className="shrink-0 skel img-panel"
-                  style={{ "--img-w": "42%" }}
-                />
-                <div className="flex-1 p-5 flex flex-col gap-3">
-                  <div className="skel h-3 w-28 rounded" />
-                  <div className="skel h-[72px] rounded-xl" />
-                  <div className="grid grid-cols-2 gap-2">
-                    {[0, 1, 2, 3].map((j) => (
-                      <div key={j} className="skel h-12 rounded-lg" />
-                    ))}
-                  </div>
-                  <div className="flex flex-col gap-2 mt-1">
-                    {[80, 65, 72].map((w, j) => (
-                      <div
-                        key={j}
-                        className="skel h-2.5 rounded"
-                        style={{ width: `${w}%` }}
-                      />
-                    ))}
-                  </div>
-                  <div className="skel h-10 rounded-xl mt-auto" />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* ─── Error state ─── */}
-        {!loading && error && (
-          <div className="text-center py-20">
-            <p className="text-[#8a7e6e] text-sm mb-4">
-              Could not load packages. Please try again.
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="text-[10px] font-bold tracking-[.24em] uppercase text-[#a07838] border border-[rgba(160,120,56,.35)] px-5 py-2 rounded-lg hover:bg-[rgba(160,120,56,.08)] transition-colors"
-            >
-              Retry
-            </button>
-          </div>
-        )}
-
         {/* ─── Package cards ─── */}
-        {!loading && !error && packages.length > 0 && (
+        {packages?.length > 0 && (
           <div className="plans-grid grid grid-cols-2 gap-4">
             {packages.map((pkg, idx) => {
               const isLastOdd =
@@ -605,7 +508,7 @@ export default function PlansSection() {
                       </Link>
 
                       <Link
-                      onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => e.stopPropagation()}
                         href={`/membership/${pkg.id}`}
                         className="group relative overflow-hidden flex items-center justify-center px-7 h-11 rounded-xl bg-white text-black text-[11px] font-bold tracking-[.20em] uppercase shadow-[0_4px_20px_rgba(255,255,255,0.25)] transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_8px_35px_rgba(255,255,255,0.25)]"
                       >
@@ -620,7 +523,7 @@ export default function PlansSection() {
         )}
 
         {/* ─── Empty state ─── */}
-        {!loading && !error && packages.length === 0 && (
+        {packages?.length === 0 && (
           <div className="text-center py-20">
             <p className="text-[#8a7e6e] text-sm">
               No packages available at the moment.

@@ -25,7 +25,6 @@ const initialFormState = {
 };
 
 export default function PackageForm({ packageId, initialData, onSaved }) {
-  
   const isEditMode = Boolean(packageId);
   const [form, setForm] = useState(initialFormState);
   const [thumbnail, setThumbnail] = useState(null);
@@ -39,7 +38,6 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
 
   useEffect(() => {
     if (initialData) {
-      console.log(initialData.thumbnailUrlKey,"initialdata")
       setForm({
         name: initialData.name ?? "",
         description: initialData.description ?? "",
@@ -597,7 +595,6 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
               />
               {preview ? (
                 <div className="relative w-full overflow-hidden rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC]">
-                  {/* {console.log(preview,"thumbnail url")} */}
                   <img
                     src={preview}
                     alt="Thumbnail preview"

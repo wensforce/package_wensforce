@@ -45,7 +45,7 @@ Validation errors from `express-validator` return:
 All endpoints require a Bearer token in the `Authorization` header.
 
 | Header          | Value                  | Required |
-|-----------------|------------------------|----------|
+| --------------- | ---------------------- | -------- |
 | `Authorization` | `Bearer <accessToken>` | Yes      |
 
 Role access per endpoint:
@@ -71,16 +71,16 @@ User-facing trip request creation.
 
 ### Request Body
 
-| Field            | Type            | Required | Description |
-|------------------|-----------------|----------|-------------|
-| `subscriptionId` | integer         | Yes (used by controller) | Subscription ID. |
-| `pickupLocation` | string          | Yes      | Pickup location. |
-| `dropLocation`   | string          | Yes      | Drop location. |
-| `tripDate`       | ISO date string | Yes      | Trip date/time. |
-| `tripType`       | string          | Yes      | One of `airport-transfer`, `8Hr/80Km`. |
-| `services`       | array           | Yes      | Array of selected services. |
-| `services[].name`| string          | Yes      | Service name. |
-| `services[].price`| number         | Yes      | Positive service price. |
+| Field              | Type            | Required                 | Description                            |
+| ------------------ | --------------- | ------------------------ | -------------------------------------- |
+| `subscriptionId`   | integer         | Yes (used by controller) | Subscription ID.                       |
+| `pickupLocation`   | string          | Yes                      | Pickup location.                       |
+| `dropLocation`     | string          | Yes                      | Drop location.                         |
+| `tripDate`         | ISO date string | Yes                      | Trip date/time.                        |
+| `tripType`         | string          | Yes                      | One of `airport-transfer`, `8Hr/80Km`. |
+| `services`         | array           | Yes                      | Array of selected services.            |
+| `services[].name`  | string          | Yes                      | Service name.                          |
+| `services[].price` | number          | Yes                      | Positive service price.                |
 
 ### Example Request
 
@@ -118,9 +118,9 @@ User-facing trip request creation.
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
-| `400`  | Validation error |
+| Status | Message                  |
+| ------ | ------------------------ |
+| `400`  | Validation error         |
 | `500`  | `Failed to request trip` |
 
 ---
@@ -135,18 +135,18 @@ Admin/Ops creates a trip directly (auto-confirmed).
 
 ### Request Body
 
-| Field             | Type            | Required | Description |
-|-------------------|-----------------|----------|-------------|
-| `assignmentId`    | string          | Yes      | Assignment reference. |
-| `subscriptionId`  | integer         | Yes      | Subscription ID. |
-| `pickupLocation`  | string          | Yes      | Pickup location. |
-| `dropLocation`    | string          | Yes      | Drop location. |
-| `tripDate`        | ISO date string | Yes      | Trip date/time. |
-| `tripType`        | string          | Yes      | One of `airport-transfer`, `8Hr/80Km`. |
-| `userId`          | integer         | Yes (used by controller) | Target user ID. |
-| `services`        | array           | Yes      | Array of selected services. |
-| `services[].name` | string          | Yes      | Service name. |
-| `services[].price`| number          | Yes      | Positive service price. |
+| Field              | Type            | Required                 | Description                            |
+| ------------------ | --------------- | ------------------------ | -------------------------------------- |
+| `assignmentId`     | string          | Yes                      | Assignment reference.                  |
+| `subscriptionId`   | integer         | Yes                      | Subscription ID.                       |
+| `pickupLocation`   | string          | Yes                      | Pickup location.                       |
+| `dropLocation`     | string          | Yes                      | Drop location.                         |
+| `tripDate`         | ISO date string | Yes                      | Trip date/time.                        |
+| `tripType`         | string          | Yes                      | One of `airport-transfer`, `8Hr/80Km`. |
+| `userId`           | integer         | Yes (used by controller) | Target user ID.                        |
+| `services`         | array           | Yes                      | Array of selected services.            |
+| `services[].name`  | string          | Yes                      | Service name.                          |
+| `services[].price` | number          | Yes                      | Positive service price.                |
 
 ### Success Response `201 Created`
 
@@ -154,9 +154,9 @@ Returns created trip with `status: confirmed`.
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
-| `400`  | Validation error |
+| Status | Message                 |
+| ------ | ----------------------- |
+| `400`  | Validation error        |
 | `500`  | `Failed to create trip` |
 
 ---
@@ -175,8 +175,8 @@ Returns an array of trip records for `req.user.userId`.
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
+| Status | Message                 |
+| ------ | ----------------------- |
 | `500`  | `Failed to fetch trips` |
 
 ---
@@ -192,27 +192,28 @@ Approve a requested trip and assign assignment ID.
 ### Path Parameters
 
 | Parameter | Type    | Required | Description |
-|-----------|---------|----------|-------------|
-| `id`      | integer | Yes      | Trip ID. |
+| --------- | ------- | -------- | ----------- |
+| `id`      | integer | Yes      | Trip ID.    |
 
 ### Request Body
 
-| Field          | Type   | Required | Description |
-|----------------|--------|----------|-------------|
+| Field          | Type   | Required | Description           |
+| -------------- | ------ | -------- | --------------------- |
 | `assignmentId` | string | Yes      | Assignment reference. |
 
 ### Success Response `200 OK`
 
 Returns updated trip with:
+
 - `status: confirmed`
 - `confirmedBy` set to current admin/ops user ID
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
-| `400`  | Validation error |
-| `404`  | `Trip not found` |
+| Status | Message                  |
+| ------ | ------------------------ |
+| `400`  | Validation error         |
+| `404`  | `Trip not found`         |
 | `500`  | `Failed to approve trip` |
 
 ---
@@ -227,12 +228,12 @@ Get paginated trips with optional search and date filtering.
 
 ### Query Parameters
 
-| Parameter  | Type    | Default | Description |
-|------------|---------|---------|-------------|
-| `page`     | integer | 1       | Page number. |
-| `limit`    | integer | 10      | Records per page. |
+| Parameter  | Type    | Default | Description                                          |
+| ---------- | ------- | ------- | ---------------------------------------------------- |
+| `page`     | integer | 1       | Page number.                                         |
+| `limit`    | integer | 10      | Records per page.                                    |
 | `search`   | string  | `""`    | Search in pickup/drop/assignment/tripType/user name. |
-| `tripDate` | date    | -       | Filter trips by date (same-day range). |
+| `tripDate` | date    | -       | Filter trips by date (same-day range).               |
 
 ### Success Response `200 OK`
 
@@ -255,8 +256,8 @@ Get paginated trips with optional search and date filtering.
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
+| Status | Message                 |
+| ------ | ----------------------- |
 | `500`  | `Failed to fetch trips` |
 
 ---
@@ -272,28 +273,28 @@ Update trip details by ID.
 ### Path Parameters
 
 | Parameter | Type    | Required | Description |
-|-----------|---------|----------|-------------|
-| `id`      | integer | Yes      | Trip ID. |
+| --------- | ------- | -------- | ----------- |
+| `id`      | integer | Yes      | Trip ID.    |
 
 ### Request Body
 
 Any updatable trip fields may be provided.
 
-| Field             | Type            | Required | Description |
-|-------------------|-----------------|----------|-------------|
-| `assignmentId`    | string          | No       | Assignment reference. |
-| `subscriptionId`  | integer         | Controller expects value when provided | Subscription ID. |
-| `pickupLocation`  | string          | No       | Pickup location. |
-| `dropLocation`    | string          | No       | Drop location. |
-| `tripDate`        | ISO date string | No       | Trip date/time. |
-| `tripType`        | string          | No       | One of `airport-transfer`, `8Hr/80Km`. |
-| `services`        | array           | No       | Service list payload. |
+| Field            | Type            | Required                               | Description                            |
+| ---------------- | --------------- | -------------------------------------- | -------------------------------------- |
+| `assignmentId`   | string          | No                                     | Assignment reference.                  |
+| `subscriptionId` | integer         | Controller expects value when provided | Subscription ID.                       |
+| `pickupLocation` | string          | No                                     | Pickup location.                       |
+| `dropLocation`   | string          | No                                     | Drop location.                         |
+| `tripDate`       | ISO date string | No                                     | Trip date/time.                        |
+| `tripType`       | string          | No                                     | One of `airport-transfer`, `8Hr/80Km`. |
+| `services`       | array           | No                                     | Service list payload.                  |
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
-| `400`  | Validation error |
+| Status | Message                 |
+| ------ | ----------------------- |
+| `400`  | Validation error        |
 | `500`  | `Failed to update trip` |
 
 ---
@@ -309,8 +310,8 @@ Delete trip by ID.
 ### Path Parameters
 
 | Parameter | Type    | Required | Description |
-|-----------|---------|----------|-------------|
-| `id`      | integer | Yes      | Trip ID. |
+| --------- | ------- | -------- | ----------- |
+| `id`      | integer | Yes      | Trip ID.    |
 
 ### Success Response `204 No Content`
 
@@ -318,10 +319,10 @@ No response body.
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
-| `400`  | Validation error |
-| `404`  | `Trip not found` |
+| Status | Message                 |
+| ------ | ----------------------- |
+| `400`  | Validation error        |
+| `404`  | `Trip not found`        |
 | `500`  | `Failed to delete trip` |
 
 ---
@@ -337,8 +338,8 @@ Get trip details by ID.
 ### Path Parameters
 
 | Parameter | Type    | Required | Description |
-|-----------|---------|----------|-------------|
-| `id`      | integer | Yes      | Trip ID. |
+| --------- | ------- | -------- | ----------- |
+| `id`      | integer | Yes      | Trip ID.    |
 
 ### Success Response `200 OK`
 
@@ -346,9 +347,9 @@ Returns single trip object.
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
-| `404`  | `Trip not found` |
+| Status | Message                |
+| ------ | ---------------------- |
+| `404`  | `Trip not found`       |
 | `500`  | `Failed to fetch trip` |
 
 ---

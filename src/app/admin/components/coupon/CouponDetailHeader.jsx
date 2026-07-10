@@ -19,7 +19,9 @@ export default function CouponDetailHeader({
         <ArrowLeft size={16} /> Back
       </button>
 
-      <h1 className="text-xl md:text-2xl font-bold text-[#0B1E3F]">Coupon Details</h1>
+      <h1 className="text-xl md:text-2xl font-bold text-[#0B1E3F]">
+        Coupon Details
+      </h1>
 
       <div className="flex items-center justify-end gap-2">
         <button

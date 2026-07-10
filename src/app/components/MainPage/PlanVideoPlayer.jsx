@@ -1,7 +1,13 @@
-'use client';
-import { useRef, useState } from 'react';
+"use client";
+import { useRef, useState } from "react";
 
-export default function PlanVideoPlayer({ videoUrl, posterUrl, accentColor, accentRgb, planName }) {
+export default function PlanVideoPlayer({
+  videoUrl,
+  posterUrl,
+  accentColor,
+  accentRgb,
+  planName,
+}) {
   const videoRef = useRef(null);
   const [playing, setPlaying] = useState(false);
 
@@ -17,7 +23,6 @@ export default function PlanVideoPlayer({ videoUrl, posterUrl, accentColor, acce
         Desktop: flex-centered with padding; frame is phone-sized 9:16
       */}
       <div className="h-[70vh] aspect-[9/16] md:h-auto md:flex md:items-center md:justify-center md:py-14 lg:py-20 relative">
-
         {/* Accent glow — desktop only */}
         <div
           className="hidden md:block absolute inset-0 pointer-events-none"
@@ -33,7 +38,10 @@ export default function PlanVideoPlayer({ videoUrl, posterUrl, accentColor, acce
         */}
         <div
           className="plan-video-frame relative overflow-hidden h-full w-full md:h-auto md:w-[340px] lg:w-[380px] md:rounded-[22px]"
-          style={{ boxShadow: '0 32px 80px -8px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.06)' }}
+          style={{
+            boxShadow:
+              "0 32px 80px -8px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.06)",
+          }}
         >
           <style>{`@media(min-width:768px){.plan-video-frame{aspect-ratio:9/16}}`}</style>
 
@@ -64,7 +72,13 @@ export default function PlanVideoPlayer({ videoUrl, posterUrl, accentColor, acce
                     boxShadow: `0 0 60px rgba(${accentRgb},0.22), inset 0 0 24px rgba(${accentRgb},0.06)`,
                   }}
                 >
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill={accentColor} style={{ marginLeft: '5px' }}>
+                  <svg
+                    width="28"
+                    height="28"
+                    viewBox="0 0 24 24"
+                    fill={accentColor}
+                    style={{ marginLeft: "5px" }}
+                  >
                     <polygon points="5,3 19,12 5,21" />
                   </svg>
                 </div>
@@ -72,7 +86,10 @@ export default function PlanVideoPlayer({ videoUrl, posterUrl, accentColor, acce
 
               <div className="absolute bottom-8 left-5 right-5 flex items-end justify-between pointer-events-none">
                 <div>
-                  <p className="text-[9px] font-bold tracking-[0.48em] uppercase mb-1" style={{ color: accentColor }}>
+                  <p
+                    className="text-[9px] font-bold tracking-[0.48em] uppercase mb-1"
+                    style={{ color: accentColor }}
+                  >
                     Watch
                   </p>
                   <p className="text-white/40 text-xs font-light">{planName}</p>
@@ -85,7 +102,12 @@ export default function PlanVideoPlayer({ videoUrl, posterUrl, accentColor, acce
                     border: `1px solid rgba(${accentRgb},0.28)`,
                   }}
                 >
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill={accentColor}>
+                  <svg
+                    width="9"
+                    height="9"
+                    viewBox="0 0 24 24"
+                    fill={accentColor}
+                  >
                     <polygon points="5,3 19,12 5,21" />
                   </svg>
                   Play

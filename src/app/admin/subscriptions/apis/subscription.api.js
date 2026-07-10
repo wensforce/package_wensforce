@@ -39,7 +39,7 @@ export const subscriptionApi = {
     const res = await api.post("/subscription", payload);
     return res.data;
   },
-    /**
+  /**
    * Search subscriptions by query string.
    * @param {string} query - Search term (user, package, status)
    * @returns {Promise<Array>} - Up to 5 matching subscription rows
@@ -50,7 +50,9 @@ export const subscriptionApi = {
     });
     const data = res.data?.data ?? res.data ?? {};
     const rows =
-      data.subscriptions || data.items || data.data ||
+      data.subscriptions ||
+      data.items ||
+      data.data ||
       (Array.isArray(data) ? data : []);
     return Array.isArray(rows) ? rows.slice(0, 5) : [];
   },
@@ -72,7 +74,9 @@ export const subscriptionApi = {
    * @returns {Promise<object>} - Server response data
    */
   updateSubscriptionAction: async (id, action, adminRemarks) => {
-    const payload = adminRemarks?.trim() ? { adminRemarks: adminRemarks.trim() } : {};
+    const payload = adminRemarks?.trim()
+      ? { adminRemarks: adminRemarks.trim() }
+      : {};
     const res = await api.put(`/subscription/${id}/${action}`, payload);
     return res.data;
   },

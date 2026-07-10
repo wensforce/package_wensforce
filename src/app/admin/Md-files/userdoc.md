@@ -52,7 +52,7 @@ Other errors may return:
 All endpoints require a Bearer token in the `Authorization` header.
 
 | Header          | Value                  | Required |
-|-----------------|------------------------|----------|
+| --------------- | ---------------------- | -------- |
 | `Authorization` | `Bearer <accessToken>` | Yes      |
 
 Role access per endpoint:
@@ -74,13 +74,13 @@ Create a new user.
 
 ### Request Body
 
-| Field          | Type   | Required | Description |
-|----------------|--------|----------|-------------|
-| `name`         | string | Yes      | User name. |
-| `email`        | string | Yes      | Valid email address. |
-| `mobileNumber` | string | Yes      | Mobile number. |
+| Field          | Type   | Required | Description                         |
+| -------------- | ------ | -------- | ----------------------------------- |
+| `name`         | string | Yes      | User name.                          |
+| `email`        | string | Yes      | Valid email address.                |
+| `mobileNumber` | string | Yes      | Mobile number.                      |
 | `role`         | string | Yes      | User role (`user`, `admin`, `ops`). |
-| `city`         | string | Yes      | City name. |
+| `city`         | string | Yes      | City name.                          |
 
 ### Example Request
 
@@ -116,10 +116,10 @@ Create a new user.
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
+| Status | Message                                            |
+| ------ | -------------------------------------------------- |
 | `400`  | Validation error (required fields / invalid email) |
-| `500`  | `Failed to create user` |
+| `500`  | `Failed to create user`                            |
 
 ---
 
@@ -133,11 +133,11 @@ Retrieve paginated users with optional search.
 
 ### Query Parameters
 
-| Parameter | Type    | Default | Description |
-|-----------|---------|---------|-------------|
+| Parameter | Type    | Default | Description                                        |
+| --------- | ------- | ------- | -------------------------------------------------- |
 | `search`  | string  | -       | Search in `name`, `email`, `mobileNumber`, `city`. |
-| `limit`   | integer | 10      | Number of users per page. |
-| `page`    | integer | 1       | Page number. |
+| `limit`   | integer | 10      | Number of users per page.                          |
+| `page`    | integer | 1       | Page number.                                       |
 
 ### Example
 
@@ -174,8 +174,8 @@ Retrieve paginated users with optional search.
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
+| Status | Message                 |
+| ------ | ----------------------- |
 | `500`  | `Failed to fetch users` |
 
 ---
@@ -191,8 +191,8 @@ Retrieve single user details by ID, including orders and subscriptions.
 ### Path Parameters
 
 | Parameter | Type    | Required | Description |
-|-----------|---------|----------|-------------|
-| `id`      | integer | Yes      | User ID. |
+| --------- | ------- | -------- | ----------- |
+| `id`      | integer | Yes      | User ID.    |
 
 ### Example
 
@@ -220,11 +220,11 @@ Retrieve single user details by ID, including orders and subscriptions.
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
+| Status | Message                                    |
+| ------ | ------------------------------------------ |
 | `400`  | Validation error (`ID must be an integer`) |
-| `404`  | `User not found` |
-| `500`  | `Failed to fetch user` |
+| `404`  | `User not found`                           |
+| `500`  | `Failed to fetch user`                     |
 
 ---
 
@@ -239,20 +239,20 @@ Update user fields by ID.
 ### Path Parameters
 
 | Parameter | Type    | Required | Description |
-|-----------|---------|----------|-------------|
-| `id`      | integer | Yes      | User ID. |
+| --------- | ------- | -------- | ----------- |
+| `id`      | integer | Yes      | User ID.    |
 
 ### Request Body
 
 All fields are optional.
 
-| Field          | Type   | Description |
-|----------------|--------|-------------|
-| `name`         | string | User name (non-empty). |
-| `email`        | string | Valid email. |
+| Field          | Type   | Description                |
+| -------------- | ------ | -------------------------- |
+| `name`         | string | User name (non-empty).     |
+| `email`        | string | Valid email.               |
 | `mobileNumber` | string | Mobile number (non-empty). |
-| `role`         | string | Role (non-empty). |
-| `city`         | string | City (non-empty). |
+| `role`         | string | Role (non-empty).          |
+| `city`         | string | City (non-empty).          |
 
 ### Example Request
 
@@ -283,9 +283,9 @@ All fields are optional.
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
-| `400`  | Validation error |
+| Status | Message                 |
+| ------ | ----------------------- |
+| `400`  | Validation error        |
 | `500`  | `Failed to update user` |
 
 ---

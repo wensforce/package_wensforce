@@ -1,75 +1,81 @@
-'use client';
+"use client";
 
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Play, Pause, Volume2, VolumeX } from 'lucide-react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { EffectCoverflow } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/effect-coverflow';
+import { useState, useRef, useEffect, useCallback } from "react";
+import { X, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { EffectCoverflow } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/effect-coverflow";
 
 const testimonials = [
   {
-    name: 'Kartik Giri',
-    role: 'Giri Zever Mahal Owner',
-    plan: 'SOVEREIGN',
-    avatar: '/testimonials/kartik_profile.png',
-    profileUrl: 'https://www.instagram.com/_kaartikgiri/',
-    bannerImage: '/testimonials/kartik_giri.png',
-    videoUrl: 'https://d2zcmp43lwd2kr.cloudfront.net/videos/kartik_giri.mp4',
+    name: "Kartik Giri",
+    role: "Giri Zever Mahal Owner",
+    plan: "SOVEREIGN",
+    avatar: "/testimonials/kartik_profile.png",
+    profileUrl: "https://www.instagram.com/_kaartikgiri/",
+    bannerImage: "/testimonials/kartik_giri.png",
+    videoUrl: "https://d2zcmp43lwd2kr.cloudfront.net/videos/kartik_giri.mp4",
   },
   {
-    name: 'Mark Rober',
-    role: 'American YouTuber, engineer and inventor',
-    avatar: '/testimonials/mark_profile.png',
-    profileUrl: 'https://www.instagram.com/markrober/',
-    plan: 'ELITE',
-    bannerImage: '/testimonials/mark_robber.png',
-    videoUrl: 'https://d2zcmp43lwd2kr.cloudfront.net/videos/Mark_Robber.mp4',
+    name: "Mark Rober",
+    role: "American YouTuber, engineer and inventor",
+    avatar: "/testimonials/mark_profile.png",
+    profileUrl: "https://www.instagram.com/markrober/",
+    plan: "ELITE",
+    bannerImage: "/testimonials/mark_robber.png",
+    videoUrl: "https://d2zcmp43lwd2kr.cloudfront.net/videos/Mark_Robber.mp4",
   },
   {
-    name:'Weronica Rodowicz',
-    role:'Film Director',
-    avatar:'/testimonials/weronica_profile.png',
-    profileUrl:'https://www.instagram.com/letsplantstories/',
-    plan:'ELITE',
-    bannerImage:'/testimonials/weronica_rodowicz.png',
-    videoUrl:'https://d2zcmp43lwd2kr.cloudfront.net/videos/Weronica.mp4',
-    videoObjectPosition: 'center 25%',
+    name: "Weronica Rodowicz",
+    role: "Film Director",
+    avatar: "/testimonials/weronica_profile.png",
+    profileUrl: "https://www.instagram.com/letsplantstories/",
+    plan: "ELITE",
+    bannerImage: "/testimonials/weronica_rodowicz.png",
+    videoUrl: "https://d2zcmp43lwd2kr.cloudfront.net/videos/Weronica.mp4",
+    videoObjectPosition: "center 25%",
   },
   {
-    name: 'Pink Sweat',
-    role: 'American R&B singer and songwriter',
-    avatar: '/testimonials/pink_profile.png',
-    profileUrl: 'https://www.instagram.com/pinksweats/',
-    plan: 'SOVEREIGN',
-    bannerImage: '/testimonials/pink_sweat.png',
-    videoUrl: 'https://d2zcmp43lwd2kr.cloudfront.net/videos/Pink_Sweat.mp4',
+    name: "Pink Sweat",
+    role: "American R&B singer and songwriter",
+    avatar: "/testimonials/pink_profile.png",
+    profileUrl: "https://www.instagram.com/pinksweats/",
+    plan: "SOVEREIGN",
+    bannerImage: "/testimonials/pink_sweat.png",
+    videoUrl: "https://d2zcmp43lwd2kr.cloudfront.net/videos/Pink_Sweat.mp4",
   },
   {
-    name: 'Turkey Princess',
-    role: 'Princess',
-    avatar: '/testimonials/no_profile.png',
-    plan: 'PREMIUM',
-    bannerImage: '/testimonials/turkey_princess.png',
-    videoUrl: 'https://d2zcmp43lwd2kr.cloudfront.net/videos/your_highness.mp4',
+    name: "Turkey Princess",
+    role: "Princess",
+    avatar: "/testimonials/no_profile.png",
+    plan: "PREMIUM",
+    bannerImage: "/testimonials/turkey_princess.png",
+    videoUrl: "https://d2zcmp43lwd2kr.cloudfront.net/videos/your_highness.mp4",
   },
   {
-    name: 'Mo Vlog',
-    role: 'Dubai-based Iranian YouTuber and vlogger with 11M+ subscribers',
-    avatar: '/testimonials/mo_vlog_profile.png',
-    profileUrl: 'https://www.instagram.com/movlogs/',
-    plan: 'SOVEREIGN',
-    bannerImage: '/testimonials/mo_vlog.png',
-    videoUrl: 'https://d2zcmp43lwd2kr.cloudfront.net/videos/Movlog_car.mp4',
+    name: "Mo Vlog",
+    role: "Dubai-based Iranian YouTuber and vlogger with 11M+ subscribers",
+    avatar: "/testimonials/mo_vlog_profile.png",
+    profileUrl: "https://www.instagram.com/movlogs/",
+    plan: "SOVEREIGN",
+    bannerImage: "/testimonials/mo_vlog.png",
+    videoUrl: "https://d2zcmp43lwd2kr.cloudfront.net/videos/Movlog_car.mp4",
   },
 ];
 
 const fmt = (s) => {
-  if (!s || isNaN(s)) return '0:00';
-  return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+  if (!s || isNaN(s)) return "0:00";
+  return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 };
 
-function TestimonialCard({ testimonial, isCenter, isPlaying, onPlay, onClose }) {
+function TestimonialCard({
+  testimonial,
+  isCenter,
+  isPlaying,
+  onPlay,
+  onClose,
+}) {
   const videoRef = useRef(null);
   const seekingRef = useRef(false);
   const [videoPaused, setVideoPaused] = useState(true);
@@ -88,7 +94,9 @@ function TestimonialCard({ testimonial, isCenter, isPlaying, onPlay, onClose }) 
     } else {
       v.pause();
     }
-    return () => { v.pause(); };
+    return () => {
+      v.pause();
+    };
   }, [isPlaying]);
 
   const togglePlay = useCallback((e) => {
@@ -98,36 +106,48 @@ function TestimonialCard({ testimonial, isCenter, isPlaying, onPlay, onClose }) 
     v.paused ? v.play().catch(() => {}) : v.pause();
   }, []);
 
-  const handleMute = useCallback((e) => {
-    e.stopPropagation();
-    const v = videoRef.current;
-    if (!v) return;
-    const next = !muted;
-    v.muted = next;
-    setMuted(next);
-    if (!next && volume === 0) { v.volume = 0.5; setVolume(0.5); }
-  }, [muted, volume]);
+  const handleMute = useCallback(
+    (e) => {
+      e.stopPropagation();
+      const v = videoRef.current;
+      if (!v) return;
+      const next = !muted;
+      v.muted = next;
+      setMuted(next);
+      if (!next && volume === 0) {
+        v.volume = 0.5;
+        setVolume(0.5);
+      }
+    },
+    [muted, volume],
+  );
 
   const stopProp = useCallback((e) => e.stopPropagation(), []);
 
   return (
     <div
       className="relative rounded-3xl overflow-hidden h-96 bg-black select-none group"
-      style={{ cursor: !isPlaying && isCenter ? 'pointer' : 'default', zIndex: isCenter ? 2 : 1, position: 'relative' }}
+      style={{
+        cursor: !isPlaying && isCenter ? "pointer" : "default",
+        zIndex: isCenter ? 2 : 1,
+        position: "relative",
+      }}
       onClick={!isPlaying && isCenter ? onPlay : undefined}
     >
       {/* Block all clicks on non-center cards */}
-      {!isCenter && <div className="absolute inset-0 z-10" style={{ cursor: 'default' }} />}
+      {!isCenter && (
+        <div className="absolute inset-0 z-10" style={{ cursor: "default" }} />
+      )}
 
       {/* Thumbnail — fades out when video plays */}
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage: `url('${testimonial.bannerImage}')`,
-          backgroundColor: 'rgba(11, 30, 63, 0.6)',
-          backgroundBlendMode: 'overlay',
+          backgroundColor: "rgba(11, 30, 63, 0.6)",
+          backgroundBlendMode: "overlay",
           opacity: isPlaying ? 0 : 1,
-          transition: 'opacity 0.25s ease',
+          transition: "opacity 0.25s ease",
         }}
       />
 
@@ -141,9 +161,9 @@ function TestimonialCard({ testimonial, isCenter, isPlaying, onPlay, onClose }) 
         className="absolute inset-0 w-full h-full object-cover"
         style={{
           opacity: isPlaying ? 1 : 0,
-          transition: 'opacity 0.25s ease',
-          pointerEvents: 'none',
-          objectPosition: testimonial.videoObjectPosition || 'center',
+          transition: "opacity 0.25s ease",
+          pointerEvents: "none",
+          objectPosition: testimonial.videoObjectPosition || "center",
         }}
         onTimeUpdate={() => {
           if (seekingRef.current) return;
@@ -166,8 +186,8 @@ function TestimonialCard({ testimonial, isCenter, isPlaying, onPlay, onClose }) 
         className="absolute inset-0 flex flex-col justify-end"
         style={{
           opacity: isPlaying ? 0 : 1,
-          pointerEvents: isPlaying ? 'none' : 'auto',
-          transition: 'opacity 0.25s ease',
+          pointerEvents: isPlaying ? "none" : "auto",
+          transition: "opacity 0.25s ease",
         }}
       >
         {/* Desktop hover play */}
@@ -192,9 +212,15 @@ function TestimonialCard({ testimonial, isCenter, isPlaying, onPlay, onClose }) 
           <div className="flex items-center gap-3 mb-3">
             <div
               className="w-10 h-10 rounded-full shrink-0 overflow-hidden"
-              style={{ background: 'linear-gradient(135deg, #C9A24B, #a88000)' }}
+              style={{
+                background: "linear-gradient(135deg, #C9A24B, #a88000)",
+              }}
             >
-              <img src={testimonial.avatar} alt={testimonial.name} className="w-full h-full object-cover" />
+              <img
+                src={testimonial.avatar}
+                alt={testimonial.name}
+                className="w-full h-full object-cover"
+              />
             </div>
             {testimonial.profileUrl ? (
               <a
@@ -204,17 +230,24 @@ function TestimonialCard({ testimonial, isCenter, isPlaying, onPlay, onClose }) 
                 className="min-w-0 flex-1"
                 onClick={stopProp}
               >
-                <div className="text-white text-sm font-semibold line-clamp-1">{testimonial.name}</div>
-                <div className="text-white/60 text-xs line-clamp-1">{testimonial.role}</div>
+                <div className="text-white text-sm font-semibold line-clamp-1">
+                  {testimonial.name}
+                </div>
+                <div className="text-white/60 text-xs line-clamp-1">
+                  {testimonial.role}
+                </div>
               </a>
             ) : (
               <div className="min-w-0 flex-1">
-                <div className="text-white text-sm font-semibold line-clamp-1">{testimonial.name}</div>
-                <div className="text-white/60 text-xs line-clamp-1">{testimonial.role}</div>
+                <div className="text-white text-sm font-semibold line-clamp-1">
+                  {testimonial.name}
+                </div>
+                <div className="text-white/60 text-xs line-clamp-1">
+                  {testimonial.role}
+                </div>
               </div>
             )}
           </div>
-          
         </div>
       </div>
 
@@ -223,8 +256,8 @@ function TestimonialCard({ testimonial, isCenter, isPlaying, onPlay, onClose }) 
         className="absolute inset-0"
         style={{
           opacity: isPlaying ? 1 : 0,
-          pointerEvents: isPlaying ? 'auto' : 'none',
-          transition: 'opacity 0.25s ease',
+          pointerEvents: isPlaying ? "auto" : "none",
+          transition: "opacity 0.25s ease",
         }}
       >
         {/* Tap-to-toggle behind all controls */}
@@ -240,7 +273,7 @@ function TestimonialCard({ testimonial, isCenter, isPlaying, onPlay, onClose }) 
           style={{
             zIndex: 15,
             opacity: videoPaused ? 1 : 0,
-            transition: 'opacity 0.2s ease',
+            transition: "opacity 0.2s ease",
           }}
         >
           <div className="w-16 h-16 rounded-full bg-black/50 flex items-center justify-center">
@@ -252,7 +285,10 @@ function TestimonialCard({ testimonial, isCenter, isPlaying, onPlay, onClose }) 
         <button
           className="absolute top-3 right-3 w-10 h-10 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center text-white transition-all"
           style={{ zIndex: 30 }}
-          onClick={(e) => { e.stopPropagation(); onClose(); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }}
         >
           <X size={24} />
         </button>
@@ -262,7 +298,8 @@ function TestimonialCard({ testimonial, isCenter, isPlaying, onPlay, onClose }) 
           className="no-swipe absolute bottom-0 inset-x-0 px-4 pb-4 pt-8"
           style={{
             zIndex: 30,
-            background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, transparent 100%)',
+            background:
+              "linear-gradient(to top, rgba(0,0,0,0.92) 0%, transparent 100%)",
           }}
           onClick={stopProp}
           onTouchStart={stopProp}
@@ -281,12 +318,25 @@ function TestimonialCard({ testimonial, isCenter, isPlaying, onPlay, onClose }) 
               v.currentTime = (val / 100) * v.duration;
               setProgress(val);
             }}
-            onTouchStart={(e) => { seekingRef.current = true; e.stopPropagation(); }}
-            onTouchEnd={() => { seekingRef.current = false; }}
-            onMouseDown={() => { seekingRef.current = true; }}
-            onMouseUp={() => { seekingRef.current = false; }}
+            onTouchStart={(e) => {
+              seekingRef.current = true;
+              e.stopPropagation();
+            }}
+            onTouchEnd={() => {
+              seekingRef.current = false;
+            }}
+            onMouseDown={() => {
+              seekingRef.current = true;
+            }}
+            onMouseUp={() => {
+              seekingRef.current = false;
+            }}
             className="w-full cursor-pointer mb-3 block"
-            style={{ accentColor: '#C9A24B', height: '4px', touchAction: 'none' }}
+            style={{
+              accentColor: "#C9A24B",
+              height: "4px",
+              touchAction: "none",
+            }}
           />
 
           <div className="flex items-center gap-3">
@@ -295,9 +345,11 @@ function TestimonialCard({ testimonial, isCenter, isPlaying, onPlay, onClose }) 
               style={{ zIndex: 31 }}
               onClick={togglePlay}
             >
-              {videoPaused
-                ? <Play size={20} className="fill-white" />
-                : <Pause size={20} className="fill-white" />}
+              {videoPaused ? (
+                <Play size={20} className="fill-white" />
+              ) : (
+                <Pause size={20} className="fill-white" />
+              )}
             </button>
 
             <span className="text-white/60 text-xs tabular-nums flex-shrink-0">
@@ -309,7 +361,11 @@ function TestimonialCard({ testimonial, isCenter, isPlaying, onPlay, onClose }) 
                 className="text-white hover:text-[#C9A24B] transition-colors flex-shrink-0"
                 onClick={handleMute}
               >
-                {muted || volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
+                {muted || volume === 0 ? (
+                  <VolumeX size={20} />
+                ) : (
+                  <Volume2 size={20} />
+                )}
               </button>
               <input
                 type="range"
@@ -329,7 +385,11 @@ function TestimonialCard({ testimonial, isCenter, isPlaying, onPlay, onClose }) 
                 onTouchStart={(e) => e.stopPropagation()}
                 onTouchMove={(e) => e.stopPropagation()}
                 className="w-16 cursor-pointer"
-                style={{ accentColor: '#C9A24B', height: '4px', touchAction: 'none' }}
+                style={{
+                  accentColor: "#C9A24B",
+                  height: "4px",
+                  touchAction: "none",
+                }}
               />
             </div>
           </div>
@@ -344,7 +404,11 @@ export default function TestimonialsSection() {
   const [playingIndex, setPlayingIndex] = useState(null);
 
   return (
-    <section id="testimonials" style={{ backgroundColor: '#0B1E3F' }} className="py-20 overflow-hidden">
+    <section
+      id="testimonials"
+      style={{ backgroundColor: "#0B1E3F" }}
+      className="py-20 overflow-hidden"
+    >
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center mb-12">
           <p className="text-[#C9A24B] text-[10px] tracking-[0.4em] uppercase font-semibold mb-3">
@@ -354,14 +418,15 @@ export default function TestimonialsSection() {
             How Our Members Travel
           </h2>
           <p className="text-white/40 text-base font-light">
-            HNI members across India — in their own words. Click to watch their stories.
+            HNI members across India — in their own words. Click to watch their
+            stories.
           </p>
         </div>
       </div>
-     
+
       <Swiper
         modules={[EffectCoverflow]}
-        effect='coverflow'
+        effect="coverflow"
         centeredSlides
         initialSlide={2}
         slidesPerView={1.2}
@@ -369,15 +434,21 @@ export default function TestimonialsSection() {
         loop
         grabCursor
         noSwipingSelector=".no-swipe"
-        coverflowEffect={{ rotate: 0, stretch: 0, depth: 100, modifier: 1, slideShadows: false }}
+        coverflowEffect={{
+          rotate: 0,
+          stretch: 0,
+          depth: 100,
+          modifier: 1,
+          slideShadows: false,
+        }}
         onSwiper={(swiper) => setActiveIndex(swiper.realIndex)}
         onSlideChange={(swiper) => {
           setActiveIndex(swiper.realIndex);
           setPlayingIndex(null);
         }}
-        style={{ paddingBottom: '8px' }}
+        style={{ paddingBottom: "8px" }}
         breakpoints={{
-          640:  { slidesPerView: 1.6, spaceBetween: 24 },
+          640: { slidesPerView: 1.6, spaceBetween: 24 },
           1024: { slidesPerView: 2.2, spaceBetween: 28 },
           1280: { slidesPerView: 2.5, spaceBetween: 32 },
         }}
@@ -397,4 +468,3 @@ export default function TestimonialsSection() {
     </section>
   );
 }
-

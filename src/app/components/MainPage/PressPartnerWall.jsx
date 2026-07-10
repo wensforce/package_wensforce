@@ -1,23 +1,23 @@
-import Link from 'next/link';
+import Link from "next/link";
 
 const BLOCKS = [
   {
-    title: 'In the Press',
-    body: 'Featured in Mid Day, Mumbai Times, Deccan Bharat, Daily Hunt, Herald Post.',
-    cta: 'Read coverage →',
-    href: '#',
+    title: "In the Press",
+    body: "Featured in Mid Day, Mumbai Times, Deccan Bharat, Daily Hunt, Herald Post.",
+    cta: "Read coverage →",
+    href: "#",
   },
   {
-    title: 'Bank & Hospitality Partners',
-    body: 'Co-branded benefits with Visa Concierge, ICICI Emeralde, Taj Hotels, Marriott, ITC.',
-    cta: 'View partners →',
-    href: '#',
+    title: "Bank & Hospitality Partners",
+    body: "Co-branded benefits with Visa Concierge, ICICI Emeralde, Taj Hotels, Marriott, ITC.",
+    cta: "View partners →",
+    href: "#",
   },
   {
-    title: 'Religious Trust Partnerships',
-    body: 'Authorised facilitator: Tirupati Devasthanam, Vaishno Devi Shrine Board, Mahakaleshwar.',
-    cta: 'Plan a pilgrimage →',
-    href: '#',
+    title: "Religious Trust Partnerships",
+    body: "Authorised facilitator: Tirupati Devasthanam, Vaishno Devi Shrine Board, Mahakaleshwar.",
+    cta: "Plan a pilgrimage →",
+    href: "#",
   },
 ];
 
@@ -25,7 +25,6 @@ export default function PressPartnerWall() {
   return (
     <section className="py-20 px-6 bg-white">
       <div className="max-w-5xl mx-auto">
-
         <div className="text-center mb-12">
           <p className="text-[#C9A24B] text-[10px] tracking-[0.4em] uppercase font-semibold mb-3">
             Our Network
@@ -56,7 +55,6 @@ export default function PressPartnerWall() {
             </div>
           ))}
         </div>
-
       </div>
     </section>
   );

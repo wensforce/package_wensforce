@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, PlusCircle, Search, UserRound, Repeat, ConciergeBell, X } from "lucide-react";
+import {
+  Loader2,
+  PlusCircle,
+  Search,
+  UserRound,
+  Repeat,
+  ConciergeBell,
+  X,
+} from "lucide-react";
 import Modal from "../Modal";
 
 import { subscriptionApi } from "../../subscriptions/apis/subscription.api";
@@ -26,12 +34,19 @@ function toDateInputValue(value) {
   return d.toISOString().slice(0, 10);
 }
 
-export default function CreateTripModal({ open, onClose, onCreated, trip, onUpdated }) {
+export default function CreateTripModal({
+  open,
+  onClose,
+  onCreated,
+  trip,
+  onUpdated,
+}) {
   const isEditMode = Boolean(trip);
   const [form, setForm] = useState(INITIAL_FORM);
 
   const [subscriptionSearch, setSubscriptionSearch] = useState("");
-  const [debouncedSubscriptionSearch, setDebouncedSubscriptionSearch] = useState("");
+  const [debouncedSubscriptionSearch, setDebouncedSubscriptionSearch] =
+    useState("");
   const [subscriptionOptions, setSubscriptionOptions] = useState([]);
   const [selectedSubscription, setSelectedSubscription] = useState(null);
   const [loadingSubscriptions, setLoadingSubscriptions] = useState(false);
@@ -64,27 +79,30 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
       });
       setSelectedSubscription(
         trip.subscription
-          ? { ...trip.subscription, id: trip.subscription.id ?? trip.subscriptionId }
+          ? {
+              ...trip.subscription,
+              id: trip.subscription.id ?? trip.subscriptionId,
+            }
           : trip.subscriptionId
             ? { id: trip.subscriptionId }
-            : null
+            : null,
       );
       setSelectedUser(
         trip.user
           ? { ...trip.user, id: trip.user.id ?? trip.userId }
           : trip.userId
             ? { id: trip.userId }
-            : null
+            : null,
       );
       setSelectedServices(
         Array.isArray(trip.services)
           ? trip.services
-            .filter((svc) => svc?.id)
-            .map((svc) => ({
-              id: svc.id,
-              name: svc.name || svc.title || `Service #${svc.id}`,
-            }))
-          : []
+              .filter((svc) => svc?.id)
+              .map((svc) => ({
+                id: svc.id,
+                name: svc.name || svc.title || `Service #${svc.id}`,
+              }))
+          : [],
       );
     } else {
       setForm(INITIAL_FORM);
@@ -113,7 +131,10 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
 
   useEffect(() => {
     if (!open) return;
-    const t = setTimeout(() => setDebouncedSubscriptionSearch(subscriptionSearch.trim()), 400);
+    const t = setTimeout(
+      () => setDebouncedSubscriptionSearch(subscriptionSearch.trim()),
+      400,
+    );
     return () => clearTimeout(t);
   }, [subscriptionSearch, open]);
 
@@ -125,7 +146,10 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
 
   useEffect(() => {
     if (!open) return;
-    const t = setTimeout(() => setDebouncedServiceSearch(serviceSearch.trim()), 400);
+    const t = setTimeout(
+      () => setDebouncedServiceSearch(serviceSearch.trim()),
+      400,
+    );
     return () => clearTimeout(t);
   }, [serviceSearch, open]);
 
@@ -153,7 +177,9 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
     }
 
     fetchSubscriptions();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [debouncedSubscriptionSearch, open]);
 
   useEffect(() => {
@@ -180,7 +206,9 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
     }
 
     fetchUsers();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [debouncedUserSearch, open]);
 
   useEffect(() => {
@@ -207,7 +235,9 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
     }
 
     fetchServices();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [debouncedServiceSearch, open]);
 
   function setField(name, value) {
@@ -216,7 +246,8 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
 
   function validate() {
     if (!form.assignmentId.trim()) return "Assignment ID is required.";
-    if (!selectedSubscription?.id) return "Please search and select a subscription.";
+    if (!selectedSubscription?.id)
+      return "Please search and select a subscription.";
     if (!selectedUser?.id) return "Please search and select a user.";
     if (!form.pickupLocation.trim()) return "Pickup location is required.";
     if (!form.dropLocation.trim()) return "Drop location is required.";
@@ -263,7 +294,10 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
 
       onClose();
     } catch (err) {
-      setError(err?.response?.data?.message || (isEditMode ? "Failed to update trip." : "Failed to create trip."));
+      setError(
+        err?.response?.data?.message ||
+          (isEditMode ? "Failed to update trip." : "Failed to create trip."),
+      );
     } finally {
       setSubmitting(false);
     }
@@ -276,7 +310,8 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
     };
 
     setSelectedServices((prev) => {
-      if (prev.some((item) => Number(item.id) === Number(mapped.id))) return prev;
+      if (prev.some((item) => Number(item.id) === Number(mapped.id)))
+        return prev;
       return [...prev, mapped];
     });
 
@@ -285,7 +320,9 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
   }
 
   function removeService(serviceId) {
-    setSelectedServices((prev) => prev.filter((item) => Number(item.id) !== Number(serviceId)));
+    setSelectedServices((prev) =>
+      prev.filter((item) => Number(item.id) !== Number(serviceId)),
+    );
   }
 
   return (
@@ -295,7 +332,11 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
         if (!submitting) onClose();
       }}
       title={isEditMode ? "Update Trip" : "New Trip"}
-      description={isEditMode ? "Edit trip details and save changes." : "Create a trip by selecting subscription, user, and services."}
+      description={
+        isEditMode
+          ? "Edit trip details and save changes."
+          : "Create a trip by selecting subscription, user, and services."
+      }
       size="xl"
     >
       <form onSubmit={handleSubmit} className="p-6 space-y-5">
@@ -307,7 +348,9 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <label className="block text-sm font-semibold text-[#0B1E3F]">Assignment ID <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-semibold text-[#0B1E3F]">
+              Assignment ID <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               value={form.assignmentId}
@@ -319,7 +362,9 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-sm font-semibold text-[#0B1E3F]">Trip Date <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-semibold text-[#0B1E3F]">
+              Trip Date <span className="text-red-500">*</span>
+            </label>
             <input
               type="date"
               value={form.tripDate}
@@ -332,7 +377,9 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <label className="block text-sm font-semibold text-[#0B1E3F]">Pickup Location <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-semibold text-[#0B1E3F]">
+              Pickup Location <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               value={form.pickupLocation}
@@ -344,7 +391,9 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-sm font-semibold text-[#0B1E3F]">Drop Location <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-semibold text-[#0B1E3F]">
+              Drop Location <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               value={form.dropLocation}
@@ -357,7 +406,9 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
         </div>
 
         <div className="space-y-1.5">
-          <label className="block text-sm font-semibold text-[#0B1E3F]">Trip Type <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-semibold text-[#0B1E3F]">
+            Trip Type <span className="text-red-500">*</span>
+          </label>
           <select
             value={form.tripType}
             onChange={(e) => setField("tripType", e.target.value)}
@@ -365,17 +416,24 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
             className="w-full text-sm rounded-lg border border-[#CBD5E0] bg-[#FAF6EC] px-3 py-2.5 text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 disabled:opacity-60"
           >
             {TRIP_TYPE_OPTIONS.map((type) => (
-              <option key={type} value={type}>{type}</option>
+              <option key={type} value={type}>
+                {type}
+              </option>
             ))}
           </select>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <label className="block text-sm font-semibold text-[#0B1E3F]">Search Subscription <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-semibold text-[#0B1E3F]">
+              Search Subscription <span className="text-red-500">*</span>
+            </label>
             <div className="rounded-xl border border-[#CBD5E0] bg-[#FAF6EC] p-3 space-y-3">
               <div className="relative">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A0AEC0]" />
+                <Search
+                  size={14}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A0AEC0]"
+                />
                 <input
                   type="text"
                   value={subscriptionSearch}
@@ -386,13 +444,19 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
                 />
               </div>
 
-              <div className={`rounded-lg ${loadingSubscriptions || subscriptionSearch.trim() ? "border" : ""} border-[#CBD5E0] bg-white max-h-44 overflow-y-auto`}>
+              <div
+                className={`rounded-lg ${loadingSubscriptions || subscriptionSearch.trim() ? "border" : ""} border-[#CBD5E0] bg-white max-h-44 overflow-y-auto`}
+              >
                 {loadingSubscriptions ? (
                   <div className="flex items-center gap-2 text-xs text-[#4A5568] px-3 py-2.5">
-                    <Loader2 size={14} className="animate-spin" /> Searching subscriptions...
+                    <Loader2 size={14} className="animate-spin" /> Searching
+                    subscriptions...
                   </div>
-                ) : !subscriptionSearch.trim() ? null : subscriptionOptions.length === 0 ? (
-                  <p className="text-xs text-[#4A5568] px-3 py-2.5">No subscriptions found.</p>
+                ) : !subscriptionSearch.trim() ? null : subscriptionOptions.length ===
+                  0 ? (
+                  <p className="text-xs text-[#4A5568] px-3 py-2.5">
+                    No subscriptions found.
+                  </p>
                 ) : (
                   subscriptionOptions.map((sub) => (
                     <button
@@ -406,8 +470,12 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
                       disabled={submitting}
                       className="w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left text-sm text-[#1A202C] hover:bg-[#FAF6EC] transition-colors disabled:opacity-60"
                     >
-                      <span className="truncate">#{sub.id} {sub.user?.name ? `- ${sub.user.name}` : ""}</span>
-                      <span className="text-xs text-[#4A5568] shrink-0">{sub.package?.name || `Pkg #${sub.packageId ?? "-"}`}</span>
+                      <span className="truncate">
+                        #{sub.id} {sub.user?.name ? `- ${sub.user.name}` : ""}
+                      </span>
+                      <span className="text-xs text-[#4A5568] shrink-0">
+                        {sub.package?.name || `Pkg #${sub.packageId ?? "-"}`}
+                      </span>
                     </button>
                   ))
                 )}
@@ -416,7 +484,10 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
               {selectedSubscription && (
                 <div className="inline-flex items-center gap-2 rounded-full border border-[#CBD5E0] bg-white px-3 py-1.5 text-xs text-[#1A202C]">
                   <Repeat size={12} />
-                  <span className="max-w-45 truncate" title={`Subscription #${selectedSubscription.id}`}>
+                  <span
+                    className="max-w-45 truncate"
+                    title={`Subscription #${selectedSubscription.id}`}
+                  >
                     Subscription #{selectedSubscription.id}
                   </span>
                   <button
@@ -434,10 +505,15 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-sm font-semibold text-[#0B1E3F]">Search User <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-semibold text-[#0B1E3F]">
+              Search User <span className="text-red-500">*</span>
+            </label>
             <div className="rounded-xl border border-[#CBD5E0] bg-[#FAF6EC] p-3 space-y-3">
               <div className="relative">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A0AEC0]" />
+                <Search
+                  size={14}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A0AEC0]"
+                />
                 <input
                   type="text"
                   value={userSearch}
@@ -448,13 +524,18 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
                 />
               </div>
 
-              <div className={`rounded-lg ${loadingUsers || userSearch.trim() ? "border" : ""} border-[#CBD5E0] bg-white max-h-44 overflow-y-auto`}>
+              <div
+                className={`rounded-lg ${loadingUsers || userSearch.trim() ? "border" : ""} border-[#CBD5E0] bg-white max-h-44 overflow-y-auto`}
+              >
                 {loadingUsers ? (
                   <div className="flex items-center gap-2 text-xs text-[#4A5568] px-3 py-2.5">
-                    <Loader2 size={14} className="animate-spin" /> Searching users...
+                    <Loader2 size={14} className="animate-spin" /> Searching
+                    users...
                   </div>
                 ) : !userSearch.trim() ? null : userOptions.length === 0 ? (
-                  <p className="text-xs text-[#4A5568] px-3 py-2.5">No users found.</p>
+                  <p className="text-xs text-[#4A5568] px-3 py-2.5">
+                    No users found.
+                  </p>
                 ) : (
                   userOptions.map((user) => (
                     <button
@@ -468,8 +549,15 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
                       disabled={submitting}
                       className="w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left text-sm text-[#1A202C] hover:bg-[#FAF6EC] transition-colors disabled:opacity-60"
                     >
-                      <span className="truncate">{user.name || user.email || user.mobileNumber || `User #${user.id}`}</span>
-                      <span className="text-xs text-[#4A5568] shrink-0">#{user.id}</span>
+                      <span className="truncate">
+                        {user.name ||
+                          user.email ||
+                          user.mobileNumber ||
+                          `User #${user.id}`}
+                      </span>
+                      <span className="text-xs text-[#4A5568] shrink-0">
+                        #{user.id}
+                      </span>
                     </button>
                   ))
                 )}
@@ -478,8 +566,19 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
               {selectedUser && (
                 <div className="inline-flex items-center gap-2 rounded-full border border-[#CBD5E0] bg-white px-3 py-1.5 text-xs text-[#1A202C]">
                   <UserRound size={12} />
-                  <span className="max-w-45 truncate" title={selectedUser.name || selectedUser.email || selectedUser.mobileNumber || `User #${selectedUser.id}`}>
-                    {selectedUser.name || selectedUser.email || selectedUser.mobileNumber || `User #${selectedUser.id}`}
+                  <span
+                    className="max-w-45 truncate"
+                    title={
+                      selectedUser.name ||
+                      selectedUser.email ||
+                      selectedUser.mobileNumber ||
+                      `User #${selectedUser.id}`
+                    }
+                  >
+                    {selectedUser.name ||
+                      selectedUser.email ||
+                      selectedUser.mobileNumber ||
+                      `User #${selectedUser.id}`}
                   </span>
                   <button
                     type="button"
@@ -497,10 +596,15 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
         </div>
 
         <div className="space-y-1.5">
-          <label className="block text-sm font-semibold text-[#0B1E3F]">Search Services <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-semibold text-[#0B1E3F]">
+            Search Services <span className="text-red-500">*</span>
+          </label>
           <div className="rounded-xl border border-[#CBD5E0] bg-[#FAF6EC] p-3 space-y-3">
             <div className="relative">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A0AEC0]" />
+              <Search
+                size={14}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A0AEC0]"
+              />
               <input
                 type="text"
                 value={serviceSearch}
@@ -511,16 +615,22 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
               />
             </div>
 
-            <div className={`rounded-lg ${loadingServices || serviceSearch.trim() ? "border" : ""} border-[#CBD5E0] bg-white max-h-44 overflow-y-auto`}>
+            <div
+              className={`rounded-lg ${loadingServices || serviceSearch.trim() ? "border" : ""} border-[#CBD5E0] bg-white max-h-44 overflow-y-auto`}
+            >
               {loadingServices ? (
                 <div className="flex items-center gap-2 text-xs text-[#4A5568] px-3 py-2.5">
-                  <Loader2 size={14} className="animate-spin" /> Searching services...
+                  <Loader2 size={14} className="animate-spin" /> Searching
+                  services...
                 </div>
               ) : !serviceSearch.trim() ? null : serviceOptions.length === 0 ? (
-                <p className="text-xs text-[#4A5568] px-3 py-2.5">No services found.</p>
+                <p className="text-xs text-[#4A5568] px-3 py-2.5">
+                  No services found.
+                </p>
               ) : (
                 serviceOptions.map((service) => {
-                  const label = service.title || service.name || `Service #${service.id}`;
+                  const label =
+                    service.title || service.name || `Service #${service.id}`;
                   return (
                     <button
                       key={service.id}
@@ -530,7 +640,9 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
                       className="w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left text-sm text-[#1A202C] hover:bg-[#FAF6EC] transition-colors disabled:opacity-60"
                     >
                       <span className="truncate">{label}</span>
-                      <span className="text-xs text-[#4A5568] shrink-0">#{service.id}</span>
+                      <span className="text-xs text-[#4A5568] shrink-0">
+                        #{service.id}
+                      </span>
                     </button>
                   );
                 })
@@ -545,7 +657,9 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
                     className="inline-flex items-center gap-2 rounded-full border border-[#CBD5E0] bg-white px-3 py-1.5 text-xs text-[#1A202C]"
                   >
                     <ConciergeBell size={12} />
-                    <span className="max-w-45 truncate" title={service.name}>{service.name}</span>
+                    <span className="max-w-45 truncate" title={service.name}>
+                      {service.name}
+                    </span>
                     <button
                       type="button"
                       onClick={() => removeService(service.id)}
@@ -576,8 +690,18 @@ export default function CreateTripModal({ open, onClose, onCreated, trip, onUpda
             disabled={submitting}
             className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-[#0B1E3F] rounded-lg px-5 py-2 hover:bg-[#152d5a] transition-colors disabled:opacity-60"
           >
-            {submitting ? <Loader2 size={14} className="animate-spin" /> : <PlusCircle size={14} />}
-            {submitting ? (isEditMode ? "Updating..." : "Creating...") : (isEditMode ? "Update Trip" : "Create Trip")}
+            {submitting ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <PlusCircle size={14} />
+            )}
+            {submitting
+              ? isEditMode
+                ? "Updating..."
+                : "Creating..."
+              : isEditMode
+                ? "Update Trip"
+                : "Create Trip"}
           </button>
         </div>
       </form>

@@ -5,7 +5,13 @@ import { Loader2, ImagePlus, X } from "lucide-react";
 import Modal from "../Modal";
 import { servicesApi } from "../../services/apis/services.api";
 import { useFetchList } from "../../hooks/useFetchList";
-export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated, service }) {
+export default function ServiceCreateModal({
+  open,
+  onClose,
+  onCreated,
+  onUpdated,
+  service,
+}) {
   const initialForm = { title: "", description: "", isActive: true };
 
   const [form, setForm] = useState(initialForm);
@@ -37,12 +43,17 @@ export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated
   }, [service, open]);
 
   useEffect(() => {
-    return () => { if (preview && thumbnail) URL.revokeObjectURL(preview); };
+    return () => {
+      if (preview && thumbnail) URL.revokeObjectURL(preview);
+    };
   }, [preview, thumbnail]);
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
-    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   }
 
   function handleFileChange(e) {
@@ -66,7 +77,7 @@ export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated
       setError("Title is required.");
       return;
     }
-    if (!form.description.trim() ) {
+    if (!form.description.trim()) {
       setError("Description is required.");
       return;
     }
@@ -75,7 +86,11 @@ export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated
 
     try {
       if (isEditMode) {
-        const updatedService = await servicesApi.updateService(service.id, form, thumbnail);
+        const updatedService = await servicesApi.updateService(
+          service.id,
+          form,
+          thumbnail,
+        );
         onUpdated?.(updatedService);
       } else {
         await servicesApi.createService(form, thumbnail);
@@ -86,7 +101,12 @@ export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated
       removeImage();
       onClose();
     } catch (err) {
-      setError(err?.response?.data?.message || (isEditMode ? "Failed to update service." : "Failed to create service."));
+      setError(
+        err?.response?.data?.message ||
+          (isEditMode
+            ? "Failed to update service."
+            : "Failed to create service."),
+      );
     } finally {
       setLoading(false);
     }
@@ -105,11 +125,14 @@ export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated
       open={open}
       onClose={handleClose}
       title={isEditMode ? "Update Service" : "New Service"}
-      description={isEditMode ? "Edit service details and save changes." : "Fill in the details below to create a new service."}
+      description={
+        isEditMode
+          ? "Edit service details and save changes."
+          : "Fill in the details below to create a new service."
+      }
       size="md"
     >
       <form onSubmit={handleSubmit} className="px-6 py-5 space-y-5">
-
         {error && (
           <div className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-4 py-2.5">
             {error}
@@ -132,7 +155,9 @@ export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated
         </div>
 
         <div className="space-y-1.5">
-          <label className="block text-sm font-semibold text-[#0B1E3F]">Description<span className="text-red-500">*</span></label>
+          <label className="block text-sm font-semibold text-[#0B1E3F]">
+            Description<span className="text-red-500">*</span>
+          </label>
           <textarea
             name="description"
             value={form.description}
@@ -145,7 +170,9 @@ export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated
         </div>
 
         <div className="space-y-1.5">
-          <label className="block text-sm font-semibold text-[#0B1E3F]">Thumbnail</label>
+          <label className="block text-sm font-semibold text-[#0B1E3F]">
+            Thumbnail
+          </label>
 
           <input
             ref={fileInputRef}
@@ -190,9 +217,13 @@ export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated
               className="w-full h-32 rounded-xl border-2 border-dashed border-[#CBD5E0] bg-[#FAF6EC] hover:border-[#C9A24B] hover:bg-[#FAF6EC]/80 transition-colors flex flex-col items-center justify-center gap-2 disabled:opacity-50"
             >
               <ImagePlus size={24} className="text-[#A0AEC0]" />
-              <span className="text-sm text-[#A0AEC0]">Click to upload image</span>
+              <span className="text-sm text-[#A0AEC0]">
+                Click to upload image
+              </span>
               <span className="text-xs text-[#CBD5E0]">
-                {isEditMode ? "Leave unchanged to keep current image" : "PNG, JPG, WEBP"}
+                {isEditMode
+                  ? "Leave unchanged to keep current image"
+                  : "PNG, JPG, WEBP"}
               </span>
             </button>
           )}
@@ -201,13 +232,17 @@ export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated
         <div className="flex items-center justify-between rounded-lg border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3">
           <div>
             <p className="text-sm font-semibold text-[#0B1E3F]">Active</p>
-            <p className="text-xs text-[#4A5568]">Service will be visible to users</p>
+            <p className="text-xs text-[#4A5568]">
+              Service will be visible to users
+            </p>
           </div>
           <button
             type="button"
             role="switch"
             aria-checked={form.isActive}
-            onClick={() => !loading && setForm((p) => ({ ...p, isActive: !p.isActive }))}
+            onClick={() =>
+              !loading && setForm((p) => ({ ...p, isActive: !p.isActive }))
+            }
             className={`relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none
               ${form.isActive ? "bg-[#0B1E3F]" : "bg-[#CBD5E0]"}`}
           >
@@ -233,7 +268,13 @@ export default function ServiceCreateModal({ open, onClose, onCreated, onUpdated
             className="flex items-center gap-2 text-sm font-semibold text-white bg-[#0B1E3F] rounded-lg px-5 py-2 hover:bg-[#152d5a] transition-colors disabled:opacity-60"
           >
             {loading && <Loader2 size={14} className="animate-spin" />}
-            {loading ? (isEditMode ? "Updating…" : "Creating…") : isEditMode ? "Update Service" : "Create Service"}
+            {loading
+              ? isEditMode
+                ? "Updating…"
+                : "Creating…"
+              : isEditMode
+                ? "Update Service"
+                : "Create Service"}
           </button>
         </div>
       </form>

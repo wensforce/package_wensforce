@@ -51,11 +51,12 @@ Send a one-time password to the given mobile number.
 
 ### Request Body
 
-| Field          | Type   | Required | Description                                        |
-|----------------|--------|----------|----------------------------------------------------|
+| Field          | Type   | Required | Description                                                                     |
+| -------------- | ------ | -------- | ------------------------------------------------------------------------------- |
 | `mobileNumber` | string | Yes      | Valid mobile number **with country code** (e.g. `+919876543210`). 10–15 digits. |
 
 **Example:**
+
 ```json
 {
   "mobileNumber": "+919876543210"
@@ -65,6 +66,7 @@ Send a one-time password to the given mobile number.
 ### Response
 
 #### Success `201 Created`
+
 ```json
 {
   "success": true,
@@ -75,16 +77,17 @@ Send a one-time password to the given mobile number.
   }
 }
 ```
+
 > **Note:** `otp` is returned in the response only in development/testing. Remove in production.
 
 #### Error Responses
 
-| Status | Message                                                  | Cause                           |
-|--------|----------------------------------------------------------|---------------------------------|
-| `400`  | `"Mobile number is required"`                            | Missing field                   |
-| `400`  | `"Invalid mobile number format - must include country code"` | Bad format               |
-| `400`  | `"Mobile number must be between 10 and 15 digits"`       | Length violation                |
-| `500`  | `"Failed to send OTP"`                                   | Server/Redis error              |
+| Status | Message                                                      | Cause              |
+| ------ | ------------------------------------------------------------ | ------------------ |
+| `400`  | `"Mobile number is required"`                                | Missing field      |
+| `400`  | `"Invalid mobile number format - must include country code"` | Bad format         |
+| `400`  | `"Mobile number must be between 10 and 15 digits"`           | Length violation   |
+| `500`  | `"Failed to send OTP"`                                       | Server/Redis error |
 
 ---
 
@@ -98,12 +101,13 @@ Verify the OTP and authenticate the user. Creates a new user if one does not exi
 
 ### Request Body
 
-| Field          | Type   | Required | Description                                                   |
-|----------------|--------|----------|---------------------------------------------------------------|
-| `mobileNumber` | string | Yes      | Mobile number with country code (10–15 digits).               |
-| `otp`          | string | Yes      | 6-digit OTP received on the mobile number.                    |
+| Field          | Type   | Required | Description                                     |
+| -------------- | ------ | -------- | ----------------------------------------------- |
+| `mobileNumber` | string | Yes      | Mobile number with country code (10–15 digits). |
+| `otp`          | string | Yes      | 6-digit OTP received on the mobile number.      |
 
 **Example:**
+
 ```json
 {
   "mobileNumber": "+919876543210",
@@ -141,9 +145,9 @@ Sets a `refreshToken` **HttpOnly cookie** (expires in 30 days).
 
 #### Cookie Set
 
-| Name           | HttpOnly | Secure (prod) | SameSite | Max-Age  |
-|----------------|----------|---------------|----------|----------|
-| `refreshToken` | Yes      | Yes           | Strict   | 30 days  |
+| Name           | HttpOnly | Secure (prod) | SameSite | Max-Age |
+| -------------- | -------- | ------------- | -------- | ------- |
+| `refreshToken` | Yes      | Yes           | Strict   | 30 days |
 
 #### JWT Payload
 
@@ -159,12 +163,12 @@ Both `accessToken` and `refreshToken` carry the same payload:
 
 #### Error Responses
 
-| Status | Message                                                                    | Cause                                  |
-|--------|----------------------------------------------------------------------------|----------------------------------------|
-| `400`  | `"Mobile number is required"` / `"OTP is required"` (validation errors)   | Missing or invalid fields              |
-| `400`  | `"Invalid or expired OTP"`                                                 | OTP not found in Redis or wrong OTP    |
-| `403`  | `"Too many failed attempts. Please try again after X minutes."`            | User is blocked after max OTP attempts |
-| `500`  | `"Failed to verify OTP"`                                                   | Server/Redis/DB error                  |
+| Status | Message                                                                 | Cause                                  |
+| ------ | ----------------------------------------------------------------------- | -------------------------------------- |
+| `400`  | `"Mobile number is required"` / `"OTP is required"` (validation errors) | Missing or invalid fields              |
+| `400`  | `"Invalid or expired OTP"`                                              | OTP not found in Redis or wrong OTP    |
+| `403`  | `"Too many failed attempts. Please try again after X minutes."`         | User is blocked after max OTP attempts |
+| `500`  | `"Failed to verify OTP"`                                                | Server/Redis/DB error                  |
 
 ---
 
@@ -178,11 +182,12 @@ Resend a fresh OTP to the mobile number (invalidates any previously sent OTP).
 
 ### Request Body
 
-| Field          | Type   | Required | Description                                     |
-|----------------|--------|----------|-------------------------------------------------|
+| Field          | Type   | Required | Description                                           |
+| -------------- | ------ | -------- | ----------------------------------------------------- |
 | `mobileNumber` | string | Yes      | Valid mobile number with country code (10–15 digits). |
 
 **Example:**
+
 ```json
 {
   "mobileNumber": "+919876543210"
@@ -192,6 +197,7 @@ Resend a fresh OTP to the mobile number (invalidates any previously sent OTP).
 ### Response
 
 #### Success `200 OK`
+
 ```json
 {
   "success": true,
@@ -202,14 +208,15 @@ Resend a fresh OTP to the mobile number (invalidates any previously sent OTP).
   }
 }
 ```
+
 > **Note:** `otp` in response body is for testing only.
 
 #### Error Responses
 
-| Status | Message                                                            | Cause               |
-|--------|--------------------------------------------------------------------|---------------------|
-| `400`  | Validation errors (same as Send OTP)                               | Invalid input       |
-| `500`  | `"Failed to resend OTP"`                                           | Server/Redis error  |
+| Status | Message                              | Cause              |
+| ------ | ------------------------------------ | ------------------ |
+| `400`  | Validation errors (same as Send OTP) | Invalid input      |
+| `500`  | `"Failed to resend OTP"`             | Server/Redis error |
 
 ---
 
@@ -224,7 +231,7 @@ Exchange a valid refresh token for a new access token and refresh token (rotatio
 ### Cookie Required
 
 | Name           | Description                              |
-|----------------|------------------------------------------|
+| -------------- | ---------------------------------------- |
 | `refreshToken` | HttpOnly cookie set during `verify-otp`. |
 
 > No request body is needed.
@@ -249,13 +256,13 @@ Rotates the refresh token — sets a **new** `refreshToken` cookie.
 
 #### Error Responses
 
-| Status | Message                              | Cause                                          |
-|--------|--------------------------------------|------------------------------------------------|
-| `400`  | `"Refresh token is required"`        | Cookie missing (validation)                    |
-| `401`  | `"Invalid refresh token"`            | Token is malformed or JWT verification failed  |
-| `401`  | `"Invalid refresh token"`            | User not found in DB                           |
-| `401`  | `"Invalid or expired refresh token"` | Token not in user's token array or expired     |
-| `500`  | `"Failed to refresh token"`          | Server/DB error                                |
+| Status | Message                              | Cause                                         |
+| ------ | ------------------------------------ | --------------------------------------------- |
+| `400`  | `"Refresh token is required"`        | Cookie missing (validation)                   |
+| `401`  | `"Invalid refresh token"`            | Token is malformed or JWT verification failed |
+| `401`  | `"Invalid refresh token"`            | User not found in DB                          |
+| `401`  | `"Invalid or expired refresh token"` | Token not in user's token array or expired    |
+| `500`  | `"Failed to refresh token"`          | Server/DB error                               |
 
 ---
 
@@ -269,15 +276,16 @@ Invalidate the current session by removing the refresh token from the user's tok
 
 ### Cookie Required
 
-| Name           | Description                                |
-|----------------|--------------------------------------------|
-| `refreshToken` | HttpOnly cookie set during `verify-otp`.   |
+| Name           | Description                              |
+| -------------- | ---------------------------------------- |
+| `refreshToken` | HttpOnly cookie set during `verify-otp`. |
 
 > No request body is needed.
 
 ### Response
 
 #### Success `200 OK`
+
 ```json
 {
   "success": true,
@@ -289,11 +297,11 @@ Invalidate the current session by removing the refresh token from the user's tok
 
 #### Error Responses
 
-| Status | Message                                    | Cause                               |
-|--------|--------------------------------------------|-------------------------------------|
-| `400`  | `"Refresh token is required"`              | Cookie missing (validation)         |
-| `401`  | `"Refresh token is required for logout"`   | Cookie not present in request       |
-| `500`  | `"Failed to logout"`                       | Server/DB error                     |
+| Status | Message                                  | Cause                         |
+| ------ | ---------------------------------------- | ----------------------------- |
+| `400`  | `"Refresh token is required"`            | Cookie missing (validation)   |
+| `401`  | `"Refresh token is required for logout"` | Cookie not present in request |
+| `500`  | `"Failed to logout"`                     | Server/DB error               |
 
 ---
 
@@ -309,13 +317,14 @@ Fetch the authenticated user's profile.
 
 ### Headers
 
-| Header          | Value                        | Required |
-|-----------------|------------------------------|----------|
-| `Authorization` | `Bearer <accessToken>`       | Yes      |
+| Header          | Value                  | Required |
+| --------------- | ---------------------- | -------- |
+| `Authorization` | `Bearer <accessToken>` | Yes      |
 
 ### Response
 
 #### Success `200 OK`
+
 ```json
 {
   "success": true,
@@ -331,34 +340,35 @@ Fetch the authenticated user's profile.
   }
 }
 ```
+
 > `refreshTokens` array is stripped before sending.
 
 #### Error Responses
 
-| Status | Message                        | Cause                                  |
-|--------|--------------------------------|----------------------------------------|
-| `401`  | `"Unauthorized access"`        | Missing or invalid access token        |
-| `403`  | `"Access forbidden"`           | Role not permitted                     |
-| `404`  | `"User not found"`             | User ID from token not in DB           |
-| `500`  | `"Failed to fetch user profile"` | Server/DB error                      |
+| Status | Message                          | Cause                           |
+| ------ | -------------------------------- | ------------------------------- |
+| `401`  | `"Unauthorized access"`          | Missing or invalid access token |
+| `403`  | `"Access forbidden"`             | Role not permitted              |
+| `404`  | `"User not found"`               | User ID from token not in DB    |
+| `500`  | `"Failed to fetch user profile"` | Server/DB error                 |
 
 ---
 
 ## OTP Rate Limiting (Redis)
 
-| Constant         | Value       | Description                                  |
-|------------------|-------------|----------------------------------------------|
-| `OTP_EXPIRY`     | 10 minutes  | OTP is valid for 10 minutes after generation |
-| `MAX_ATTEMPTS`   | Configurable | Max failed verify attempts before block     |
-| `BLOCK_DURATION` | Configurable | Duration of block after exceeding attempts  |
-| `RESEND_LIMIT`   | Configurable | Max OTP resend requests within window       |
-| `RESEND_EXPIRY`  | Configurable | Resend rate-limit window duration           |
+| Constant         | Value        | Description                                  |
+| ---------------- | ------------ | -------------------------------------------- |
+| `OTP_EXPIRY`     | 10 minutes   | OTP is valid for 10 minutes after generation |
+| `MAX_ATTEMPTS`   | Configurable | Max failed verify attempts before block      |
+| `BLOCK_DURATION` | Configurable | Duration of block after exceeding attempts   |
+| `RESEND_LIMIT`   | Configurable | Max OTP resend requests within window        |
+| `RESEND_EXPIRY`  | Configurable | Resend rate-limit window duration            |
 
 ---
 
 ## Token Summary
 
-| Token          | Stored In          | Expiry  | Secret Env Var           |
-|----------------|--------------------|---------|--------------------------|
-| `accessToken`  | Response body      | 1 hour  | `ACCESS_TOKEN_SECRET`    |
+| Token          | Stored In            | Expiry  | Secret Env Var         |
+| -------------- | -------------------- | ------- | ---------------------- |
+| `accessToken`  | Response body        | 1 hour  | `ACCESS_TOKEN_SECRET`  |
 | `refreshToken` | HttpOnly cookie + DB | 30 days | `REFRESH_TOKEN_SECRET` |

@@ -42,7 +42,7 @@ All responses follow a consistent envelope:
 All endpoints require a Bearer token in the `Authorization` header.
 
 | Header          | Value                  | Required |
-|-----------------|------------------------|----------|
+| --------------- | ---------------------- | -------- |
 | `Authorization` | `Bearer <accessToken>` | Yes      |
 
 Role access per endpoint is listed in each section.
@@ -59,23 +59,24 @@ Create a new package with optional services.
 
 ### Request Body
 
-| Field                | Type             | Required | Description                                    |
-|----------------------|------------------|----------|------------------------------------------------|
-| `name`               | string           | Yes      | Unique name of the package.                    |
-| `regularPrice`       | number           | Yes      | Regular price of the package.                  |
-| `discountedPrice`    | number           | Yes      | Discounted price of the package.               |
-| `description`        | string           | No       | Description of the package.                    |
-| `tags`               | string           | No       | Comma-separated tags for categorization.       |
-| `vehicleType`        | string           | No       | Type of vehicle (e.g., sedan, SUV).            |
-| `vehicleModel`       | array            | No       | Array of vehicle models supported.             |
-| `bodyguardType`      | string           | No       | Type of bodyguard service (if applicable).     |
-| `trips`              | integer          | No       | Number of trips included in the package.       |
-| `validity`           | integer          | No       | Validity of the package in months.             |
-| `thumbnailUrlKey`    | string           | No       | S3 bucket key for the package thumbnail.       |
-| `isActive`           | boolean          | No       | Whether the package is active (default: true). |
-| `services`           | array (objects)  | No       | Array of services with count. Each object has `id` (service ID) and optional `count` (default: 1). |
+| Field             | Type            | Required | Description                                                                                        |
+| ----------------- | --------------- | -------- | -------------------------------------------------------------------------------------------------- |
+| `name`            | string          | Yes      | Unique name of the package.                                                                        |
+| `regularPrice`    | number          | Yes      | Regular price of the package.                                                                      |
+| `discountedPrice` | number          | Yes      | Discounted price of the package.                                                                   |
+| `description`     | string          | No       | Description of the package.                                                                        |
+| `tags`            | string          | No       | Comma-separated tags for categorization.                                                           |
+| `vehicleType`     | string          | No       | Type of vehicle (e.g., sedan, SUV).                                                                |
+| `vehicleModel`    | array           | No       | Array of vehicle models supported.                                                                 |
+| `bodyguardType`   | string          | No       | Type of bodyguard service (if applicable).                                                         |
+| `trips`           | integer         | No       | Number of trips included in the package.                                                           |
+| `validity`        | integer         | No       | Validity of the package in months.                                                                 |
+| `thumbnailUrlKey` | string          | No       | S3 bucket key for the package thumbnail.                                                           |
+| `isActive`        | boolean         | No       | Whether the package is active (default: true).                                                     |
+| `services`        | array (objects) | No       | Array of services with count. Each object has `id` (service ID) and optional `count` (default: 1). |
 
 **Example:**
+
 ```json
 {
   "name": "Premium Bodyguard Package",
@@ -90,17 +91,14 @@ Create a new package with optional services.
   "validity": 12,
   "thumbnailUrlKey": "packages/premium-bodyguard.jpg",
   "isActive": true,
-  "services": [
-    { "id": 1, "count": 2 },
-    { "id": 2, "count": 5 },
-    { "id": 3 }
-  ]
+  "services": [{ "id": 1, "count": 2 }, { "id": 2, "count": 5 }, { "id": 3 }]
 }
 ```
 
 ### Response
 
 #### Success `201 Created`
+
 ```json
 {
   "success": true,
@@ -155,15 +153,15 @@ Create a new package with optional services.
 
 #### Error Responses
 
-| Status | Message                          | Cause                        |
-|--------|----------------------------------|------------------------------|
-| `400`  | `"Package name is required"`     | Missing `name` field         |
-| `400`  | `"Package already exists"`       | Duplicate `name`             |
-| `400`  | `"Regular price is required"`    | Missing `regularPrice` field |
+| Status | Message                          | Cause                           |
+| ------ | -------------------------------- | ------------------------------- |
+| `400`  | `"Package name is required"`     | Missing `name` field            |
+| `400`  | `"Package already exists"`       | Duplicate `name`                |
+| `400`  | `"Regular price is required"`    | Missing `regularPrice` field    |
 | `400`  | `"Discounted price is required"` | Missing `discountedPrice` field |
-| `401`  | `"Unauthorized access"`          | Missing or invalid token     |
-| `403`  | `"Access forbidden"`             | Role not permitted           |
-| `500`  | `"Failed to create package"`     | Server/DB error              |
+| `401`  | `"Unauthorized access"`          | Missing or invalid token        |
+| `403`  | `"Access forbidden"`             | Role not permitted              |
+| `500`  | `"Failed to create package"`     | Server/DB error                 |
 
 ---
 
@@ -177,18 +175,19 @@ Retrieve all packages with pagination and search.
 
 ### Query Parameters
 
-| Parameter | Type    | Default | Description                              |
-|-----------|---------|---------|------------------------------------------|
-| `page`    | integer | 1       | Page number for pagination.              |
-| `limit`   | integer | 10      | Number of packages per page.             |
-| `category` | string  | -       | Filter by category.                      |
-| `search`  | string  | -       | Search by name.                          |
+| Parameter  | Type    | Default | Description                  |
+| ---------- | ------- | ------- | ---------------------------- |
+| `page`     | integer | 1       | Page number for pagination.  |
+| `limit`    | integer | 10      | Number of packages per page. |
+| `category` | string  | -       | Filter by category.          |
+| `search`   | string  | -       | Search by name.              |
 
 **Example:** `GET /api/v1/package?page=1&limit=20&search=premium`
 
 ### Response
 
 #### Success `200 OK`
+
 ```json
 {
   "success": true,
@@ -240,11 +239,11 @@ Retrieve all packages with pagination and search.
 
 #### Error Responses
 
-| Status | Message                          | Cause                    |
-|--------|----------------------------------|--------------------------|
-| `401`  | `"Unauthorized access"`          | Missing or invalid token |
-| `403`  | `"Access forbidden"`             | Role not permitted       |
-| `500`  | `"Failed to fetch packages"`     | Server/DB error          |
+| Status | Message                      | Cause                    |
+| ------ | ---------------------------- | ------------------------ |
+| `401`  | `"Unauthorized access"`      | Missing or invalid token |
+| `403`  | `"Access forbidden"`         | Role not permitted       |
+| `500`  | `"Failed to fetch packages"` | Server/DB error          |
 
 ---
 
@@ -258,15 +257,16 @@ Retrieve active packages for end users with optional category filter.
 
 ### Query Parameters
 
-| Parameter | Type    | Default | Description                              |
-|-----------|---------|---------|------------------------------------------|
-| `category` | string  | -       | Filter by category.                      |
+| Parameter  | Type   | Default | Description         |
+| ---------- | ------ | ------- | ------------------- |
+| `category` | string | -       | Filter by category. |
 
 **Example:** `GET /api/v1/package/user?category=premium`
 
 ### Response
 
 #### Success `200 OK`
+
 ```json
 {
   "success": true,
@@ -307,9 +307,9 @@ Retrieve active packages for end users with optional category filter.
 
 #### Error Responses
 
-| Status | Message                                | Cause                    |
-|--------|----------------------------------------|--------------------------|
-| `500`  | `"Failed to fetch packages for users"` | Server/DB error          |
+| Status | Message                                | Cause           |
+| ------ | -------------------------------------- | --------------- |
+| `500`  | `"Failed to fetch packages for users"` | Server/DB error |
 
 ---
 
@@ -323,15 +323,16 @@ Retrieve a single package with detailed information.
 
 ### Path Parameters
 
-| Parameter | Type    | Required | Description         |
-|-----------|---------|----------|---------------------|
-| `id`      | integer | Yes      | ID of the package.  |
+| Parameter | Type    | Required | Description        |
+| --------- | ------- | -------- | ------------------ |
+| `id`      | integer | Yes      | ID of the package. |
 
 **Example:** `GET /api/v1/package/1`
 
 ### Response
 
 #### Success `200 OK`
+
 ```json
 {
   "success": true,
@@ -387,11 +388,11 @@ Retrieve a single package with detailed information.
 
 #### Error Responses
 
-| Status | Message                          | Cause                         |
-|--------|----------------------------------|-------------------------------|
-| `400`  | `"ID must be a positive integer"`| Invalid `id` path param       |
-| `404`  | `"Package not found"`            | No package with the given ID  |
-| `500`  | `"Failed to fetch package"`      | Server/DB error               |
+| Status | Message                           | Cause                        |
+| ------ | --------------------------------- | ---------------------------- |
+| `400`  | `"ID must be a positive integer"` | Invalid `id` path param      |
+| `404`  | `"Package not found"`             | No package with the given ID |
+| `500`  | `"Failed to fetch package"`       | Server/DB error              |
 
 ---
 
@@ -405,29 +406,30 @@ Update an existing package by its ID.
 
 ### Path Parameters
 
-| Parameter | Type    | Required | Description         |
-|-----------|---------|----------|---------------------|
-| `id`      | integer | Yes      | ID of the package.  |
+| Parameter | Type    | Required | Description        |
+| --------- | ------- | -------- | ------------------ |
+| `id`      | integer | Yes      | ID of the package. |
 
 ### Request Body
 
-| Field                | Type             | Required | Description                               |
-|----------------------|------------------|----------|-------------------------------------------|
-| `name`               | string           | No       | Updated name of the package.              |
-| `regularPrice`       | number           | No       | Updated regular price.                    |
-| `discountedPrice`    | number           | No       | Updated discounted price.                 |
-| `description`        | string           | No       | Updated description.                      |
-| `tags`               | string           | No       | Updated tags.                             |
-| `vehicleType`        | string           | No       | Updated vehicle type.                     |
-| `vehicleModel`       | array            | No       | Updated vehicle models.                   |
-| `bodyguardType`      | string           | No       | Updated bodyguard type.                   |
-| `trips`              | integer          | No       | Updated number of trips.                  |
-| `validity`           | integer          | No       | Updated validity in months.               |
-| `thumbnailUrlKey`    | string           | No       | Updated S3 key for thumbnail.             |
-| `isActive`           | boolean          | No       | Updated active status.                    |
-| `services`           | array (objects)  | No       | Updated array of services with count.     |
+| Field             | Type            | Required | Description                           |
+| ----------------- | --------------- | -------- | ------------------------------------- |
+| `name`            | string          | No       | Updated name of the package.          |
+| `regularPrice`    | number          | No       | Updated regular price.                |
+| `discountedPrice` | number          | No       | Updated discounted price.             |
+| `description`     | string          | No       | Updated description.                  |
+| `tags`            | string          | No       | Updated tags.                         |
+| `vehicleType`     | string          | No       | Updated vehicle type.                 |
+| `vehicleModel`    | array           | No       | Updated vehicle models.               |
+| `bodyguardType`   | string          | No       | Updated bodyguard type.               |
+| `trips`           | integer         | No       | Updated number of trips.              |
+| `validity`        | integer         | No       | Updated validity in months.           |
+| `thumbnailUrlKey` | string          | No       | Updated S3 key for thumbnail.         |
+| `isActive`        | boolean         | No       | Updated active status.                |
+| `services`        | array (objects) | No       | Updated array of services with count. |
 
 **Example:** `PUT /api/v1/package/1`
+
 ```json
 {
   "discountedPrice": 3500,
@@ -442,6 +444,7 @@ Update an existing package by its ID.
 ### Response
 
 #### Success `200 OK`
+
 ```json
 {
   "success": true,
@@ -492,13 +495,13 @@ Update an existing package by its ID.
 
 #### Error Responses
 
-| Status | Message                          | Cause                         |
-|--------|----------------------------------|-------------------------------|
-| `400`  | `"ID must be a positive integer"`| Invalid `id` path param       |
-| `401`  | `"Unauthorized access"`          | Missing or invalid token      |
-| `403`  | `"Access forbidden"`             | Role not permitted            |
-| `404`  | `"Package not found"`            | No package with the given ID  |
-| `500`  | `"Failed to update package"`     | Server/DB error               |
+| Status | Message                           | Cause                        |
+| ------ | --------------------------------- | ---------------------------- |
+| `400`  | `"ID must be a positive integer"` | Invalid `id` path param      |
+| `401`  | `"Unauthorized access"`           | Missing or invalid token     |
+| `403`  | `"Access forbidden"`              | Role not permitted           |
+| `404`  | `"Package not found"`             | No package with the given ID |
+| `500`  | `"Failed to update package"`      | Server/DB error              |
 
 ---
 
@@ -512,15 +515,16 @@ Delete a package by its ID.
 
 ### Path Parameters
 
-| Parameter | Type    | Required | Description         |
-|-----------|---------|----------|---------------------|
-| `id`      | integer | Yes      | ID of the package.  |
+| Parameter | Type    | Required | Description        |
+| --------- | ------- | -------- | ------------------ |
+| `id`      | integer | Yes      | ID of the package. |
 
 **Example:** `DELETE /api/v1/package/1`
 
 ### Response
 
 #### Success `200 OK`
+
 ```json
 {
   "success": true,
@@ -530,13 +534,13 @@ Delete a package by its ID.
 
 #### Error Responses
 
-| Status | Message                          | Cause                         |
-|--------|----------------------------------|-------------------------------|
-| `400`  | `"ID must be a positive integer"`| Invalid `id` path param       |
-| `401`  | `"Unauthorized access"`          | Missing or invalid token      |
-| `403`  | `"Access forbidden"`             | Role not permitted            |
-| `404`  | `"Package not found"`            | No package with the given ID  |
-| `500`  | `"Failed to delete package"`     | Server/DB error               |
+| Status | Message                           | Cause                        |
+| ------ | --------------------------------- | ---------------------------- |
+| `400`  | `"ID must be a positive integer"` | Invalid `id` path param      |
+| `401`  | `"Unauthorized access"`           | Missing or invalid token     |
+| `403`  | `"Access forbidden"`              | Role not permitted           |
+| `404`  | `"Package not found"`             | No package with the given ID |
+| `500`  | `"Failed to delete package"`      | Server/DB error              |
 
 ---
 
@@ -556,6 +560,7 @@ Delete a package by its ID.
 The `services` field uses a junction table (`PackageService`) to track each service and its count:
 
 **Request Format:**
+
 ```json
 {
   "services": [
@@ -566,6 +571,7 @@ The `services` field uses a junction table (`PackageService`) to track each serv
 ```
 
 **Response Format (via `packageServices`):**
+
 ```json
 {
   "packageServices": [

@@ -1,14 +1,14 @@
-import { sendCapiEvent } from '@/app/lib/metaCapi.js';
+import { sendCapiEvent } from "@/app/lib/metaCapi.js";
 
 export async function POST(req) {
   try {
     const body = await req.json();
     const ip =
-      req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-      req.headers.get('x-real-ip') ||
-      '127.0.0.1';
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      req.headers.get("x-real-ip") ||
+      "127.0.0.1";
 
-    const userAgent = req.headers.get('user-agent') || '';
+    const userAgent = req.headers.get("user-agent") || "";
 
     await sendCapiEvent({
       eventName: body.eventName,
@@ -25,7 +25,7 @@ export async function POST(req) {
       },
       customData: {
         value: body.value || 0,
-        currency: body.currency || 'INR',
+        currency: body.currency || "INR",
         contentName: body.contentName || null,
         contentId: body.contentId || null,
         orderId: body.orderId || null,
@@ -33,11 +33,9 @@ export async function POST(req) {
       eventSourceUrl: body.url,
     });
 
-    console.log('CAPI Event Sent:', body.eventName, body.eventId);
-
     return Response.json({ success: true });
   } catch (err) {
-    console.error('CAPI Error:', err);
+    console.error("CAPI Error:", err);
     return Response.json({ error: err.message }, { status: 500 });
   }
 }

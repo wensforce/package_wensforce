@@ -46,15 +46,31 @@ function getStatusUI(status) {
   const s = String(status || "pending").toUpperCase();
 
   if (["CONFIRMED", "COMPLETED", "ACTIVE"].includes(s)) {
-    return { className: "bg-green-100 text-green-700", icon: <CheckCircle2 size={11} />, label: s };
+    return {
+      className: "bg-green-100 text-green-700",
+      icon: <CheckCircle2 size={11} />,
+      label: s,
+    };
   }
   if (["CANCELLED", "CANCELED"].includes(s)) {
-    return { className: "bg-gray-200 text-gray-700", icon: <Ban size={11} />, label: s };
+    return {
+      className: "bg-gray-200 text-gray-700",
+      icon: <Ban size={11} />,
+      label: s,
+    };
   }
   if (["FAILED", "REJECTED"].includes(s)) {
-    return { className: "bg-red-100 text-red-700", icon: <XCircle size={11} />, label: s };
+    return {
+      className: "bg-red-100 text-red-700",
+      icon: <XCircle size={11} />,
+      label: s,
+    };
   }
-  return { className: "bg-amber-100 text-amber-700", icon: <Clock3 size={11} />, label: s };
+  return {
+    className: "bg-amber-100 text-amber-700",
+    icon: <Clock3 size={11} />,
+    label: s,
+  };
 }
 
 export default function TripsPage() {
@@ -80,7 +96,11 @@ export default function TripsPage() {
 
   // stable wrapper: reads search/page/tripDate from its own args, not closure
   const fetchTripsForHook = useCallback(async ({ search, page, tripDate }) => {
-    const { rows, pagination: pg } = await tripApi.fetchTrips({ page, search, tripDate });
+    const { rows, pagination: pg } = await tripApi.fetchTrips({
+      page,
+      search,
+      tripDate,
+    });
     setPagination(pg);
     return rows;
   }, []);
@@ -131,7 +151,10 @@ export default function TripsPage() {
       case "user":
         return (
           <div className="max-w-45">
-            <p className="text-sm font-medium text-[#1A202C] truncate" title={trip.user?.name || ""}>
+            <p
+              className="text-sm font-medium text-[#1A202C] truncate"
+              title={trip.user?.name || ""}
+            >
               {trip.user?.name || `#${trip.userId ?? "-"}`}
             </p>
             <p className="text-xs text-[#4A5568] truncate">
@@ -142,11 +165,17 @@ export default function TripsPage() {
       case "route":
         return (
           <div className="max-w-65">
-            <p className="text-xs text-[#1A202C] truncate" title={trip.pickupLocation || ""}>
+            <p
+              className="text-xs text-[#1A202C] truncate"
+              title={trip.pickupLocation || ""}
+            >
               {trip.pickupLocation || "-"}
             </p>
             <p className="text-[11px] text-[#A0AEC0]">to</p>
-            <p className="text-xs text-[#1A202C] truncate" title={trip.dropLocation || ""}>
+            <p
+              className="text-xs text-[#1A202C] truncate"
+              title={trip.dropLocation || ""}
+            >
               {trip.dropLocation || "-"}
             </p>
           </div>
@@ -168,13 +197,20 @@ export default function TripsPage() {
         if (!services.length)
           return <span className="text-xs text-[#A0AEC0]">None</span>;
 
-        const label = services.slice(0, 2).map((s) => s?.name).filter(Boolean).join(", ");
+        const label = services
+          .slice(0, 2)
+          .map((s) => s?.name)
+          .filter(Boolean)
+          .join(", ");
         const extra = services.length > 2 ? ` +${services.length - 2}` : "";
 
         return (
           <span
             className="text-xs text-[#4A5568]"
-            title={services.map((s) => s?.name).filter(Boolean).join(", ")}
+            title={services
+              .map((s) => s?.name)
+              .filter(Boolean)
+              .join(", ")}
           >
             {label || "Services"}
             {extra}
@@ -183,7 +219,9 @@ export default function TripsPage() {
       }
       case "status":
         return (
-          <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.className}`}>
+          <span
+            className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${status.className}`}
+          >
             {status.icon} {status.label}
           </span>
         );

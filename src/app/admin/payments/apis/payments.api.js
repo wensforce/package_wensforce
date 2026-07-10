@@ -1,7 +1,7 @@
 import api from "../../../axios/axios";
 const PAGE_LIMIT = 10;
 export const paymentApi = {
-    /**
+  /**
    * Fetch paginated payments with optional search.
    * @param {object} options
    * @param {number} options.page   - Current page number

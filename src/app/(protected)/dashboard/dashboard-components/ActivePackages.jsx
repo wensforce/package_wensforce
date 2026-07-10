@@ -319,7 +319,9 @@ function PackageCard({ plan, onRequestTrip }) {
               </p>
               <div className="flex flex-wrap gap-2">
                 {plan.services.map((svc) => {
-                  const svcImg = getImageUrl(svc.thumbnailUrl ?? svc.thumbnailUrlKey);
+                  const svcImg = getImageUrl(
+                    svc.thumbnailUrl ?? svc.thumbnailUrlKey,
+                  );
                   return (
                     <div
                       key={svc.id}
@@ -463,7 +465,6 @@ export default function ActivePackages() {
 
     // ── Store hit: use cached active packages, skip API call ──
     if (storePlans && storePlans.length > 0) {
-      console.log("Active packages store hit");
       setPlans(storePlans);
       setLoading(false);
       return;

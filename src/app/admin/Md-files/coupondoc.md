@@ -42,7 +42,7 @@ Validation error response includes an `errors` array:
 All endpoints require a Bearer token in the `Authorization` header.
 
 | Header          | Value                  | Required |
-|-----------------|------------------------|----------|
+| --------------- | ---------------------- | -------- |
 | `Authorization` | `Bearer <accessToken>` | Yes      |
 
 Role access per endpoint:
@@ -66,14 +66,14 @@ Create a new coupon and optionally link it to multiple packages.
 
 ### Request Body
 
-| Field           | Type            | Required | Description |
-|----------------|-----------------|----------|-------------|
-| `code`         | string          | Yes      | Unique coupon code. |
-| `discountType` | string          | Yes      | `percentage` or `fixed`. |
-| `discountValue`| number          | Yes      | Positive discount value. |
-| `expiryDate`   | ISO date string | Yes      | Coupon expiry date. |
-| `usageLimit`   | integer         | No       | Max number of uses. |
-| `packageId`    | integer[]       | No       | Package IDs this coupon is applicable to. If omitted or empty, coupon is applicable to all packages. |
+| Field           | Type            | Required | Description                                                                                          |
+| --------------- | --------------- | -------- | ---------------------------------------------------------------------------------------------------- |
+| `code`          | string          | Yes      | Unique coupon code.                                                                                  |
+| `discountType`  | string          | Yes      | `percentage` or `fixed`.                                                                             |
+| `discountValue` | number          | Yes      | Positive discount value.                                                                             |
+| `expiryDate`    | ISO date string | Yes      | Coupon expiry date.                                                                                  |
+| `usageLimit`    | integer         | No       | Max number of uses.                                                                                  |
+| `packageId`     | integer[]       | No       | Package IDs this coupon is applicable to. If omitted or empty, coupon is applicable to all packages. |
 
 ### Example Request
 
@@ -103,11 +103,7 @@ Create a new coupon and optionally link it to multiple packages.
     "usedCount": 0,
     "isActive": true,
     "validUntil": "2026-12-31T23:59:59.000Z",
-    "packages": [
-      { "id": 1 },
-      { "id": 2 },
-      { "id": 5 }
-    ],
+    "packages": [{ "id": 1 }, { "id": 2 }, { "id": 5 }],
     "createdAt": "2026-06-27T10:00:00.000Z",
     "updatedAt": "2026-06-27T10:00:00.000Z"
   }
@@ -126,10 +122,10 @@ Get paginated coupons with optional code search.
 
 ### Query Parameters
 
-| Parameter | Type    | Default | Description |
-|-----------|---------|---------|-------------|
-| `page`    | integer | 1       | Page number. |
-| `limit`   | integer | 10      | Number of records per page. |
+| Parameter | Type    | Default | Description                               |
+| --------- | ------- | ------- | ----------------------------------------- |
+| `page`    | integer | 1       | Page number.                              |
+| `limit`   | integer | 10      | Number of records per page.               |
 | `search`  | string  | `""`    | Case-insensitive search on coupon `code`. |
 
 ### Example
@@ -177,8 +173,8 @@ Get a single coupon by ID with linked package details.
 ### Path Parameters
 
 | Parameter | Type    | Required | Description |
-|-----------|---------|----------|-------------|
-| `id`      | integer | Yes      | Coupon ID. |
+| --------- | ------- | -------- | ----------- |
+| `id`      | integer | Yes      | Coupon ID.  |
 
 ### Example
 
@@ -216,11 +212,11 @@ Get a single coupon by ID with linked package details.
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
+| Status | Message                                           |
+| ------ | ------------------------------------------------- |
 | `400`  | Validation error (`Coupon ID must be an integer`) |
-| `404`  | `Coupon not found` |
-| `500`  | `Failed to fetch coupon` |
+| `404`  | `Coupon not found`                                |
+| `500`  | `Failed to fetch coupon`                          |
 
 ---
 
@@ -234,9 +230,9 @@ Validate coupon applicability and calculate discount for a package.
 
 ### Query Parameters
 
-| Parameter   | Type    | Required | Description |
-|-------------|---------|----------|-------------|
-| `code`      | string  | Yes      | Coupon code to validate. |
+| Parameter   | Type    | Required | Description                                                                                                         |
+| ----------- | ------- | -------- | ------------------------------------------------------------------------------------------------------------------- |
+| `code`      | string  | Yes      | Coupon code to validate.                                                                                            |
 | `packageId` | integer | No       | Package ID. Required to enforce package-specific coupon applicability and compute discount amount for that package. |
 
 ### Example
@@ -259,13 +255,13 @@ Validate coupon applicability and calculate discount for a package.
 
 ### Common Error Messages
 
-| Status | Message |
-|--------|---------|
-| `400`  | `Invalid coupon code` |
-| `400`  | `Coupon has expired` |
-| `400`  | `Coupon usage limit reached` |
+| Status | Message                                  |
+| ------ | ---------------------------------------- |
+| `400`  | `Invalid coupon code`                    |
+| `400`  | `Coupon has expired`                     |
+| `400`  | `Coupon usage limit reached`             |
 | `400`  | `Coupon not applicable for this package` |
-| `400`  | `Package not found` |
+| `400`  | `Package not found`                      |
 
 ---
 
@@ -280,20 +276,20 @@ Update coupon details and optionally replace package links.
 ### Path Parameters
 
 | Parameter | Type    | Required | Description |
-|-----------|---------|----------|-------------|
-| `id`      | integer | Yes      | Coupon ID. |
+| --------- | ------- | -------- | ----------- |
+| `id`      | integer | Yes      | Coupon ID.  |
 
 ### Request Body
 
 All fields are optional.
 
-| Field            | Type            | Description |
-|-----------------|-----------------|-------------|
-| `code`          | string          | Coupon code. |
-| `discountType`  | string          | `percentage` or `fixed`. |
-| `discountValue` | number          | Positive value. |
-| `expiryDate`    | ISO date string | Valid-until date. |
-| `usageLimit`    | integer         | Max number of uses. |
+| Field           | Type            | Description                                |
+| --------------- | --------------- | ------------------------------------------ |
+| `code`          | string          | Coupon code.                               |
+| `discountType`  | string          | `percentage` or `fixed`.                   |
+| `discountValue` | number          | Positive value.                            |
+| `expiryDate`    | ISO date string | Valid-until date.                          |
+| `usageLimit`    | integer         | Max number of uses.                        |
 | `packageId`     | integer[]       | Replaces linked package IDs when provided. |
 
 ### Example Request
@@ -318,10 +314,7 @@ All fields are optional.
     "discountType": "percentage",
     "discountValue": 25,
     "usageLimit": 150,
-    "packages": [
-      { "id": 2 },
-      { "id": 3 }
-    ]
+    "packages": [{ "id": 2 }, { "id": 3 }]
   }
 }
 ```
@@ -339,8 +332,8 @@ Delete an existing coupon.
 ### Path Parameters
 
 | Parameter | Type    | Required | Description |
-|-----------|---------|----------|-------------|
-| `id`      | integer | Yes      | Coupon ID. |
+| --------- | ------- | -------- | ----------- |
+| `id`      | integer | Yes      | Coupon ID.  |
 
 ### Success Response `204 No Content`
 

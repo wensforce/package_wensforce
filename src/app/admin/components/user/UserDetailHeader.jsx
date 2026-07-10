@@ -2,7 +2,12 @@
 
 import { ArrowLeft, Pencil, RefreshCw } from "lucide-react";
 
-export default function UserDetailHeader({ onBack, onRefresh, onEdit, refreshing }) {
+export default function UserDetailHeader({
+  onBack,
+  onRefresh,
+  onEdit,
+  refreshing,
+}) {
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 border-b border-[#CBD5E0] bg-white">
       <button
@@ -12,7 +17,9 @@ export default function UserDetailHeader({ onBack, onRefresh, onEdit, refreshing
         <ArrowLeft size={16} /> Back
       </button>
 
-      <h1 className="text-xl md:text-2xl font-bold text-[#0B1E3F]">User Details</h1>
+      <h1 className="text-xl md:text-2xl font-bold text-[#0B1E3F]">
+        User Details
+      </h1>
 
       <div className="flex items-center justify-end gap-2">
         <button

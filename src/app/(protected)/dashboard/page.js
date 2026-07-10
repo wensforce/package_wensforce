@@ -7,7 +7,8 @@ import {
   LogOut,
   ShoppingBag,
   Navigation,
-  Package,ArrowLeft,
+  Package,
+  ArrowLeft,
   CreditCard,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
@@ -19,10 +20,10 @@ import PackageHistory from "./dashboard-components/PackageHistory";
 import PaymentHistory from "./dashboard-components/PaymentHistory";
 // ── Tab config ────────────────────────────────────────────────────────────────
 const TABS = [
-  { id: "active",   label: "Active Packages",  icon: <ShoppingBag size={14} /> },
-  { id: "trips",    label: "Trip History",      icon: <Navigation  size={14} /> },
-  { id: "packages", label: "Package History",   icon: <Package     size={14} /> },
-  { id: "payments", label: "Payment History",   icon: <CreditCard  size={14} /> },
+  { id: "active", label: "Active Packages", icon: <ShoppingBag size={14} /> },
+  { id: "trips", label: "Trip History", icon: <Navigation size={14} /> },
+  { id: "packages", label: "Package History", icon: <Package size={14} /> },
+  { id: "payments", label: "Payment History", icon: <CreditCard size={14} /> },
 ];
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -63,12 +64,12 @@ export default function DashboardPage() {
         }
       `}</style>
 
-      <div className="min-h-screen" style={{ background: "var(--color-cream)" }}>
-
+      <div
+        className="min-h-screen"
+        style={{ background: "var(--color-cream)" }}
+      >
         {/* ── Sticky header ── */}
-        <header
-          className="sticky top-0 z-40 h-14 border-b bg-black border-white/8 backdrop-blur-sm"
-        >
+        <header className="sticky top-0 z-40 h-14 border-b bg-black border-white/8 backdrop-blur-sm">
           <div className="max-w-5xl mx-auto px-3 sm:px-5 h-14 flex items-center justify-between gap-2">
             {/* Left: Back button + Logo */}
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -82,7 +83,10 @@ export default function DashboardPage() {
 
               <span className="w-px h-5 bg-white/10 shrink-0" />
 
-              <Link href="/" className="flex items-center gap-2 min-w-0 shrink-0">
+              <Link
+                href="/"
+                className="flex items-center gap-2 min-w-0 shrink-0"
+              >
                 <div className="w-6 h-6 sm:w-7 sm:h-7 flex-shrink-0">
                   <img
                     src="/Logo.png"
@@ -113,10 +117,12 @@ export default function DashboardPage() {
         </header>
         {/* ── Main ── */}
         <main className="max-w-5xl mx-auto px-5 py-8 space-y-6">
-
           {/* Greeting */}
           <div className="space-y-0.5">
-            <p className="text-sm" style={{ color: "var(--color-text-tertiary)" }}>
+            <p
+              className="text-sm"
+              style={{ color: "var(--color-text-tertiary)" }}
+            >
               Welcome back
             </p>
             <h1
@@ -129,7 +135,10 @@ export default function DashboardPage() {
               {user?.name ?? user?.phone ?? "Member"}
             </h1>
             {user?.phone && user?.name && (
-              <p className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
+              <p
+                className="text-sm"
+                style={{ color: "var(--color-text-secondary)" }}
+              >
                 {user.phone}
               </p>
             )}
@@ -141,7 +150,7 @@ export default function DashboardPage() {
             style={{
               background: "var(--color-white)",
               border: "1px solid var(--color-border)",
-              paddingBottom: "6px", /* breathing room for the scrollbar */
+              paddingBottom: "6px" /* breathing room for the scrollbar */,
             }}
           >
             {TABS.map((tab) => (
@@ -151,7 +160,10 @@ export default function DashboardPage() {
                 className="flex cursor-pointer  items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 flex-shrink-0"
                 style={
                   activeTab === tab.id
-                    ? { background: "var(--color-navy)", color: "var(--color-white)" }
+                    ? {
+                        background: "var(--color-navy)",
+                        color: "var(--color-white)",
+                      }
                     : { color: "var(--color-text-secondary)" }
                 }
               >
@@ -162,11 +174,10 @@ export default function DashboardPage() {
           </div>
 
           {/* ── Tab content ── */}
-          {activeTab === "active"   && <ActivePackages />}
-          {activeTab === "trips"    && <TripHistory />}
-        {activeTab === "packages" && <PackageHistory />} 
-          {activeTab === "payments" && <PaymentHistory />} 
-
+          {activeTab === "active" && <ActivePackages />}
+          {activeTab === "trips" && <TripHistory />}
+          {activeTab === "packages" && <PackageHistory />}
+          {activeTab === "payments" && <PaymentHistory />}
         </main>
       </div>
     </>

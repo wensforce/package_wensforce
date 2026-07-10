@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-const WA_NUMBER = '917304607954';
-import { plans } from '../data/plans.js';
-const HERO_VIDEO_URL = 'https://d2zcmp43lwd2kr.cloudfront.net/videos/hero_video.mp4';
+const WA_NUMBER = "917304607954";
+import { plans } from "../../data/plans.js";
+const HERO_VIDEO_URL =
+  "https://d2zcmp43lwd2kr.cloudfront.net/videos/hero_video.mp4";
 
 export default function HeroSection({ welcomeIndia }) {
   const heroWaMsg = encodeURIComponent(
-    "Hi WENS Force, I'm exploring your subscription. Can you help me find the right tier?"
+    "Hi WENS Force, I'm exploring your subscription. Can you help me find the right tier?",
   );
   const heroWaUrl = `https://wa.me/${WA_NUMBER}?text=${heroWaMsg}`;
-
 
   return (
     <>
@@ -38,20 +38,26 @@ export default function HeroSection({ welcomeIndia }) {
       `}</style>
 
       {/* Announcement bar */}
-      <div style={{ backgroundColor: '#0B1E3F' }} className="text-white py-1 md:py-2.5 px-6 text-center relative z-10">
+      <div
+        style={{ backgroundColor: "#0B1E3F" }}
+        className="text-white py-1 md:py-2.5 px-6 text-center relative z-10"
+      >
         <div className="max-w-6xl mx-auto flex items-center justify-center gap-2 text-xs flex-wrap">
           <span className="w-1.5 h-1.5 rounded-full bg-[#C9A24B] inline-block" />
           <span className="text-white/70">Founding 100 Programme</span>
           <span className="text-[#C9A24B] font-semibold">·</span>
-          <span className="text-white/90 font-medium">Limited Sovereign spots available</span>
+          <span className="text-white/90 font-medium">
+            Limited Sovereign spots available
+          </span>
           <span className="text-white/40 hidden sm:inline">—</span>
-          <span className="text-white/55 hidden sm:inline">Charter members locked at current pricing permanently</span>
+          <span className="text-white/55 hidden sm:inline">
+            Charter members locked at current pricing permanently
+          </span>
         </div>
       </div>
 
       {/* Full-screen video hero */}
       <section className="relative overflow-hidden min-h-screen flex items-center justify-center px-6 md:py-20 py-10 pt-1">
-
         {/* Background video — autoplay starts immediately as data arrives */}
         <video
           autoPlay
@@ -66,7 +72,8 @@ export default function HeroSection({ welcomeIndia }) {
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: 'linear-gradient(180deg, rgba(11,30,63,.82) 0%, rgba(11,30,63,.65) 50%, rgba(11,30,63,.88) 100%)',
+            background:
+              "linear-gradient(180deg, rgba(11,30,63,.82) 0%, rgba(11,30,63,.65) 50%, rgba(11,30,63,.88) 100%)",
           }}
         />
 
@@ -74,29 +81,37 @@ export default function HeroSection({ welcomeIndia }) {
         <div
           className="absolute inset-0 opacity-[0.03] pointer-events-none"
           style={{
-            backgroundImage: 'radial-gradient(circle at 1px 1px, #C9A24B 1px, transparent 0)',
-            backgroundSize: '36px 36px',
+            backgroundImage:
+              "radial-gradient(circle at 1px 1px, #C9A24B 1px, transparent 0)",
+            backgroundSize: "36px 36px",
           }}
         />
 
         {/* Bottom fade to next section */}
         <div
           className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
-          style={{ background: 'linear-gradient(to bottom, transparent, rgba(11,30,63,.6))' }}
+          style={{
+            background:
+              "linear-gradient(to bottom, transparent, rgba(11,30,63,.6))",
+          }}
         />
 
         {/* Content */}
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           <p className="text-[#C9A24B] text-[10px] tracking-[0.45em] uppercase font-semibold mb-5">
-            Est. 2008 &nbsp;·&nbsp; India&apos;s Premium { welcomeIndia ? "Packages":"Subscription" }
+            Est. 2008 &nbsp;·&nbsp; India&apos;s Premium{" "}
+            {welcomeIndia ? "Packages" : "Subscription"}
           </p>
 
           <h1 className="font-serif-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.08] mb-6 tracking-tight">
-            India&apos;s Only  {welcomeIndia ? "Package":"Subscription" }  for
+            India&apos;s Only {welcomeIndia ? "Package" : "Subscription"} for
             <br />
             <span
               className="text-transparent bg-clip-text"
-              style={{ backgroundImage: 'linear-gradient(90deg, #C9A24B, #f0c940, #C9A24B)' }}
+              style={{
+                backgroundImage:
+                  "linear-gradient(90deg, #C9A24B, #f0c940, #C9A24B)",
+              }}
             >
               Luxury Travel + Close Protection
             </span>
@@ -109,7 +124,10 @@ export default function HeroSection({ welcomeIndia }) {
           </h1>
 
           <p className="text-[11px] tracking-[0.06em] text-white/35 -mt-4 mb-8 font-light">
-            PSARA LICENSE&nbsp;:&nbsp;<span className="text-[#C9A24B]/65 font-mono">PSA/L/21/MH/2026/MAY/3/6271</span>
+            PSARA LICENSE&nbsp;:&nbsp;
+            <span className="text-[#C9A24B]/65 font-mono">
+              PSA/L/21/MH/2026/MAY/3/6271
+            </span>
           </p>
 
           <p className="text-white/60 text-lg font-light mb-10 max-w-xl mx-auto">
@@ -125,7 +143,7 @@ export default function HeroSection({ welcomeIndia }) {
               className="golden-cta flex items-center gap-2.5 py-4 px-9 rounded-full font-semibold text-black text-sm"
             >
               <svg viewBox="0 0 32 32" width="17" height="17" fill="black">
-                <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.668 4.799 1.836 6.793L2 30l7.393-1.812A13.918 13.918 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2z"/>
+                <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.668 4.799 1.836 6.793L2 30l7.393-1.812A13.918 13.918 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2z" />
               </svg>
               Talk to Our Concierge
             </a>
@@ -134,8 +152,18 @@ export default function HeroSection({ welcomeIndia }) {
               className="flex items-center gap-2 border-2 border-white/20 text-white font-semibold py-4 px-9 rounded-full text-sm hover:border-[#C9A24B]/60 hover:text-[#C9A24B] transition-all"
             >
               View Plans
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
               </svg>
             </a>
           </div>
@@ -150,9 +178,21 @@ export default function HeroSection({ welcomeIndia }) {
 
         {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-40">
-          <span className="text-white text-[9px] tracking-[0.3em] uppercase">Scroll</span>
-          <svg className="w-4 h-4 text-white animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+          <span className="text-white text-[9px] tracking-[0.3em] uppercase">
+            Scroll
+          </span>
+          <svg
+            className="w-4 h-4 text-white animate-bounce"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M19 9l-7 7-7-7"
+            />
           </svg>
         </div>
       </section>

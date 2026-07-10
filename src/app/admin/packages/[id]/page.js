@@ -272,7 +272,9 @@ export default function PackageDetailPage() {
                     Category
                   </label>
                   <p className="mt-2 text-sm font-medium text-[#0B1E3F] capitalize">
-                    {packageData.category ? packageData.category.replace(/_/g, " ") : "—"}
+                    {packageData.category
+                      ? packageData.category.replace(/_/g, " ")
+                      : "—"}
                   </p>
                 </div>
                 <div>

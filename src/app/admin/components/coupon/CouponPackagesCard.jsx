@@ -30,24 +30,50 @@ export default function CouponPackagesCard({ packages = [] }) {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-[#FAF6EC] border-b border-[#CBD5E0]">
-                <th className="text-left px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-[#4A5568]">#</th>
-                <th className="text-left px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-[#4A5568]">Name</th>
-                <th className="text-left px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-[#4A5568]">Description</th>
-                <th className="text-left px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-[#4A5568]">Regular</th>
-                <th className="text-left px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-[#4A5568]">Discounted</th>
-                <th className="text-left px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-[#4A5568]">Open</th>
+                <th className="text-left px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-[#4A5568]">
+                  #
+                </th>
+                <th className="text-left px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-[#4A5568]">
+                  Name
+                </th>
+                <th className="text-left px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-[#4A5568]">
+                  Description
+                </th>
+                <th className="text-left px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-[#4A5568]">
+                  Regular
+                </th>
+                <th className="text-left px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-[#4A5568]">
+                  Discounted
+                </th>
+                <th className="text-left px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-[#4A5568]">
+                  Open
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#CBD5E0]">
               {packages.map((pkg) => (
-                <tr key={pkg.id} className="hover:bg-[#FAF6EC]/70 transition-colors">
-                  <td className="px-4 py-3 text-xs font-mono text-[#0B1E3F]">#{pkg.id}</td>
-                  <td className="px-4 py-3 font-medium text-[#1A202C]">{pkg.name || "-"}</td>
-                  <td className="px-4 py-3 text-[#4A5568] max-w-65 truncate" title={pkg.description || ""}>
+                <tr
+                  key={pkg.id}
+                  className="hover:bg-[#FAF6EC]/70 transition-colors"
+                >
+                  <td className="px-4 py-3 text-xs font-mono text-[#0B1E3F]">
+                    #{pkg.id}
+                  </td>
+                  <td className="px-4 py-3 font-medium text-[#1A202C]">
+                    {pkg.name || "-"}
+                  </td>
+                  <td
+                    className="px-4 py-3 text-[#4A5568] max-w-65 truncate"
+                    title={pkg.description || ""}
+                  >
                     {pkg.description || "-"}
                   </td>
-                  <td className="px-4 py-3 text-[#1A202C]">{formatAmount(pkg.regularPrice)}</td>
-                  <td className="px-4 py-3 text-[#1A202C]">{formatAmount(pkg.discountedPrice)}</td>
+                  <td className="px-4 py-3 text-[#1A202C]">
+                    {formatAmount(pkg.regularPrice)}
+                  </td>
+                  <td className="px-4 py-3 text-[#1A202C]">
+                    {formatAmount(pkg.discountedPrice)}
+                  </td>
                   <td className="px-4 py-3">
                     <button
                       onClick={() => router.push(`/admin/packages/${pkg.id}`)}

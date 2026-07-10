@@ -52,8 +52,8 @@ Other errors follow:
 
 All non-webhook endpoints require a Bearer token in the `Authorization` header.
 
-| Header          | Value                  | Required |
-|-----------------|------------------------|----------|
+| Header          | Value                  | Required             |
+| --------------- | ---------------------- | -------------------- |
 | `Authorization` | `Bearer <accessToken>` | Yes (except webhook) |
 
 Role access per endpoint:
@@ -76,10 +76,10 @@ Create a payment order for a package and optionally apply a coupon.
 
 ### Request Body
 
-| Field        | Type    | Required | Description |
-|--------------|---------|----------|-------------|
+| Field        | Type    | Required | Description                               |
+| ------------ | ------- | -------- | ----------------------------------------- |
 | `packageId`  | integer | Yes      | Package ID to purchase. Must be positive. |
-| `couponCode` | string  | No       | Coupon code to apply discount. |
+| `couponCode` | string  | No       | Coupon code to apply discount.            |
 
 ### Example Request
 
@@ -108,13 +108,13 @@ Create a payment order for a package and optionally apply a coupon.
 
 ### Common Error Responses
 
-| Status | Message |
-|--------|---------|
-| `400`  | `packageId is required` / `packageId must be a positive integer` |
-| `400`  | `Invalid packageId` |
+| Status | Message                                                                                          |
+| ------ | ------------------------------------------------------------------------------------------------ |
+| `400`  | `packageId is required` / `packageId must be a positive integer`                                 |
+| `400`  | `Invalid packageId`                                                                              |
 | `400`  | Coupon validation errors (`Invalid coupon code`, `Coupon not applicable for this package`, etc.) |
-| `404`  | `Package not found` |
-| `500`  | `Failed to create order` |
+| `404`  | `Package not found`                                                                              |
+| `500`  | `Failed to create order`                                                                         |
 
 ---
 
@@ -128,8 +128,8 @@ Check payment status for a Cashfree order. If local status is pending, the API f
 
 ### Path Parameters
 
-| Parameter | Type   | Required | Description |
-|-----------|--------|----------|-------------|
+| Parameter | Type   | Required | Description        |
+| --------- | ------ | -------- | ------------------ |
 | `orderId` | string | Yes      | Cashfree order ID. |
 
 ### Example
@@ -153,10 +153,10 @@ Check payment status for a Cashfree order. If local status is pending, the API f
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
+| Status | Message                                  |
+| ------ | ---------------------------------------- |
 | `400`  | Validation error (`orderId is required`) |
-| `404`  | `Order not found` |
+| `404`  | `Order not found`                        |
 
 ---
 
@@ -170,8 +170,8 @@ Receive payment status webhooks from Cashfree.
 
 ### Headers
 
-| Header                | Required | Description |
-|-----------------------|----------|-------------|
+| Header                | Required | Description                 |
+| --------------------- | -------- | --------------------------- |
 | `x-webhook-signature` | Yes      | Cashfree webhook signature. |
 | `x-webhook-timestamp` | Yes      | Cashfree webhook timestamp. |
 
@@ -199,10 +199,10 @@ Receive payment status webhooks from Cashfree.
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
-| `400`  | `Invalid signature` |
-| `404`  | `Order not found` |
+| Status | Message                     |
+| ------ | --------------------------- |
+| `400`  | `Invalid signature`         |
+| `404`  | `Order not found`           |
 | `500`  | `Failed to process webhook` |
 
 ---
@@ -217,10 +217,10 @@ Retrieve paginated payment (order) records with optional search.
 
 ### Query Parameters
 
-| Parameter | Type    | Default | Description |
-|-----------|---------|---------|-------------|
-| `page`    | integer | 1       | Page number. |
-| `limit`   | integer | 10      | Records per page. |
+| Parameter | Type    | Default | Description                                                       |
+| --------- | ------- | ------- | ----------------------------------------------------------------- |
+| `page`    | integer | 1       | Page number.                                                      |
+| `limit`   | integer | 10      | Records per page.                                                 |
 | `search`  | string  | `""`    | Search by user name, package name, cashfreeOrderId, or paymentId. |
 
 ### Example
@@ -270,8 +270,8 @@ Retrieve paginated payment (order) records with optional search.
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
+| Status | Message                    |
+| ------ | -------------------------- |
 | `500`  | `Failed to fetch payments` |
 
 ---
@@ -286,8 +286,8 @@ Get payment (order) details by internal order ID.
 
 ### Path Parameters
 
-| Parameter | Type    | Required | Description |
-|-----------|---------|----------|-------------|
+| Parameter | Type    | Required | Description        |
+| --------- | ------- | -------- | ------------------ |
 | `id`      | integer | Yes      | Internal order ID. |
 
 ### Example
@@ -331,11 +331,11 @@ Get payment (order) details by internal order ID.
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
+| Status | Message                             |
+| ------ | ----------------------------------- |
 | `400`  | Validation error (`id is required`) |
-| `404`  | `Payment not found` |
-| `500`  | `Failed to fetch payment` |
+| `404`  | `Payment not found`                 |
+| `500`  | `Failed to fetch payment`           |
 
 ---
 

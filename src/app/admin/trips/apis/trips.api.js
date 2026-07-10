@@ -32,37 +32,39 @@ export const tripApi = {
     return res.data?.data ?? null;
   },
   /**
- * Fetch paginated trips with optional search and date filter.
- * @param {object} options
- * @param {number} options.page     - Current page number
- * @param {string} options.search   - Search query string (pickup, drop, assignment, type, user)
- * @param {string} options.tripDate - Optional date filter (YYYY-MM-DD)
- * @returns {Promise<{ rows: Array, pagination: object }>}
- */
-fetchTrips: async ({ page, search, tripDate }) => {
-  const params = { page, limit: PAGE_LIMIT };
-  if (search && search.trim()) params.search = search.trim();
-  if (tripDate) params.tripDate = tripDate;
+   * Fetch paginated trips with optional search and date filter.
+   * @param {object} options
+   * @param {number} options.page     - Current page number
+   * @param {string} options.search   - Search query string (pickup, drop, assignment, type, user)
+   * @param {string} options.tripDate - Optional date filter (YYYY-MM-DD)
+   * @returns {Promise<{ rows: Array, pagination: object }>}
+   */
+  fetchTrips: async ({ page, search, tripDate }) => {
+    const params = { page, limit: PAGE_LIMIT };
+    if (search && search.trim()) params.search = search.trim();
+    if (tripDate) params.tripDate = tripDate;
 
-  const res = await api.get("/trip/get-all", { params });
-  const data = res.data?.data ?? {};
+    const res = await api.get("/trip/get-all", { params });
+    const data = res.data?.data ?? {};
 
-  const rows = Array.isArray(data.trips) ? data.trips : [];
-  const total = Number(data.meta?.total ?? rows.length ?? 0);
-  const currentPage = Number(data.meta?.page ?? page);
-  const limit = Number(data.meta?.limit ?? PAGE_LIMIT);
-  const totalPages = Number(data.meta?.totalPages ?? Math.max(1, Math.ceil(total / limit)));
+    const rows = Array.isArray(data.trips) ? data.trips : [];
+    const total = Number(data.meta?.total ?? rows.length ?? 0);
+    const currentPage = Number(data.meta?.page ?? page);
+    const limit = Number(data.meta?.limit ?? PAGE_LIMIT);
+    const totalPages = Number(
+      data.meta?.totalPages ?? Math.max(1, Math.ceil(total / limit)),
+    );
 
-  return {
-    rows,
-    pagination: {
-      page: currentPage,
-      limit,
-      total,
-      totalPages: Math.max(1, totalPages),
-    },
-  };
-},
+    return {
+      rows,
+      pagination: {
+        page: currentPage,
+        limit,
+        total,
+        totalPages: Math.max(1, totalPages),
+      },
+    };
+  },
 
   /**
    * Approve a trip with an assignment ID.

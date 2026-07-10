@@ -16,7 +16,6 @@ export function AuthProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
 
-  
   useEffect(() => {
     api
       .get("/auth/me")
@@ -50,7 +49,15 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ isLoggedIn, user, login, logout, setUser, setIsLoggedIn, authLoading }}
+      value={{
+        isLoggedIn,
+        user,
+        login,
+        logout,
+        setUser,
+        setIsLoggedIn,
+        authLoading,
+      }}
     >
       {children}
     </AuthContext.Provider>

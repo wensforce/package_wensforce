@@ -1,47 +1,30 @@
-import Link from "next/link";
 import { Suspense } from "react";
-import {
-  Car,
-  Users,
-  ShieldCheck,
-  Gem,
-  Crown,
-  CheckCircle,
-  Phone,
-} from "lucide-react";
+import { Phone } from "lucide-react";
 import { plans } from "./data/plans";
-import Header from "./components/Header";
-import HowItWorks from "./components/HowItWorks";
-import PlansSection from "./components/PlansSection";
-import TrustStrip from "./components/TrustStrip";
-import WedgeBlock from "./components/WedgeBlock";
-import TierQuiz from "./components/TierQuiz";
-import PressPartnerWall from "./components/PressPartnerWall";
-import FounderStoryBlock from "./components/FounderStoryBlock";
-import ReferralBanner from "./components/ReferralBanner";
-import ExitIntentPopup from "./components/ExitIntentPopup";
-import TestimonialsSection from "./components/TestimonialsSection";
-import HeroSection from "./components/HeroSection";
-import FoundingMemberBanner from "./components/FoundingMemberBanner";
-import JsonLd from "./components/JsonLd";
-import WelcomeIndiaCard from "./components/WelcomeIndiaCard";
-import ServicesVideoSection from "./components/ServicesVideoSection";
+import Header from "./components/MainPage/Header";
+import HowItWorks from "./components/MainPage/HowItWorks";
+import TrustStrip from "./components/MainPage/TrustStrip";
+import WedgeBlock from "./components/MainPage/WedgeBlock";
+import TierQuiz from "./components/MainPage/TierQuiz";
+import PressPartnerWall from "./components/MainPage/PressPartnerWall";
+import ExitIntentPopup from "./components/MainPage/ExitIntentPopup";
+import TestimonialsSection from "./components/MainPage/TestimonialsSection";
+import HeroSection from "./components/MainPage/HeroSection";
+import FoundingMemberBanner from "./components/MainPage/FoundingMemberBanner";
+import JsonLd from "./components/MainPage/JsonLd";
+import ServicesVideoSection from "./components/MainPage/ServicesVideoSection";
 
+import HomeClient from "./components/MainPage/HomeClient";
+
+const WA_NUMBER = "917304607954";
+
+// ✅ metadata works because this is a Server Component
 export const metadata = {
-  title: "WENS Force — India's Only Luxury Travel + Armed Protection + VIP Darshan Subscription",
+  title:
+    "WENS Force — India's Only Luxury Travel + Armed Protection + VIP Darshan Subscription",
   description:
     "Five tiers. One annual fee. Vehicle, bodyguard, and lifestyle privileges pre-arranged for the year. VIP Darshan at Tirupati, Vaishno Devi, Mahakaleshwar. PSARA-licensed security. From ₹24,999/year.",
   alternates: { canonical: "https://subscription.wensforce.com" },
-};
-const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
-const WA_NUMBER = "917304607954";
-
-const TIER_ICONS = {
-  essential: Car,
-  executive: Users,
-  premium: ShieldCheck,
-  elite: Gem,
-  sovereign: Crown,
 };
 
 const faqs = [
@@ -75,230 +58,7 @@ const faqs = [
   },
 ];
 
-const COMPARISON_ROWS = [
-  {
-    label: "Add-on Extras Worth",
-    values: [
-      INR(plans[0].freePerksWorth),
-      INR(plans[1].freePerksWorth),
-      INR(plans[2].freePerksWorth),
-      INR(plans[3].freePerksWorth),
-      INR(plans[4].freePerksWorth),
-    ],
-    highlight: true,
-  },
-  { label: "Curated Journeys / Year", values: ["3", "4", "5", "5", "5"] },
-  {
-    label: "Vehicle Class",
-    values: [
-      "Standard Sedan",
-      "Standard SUV",
-      "SUV + Armed",
-      "Luxury Sedan",
-      "Luxury SUV",
-    ],
-  },
-  {
-    label: "Security",
-    values: ["MMA", "MMA", "✓ Armed", "✓ Armed", "✓ Armed"],
-  },
-  { label: "VIP Darshan Vouchers", values: ["1", "2", "3", "5", "Unlimited"] },
-  {
-    label: "Airport Lounge",
-    values: ["1 visit", "2 visits", "3 visits", "Unlimited", "Unlimited"],
-  },
-  {
-    label: "Heritage Fast-Track Pass",
-    values: ["—", "1", "2", "3 + Guide", "5 + Guide"],
-  },
-  {
-    label: "Concierge Level",
-    values: [
-      "Helpline",
-      "Helpline",
-      "Dedicated RM",
-      "RM + Concierge",
-      "Personal Suite",
-    ],
-  },
-];
-
-function ComparisonTable() {
-  const waBase = `https://wa.me/${WA_NUMBER}?text=`;
-
-  return (
-    <section
-      id="compare"
-      className="w-full px-4 sm:px-8 py-16 max-w-6xl mx-auto"
-    >
-      <div className="text-center mb-10">
-        <p className="text-[#C9A24B] text-[10px] tracking-[0.4em] uppercase font-semibold mb-3">
-          Side by Side
-        </p>
-        <h2 className="font-serif-display text-3xl sm:text-4xl font-bold text-[#0B1E3F] mb-3">
-          Compare All Five Tiers
-        </h2>
-        <p className="text-gray-500 text-base font-light max-w-md mx-auto">
-          Every feature at a glance — so you choose with complete clarity.
-        </p>
-      </div>
-
-      <div className="overflow-x-auto rounded-3xl border border-gray-100 shadow-sm bg-white">
-        <table className="w-full min-w-[700px] text-sm">
-          <thead>
-            <tr className="border-b border-gray-100">
-              <th className="text-left px-6 py-5 text-xs text-gray-400 w-44 font-normal" />
-              {plans.map((plan) => {
-                const TierIcon = TIER_ICONS[plan.id] || Car;
-                const isHighlight = plan.isBestValue;
-                return (
-                  <th
-                    key={plan.id}
-                    className={[
-                      "px-3 py-5 text-center",
-                      isHighlight
-                        ? "bg-[#C9A24B]/6 border-x border-[#C9A24B]/15"
-                        : "",
-                    ].join(" ")}
-                  >
-                    <div className="flex flex-col items-center gap-1.5">
-                      <div
-                        className={[
-                          "w-8 h-8 rounded-xl flex items-center justify-center border",
-                          isHighlight
-                            ? "bg-[#C9A24B]/15 border-[#C9A24B]/25"
-                            : "bg-gray-50 border-gray-100",
-                        ].join(" ")}
-                      >
-                        <TierIcon
-                          size={14}
-                          strokeWidth={1.75}
-                          className={
-                            isHighlight ? "text-[#C9A24B]" : "text-gray-500"
-                          }
-                        />
-                      </div>
-                      <div
-                        className={[
-                          "text-xs font-bold tracking-wide",
-                          isHighlight ? "text-[#C9A24B]" : "text-gray-600",
-                        ].join(" ")}
-                      >
-                        {plan.name}
-                      </div>
-                      <div
-                        className={[
-                          "text-[10px]",
-                          isHighlight ? "text-[#C9A24B]/60" : "text-gray-400",
-                        ].join(" ")}
-                      >
-                        {INR(plan.price)}* + GST 18% Extra/yr
-                      </div>
-                      {plan.isBestValue && (
-                        <div className="text-[9px] bg-[#C9A24B] text-black font-bold px-2.5 py-0.5 rounded-full tracking-wide">
-                          BEST VALUE
-                        </div>
-                      )}
-                    </div>
-                  </th>
-                );
-              })}
-            </tr>
-          </thead>
-          <tbody>
-            {COMPARISON_ROWS.map((row, i) => (
-              <tr
-                key={row.label}
-                className={[
-                  "border-b border-gray-50",
-                  i % 2 !== 0 ? "bg-gray-50/40" : "",
-                ].join(" ")}
-              >
-                <td
-                  className={[
-                    "px-6 py-3.5 text-xs",
-                    row.highlight ? "font-bold text-gray-700" : "text-gray-500",
-                  ].join(" ")}
-                >
-                  {row.label}
-                </td>
-                {row.values.map((val, j) => {
-                  const isHighlight = plans[j].isBestValue;
-                  return (
-                    <td
-                      key={j}
-                      className={[
-                        "px-3 py-3.5 text-center",
-                        isHighlight
-                          ? "bg-[#C9A24B]/6 border-x border-[#C9A24B]/15"
-                          : "",
-                      ].join(" ")}
-                    >
-                      {val === "✓ Armed" ? (
-                        <span className="flex items-center justify-center gap-1 text-xs font-semibold text-emerald-600">
-                          <CheckCircle size={12} strokeWidth={2} />
-                          Armed
-                        </span>
-                      ) : val === "—" ? (
-                        <span className="text-gray-200 text-sm">—</span>
-                      ) : (
-                        <span
-                          className={[
-                            "text-xs",
-                            row.highlight ? "font-bold" : "font-medium",
-                            isHighlight ? "text-[#C9A24B]" : "text-gray-700",
-                          ].join(" ")}
-                        >
-                          {val}
-                        </span>
-                      )}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr className="border-t border-gray-100 bg-gray-50/50">
-              <td className="px-6 py-4" />
-              {plans.map((plan) => {
-                const isHighlight = plan.isBestValue;
-                const msg = encodeURIComponent(
-                  `Hi WENS Force, I'd like to join the ${plan.name} membership (${INR(plan.price)}/yr). Please help me get started.`,
-                );
-                return (
-                  <td
-                    key={plan.id}
-                    className={[
-                      "px-3 py-4 text-center",
-                      isHighlight
-                        ? "bg-[#C9A24B]/6 border-x border-[#C9A24B]/15"
-                        : "",
-                    ].join(" ")}
-                  >
-                    <a
-                      href={`${waBase}${msg}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block text-[10px] whitespace-nowrap font-bold px-3 py-2 rounded-xl transition-all hover:opacity-90"
-                      style={{
-                        backgroundColor: isHighlight ? "#C9A24B" : "#0B1E3F",
-                        color: isHighlight ? "#000" : "#fff",
-                      }}
-                    >
-                      Get Started
-                    </a>
-                  </td>
-                );
-              })}
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-    </section>
-  );
-}
-
+// ── FAQSection stays as a plain function (no hooks → fine in a SC file) ──────
 function FAQSection() {
   return (
     <section className="max-w-3xl mx-auto px-6 py-16">
@@ -322,7 +82,12 @@ function FAQSection() {
             <summary className="flex items-center justify-between px-6 py-4 cursor-pointer font-semibold text-gray-800 hover:text-[#0B1E3F] transition-colors list-none gap-4">
               <span className="text-[15px] text-left">{faq.q}</span>
               <span className="text-gray-400 text-xl shrink-0 group-open:rotate-180 transition-transform duration-300 inline-block leading-none font-light">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                >
                   <path d="M12 16.5a1 1 0 0 1-.707-.293l-5-5a1 1 0 0 1 1.414-1.414L12 14.086l4.293-4.293a1 1 0 0 1 1.414 1.414l-5 5A1 1 0 0 1 12 16.5z" />
                 </svg>
               </span>
@@ -358,36 +123,38 @@ function FAQSection() {
   );
 }
 
+// ── Page ──────────────────────────────────────────────────────────────────────
 export default async function HomePage({ searchParams }) {
   const { welcomeIndia } = await searchParams;
+
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": faqs.map((f) => ({
+    mainEntity: faqs.map((f) => ({
       "@type": "Question",
-      "name": f.q,
-      "acceptedAnswer": { "@type": "Answer", "text": f.a },
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
     })),
   };
 
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": "WENS Force Membership Plans",
-    "itemListElement": plans.map((plan, i) => ({
+    name: "WENS Force Membership Plans",
+    itemListElement: plans.map((plan, i) => ({
       "@type": "ListItem",
-      "position": i + 1,
-      "item": {
+      position: i + 1,
+      item: {
         "@type": "Product",
-        "name": `WENS Force ${plan.name} Membership`,
-        "description": plan.tagline,
-        "url": `https://subscription.wensforce.com/membership/${plan.id}`,
-        "offers": {
+        name: `WENS Force ${plan.name} Membership`,
+        description: plan.tagline,
+        url: `https://subscription.wensforce.com/membership/${plan.id}`,
+        offers: {
           "@type": "Offer",
-          "priceCurrency": "INR",
-          "price": plan.price,
-          "availability": "https://schema.org/InStock",
-          "url": `https://subscription.wensforce.com/booking/${plan.id}`,
+          priceCurrency: "INR",
+          price: plan.price,
+          availability: "https://schema.org/InStock",
+          url: `https://subscription.wensforce.com/booking/${plan.id}`,
         },
       },
     })),
@@ -397,38 +164,29 @@ export default async function HomePage({ searchParams }) {
     <div className="min-h-screen relative">
       <JsonLd data={faqSchema} />
       <JsonLd data={itemListSchema} />
+
       <Suspense fallback={null}>
         <Header />
       </Suspense>
 
-      {/* ── HERO (with announcement bar + full-screen video) ── */}
+      {/* ── HERO ── */}
       <HeroSection welcomeIndia={welcomeIndia} />
 
       {/* ── TRUST STRIP ── */}
       <TrustStrip />
 
-    {
-      welcomeIndia === 'true'&& <ServicesVideoSection />
-    }
+      {welcomeIndia === "true" && <ServicesVideoSection />}
 
       {/* ── WEDGE BLOCK ── */}
       <WedgeBlock />
 
-      {/* ── PLANS SPOTLIGHT ── */}
-      <section style={{ backgroundColor: "#FAF6EC" }}>
-        {welcomeIndia === 'true' ? <WelcomeIndiaCard /> : <PlansSection />}
-      </section>
-
-      {/* ── TIER QUIZ ── */}
-      <TierQuiz />
-
-      {/* ── ALL PLANS GRID ── */}
-      {/* <AllPlansGrid plans={plans} /> */}
-
-      {/* ── COMPARISON TABLE ── */}
-      {welcomeIndia !== 'true' && <section style={{ backgroundColor: "#FAF6EC" }}>
-        <ComparisonTable />
-      </section>}
+      {/*
+        ── PLANS + COMPARISON TABLE ──────────────────────────────────────────
+        HomeClient is the only "use client" boundary on this page.
+        It owns useState / useEffect / Redux and renders PlansSection
+        + ComparisonTable once the API call resolves.
+      */}
+      <HomeClient welcomeIndia={welcomeIndia} />
 
       {/* ── HOW IT WORKS ── */}
       <HowItWorks />
@@ -438,12 +196,6 @@ export default async function HomePage({ searchParams }) {
 
       {/* ── PRESS & PARTNERS ── */}
       <PressPartnerWall />
-
-      {/* ── FOUNDER STORY ── */}
-      {/* <FounderStoryBlock /> */}
-
-      {/* ── REFERRAL BANNER ── */}
-      {/* <ReferralBanner /> */}
 
       {/* ── FAQ ── */}
       <FAQSection />
@@ -463,14 +215,20 @@ export default async function HomePage({ searchParams }) {
               WENS Force International Private Limited
             </span>
           </div>
-          <p className="text-sm text-[#C9A24B] mb-1">CIN : U80100MH2025PTC442268</p>
-          <p className="text-sm text-[#C9A24B] mb-2">PSARA Licence : PSA/L/21/MH/2026/MAY/3/6271</p>
+          <p className="text-sm text-[#C9A24B] mb-1">
+            CIN : U80100MH2025PTC442268
+          </p>
+          <p className="text-sm text-[#C9A24B] mb-2">
+            PSARA Licence : PSA/L/21/MH/2026/MAY/3/6271
+          </p>
           <p className="text-[#C9A24B] text-xs max-w-xs mx-auto mb-4 font-light">
             Where Every Journey Becomes an Arrival.
           </p>
           <p className="text-gray-600 text-xs max-w-sm mx-auto mb-6 font-light leading-relaxed">
-            89, 2nd Flr, 138/148, Mahendra Chamber, Empire Building,<br />
-            Dr. Dadabhai Nowroji Road, Stock Exchange,<br />
+            89, 2nd Flr, 138/148, Mahendra Chamber, Empire Building,
+            <br />
+            Dr. Dadabhai Nowroji Road, Stock Exchange,
+            <br />
             Opp. CSMT Fort, Mumbai – 400001
           </p>
           <div className="flex justify-center gap-6 text-xs text-gray-700 flex-wrap mb-6">
@@ -483,10 +241,7 @@ export default async function HomePage({ searchParams }) {
                 name: "Terms & Conditions",
                 href: "https://wensforce.com/disclaimer-terms-of-services/",
               },
-              {
-                name: "Membership Terms",
-                href: "/terms",
-              },
+              { name: "Membership Terms", href: "/terms" },
               {
                 name: "Refund Policy",
                 href: "https://wensforce.com/cancellation-refund-policy/",
@@ -534,36 +289,8 @@ export default async function HomePage({ searchParams }) {
           </p>
         </div>
       </footer>
-      
-      {/* Sticky mobile CTA */}
-      {/* <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[#0B1E3F]/97 backdrop-blur border-t border-white/8 px-5 py-3">
-        <div className="flex items-center gap-3">
-          <div className="flex-1 min-w-0">
-            <div className="text-[9px] text-white uppercase tracking-widest">
-              {plans[0].name}
-            </div>
-            <div className="text-[#ffce63] font-semibold text-sm">
-              {plans[0].price} / yr &nbsp;·&nbsp; {plans[0].confirmed} of 100
-              confirmed
-            </div>
-          </div>
-          <a
-            href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`Hi WENS Force, I want to claim ${plans[0].name} membership. Please guide me.`)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 font-bold py-2.5 px-4 rounded-xl text-xs whitespace-nowrap shrink-0 transition-all hover:opacity-90"
-            style={{ backgroundColor: "#25D366", color: "white" }}
-          >
-            <svg viewBox="0 0 32 32" width="12" height="12" fill="white">
-              <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.668 4.799 1.836 6.793L2 30l7.393-1.812A13.918 13.918 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2z" />
-            </svg>
-            Enquire Now
-          </a>
-        </div>
-      </div> */}
-      <div className="h-16 md:hidden" />
 
-      {/* Exit intent popup */}
+      <div className="h-16 md:hidden" />
       <ExitIntentPopup />
     </div>
   );

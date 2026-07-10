@@ -46,7 +46,7 @@ export const servicesApi = {
     const rows = getArrayFromResponse(data, ["services", "items", "data"]);
     return Array.isArray(rows) ? rows.slice(0, 5) : [];
   },
-/**
+  /**
    * Fetch a single service by ID.
    * @param {number|string} id - Service ID
    * @returns {Promise<object|null>}

@@ -12,7 +12,9 @@ export default function PaymentDetailHeader({ onBack, onRefresh, refreshing }) {
         <ArrowLeft size={16} /> Back
       </button>
 
-      <h1 className="text-xl md:text-2xl font-bold text-[#0B1E3F]">Payment Details</h1>
+      <h1 className="text-xl md:text-2xl font-bold text-[#0B1E3F]">
+        Payment Details
+      </h1>
 
       <button
         onClick={onRefresh}

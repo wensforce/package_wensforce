@@ -54,7 +54,7 @@ Error responses follow:
 All endpoints require a Bearer token in the `Authorization` header.
 
 | Header          | Value                  | Required |
-|-----------------|------------------------|----------|
+| --------------- | ---------------------- | -------- |
 | `Authorization` | `Bearer <accessToken>` | Yes      |
 
 Role access per endpoint:
@@ -100,8 +100,8 @@ Get the current authenticated user's subscription.
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
+| Status | Message                        |
+| ------ | ------------------------------ |
 | `404`  | `No active subscription found` |
 | `500`  | `Failed to fetch subscription` |
 
@@ -117,12 +117,12 @@ Create a new subscription record.
 
 ### Request Body
 
-| Field       | Type            | Required | Description |
-|-------------|-----------------|----------|-------------|
-| `userId`    | integer         | Yes      | User ID. |
-| `packageId` | integer         | Yes      | Package ID. |
+| Field       | Type            | Required | Description              |
+| ----------- | --------------- | -------- | ------------------------ |
+| `userId`    | integer         | Yes      | User ID.                 |
+| `packageId` | integer         | Yes      | Package ID.              |
 | `startDate` | ISO date string | Yes      | Subscription start date. |
-| `paymentId` | string          | Yes      | Payment reference. |
+| `paymentId` | string          | Yes      | Payment reference.       |
 
 ### Example Request
 
@@ -156,10 +156,10 @@ Create a new subscription record.
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
+| Status | Message                                   |
+| ------ | ----------------------------------------- |
 | `400`  | Validation error (invalid/missing fields) |
-| `500`  | `Failed to create subscription` |
+| `500`  | `Failed to create subscription`           |
 
 ---
 
@@ -173,8 +173,8 @@ Get subscription details by ID.
 
 ### Path Parameters
 
-| Parameter | Type    | Required | Description |
-|-----------|---------|----------|-------------|
+| Parameter | Type    | Required | Description      |
+| --------- | ------- | -------- | ---------------- |
 | `id`      | integer | Yes      | Subscription ID. |
 
 ### Example
@@ -214,11 +214,11 @@ Get subscription details by ID.
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
+| Status | Message                                    |
+| ------ | ------------------------------------------ |
 | `400`  | Validation error (`ID must be an integer`) |
-| `404`  | `Subscription not found` |
-| `500`  | `Failed to fetch subscription` |
+| `404`  | `Subscription not found`                   |
+| `500`  | `Failed to fetch subscription`             |
 
 ---
 
@@ -232,10 +232,10 @@ Get subscriptions with pagination and search.
 
 ### Query Parameters
 
-| Parameter | Type    | Default | Description |
-|-----------|---------|---------|-------------|
-| `page`    | integer | 1       | Page number. |
-| `limit`   | integer | 10      | Records per page. |
+| Parameter | Type    | Default | Description                          |
+| --------- | ------- | ------- | ------------------------------------ |
+| `page`    | integer | 1       | Page number.                         |
+| `limit`   | integer | 10      | Records per page.                    |
 | `search`  | string  | `""`    | Search by user name or package name. |
 
 ### Example
@@ -281,8 +281,8 @@ Get subscriptions with pagination and search.
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
+| Status | Message                         |
+| ------ | ------------------------------- |
 | `500`  | `Failed to fetch subscriptions` |
 
 ---
@@ -297,15 +297,15 @@ Mark a subscription as active after admin/ops verification.
 
 ### Path Parameters
 
-| Parameter | Type    | Required | Description |
-|-----------|---------|----------|-------------|
+| Parameter | Type    | Required | Description      |
+| --------- | ------- | -------- | ---------------- |
 | `id`      | integer | Yes      | Subscription ID. |
 
 ### Request Body
 
-| Field         | Type   | Required | Description |
-|---------------|--------|----------|-------------|
-| `adminRemarks`| string | No       | Optional verification remarks. |
+| Field          | Type   | Required | Description                    |
+| -------------- | ------ | -------- | ------------------------------ |
+| `adminRemarks` | string | No       | Optional verification remarks. |
 
 ### Example Request
 
@@ -330,12 +330,12 @@ Mark a subscription as active after admin/ops verification.
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
+| Status | Message                                    |
+| ------ | ------------------------------------------ |
 | `400`  | Validation error (`ID must be an integer`) |
-| `404`  | `Subscription not found` |
-| `409`  | `Subscription is already active` |
-| `500`  | `Failed to verify subscription` |
+| `404`  | `Subscription not found`                   |
+| `409`  | `Subscription is already active`           |
+| `500`  | `Failed to verify subscription`            |
 
 ---
 
@@ -349,14 +349,14 @@ Cancel a subscription by setting status to `cancelled`.
 
 ### Path Parameters
 
-| Parameter | Type    | Required | Description |
-|-----------|---------|----------|-------------|
+| Parameter | Type    | Required | Description      |
+| --------- | ------- | -------- | ---------------- |
 | `id`      | integer | Yes      | Subscription ID. |
 
 ### Request Body
 
-| Field          | Type   | Required | Description |
-|----------------|--------|----------|-------------|
+| Field          | Type   | Required | Description                    |
+| -------------- | ------ | -------- | ------------------------------ |
 | `adminRemarks` | string | No       | Optional cancellation remarks. |
 
 ### Example Request
@@ -382,11 +382,11 @@ Cancel a subscription by setting status to `cancelled`.
 
 ### Error Responses
 
-| Status | Message |
-|--------|---------|
+| Status | Message                                    |
+| ------ | ------------------------------------------ |
 | `400`  | Validation error (`ID must be an integer`) |
-| `404`  | `Subscription not found` |
-| `500`  | `Failed to cancel subscription` |
+| `404`  | `Subscription not found`                   |
+| `500`  | `Failed to cancel subscription`            |
 
 ---
 

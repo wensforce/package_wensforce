@@ -1,23 +1,63 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 const EVENTS = [
-  { name: 'Mr. R.S.', location: 'Worli', action: 'just joined Elite', time: '7m ago' },
-  { name: 'Ms. P.K.', location: 'Banjara Hills', action: 'upgraded to Sovereign', time: '14m ago' },
-  { name: 'Mr. A.M.', location: 'Juhu', action: 'booked VIP Darshan at Tirupati', time: '22m ago' },
-  { name: 'Mrs. S.R.', location: 'Koramangala', action: 'just joined Premium', time: '31m ago' },
-  { name: 'Mr. V.N.', location: 'Andheri West', action: 'upgraded to Elite', time: '45m ago' },
-  { name: 'Mr. D.B.', location: 'Gurgaon', action: 'just joined Executive', time: '53m ago' },
-  { name: 'Mrs. L.J.', location: 'Powai', action: 'booked armed escort', time: '1h ago' },
-  { name: 'Mr. K.S.', location: 'Whitefield', action: 'just joined Sovereign', time: '1h 12m ago' },
+  {
+    name: "Mr. R.S.",
+    location: "Worli",
+    action: "just joined Elite",
+    time: "7m ago",
+  },
+  {
+    name: "Ms. P.K.",
+    location: "Banjara Hills",
+    action: "upgraded to Sovereign",
+    time: "14m ago",
+  },
+  {
+    name: "Mr. A.M.",
+    location: "Juhu",
+    action: "booked VIP Darshan at Tirupati",
+    time: "22m ago",
+  },
+  {
+    name: "Mrs. S.R.",
+    location: "Koramangala",
+    action: "just joined Premium",
+    time: "31m ago",
+  },
+  {
+    name: "Mr. V.N.",
+    location: "Andheri West",
+    action: "upgraded to Elite",
+    time: "45m ago",
+  },
+  {
+    name: "Mr. D.B.",
+    location: "Gurgaon",
+    action: "just joined Executive",
+    time: "53m ago",
+  },
+  {
+    name: "Mrs. L.J.",
+    location: "Powai",
+    action: "booked armed escort",
+    time: "1h ago",
+  },
+  {
+    name: "Mr. K.S.",
+    location: "Whitefield",
+    action: "just joined Sovereign",
+    time: "1h 12m ago",
+  },
 ];
 
 export default function LiveActivityTicker() {
   const [visible, setVisible] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [eventIdx, setEventIdx] = useState(0);
-  const [animState, setAnimState] = useState('');
+  const [animState, setAnimState] = useState("");
 
   useEffect(() => {
     if (dismissed) return;
@@ -29,12 +69,12 @@ export default function LiveActivityTicker() {
 
     const showNext = (idx) => {
       setEventIdx(idx % EVENTS.length);
-      setAnimState('ticker-in');
+      setAnimState("ticker-in");
       setVisible(true);
 
       // Auto-dismiss after 8 seconds
       timeout = setTimeout(() => {
-        setAnimState('ticker-out');
+        setAnimState("ticker-out");
         setTimeout(() => setVisible(false), 300);
       }, 8000);
     };
@@ -65,7 +105,7 @@ export default function LiveActivityTicker() {
     >
       <div
         className="flex items-center gap-3 bg-white border border-gray-100 rounded-xl px-4 py-3 shadow-xl"
-        style={{ boxShadow: '0 8px 24px rgba(11,30,63,0.14)' }}
+        style={{ boxShadow: "0 8px 24px rgba(11,30,63,0.14)" }}
       >
         {/* Green live dot */}
         <span className="relative flex h-2.5 w-2.5 shrink-0">
@@ -74,10 +114,8 @@ export default function LiveActivityTicker() {
         </span>
 
         <p className="text-[12px] text-gray-700 leading-snug flex-1">
-          <span className="font-semibold text-gray-900">{ev.name}</span>
-          {' '}from{' '}
-          <span className="font-medium">{ev.location}</span>
-          {' '}{ev.action}
+          <span className="font-semibold text-gray-900">{ev.name}</span> from{" "}
+          <span className="font-medium">{ev.location}</span> {ev.action}
         </p>
 
         <div className="flex items-center gap-2 shrink-0">

@@ -150,7 +150,10 @@ function TripCard({ trip }) {
         {/* Top Header section: IDs & Status */}
         <div className="flex items-start justify-between gap-2">
           <div className="flex flex-col">
-            <span className="text-sm font-bold tracking-tight" style={{ color: "var(--color-navy)" }}>
+            <span
+              className="text-sm font-bold tracking-tight"
+              style={{ color: "var(--color-navy)" }}
+            >
               {displayId}
             </span>
             <span className="text-[10px] text-slate-400 font-semibold mt-0.5">
@@ -163,7 +166,10 @@ function TripCard({ trip }) {
         {/* Assignment Reference ID */}
         <div className="flex items-center justify-between text-xs py-1.5 px-2.5 rounded-xl bg-slate-50 border border-slate-100">
           <span className="text-slate-400 font-medium">Assignment Ref:</span>
-          <span className="font-bold uppercase text-[11px]" style={{ color: "var(--color-navy)" }}>
+          <span
+            className="font-bold uppercase text-[11px]"
+            style={{ color: "var(--color-navy)" }}
+          >
             {trip.assignmentId ?? "Pending"}
           </span>
         </div>
@@ -176,16 +182,26 @@ function TripCard({ trip }) {
 
           <div className="relative">
             <div className="absolute left-[-21px] top-1 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-50" />
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pickup Location</div>
-            <div className="text-xs font-bold truncate mt-0.5" style={{ color: "var(--color-navy)" }}>
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              Pickup Location
+            </div>
+            <div
+              className="text-xs font-bold truncate mt-0.5"
+              style={{ color: "var(--color-navy)" }}
+            >
               {trip.pickupLocation ?? "—"}
             </div>
           </div>
 
           <div className="relative">
             <div className="absolute left-[-21px] top-1 w-2.5 h-2.5 rounded-full bg-rose-500 ring-4 ring-rose-50" />
-            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Drop Location</div>
-            <div className="text-xs font-bold truncate mt-0.5" style={{ color: "var(--color-navy)" }}>
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              Drop Location
+            </div>
+            <div
+              className="text-xs font-bold truncate mt-0.5"
+              style={{ color: "var(--color-navy)" }}
+            >
               {trip.dropLocation ?? "—"}
             </div>
           </div>
@@ -196,14 +212,24 @@ function TripCard({ trip }) {
         {/* Date/Time and Trip Type Grid */}
         <div className="grid grid-cols-2 gap-2 text-xs">
           <div>
-            <span className="text-slate-400 font-semibold text-[10px] block">Trip Date & Time</span>
-            <span className="font-bold leading-tight mt-0.5 block truncate" style={{ color: "var(--color-navy)" }}>
+            <span className="text-slate-400 font-semibold text-[10px] block">
+              Trip Date & Time
+            </span>
+            <span
+              className="font-bold leading-tight mt-0.5 block truncate"
+              style={{ color: "var(--color-navy)" }}
+            >
               {formattedTripDateTime}
             </span>
           </div>
           <div>
-            <span className="text-slate-400 font-semibold text-[10px] block">Trip Type</span>
-            <span className="font-bold leading-tight mt-0.5 block truncate text-xs" style={{ color: "var(--color-navy)" }}>
+            <span className="text-slate-400 font-semibold text-[10px] block">
+              Trip Type
+            </span>
+            <span
+              className="font-bold leading-tight mt-0.5 block truncate text-xs"
+              style={{ color: "var(--color-navy)" }}
+            >
               {typeLabel}
             </span>
           </div>
@@ -211,7 +237,9 @@ function TripCard({ trip }) {
 
         {/* Services requested */}
         <div className="space-y-1">
-          <span className="text-slate-400 text-[10px] font-semibold block">Services Requested</span>
+          <span className="text-slate-400 text-[10px] font-semibold block">
+            Services Requested
+          </span>
           {trip.services && trip.services.length > 0 ? (
             <div className="flex flex-wrap gap-1.5">
               {trip.services.map((svc) => (
@@ -229,7 +257,9 @@ function TripCard({ trip }) {
               ))}
             </div>
           ) : (
-            <span className="text-xs text-slate-400 italic">No services requested</span>
+            <span className="text-xs text-slate-400 italic">
+              No services requested
+            </span>
           )}
         </div>
 
@@ -237,7 +267,11 @@ function TripCard({ trip }) {
         {trip.status?.toLowerCase() === "cancelled" && (
           <div
             className="flex items-start gap-2.5 p-3 rounded-2xl text-[11px] leading-snug mt-2.5"
-            style={{ background: "#fef2f2", color: "#b91c1c", border: "1px solid #fee2e2" }}
+            style={{
+              background: "#fef2f2",
+              color: "#b91c1c",
+              border: "1px solid #fee2e2",
+            }}
           >
             <XCircle size={14} className="flex-shrink-0 mt-0.5 text-red-600" />
             <div className="flex-1 min-w-0">
@@ -264,18 +298,30 @@ function TripCard({ trip }) {
 // ── Empty state ───────────────────────────────────────────────────────────────
 function EmptyState() {
   return (
-    <div className="flex flex-col items-center text-center py-14 space-y-3 bg-white rounded-2xl border" style={{ borderColor: "var(--color-border)" }}>
+    <div
+      className="flex flex-col items-center text-center py-14 space-y-3 bg-white rounded-2xl border"
+      style={{ borderColor: "var(--color-border)" }}
+    >
       <div
         className="w-14 h-14 rounded-2xl flex items-center justify-center"
-        style={{ background: "var(--color-cream)", border: "1px solid var(--color-border)" }}
+        style={{
+          background: "var(--color-cream)",
+          border: "1px solid var(--color-border)",
+        }}
       >
         <Navigation size={22} style={{ color: "var(--color-text-tertiary)" }} />
       </div>
       <div>
-        <p className="font-semibold text-sm" style={{ color: "var(--color-navy)" }}>
+        <p
+          className="font-semibold text-sm"
+          style={{ color: "var(--color-navy)" }}
+        >
           No trips yet
         </p>
-        <p className="text-xs mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>
+        <p
+          className="text-xs mt-0.5"
+          style={{ color: "var(--color-text-tertiary)" }}
+        >
           Your trip history will appear here once you request a trip.
         </p>
       </div>
@@ -328,7 +374,6 @@ export default function TripHistory() {
 
     // ── Store hit: use cached trip history, skip API call ──
     if (storeTrips && storeTrips.length > 0) {
-      console.log("Trip history store hit");
       setTrips(storeTrips);
       setLoading(false);
       return;
@@ -353,11 +398,17 @@ export default function TripHistory() {
         <div>
           <h2
             className="text-xl font-bold"
-            style={{ color: "var(--color-navy)", fontFamily: "var(--font-playfair)" }}
+            style={{
+              color: "var(--color-navy)",
+              fontFamily: "var(--font-playfair)",
+            }}
           >
             Trip History
           </h2>
-          <p className="text-sm mt-0.5" style={{ color: "var(--color-text-tertiary)" }}>
+          <p
+            className="text-sm mt-0.5"
+            style={{ color: "var(--color-text-tertiary)" }}
+          >
             View all your trip requests and their status
           </p>
         </div>
@@ -409,7 +460,10 @@ export default function TripHistory() {
           <button
             onClick={() => setShowAll((p) => !p)}
             className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-85 active:scale-[0.98] border shadow-sm bg-white"
-            style={{ color: "var(--color-navy)", borderColor: "var(--color-border)" }}
+            style={{
+              color: "var(--color-navy)",
+              borderColor: "var(--color-border)",
+            }}
           >
             {showAll ? "Show Less" : `View All Trips (${trips.length})`}
             <ChevronRight

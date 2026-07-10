@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import LoginModal from "../components/LoginModal";
+import LoginModal from "../components/Auth/LoginModal";
 import { useRouter } from "next/navigation";
 import AdminSidebar from "./components/AdminSidebar";
 import { Menu } from "lucide-react";

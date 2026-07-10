@@ -16,8 +16,12 @@ export default function PackageCreatePage() {
                 <Package size={20} />
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#718096]">Package admin</p>
-                <h1 className="mt-2 text-3xl font-semibold text-[#0B1E3F]">Create package</h1>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#718096]">
+                  Package admin
+                </p>
+                <h1 className="mt-2 text-3xl font-semibold text-[#0B1E3F]">
+                  Create package
+                </h1>
               </div>
             </div>
             <button

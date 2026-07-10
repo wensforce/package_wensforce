@@ -12,7 +12,7 @@ import {
 import { servicesApi } from "../apis/services.api";
 import ServiceCreateModal from "../../components/modals/ServiceCreateModal";
 import Modal from "../../components/Modal";
-import { useFetchList } from "../../hooks/useFetchList"; 
+import { useFetchList } from "../../hooks/useFetchList";
 import { useModal } from "../../hooks/useModal";
 function formatDate(iso) {
   if (!iso) return "—";
@@ -50,7 +50,6 @@ export default function ServiceDetailPage() {
         const cachedData = sessionStorage.getItem(`service_${serviceId}`);
         if (cachedData) {
           const parsedData = JSON.parse(cachedData);
-          console.log("Loaded service from cache:", parsedData);
           setService(parsedData);
           sessionStorage.removeItem(`service_${serviceId}`); // Clean up after use
           return; // Exit early if we found cached data

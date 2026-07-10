@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import LoginModal from "../components/LoginModal";
+import LoginModal from "../components/Auth/LoginModal";
 
 export default function ProtectedLayout({ children }) {
   const { isLoggedIn, authLoading } = useAuth();

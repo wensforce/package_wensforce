@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { useParams, notFound } from "next/navigation";
 import api from "@/app/axios/axios";
-import PlanVideoPlayer from "../../components/PlanVideoPlayer";
-import MetaViewTracker from "@/app/components/MetaViewTracker";
+import PlanVideoPlayer from "../../components/MainPage/PlanVideoPlayer";
+import MetaViewTracker from "@/app/components/MainPage/MetaViewTracker";
 import { useDispatch, useSelector } from "react-redux";
 import { setPackages } from "@/app/membership/slices/package-slice";
 import { setPackage,getPackageById } from "@/app/membership/slices/detailed-package-slice";
@@ -50,7 +50,6 @@ export default function PlanDetailPage() {
       try {
         // ── Tier 1: detailedPackages store has this specific plan ──
         if (detailedPlan) {
-          console.log("Detailed store hit");
           setPlan(detailedPlan);
 
           if (storePackages && storePackages.length > 0) {
@@ -72,7 +71,6 @@ export default function PlanDetailPage() {
         if (storePackages && storePackages.length > 0) {
           const foundPlan = storePackages.find((p) => String(p.id) === String(id));
           if (foundPlan) {
-            console.log("Packages store hit");
             setPlan(foundPlan);
             setOtherPlans(storePackages.filter((p) => String(p.id) !== String(id)));
             dispatch(setPackage(foundPlan)); // promote into detailedPackages cache
@@ -82,7 +80,6 @@ export default function PlanDetailPage() {
         }
 
         // ── Tier 3: full API hit ──
-        console.log("API hit");
         const [planRes, allPlansRes] = await Promise.all([
           api.get(`/package/${id}`),
           api.get("/package/user"),

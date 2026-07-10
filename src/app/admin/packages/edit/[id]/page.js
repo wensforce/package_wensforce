@@ -13,7 +13,7 @@ export default function PackageEditPage() {
   const packageId = params?.id;
 
   const [packageData, setPackageData] = useState(null);
-const { loading, setLoading, error, setError } = useFetchList();
+  const { loading, setLoading, error, setError } = useFetchList();
 
   useEffect(() => {
     const fetchPackage = async () => {

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import {load} from "@cashfreepayments/cashfree-js"
+import { load } from "@cashfreepayments/cashfree-js";
 import {
   Check,
   Shield,
@@ -21,9 +21,9 @@ import {
   Globe,
   IndianRupee,
 } from "lucide-react";
-import { useMetaEvents } from "../hooks/useMetaEvents";
-import api from "../axios/axios";
-import { useAuth } from "../context/AuthContext";
+import { useMetaEvents } from "../../hooks/useMetaEvents";
+import api from "../../axios/axios";
+import { useAuth } from "../../context/AuthContext";
 
 import {
   INR,
@@ -33,7 +33,7 @@ import {
   CURRENCIES,
   ZERO_DECIMAL,
   THREE_DECIMAL,
-} from "../(protected)/booking/booking-helpers";
+} from "../../(protected)/booking/booking-helpers";
 
 const fmtForeign = (amount, code) => {
   if (amount === null || amount === undefined || isNaN(amount)) return "…";
@@ -391,9 +391,7 @@ export default function BookingPageContent({
       //   headers: { "Content-Type": "application/json" },
       //   body: JSON.stringify(payload),
       // });
-      console.log(payload,"payload")
-      const res = await api.post('/payment/create-order',payload)
-      console.log(res,"res")
+      const res = await api.post("/payment/create-order", payload);
       const data = res.data?.data;
 
       window.dataLayer = window.dataLayer || [];
@@ -1285,7 +1283,6 @@ export default function BookingPageContent({
         </div>
         {/* closes white card */}
 
-       
         <div className="h-20 lg:hidden" />
       </div>
     </div>
