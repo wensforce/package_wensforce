@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { usePackages } from "@/app/hooks/usePackages";
 
 const WA_NUMBER = "917304607954";
 
@@ -41,74 +42,64 @@ const QUESTIONS = [
   },
 ];
 
-const TIER_MAP = [
-  {
-    min: 5,
-    max: 7,
-    id: "essential",
-    name: "ESSENTIAL",
-    price: "₹24,999* + GST 18% Extra",
-    tagline: "Built for the frequent solo traveller.",
-  },
-  {
-    min: 8,
-    max: 9,
-    id: "executive",
-    name: "EXECUTIVE",
-    price: "₹49,999* + GST 18% Extra",
-    tagline: "Built for the rising professional & growing family.",
-  },
-  {
-    min: 10,
-    max: 11,
-    id: "premium",
-    name: "PREMIUM",
-    price: "₹74,999* + GST 18% Extra",
-    tagline: "Where armed protection meets pilgrimage convenience.",
-  },
-  {
-    min: 12,
-    max: 13,
-    id: "elite",
-    name: "ELITE",
-    price: "₹99,999* + GST 18% Extra",
-    tagline: "Where C-suite executives travel.",
-  },
-  {
-    min: 14,
-    max: 15,
-    id: "sovereign",
-    name: "SOVEREIGN",
-    price: "₹1,99,999* + GST 18% Extra",
-    tagline: "The pinnacle — no compromises, anywhere.",
-  },
-];
-
-function getTier(total) {
-  return TIER_MAP.find((t) => total >= t.min && total <= t.max) || TIER_MAP[2];
-}
+// ── score bounds (hardcoded from QUESTIONS, stable) ───────────────────────────
+const minScore = QUESTIONS.reduce((acc, q) => acc + Math.min(...q.scores), 0); // 5
+const maxScore = QUESTIONS.reduce((acc, q) => acc + Math.max(...q.scores), 0); // 15
 
 export default function TierQuiz() {
+  const { packages } = usePackages();
   const router = useRouter();
+
   const [started, setStarted] = useState(false);
   const [step, setStep] = useState(0);
   const [scores, setScores] = useState([]);
   const [submitted, setSubmitted] = useState(false);
   const [leaving, setLeaving] = useState(false);
 
+  // ── build TIER_MAP reactively whenever packages load ─────────────────────
+  const TIER_MAP = useMemo(() => {
+    if (!packages.length) return [];
+
+    const numTiers = packages.length;
+    const scoreRange = maxScore - minScore; // 10
+    const range = scoreRange / numTiers; // e.g. 2 for 5 tiers
+
+    return packages.map((pkg, i) => {
+      const min = Math.round(minScore + i * range);
+      const max =
+        i === numTiers - 1
+          ? maxScore // last tier catches ceiling
+          : Math.round(minScore + (i + 1) * range) - 1;
+
+      return {
+        min,
+        max,
+        id: pkg.id,
+        name: pkg.name,
+        price: `₹${Number(pkg.discountedPrice).toLocaleString("en-IN")}* + GST 18% Extra`,
+        tagline: pkg.description,
+      };
+    });
+  }, [packages]);
+
+  // ── tier lookup ───────────────────────────────────────────────────────────
   const total = scores.reduce((a, b) => a + b, 0);
-  const recommended = getTier(total);
+  const recommended =
+    TIER_MAP.find((t) => total >= t.min && total <= t.max) ??
+    TIER_MAP[Math.floor(TIER_MAP.length / 2)] ??
+    null;
 
   const handleOption = (score) => {
     setLeaving(true);
     setTimeout(() => {
-      setScores([...scores, score]);
-      setStep(step + 1);
+      setScores((prev) => [...prev, score]);
+      setStep((prev) => prev + 1);
       setLeaving(false);
     }, 250);
   };
 
   const handleAskConcierge = () => {
+    if (!recommended) return;
     const msg = `Hi WENS Force, I just took your tier quiz and got ${recommended.name} tier (${recommended.price}/year). I'd like to know more about this plan and how to get started. Please advise.`;
     window.open(
       `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`,
@@ -117,6 +108,7 @@ export default function TierQuiz() {
   };
 
   const handleBookNow = () => {
+    if (!recommended) return;
     router.push(`/booking/${recommended.id}`);
   };
 
