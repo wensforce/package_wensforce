@@ -1,5 +1,4 @@
-"use client";
-
+"use client"
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
@@ -10,20 +9,40 @@ import {
   CheckCircle,
   Star,
 } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import api from "@/app/axios/axios";
+import { usePackages } from "../../hooks/usePackages";
 
 const WA_NUMBER = "917304607954";
-const DEADLINE = "2026-06-30T23:59:59+05:30";
 
-const TIER_PRICES = {
-  essential: "₹24,999* + GST 18% Extra",
-  executive: "₹49,999* + GST 18% Extra",
-  premium: "₹74,999* + GST 18% Extra",
-  elite: "₹99,999* + GST 18% Extra",
-  sovereign: "₹1,99,999* + GST 18% Extra",
-};
+// ── helpers ───────────────────────────────────────────────────────────────────
 
-function CountdownBlock() {
+const getEndOfCurrentMonth = () =>
+  new Date(
+    new Date().getFullYear(),
+    new Date().getMonth() + 1,
+    0,
+    23,
+    59,
+    59,
+    999,
+  );
+
+const formatPrice = (price) =>
+  price != null
+    ? `₹${Number(price).toLocaleString("en-IN")}* + GST 18% Extra`
+    : "—";
+
+const toShortDate = (date) =>
+  new Date(date).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "Asia/Kolkata",
+  });
+
+// ── CountdownBlock ────────────────────────────────────────────────────────────
+
+function CountdownBlock({ deadline }) {
   const [time, setTime] = useState({
     days: 0,
     hours: 0,
@@ -34,7 +53,8 @@ function CountdownBlock() {
 
   useEffect(() => {
     setMounted(true);
-    const target = new Date(DEADLINE).getTime();
+    const target = new Date(deadline).getTime();
+
     const tick = () => {
       const diff = target - Date.now();
       if (diff <= 0) {
@@ -48,13 +68,13 @@ function CountdownBlock() {
         seconds: Math.floor((diff % 60000) / 1000),
       });
     };
+
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, []);
+  }, [deadline]);
 
   const pad = (n) => String(n).padStart(2, "0");
-
   if (!mounted) return null;
 
   const units = [
@@ -77,7 +97,6 @@ function CountdownBlock() {
               }}
             >
               <span className="relative z-10">{val}</span>
-              {/* shimmer bar */}
               <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#C9A24B]/50" />
             </div>
             <span className="text-[9px] text-white/30 uppercase tracking-[0.15em] mt-1.5 font-medium">
@@ -93,10 +112,59 @@ function CountdownBlock() {
   );
 }
 
+// ── PricingPillsSkeleton ──────────────────────────────────────────────────────
+
+function PricingPillsSkeleton() {
+  return (
+    <div className="grid grid-cols-5 gap-2 sm:gap-3">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div
+          key={i}
+          className="rounded-2xl px-2 py-4 h-[72px] animate-pulse"
+          style={{ background: "rgba(255,255,255,0.04)" }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ── FoundingMemberBanner ──────────────────────────────────────────────────────
+
 export default function FoundingMemberBanner() {
-  const tierList = ["essential", "executive", "premium", "elite", "sovereign"];
-  const searchParams = useSearchParams();
-  const isWelcomeIndia = searchParams.get("welcomeIndia") === "true";
+  const { packages, loading, error } = usePackages();
+  // ── deadline: owned by this component, unrelated to packages ─────────────
+  const [deadline, setDeadline] = useState(getEndOfCurrentMonth());
+
+  // api for getting the deadline
+  // useEffect(() => {
+  //   const fetchDeadline = async () => {
+  //     try {
+  //       const res = await api.get("/config/founding-deadline");
+  //       const raw = res?.data?.data?.deadline ?? res?.data?.deadline;
+  //       if (raw) setDeadline(new Date(raw));
+  //     } catch {
+  //       // silently keep end-of-month fallback
+  //     }
+  //   };
+  //   fetchDeadline();
+  // }, []);
+
+  // ── derived values ────────────────────────────────────────────────────────
+
+  const deadlineDateLabel = toShortDate(deadline);
+
+  const featuredPkg =
+    packages.find((p) => p.featured) ??
+    packages.find((p) => (p.id ?? p.slug) === "premium") ??
+    packages[Math.floor(packages.length / 2)] ??
+    null;
+
+  const featuredSlug = featuredPkg?.id ?? featuredPkg?.slug ?? "premium";
+  const featuredName = featuredPkg?.name ?? "Premium";
+
+  const waMessage = encodeURIComponent(
+    `Hi WENS Force, I want to claim Founding Member pricing before ${deadlineDateLabel}. Please guide me.`,
+  );
 
   return (
     <section
@@ -135,7 +203,7 @@ export default function FoundingMemberBanner() {
             }}
           >
             <AlertTriangle size={12} strokeWidth={2.5} />
-            Access Closes June 30, 2026 — 11:59 PM IST
+            Access Closes {deadlineDateLabel} — 11:59 PM IST
           </div>
         </div>
 
@@ -156,9 +224,9 @@ export default function FoundingMemberBanner() {
         </h2>
 
         <p className="text-center text-white/40 text-sm font-light mb-10 max-w-lg mx-auto leading-relaxed">
-          After June 30, all new members pay the updated price for the next
-          cycle. Join now and pay today&apos;s rate for your first membership
-          year.
+          After {deadlineDateLabel}, all new members pay the updated price for
+          the next cycle. Join now and pay today&apos;s rate for your first
+          membership year.
         </p>
 
         {/* Countdown */}
@@ -166,7 +234,7 @@ export default function FoundingMemberBanner() {
           <p className="text-center text-white/30 text-[10px] uppercase tracking-[0.3em] font-medium mb-4">
             Time remaining to claim founding rates
           </p>
-          <CountdownBlock />
+          <CountdownBlock deadline={deadline} />
         </div>
 
         {/* Divider */}
@@ -181,28 +249,55 @@ export default function FoundingMemberBanner() {
         {/* Tier pricing pills */}
         <div className="mb-10">
           <p className="text-center text-white/30 text-[10px] uppercase tracking-[0.3em] font-medium mb-5">
-            Current founding rates — valid till June 30
+            Current founding rates — valid till {deadlineDateLabel}
           </p>
-          <div className="grid grid-cols-5 gap-2 sm:gap-3">
-            {tierList.map((id) => (
-              <div
-                key={id}
-                className="flex flex-col items-center gap-1.5 rounded-2xl px-2 py-4"
-                style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                }}
-              >
-                <p className="text-[9px] text-white/40 uppercase tracking-wide font-light text-center">
-                  {id}
-                </p>
-                <p className="text-[11px] font-semibold text-[#C9A24B] text-center">
-                  {TIER_PRICES[id]}
-                </p>
-                <p className="text-[8px] text-white/20 text-center">/year</p>
-              </div>
-            ))}
-          </div>
+
+          {loading && <PricingPillsSkeleton />}
+
+          {error && (
+            <p className="text-center text-white/30 text-xs py-4">
+              Pricing unavailable — call concierge for rates.
+            </p>
+          )}
+
+          {!loading && !error && packages.length > 0 && (
+            <div
+              className="gap-2 sm:gap-3"
+              style={{
+                display: "grid",
+                gridTemplateColumns: `repeat(${packages.length}, minmax(0, 1fr))`,
+              }}
+            >
+              {packages.map((pkg) => {
+                const slug = pkg.id ?? pkg.slug;
+                const isFeatured = slug === featuredSlug;
+                return (
+                  <div
+                    key={slug}
+                    className="flex flex-col items-center gap-1.5 rounded-2xl px-2 py-4 transition-all"
+                    style={{
+                      background: isFeatured
+                        ? "rgba(201,162,75,0.1)"
+                        : "rgba(255,255,255,0.04)",
+                      border: isFeatured
+                        ? "1px solid rgba(201,162,75,0.3)"
+                        : "1px solid rgba(255,255,255,0.07)",
+                    }}
+                  >
+                    <p className="text-[9px] text-white/40 uppercase tracking-wide font-light text-center">
+                      {pkg.name ?? slug}
+                    </p>
+                    <p className="text-[11px] font-semibold text-[#C9A24B] text-center">
+                      {formatPrice(pkg.discountedPrice ?? pkg.regularPrice ?? pkg.price)}
+                    </p>
+                    <p className="text-[8px] text-white/20 text-center">
+                      /year
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* What founding means */}
@@ -273,7 +368,7 @@ export default function FoundingMemberBanner() {
           />
           <p className="text-red-300/70 text-xs font-light leading-relaxed">
             <strong className="text-red-300 font-semibold">
-              After June 30, 2026:
+              After {deadlineDateLabel}:
             </strong>{" "}
             New memberships will be onboarded at the updated pricing for the
             next financial year cycle. This window will not be extended.
@@ -283,15 +378,15 @@ export default function FoundingMemberBanner() {
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
-            href="/booking/premium"
+            href={`/booking/${featuredSlug}`}
             className="flex items-center justify-center gap-2 font-bold py-4 px-9 rounded-full text-sm transition-all hover:opacity-90 hover:shadow-[0_0_32px_rgba(201,162,75,0.35)] w-full sm:w-auto"
             style={{ backgroundColor: "#C9A24B", color: "#000" }}
           >
             <Gem size={15} strokeWidth={2} />
-            Claim Founding Rate — Premium
+            Claim Founding Rate — {featuredName}
           </Link>
           <a
-            href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent("Hi WENS Force, I want to claim Founding Member pricing before June 30. Please guide me.")}`}
+            href={`https://wa.me/${WA_NUMBER}?text=${waMessage}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 font-medium py-4 px-8 rounded-full text-sm transition-all w-full sm:w-auto"
@@ -314,7 +409,7 @@ export default function FoundingMemberBanner() {
 
         <p className="text-center text-white/15 text-xs mt-6">
           wensforce.com &nbsp;·&nbsp; +91-73046 07954 &nbsp;·&nbsp; Founding
-          access closes 30 June 2026
+          access closes {deadlineDateLabel}
         </p>
       </div>
     </section>
