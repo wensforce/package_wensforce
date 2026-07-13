@@ -1,7 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Loader2, ImagePlus, X, Plus, Trash2, Search } from "lucide-react";
+import {
+  Loader2,
+  ImagePlus,
+  X,
+  Plus,
+  Trash2,
+  Search,
+  Film,
+  Play,
+} from "lucide-react";
 
 import { packageApi } from "../../packages/apis/packages.api";
 import { servicesApi } from "../../services/apis/services.api";
@@ -42,7 +51,22 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
   const [serviceSuggestions, setServiceSuggestions] = useState({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+
+  // ── Photos state ────────────────────────────────────────────────────────────
+  // New photos selected from disk: { file: File, previewUrl: string }
+  const [photos, setPhotos] = useState([]);
+  // Existing photos from server (edit mode): { key: string, url: string }
+  const [existingPhotos, setExistingPhotos] = useState([]);
+
+  // ── Videos state ────────────────────────────────────────────────────────────
+  // New videos selected from disk: { file: File, previewUrl: string, name: string }
+  const [videos, setVideos] = useState([]);
+  // Existing videos from server (edit mode): { key: string, url: string, name: string }
+  const [existingVideos, setExistingVideos] = useState([]);
+
   const fileInputRef = useRef(null);
+  const photoInputRef = useRef(null);
+  const videoInputRef = useRef(null);
   const serviceSearchTimeouts = useRef({});
 
   useEffect(() => {
@@ -54,13 +78,13 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
         discountedPrice: initialData.discountedPrice ?? "",
         services:
           Array.isArray(initialData.packageServices) &&
-            initialData.packageServices.length > 0
+          initialData.packageServices.length > 0
             ? initialData.packageServices.map((ps) => ({
-              id: ps.service?.id ?? "",
-              title: ps.service?.title ?? ps.service?.name ?? "",
-              query: ps.service?.title ?? ps.service?.name ?? "",
-              count: ps.count ?? 1,
-            }))
+                id: ps.service?.id ?? "",
+                title: ps.service?.title ?? ps.service?.name ?? "",
+                query: ps.service?.title ?? ps.service?.name ?? "",
+                count: ps.count ?? 1,
+              }))
             : [{ ...emptyServiceItem }],
         vehicleType: initialData.vehicleType ?? "",
         vehicleModel: initialData.vehicleModel ?? "",
@@ -76,22 +100,101 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
       setThumbnail(null);
       setError(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
+
+      // Populate existing photos / videos from server data
+      setExistingPhotos(
+        Array.isArray(initialData.photos)
+          ? initialData.photos.map((p) => ({ key: p.key ?? p.url, url: p.url }))
+          : [],
+      );
+      setPhotos([]);
+
+      setExistingVideos(
+        Array.isArray(initialData.videos)
+          ? initialData.videos.map((v) => ({
+              key: v.key ?? v.url,
+              url: v.url,
+              name: v.name ?? "",
+            }))
+          : [],
+      );
+      setVideos([]);
     } else {
       setForm(initialFormState);
       setThumbnail(null);
       setPreview(null);
       setExistingThumbnailKey(null);
+      setExistingPhotos([]);
+      setPhotos([]);
+      setExistingVideos([]);
+      setVideos([]);
       setError(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   }, [initialData]);
 
+  // Cleanup object URLs on unmount
   useEffect(() => {
     return () => {
       Object.values(serviceSearchTimeouts.current).forEach(clearTimeout);
+      photos.forEach((p) => URL.revokeObjectURL(p.previewUrl));
+      videos.forEach((v) => URL.revokeObjectURL(v.previewUrl));
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ── Photo handlers ───────────────────────────────────────────────────────────
+  function handleAddPhotos(e) {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    const newPhotos = files.map((file) => ({
+      file,
+      previewUrl: URL.createObjectURL(file),
+    }));
+    setPhotos((prev) => [...prev, ...newPhotos]);
+    e.target.value = "";
+  }
+
+  function removeNewPhoto(index) {
+    setPhotos((prev) => {
+      const updated = [...prev];
+      URL.revokeObjectURL(updated[index].previewUrl);
+      updated.splice(index, 1);
+      return updated;
+    });
+  }
+
+  function removeExistingPhoto(index) {
+    setExistingPhotos((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  // ── Video handlers ───────────────────────────────────────────────────────────
+  function handleAddVideos(e) {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    const newVideos = files.map((file) => ({
+      file,
+      previewUrl: URL.createObjectURL(file),
+      name: file.name,
+    }));
+    setVideos((prev) => [...prev, ...newVideos]);
+    e.target.value = "";
+  }
+
+  function removeNewVideo(index) {
+    setVideos((prev) => {
+      const updated = [...prev];
+      URL.revokeObjectURL(updated[index].previewUrl);
+      updated.splice(index, 1);
+      return updated;
+    });
+  }
+
+  function removeExistingVideo(index) {
+    setExistingVideos((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  // ── Service handlers ─────────────────────────────────────────────────────────
   function handleServiceChange(index, field, value) {
     setForm((prev) => {
       const services = [...prev.services];
@@ -139,8 +242,6 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
     }, 300);
   }
 
-  // Returns the set of service ids already chosen in *other* rows, so we
-  // can both filter suggestions and validate a new selection against them.
   function getSelectedServiceIds(excludeIndex) {
     return new Set(
       form.services
@@ -156,7 +257,6 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
       setError(
         `"${service.title ?? service.name ?? "This service"}" is already added to this package.`,
       );
-      // Remove it from the suggestion list for this row so it can't be picked again.
       setServiceSuggestions((prev) => ({
         ...prev,
         [index]: (prev[index] ?? []).filter((s) => s.id !== service.id),
@@ -188,8 +288,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
     });
   }
 
-
-
+  // ── Validation ───────────────────────────────────────────────────────────────
   function validateForm() {
     if (!form.name.trim()) return "Name is required.";
     if (!form.description.trim()) return "Description is required.";
@@ -216,7 +315,6 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
         return "Service count must be a positive integer.";
     }
 
-    // Guard against duplicate services slipping through (e.g. programmatic edits).
     const seenIds = new Set();
     for (const item of serviceItems) {
       const idKey = String(item.id);
@@ -232,6 +330,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
     return null;
   }
 
+  // ── Submit ───────────────────────────────────────────────────────────────────
   async function handleSubmit(e) {
     e.preventDefault();
     setError(null);
@@ -263,6 +362,9 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
             id: Number(item.id),
             count: item.count ? Number(item.count) : undefined,
           })),
+        // Keys of existing server photos/videos to retain
+        existingPhotoKeys: existingPhotos.map((p) => p.key),
+        existingVideoKeys: existingVideos.map((v) => v.key),
       };
 
       if (isEditMode) {
@@ -271,9 +373,16 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
           payload,
           thumbnail,
           existingThumbnailKey,
+          photos.map((p) => p.file),
+          videos.map((v) => v.file),
         );
       } else {
-        await packageApi.createPackage(payload, thumbnail);
+        await packageApi.createPackage(
+          payload,
+          thumbnail,
+          photos.map((p) => p.file),
+          videos.map((v) => v.file),
+        );
       }
 
       onSaved?.();
@@ -284,8 +393,13 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
     }
   }
 
+  // ── Derived counts for badge display ─────────────────────────────────────────
+  const totalPhotos = existingPhotos.length + photos.length;
+  const totalVideos = existingVideos.length + videos.length;
+
   return (
     <form onSubmit={handleSubmit} className="space-y-8 px-8 py-8">
+      {/* ── Header ── */}
       <div className="rounded-4xl border border-[#E8E3DB] bg-[#F8F6F1] p-6 shadow-sm">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
@@ -314,6 +428,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
         </div>
       </div>
 
+      {/* ── Error ── */}
       {error && (
         <div className="rounded-3xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
@@ -321,7 +436,9 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
       )}
 
       <div className="grid gap-6 lg:grid-cols-[1.9fr_1fr]">
+        {/* ══════════════════════════════ LEFT COLUMN ══════════════════════════════ */}
         <div className="space-y-6">
+          {/* ── Package details ── */}
           <div className="rounded-3xl border border-[#E8E3DB] bg-white p-6 shadow-sm">
             <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
@@ -378,7 +495,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                     onChange={handleFieldChange}
                     disabled={saving}
                     placeholder="₹ 1999"
-                    className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-moz-appearance]:textfield"
+                    className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -394,13 +511,14 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                     onChange={handleFieldChange}
                     disabled={saving}
                     placeholder="₹ 1499"
-                    className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-moz-appearance]:textfield"
+                    className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   />
                 </div>
               </div>
             </div>
           </div>
 
+          {/* ── Package services ── */}
           <div className="rounded-3xl border border-[#E8E3DB] bg-white p-6 shadow-sm">
             <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
@@ -489,7 +607,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                           handleServiceChange(index, "count", e.target.value)
                         }
                         disabled={saving}
-                        className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-moz-appearance]:textfield"
+                        className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                       />
                     </div>
 
@@ -516,6 +634,311 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
             </div>
           </div>
 
+          {/* ── Photos ── */}
+          <div className="rounded-3xl border border-[#E8E3DB] bg-white p-6 shadow-sm">
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xl font-semibold text-[#0B1E3F]">
+                    Photos
+                  </h3>
+                  {totalPhotos > 0 && (
+                    <span className="inline-flex items-center justify-center rounded-full bg-[#0B1E3F] px-2.5 py-0.5 text-xs font-semibold text-white">
+                      {totalPhotos}
+                    </span>
+                  )}
+                </div>
+                <p className="mt-1 text-sm text-[#4A5568]">
+                  Upload gallery photos for this package.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => photoInputRef.current?.click()}
+                disabled={saving}
+                className="inline-flex items-center gap-2 rounded-full bg-[#0B1E3F] px-4 py-2 text-sm font-semibold text-white hover:bg-[#152d5a] transition-colors disabled:opacity-50 whitespace-nowrap"
+              >
+                <ImagePlus size={14} /> Add photos
+              </button>
+            </div>
+
+            {/* Hidden multi-file photo input */}
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={handleAddPhotos}
+              disabled={saving}
+            />
+
+            {totalPhotos > 0 ? (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+                {/* Existing photos (from server) */}
+                {existingPhotos.map((photo, i) => (
+                  <div
+                    key={`existing-photo-${i}`}
+                    className="group relative aspect-square overflow-hidden rounded-2xl border border-[#E8E3DB] bg-[#FAF6EC]"
+                  >
+                    <img
+                      src={photo.url}
+                      alt={`Photo ${i + 1}`}
+                      className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200" />
+                    <button
+                      type="button"
+                      onClick={() => removeExistingPhoto(i)}
+                      disabled={saving}
+                      className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-red-600 opacity-0 group-hover:opacity-100 shadow-sm transition-all duration-200 hover:bg-red-50 disabled:opacity-50"
+                      aria-label="Remove photo"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+
+                {/* Newly added photos (local preview) */}
+                {photos.map((photo, i) => (
+                  <div
+                    key={`new-photo-${i}`}
+                    className="group relative aspect-square overflow-hidden rounded-2xl border border-[#C9A24B]/40 bg-[#FAF6EC] ring-1 ring-[#C9A24B]/20"
+                  >
+                    <img
+                      src={photo.previewUrl}
+                      alt={`New photo ${i + 1}`}
+                      className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                    />
+                    {/* "New" badge */}
+                    <span className="absolute left-2 top-2 rounded-full bg-[#C9A24B] px-2 py-0.5 text-[10px] font-semibold text-white shadow-sm">
+                      New
+                    </span>
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200" />
+                    <button
+                      type="button"
+                      onClick={() => removeNewPhoto(i)}
+                      disabled={saving}
+                      className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-red-600 opacity-0 group-hover:opacity-100 shadow-sm transition-all duration-200 hover:bg-red-50 disabled:opacity-50"
+                      aria-label="Remove photo"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+
+                {/* "Add more" tile */}
+                <button
+                  type="button"
+                  onClick={() => photoInputRef.current?.click()}
+                  disabled={saving}
+                  className="flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-[#CBD5E0] bg-[#FAF6EC] text-[#718096] transition-colors hover:border-[#C9A24B] hover:bg-[#FAF9F0] hover:text-[#C9A24B] disabled:opacity-50"
+                >
+                  <Plus size={22} />
+                  <span className="text-xs font-semibold">Add more</span>
+                </button>
+              </div>
+            ) : (
+              /* Empty state – full upload zone */
+              <button
+                type="button"
+                onClick={() => photoInputRef.current?.click()}
+                disabled={saving}
+                className="flex h-44 w-full flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-[#CBD5E0] bg-[#FAF6EC] text-[#4A5568] transition-colors hover:border-[#C9A24B] hover:bg-[#FAF9F0] disabled:opacity-50"
+              >
+                <ImagePlus size={28} className="text-[#A0AEC0]" />
+                <div>
+                  <p className="text-sm font-semibold text-[#4A5568]">
+                    Upload photos
+                  </p>
+                  <p className="mt-1 text-xs text-[#718096]">
+                    PNG, JPG, WEBP · Select multiple at once
+                  </p>
+                </div>
+              </button>
+            )}
+          </div>
+
+          {/* ── Videos ── */}
+          <div className="rounded-3xl border border-[#E8E3DB] bg-white p-6 shadow-sm">
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xl font-semibold text-[#0B1E3F]">
+                    Videos
+                  </h3>
+                  {totalVideos > 0 && (
+                    <span className="inline-flex items-center justify-center rounded-full bg-[#0B1E3F] px-2.5 py-0.5 text-xs font-semibold text-white">
+                      {totalVideos}
+                    </span>
+                  )}
+                </div>
+                <p className="mt-1 text-sm text-[#4A5568]">
+                  Attach video walkthroughs or showcase reels.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => videoInputRef.current?.click()}
+                disabled={saving}
+                className="inline-flex items-center gap-2 rounded-full bg-[#0B1E3F] px-4 py-2 text-sm font-semibold text-white hover:bg-[#152d5a] transition-colors disabled:opacity-50 whitespace-nowrap"
+              >
+                <Film size={14} /> Add videos
+              </button>
+            </div>
+
+            {/* Hidden multi-file video input */}
+            <input
+              ref={videoInputRef}
+              type="file"
+              accept="video/*"
+              multiple
+              className="hidden"
+              onChange={handleAddVideos}
+              disabled={saving}
+            />
+
+            {totalVideos > 0 ? (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {/* Existing videos (from server) */}
+                {existingVideos.map((video, i) => (
+                  <div
+                    key={`existing-video-${i}`}
+                    className="group relative overflow-hidden rounded-2xl border border-[#E8E3DB] bg-[#FAF6EC]"
+                  >
+                    {/* Video preview */}
+                    <div className="relative aspect-video w-full overflow-hidden bg-[#0B1E3F]/5">
+                      <video
+                        src={video.url}
+                        className="h-full w-full object-cover"
+                        preload="metadata"
+                        muted
+                        playsInline
+                        onMouseEnter={(e) => e.currentTarget.play()}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.pause();
+                          e.currentTarget.currentTime = 0;
+                        }}
+                      />
+                      {/* Play icon overlay */}
+                      <div className="pointer-events-none absolute inset-0 flex items-center justify-center group-hover:opacity-0 transition-opacity duration-200">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/40">
+                          <Play
+                            size={18}
+                            className="translate-x-0.5 text-white"
+                            fill="white"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    {/* File name footer */}
+                    <div className="flex items-center gap-2 px-3 py-2.5">
+                      <Film size={13} className="shrink-0 text-[#718096]" />
+                      <span className="truncate text-xs font-medium text-[#4A5568]">
+                        {video.name || `Video ${i + 1}`}
+                      </span>
+                    </div>
+                    {/* Remove button */}
+                    <button
+                      type="button"
+                      onClick={() => removeExistingVideo(i)}
+                      disabled={saving}
+                      className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-red-600 opacity-0 group-hover:opacity-100 shadow-sm transition-all duration-200 hover:bg-red-50 disabled:opacity-50"
+                      aria-label="Remove video"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+
+                {/* Newly added videos (local preview) */}
+                {videos.map((video, i) => (
+                  <div
+                    key={`new-video-${i}`}
+                    className="group relative overflow-hidden rounded-2xl border border-[#C9A24B]/40 bg-[#FAF6EC] ring-1 ring-[#C9A24B]/20"
+                  >
+                    {/* Video preview */}
+                    <div className="relative aspect-video w-full overflow-hidden bg-[#0B1E3F]/5">
+                      <video
+                        src={video.previewUrl}
+                        className="h-full w-full object-cover"
+                        preload="metadata"
+                        muted
+                        playsInline
+                        onMouseEnter={(e) => e.currentTarget.play()}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.pause();
+                          e.currentTarget.currentTime = 0;
+                        }}
+                      />
+                      {/* Play icon overlay */}
+                      <div className="pointer-events-none absolute inset-0 flex items-center justify-center group-hover:opacity-0 transition-opacity duration-200">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/40">
+                          <Play
+                            size={18}
+                            className="translate-x-0.5 text-white"
+                            fill="white"
+                          />
+                        </div>
+                      </div>
+                      {/* "New" badge */}
+                      <span className="absolute left-2 top-2 rounded-full bg-[#C9A24B] px-2 py-0.5 text-[10px] font-semibold text-white shadow-sm">
+                        New
+                      </span>
+                    </div>
+                    {/* File name footer */}
+                    <div className="flex items-center gap-2 px-3 py-2.5">
+                      <Film size={13} className="shrink-0 text-[#718096]" />
+                      <span className="truncate text-xs font-medium text-[#4A5568]">
+                        {video.name}
+                      </span>
+                    </div>
+                    {/* Remove button */}
+                    <button
+                      type="button"
+                      onClick={() => removeNewVideo(i)}
+                      disabled={saving}
+                      className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-red-600 opacity-0 group-hover:opacity-100 shadow-sm transition-all duration-200 hover:bg-red-50 disabled:opacity-50"
+                      aria-label="Remove video"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+
+                {/* "Add more" tile */}
+                <button
+                  type="button"
+                  onClick={() => videoInputRef.current?.click()}
+                  disabled={saving}
+                  className="flex aspect-video flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-[#CBD5E0] bg-[#FAF6EC] text-[#718096] transition-colors hover:border-[#C9A24B] hover:bg-[#FAF9F0] hover:text-[#C9A24B] disabled:opacity-50"
+                >
+                  <Plus size={22} />
+                  <span className="text-xs font-semibold">Add more</span>
+                </button>
+              </div>
+            ) : (
+              /* Empty state – full upload zone */
+              <button
+                type="button"
+                onClick={() => videoInputRef.current?.click()}
+                disabled={saving}
+                className="flex h-44 w-full flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-[#CBD5E0] bg-[#FAF6EC] text-[#4A5568] transition-colors hover:border-[#C9A24B] hover:bg-[#FAF9F0] disabled:opacity-50"
+              >
+                <Film size={28} className="text-[#A0AEC0]" />
+                <div>
+                  <p className="text-sm font-semibold text-[#4A5568]">
+                    Upload videos
+                  </p>
+                  <p className="mt-1 text-xs text-[#718096]">
+                    MP4, MOV, WEBM · Select multiple at once
+                  </p>
+                </div>
+              </button>
+            )}
+          </div>
+
+          {/* ── Category & Tags ── */}
           <div className="rounded-3xl border border-[#E8E3DB] bg-white p-6 shadow-sm">
             <div className="mb-6">
               <h3 className="text-xl font-semibold text-[#0B1E3F]">
@@ -564,7 +987,9 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
           </div>
         </div>
 
+        {/* ══════════════════════════════ RIGHT COLUMN ═════════════════════════════ */}
         <aside className="space-y-6">
+          {/* ── Thumbnail ── */}
           <div className="rounded-3xl border border-[#E8E3DB] bg-white p-6 shadow-sm">
             <div className="space-y-4">
               <label className="block text-sm font-semibold text-[#0B1E3F]">
@@ -623,6 +1048,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
             </div>
           </div>
 
+          {/* ── Vehicle details ── */}
           <div className="rounded-3xl border border-[#E8E3DB] bg-white p-6 shadow-sm">
             <div className="mb-6">
               <h3 className="text-xl font-semibold text-[#0B1E3F]">
@@ -685,7 +1111,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                     onChange={handleFieldChange}
                     disabled={saving}
                     placeholder="10"
-                    className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-moz-appearance]:textfield"
+                    className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -700,13 +1126,14 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                     onChange={handleFieldChange}
                     disabled={saving}
                     placeholder="12"
-                    className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-moz-appearance]:textfield"
+                    className="w-full rounded-3xl border border-[#CBD5E0] bg-[#FAF6EC] px-4 py-3 text-sm text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   />
                 </div>
               </div>
             </div>
           </div>
 
+          {/* ── Active status ── */}
           <div className="rounded-3xl border border-[#E8E3DB] bg-[#FAF6EC] p-6 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <div>
@@ -725,12 +1152,14 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                   setForm((prev) => ({ ...prev, isActive: !prev.isActive }))
                 }
                 disabled={saving}
-                className={`relative h-7 w-14 rounded-full transition-colors duration-200 focus:outline-none ${form.isActive ? "bg-[#0B1E3F]" : "bg-[#CBD5E0]"
-                  }`}
+                className={`relative h-7 w-14 rounded-full transition-colors duration-200 focus:outline-none ${
+                  form.isActive ? "bg-[#0B1E3F]" : "bg-[#CBD5E0]"
+                }`}
               >
                 <span
-                  className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform duration-200 ${form.isActive ? "translate-x-7" : "translate-x-0"
-                    }`}
+                  className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform duration-200 ${
+                    form.isActive ? "translate-x-7" : "translate-x-0"
+                  }`}
                 />
               </button>
             </div>
@@ -738,6 +1167,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
         </aside>
       </div>
 
+      {/* ── Footer ── */}
       <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-[#4A5568]">
           {isEditMode
