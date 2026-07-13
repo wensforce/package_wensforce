@@ -5,6 +5,9 @@ import { Loader2, ImagePlus, X } from "lucide-react";
 import Modal from "../Modal";
 import { servicesApi } from "../../services/apis/services.api";
 import { useFetchList } from "../../hooks/useFetchList";
+import { useImagePreview } from "../../hooks/useImagePreview";
+import { useFormState } from "../../hooks/useFormState";
+
 export default function ServiceCreateModal({
   open,
   onClose,
@@ -14,9 +17,16 @@ export default function ServiceCreateModal({
 }) {
   const initialForm = { title: "", description: "", isActive: true };
 
-  const [form, setForm] = useState(initialForm);
-  const [thumbnail, setThumbnail] = useState(null);
-  const [preview, setPreview] = useState(null);
+  const { form, setForm, handleFieldChange: handleChange } = useFormState(initialForm);
+  const {
+    file: thumbnail,
+    setFile: setThumbnail,
+    previewUrl: preview,
+    setPreviewUrl: setPreview,
+    handleFileChange,
+    removeImage,
+  } = useImagePreview(service?.thumbnailUrl || null);
+
   const { loading, setLoading, error, setError } = useFetchList();
 
   const fileInputRef = useRef(null);
@@ -42,34 +52,8 @@ export default function ServiceCreateModal({
     }
   }, [service, open]);
 
-  useEffect(() => {
-    return () => {
-      if (preview && thumbnail) URL.revokeObjectURL(preview);
-    };
-  }, [preview, thumbnail]);
 
-  function handleChange(e) {
-    const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  }
 
-  function handleFileChange(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (preview) URL.revokeObjectURL(preview);
-    setThumbnail(file);
-    setPreview(URL.createObjectURL(file));
-  }
-
-  function removeImage() {
-    if (preview) URL.revokeObjectURL(preview);
-    setThumbnail(null);
-    setPreview(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -98,14 +82,14 @@ export default function ServiceCreateModal({
       }
 
       setForm(initialForm);
-      removeImage();
+      removeImage(fileInputRef);
       onClose();
     } catch (err) {
       setError(
         err?.response?.data?.message ||
-          (isEditMode
-            ? "Failed to update service."
-            : "Failed to create service."),
+        (isEditMode
+          ? "Failed to update service."
+          : "Failed to create service."),
       );
     } finally {
       setLoading(false);
@@ -115,7 +99,7 @@ export default function ServiceCreateModal({
   function handleClose() {
     if (loading) return;
     setForm(initialForm);
-    removeImage();
+    removeImage(fileInputRef);
     setError(null);
     onClose();
   }
@@ -201,7 +185,7 @@ export default function ServiceCreateModal({
                 </button>
                 <button
                   type="button"
-                  onClick={removeImage}
+                  onClick={() => removeImage(fileInputRef)}
                   disabled={loading}
                   className="flex items-center gap-1.5 text-xs font-semibold text-white bg-red-500/80 rounded-lg px-3 py-1.5 hover:bg-red-600 transition-colors"
                 >

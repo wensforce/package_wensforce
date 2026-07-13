@@ -12,8 +12,8 @@ import {
   Loader2,
   Package,
 } from "lucide-react";
-import api from "../../../axios/axios";
 import { toast } from "sonner";
+import { tripApiUser } from "@/app/user-apis/trip.api";
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const ASSETS_BASE = process.env.NEXT_PUBLIC_ASSETS_URL ?? "";
@@ -90,13 +90,13 @@ export default function RequestTripModal({ plan, onClose }) {
             id: svc.id,
           })),
       };
-      const response = await api.post("/trip/request", payload);
+      const data = await tripApiUser.requestTrip(payload);
 
-      if (response.data?.success) {
+      if (data?.success) {
         toast.success("Trip request submitted successfully!");
         onClose();
       } else {
-        toast.error(response.data?.message || "Failed to submit trip request.");
+        toast.error(data?.message || "Failed to submit trip request.");
       }
     } catch (error) {
       console.error("Error submitting trip request:", error);

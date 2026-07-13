@@ -11,6 +11,7 @@ import {
   Shield,
 } from "lucide-react";
 import { useComparison } from "./hooks/useComparison";
+import { usePackages } from "../../hooks/usePackages";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
@@ -73,29 +74,16 @@ function CellValue({ value, isHighlight, isBold, isServiceRow }) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-/**
- * ComparisonTable
- *
- * Props:
- *   packages      — array from GET /package/user  (required)
- *   bestValueId   — optional: pkg.id of the "BEST VALUE" column.
- *                   Defaults to the middle package when omitted.
- *
- * Usage in page.js:
- *   <ComparisonTable packages={packages} />
- *   or
- *   <ComparisonTable packages={packages} bestValueId={3} />
- */
-export function ComparisonTable({ packages = [], bestValueId }) {
+export function ComparisonTable() {
   const waBase = `https://wa.me/${WA_NUMBER}?text=`;
+ const { packages, bestValueId } = usePackages();
 
   // ── Guard: nothing to render ──────────────────────────────────────────────
   if (!packages || packages.length === 0) return null;
 
   const {
-    highlightIndex,
     effectiveHighlight,
-    allServiceTitles,
+
     SERVICE_ROWS,
     STATIC_ROWS,
   } = useComparison({ packages, bestValueId });

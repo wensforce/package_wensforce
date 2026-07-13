@@ -108,7 +108,11 @@ export const useComparison = ({ packages = [], bestValueId }) => {
   // Cell shows count (e.g. "3×") if the package has it, ✗ if not.
   const allServiceTitles = [
     ...new Set(
-      packages.flatMap((p) => p.packageServices.map((s) => s.service.title)),
+      packages.flatMap((p) =>
+        (p.packageServices || [])
+          .map((s) => s.service?.title)
+          .filter(Boolean)
+      ),
     ),
   ];
 
@@ -116,7 +120,9 @@ export const useComparison = ({ packages = [], bestValueId }) => {
     label: title.charAt(0).toUpperCase() + title.slice(1), // capitalise first letter
     isServiceRow: true,
     render: (pkg) => {
-      const match = pkg.packageServices.find((s) => s.service.title === title);
+      const match = (pkg.packageServices || []).find(
+        (s) => s.service?.title === title
+      );
       return match ? `${match.count}×` : null; // null → ✗ in CellValue
     },
   }));

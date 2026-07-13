@@ -1,6 +1,6 @@
-'use client';
-import { useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+"use client";
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 export default function MetaPixelInit() {
   const pathname = usePathname();
@@ -9,7 +9,7 @@ export default function MetaPixelInit() {
     // Load Meta Pixel script once
     if (window.fbq) return;
 
-    const script = document.createElement('script');
+    const script = document.createElement("script");
     script.innerHTML = `
       !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
       n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
@@ -25,7 +25,7 @@ export default function MetaPixelInit() {
   // Track PageView on route change (skip first load — already tracked above)
   useEffect(() => {
     if (!window.fbq) return;
-    window.fbq('track', 'PageView');
+    window.fbq("track", "PageView");
   }, [pathname]);
 
   return null;

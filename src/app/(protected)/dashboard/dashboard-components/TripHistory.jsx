@@ -12,7 +12,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
-import api from "../../../axios/axios";
+import { tripApiUser } from "@/app/user-apis/trip.api";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { setTripHistory } from "../slices/trip-history-slice";
@@ -352,7 +352,7 @@ export default function TripHistory() {
     }
 
     try {
-      const { data } = await api.get("/trip/mine");
+      const data = await tripApiUser.getMyTrips();
       const fetchedTrips = Array.isArray(data?.data) ? data.data : [];
       setTrips(fetchedTrips);
       dispatch(setTripHistory(fetchedTrips));

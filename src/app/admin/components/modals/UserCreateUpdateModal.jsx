@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import Modal from "../Modal";
 import { userApi } from "../../users/apis/user.api";
 import { useFetchList } from "../../hooks/useFetchList";
+import { useFormState } from "../../hooks/useFormState";
 const ROLES = ["user", "admin", "ops"];
 const INITIAL_FORM = {
   name: "",
@@ -21,7 +22,7 @@ export default function UserCreateUpdateModal({
   onUpdated,
   user,
 }) {
-  const [form, setForm] = useState(INITIAL_FORM);
+  const { form, setForm, handleFieldChange } = useFormState(INITIAL_FORM);
   const { loading, setLoading, error, setError } = useFetchList();
 
   const isEditMode = Boolean(user?.id);
@@ -66,10 +67,7 @@ export default function UserCreateUpdateModal({
     return Object.keys(updates).some((key) => updates[key] !== original[key]);
   }, [form, isEditMode, user]);
 
-  function handleFieldChange(e) {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  }
+
 
   function validate() {
     if (!isEditMode) {

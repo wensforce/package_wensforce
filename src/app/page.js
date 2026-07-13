@@ -10,22 +10,21 @@ import PressPartnerWall from "./components/MainPage/PressPartnerWall";
 import ExitIntentPopup from "./components/MainPage/ExitIntentPopup";
 import TestimonialsSection from "./components/MainPage/TestimonialsSection";
 import HeroSection from "./components/MainPage/HeroSection";
-import FoundingMemberBanner from "./components/MainPage/FoundingMemberBanner";
 import JsonLd from "./components/MainPage/JsonLd";
 import ServicesVideoSection from "./components/MainPage/ServicesVideoSection";
-
-import HomeClient from "./components/MainPage/HomeClient";
-
+import { ComparisonTable } from "./components/Comparison-Table/ComparisonTable";
+import PlansSection from "./components/MainPage/PlansSection";
+import FoundingMemberBanner from "./components/MainPage/FoundingMemberBanner";
+import WelcomeIndiaCard from "./components/MainPage/WelcomeIndiaCard";
+// export const metadata = {
+//   title:
+//     "WENS Force — India's Only Luxury Travel + Armed Protection + VIP Darshan Subscription",
+//   description:
+//     "Five tiers. One annual fee. Vehicle, bodyguard, and lifestyle privileges pre-arranged for the year. VIP Darshan at Tirupati, Vaishno Devi, Mahakaleshwar. PSARA-licensed security. From ₹24,999/year.",
+//   alternates: { canonical: "https://subscription.wensforce.com" },
+// };
+const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
 const WA_NUMBER = "917304607954";
-
-// ✅ metadata works because this is a Server Component
-export const metadata = {
-  title:
-    "WENS Force — India's Only Luxury Travel + Armed Protection + VIP Darshan Subscription",
-  description:
-    "Five tiers. One annual fee. Vehicle, bodyguard, and lifestyle privileges pre-arranged for the year. VIP Darshan at Tirupati, Vaishno Devi, Mahakaleshwar. PSARA-licensed security. From ₹24,999/year.",
-  alternates: { canonical: "https://subscription.wensforce.com" },
-};
 
 const faqs = [
   {
@@ -58,7 +57,6 @@ const faqs = [
   },
 ];
 
-// ── FAQSection stays as a plain function (no hooks → fine in a SC file) ──────
 function FAQSection() {
   return (
     <section className="max-w-3xl mx-auto px-6 py-16">
@@ -123,10 +121,8 @@ function FAQSection() {
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
 export default async function HomePage({ searchParams }) {
   const { welcomeIndia } = await searchParams;
-
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -164,12 +160,11 @@ export default async function HomePage({ searchParams }) {
     <div className="min-h-screen relative">
       <JsonLd data={faqSchema} />
       <JsonLd data={itemListSchema} />
-
       <Suspense fallback={null}>
         <Header />
       </Suspense>
 
-      {/* ── HERO ── */}
+      {/* ── HERO (with announcement bar + full-screen video) ── */}
       <HeroSection welcomeIndia={welcomeIndia} />
 
       {/* ── TRUST STRIP ── */}
@@ -180,13 +175,23 @@ export default async function HomePage({ searchParams }) {
       {/* ── WEDGE BLOCK ── */}
       <WedgeBlock />
 
-      {/*
-        ── PLANS + COMPARISON TABLE ──────────────────────────────────────────
-        HomeClient is the only "use client" boundary on this page.
-        It owns useState / useEffect / Redux and renders PlansSection
-        + ComparisonTable once the API call resolves.
-      */}
-      <HomeClient welcomeIndia={welcomeIndia} />
+      {/* ── PLANS SPOTLIGHT ── */}
+      <section style={{ backgroundColor: "#FAF6EC" }}>
+        {welcomeIndia === "true" ? <WelcomeIndiaCard /> : <PlansSection />}
+      </section>
+
+      {/* ── TIER QUIZ ── */}
+      <TierQuiz />
+
+      {/* ── ALL PLANS GRID ── */}
+      {/* <AllPlansGrid plans={plans} /> */}
+
+      {/* ── COMPARISON TABLE ── */}
+      {welcomeIndia !== "true" && (
+        <section style={{ backgroundColor: "#FAF6EC" }}>
+          <ComparisonTable />
+        </section>
+      )}
 
       {/* ── HOW IT WORKS ── */}
       <HowItWorks />
@@ -196,6 +201,12 @@ export default async function HomePage({ searchParams }) {
 
       {/* ── PRESS & PARTNERS ── */}
       <PressPartnerWall />
+
+      {/* ── FOUNDER STORY ── */}
+      {/* <FounderStoryBlock /> */}
+
+      {/* ── REFERRAL BANNER ── */}
+      {/* <ReferralBanner /> */}
 
       {/* ── FAQ ── */}
       <FAQSection />
@@ -241,7 +252,10 @@ export default async function HomePage({ searchParams }) {
                 name: "Terms & Conditions",
                 href: "https://wensforce.com/disclaimer-terms-of-services/",
               },
-              { name: "Membership Terms", href: "/terms" },
+              {
+                name: "Membership Terms",
+                href: "/terms",
+              },
               {
                 name: "Refund Policy",
                 href: "https://wensforce.com/cancellation-refund-policy/",
@@ -290,7 +304,35 @@ export default async function HomePage({ searchParams }) {
         </div>
       </footer>
 
+      {/* Sticky mobile CTA */}
+      {/* <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[#0B1E3F]/97 backdrop-blur border-t border-white/8 px-5 py-3">
+        <div className="flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="text-[9px] text-white uppercase tracking-widest">
+              {plans[0].name}
+            </div>
+            <div className="text-[#ffce63] font-semibold text-sm">
+              {plans[0].price} / yr &nbsp;·&nbsp; {plans[0].confirmed} of 100
+              confirmed
+            </div>
+          </div>
+          <a
+            href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(`Hi WENS Force, I want to claim ${plans[0].name} membership. Please guide me.`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 font-bold py-2.5 px-4 rounded-xl text-xs whitespace-nowrap shrink-0 transition-all hover:opacity-90"
+            style={{ backgroundColor: "#25D366", color: "white" }}
+          >
+            <svg viewBox="0 0 32 32" width="12" height="12" fill="white">
+              <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.668 4.799 1.836 6.793L2 30l7.393-1.812A13.918 13.918 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2z" />
+            </svg>
+            Enquire Now
+          </a>
+        </div>
+      </div> */}
       <div className="h-16 md:hidden" />
+
+      {/* Exit intent popup */}
       <ExitIntentPopup />
     </div>
   );

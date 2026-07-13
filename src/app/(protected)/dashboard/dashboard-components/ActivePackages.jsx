@@ -18,11 +18,11 @@ import {
   Clock,
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
-import api from "../../../axios/axios";
 import { toast } from "sonner";
 import RequestTripModal from "./RequestTrip";
 import { useDispatch, useSelector } from "react-redux";
 import { setActivePackages } from "../slices/active-packages-slice";
+import { subscriptionApiUser } from "@/app/user-apis/subscription.api";
 // ── Config ────────────────────────────────────────────────────────────────────
 const ASSETS_BASE = process.env.NEXT_PUBLIC_ASSETS_URL ?? "";
 
@@ -443,7 +443,7 @@ export default function ActivePackages() {
     }
 
     try {
-      const { data } = await api.get("/subscription/my");
+      const data = await subscriptionApiUser.getMySubscriptions();
       const fetchedPlans = normalisePlans(data?.data);
       setPlans(fetchedPlans);
       dispatch(setActivePackages(fetchedPlans));
