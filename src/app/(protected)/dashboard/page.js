@@ -12,12 +12,11 @@ import {
   CreditCard,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import api from "../../axios/axios";
-
 import ActivePackages from "./dashboard-components/ActivePackages";
 import TripHistory from "./dashboard-components/TripHistory";
 import PackageHistory from "./dashboard-components/PackageHistory";
 import PaymentHistory from "./dashboard-components/PaymentHistory";
+import { authApiUser } from "@/app/user-apis/auth.api";
 // ── Tab config ────────────────────────────────────────────────────────────────
 const TABS = [
   { id: "active", label: "Active Packages", icon: <ShoppingBag size={14} /> },
@@ -34,7 +33,7 @@ export default function DashboardPage() {
 
   const handleLogout = async () => {
     try {
-      await api.post("/auth/logout");
+      await authApiUser.logout()
     } catch (err) {
       console.error("Logout error:", err);
     } finally {

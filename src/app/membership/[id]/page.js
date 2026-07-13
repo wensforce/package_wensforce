@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, notFound } from "next/navigation";
-import api from "@/app/axios/axios";
+import { packageApiUser } from "@/app/user-apis/package.api";
 import PlanVideoPlayer from "../../components/MainPage/PlanVideoPlayer";
 import MetaViewTracker from "@/app/components/MainPage/MetaViewTracker";
 import { useDispatch, useSelector } from "react-redux";
@@ -43,7 +43,11 @@ export default function PlanDetailPage() {
   const [exitPopupVisible, setExitPopupVisible] = useState(false);
 
   // Only fire exit intent after the plan has loaded — no point nudging a blank page
-  useExitIntent(() => { if (plan) setExitPopupVisible(true); });
+  const { isExitIntent } = useExitIntent(exitPopupVisible && !!plan);
+
+  useEffect(() => {
+    if (isExitIntent) setExitPopupVisible(true);
+  }, [isExitIntent]);
 
   useEffect(() => {
     if (!id) return;
@@ -62,8 +66,8 @@ export default function PlanDetailPage() {
             setOtherPlans(storePackages.filter((p) => String(p.id) !== String(id)));
           } else {
             // detailedPlan found but no list yet — fetch list only
-            const allPlansRes = await api.get("/package/user");
-            const allPlans = allPlansRes?.data?.data || [];
+            const allPlansRes = await packageApiUser.fetchUserPackages();
+            const allPlans = allPlansRes?.data || [];
             setOtherPlans(allPlans.filter((p) => String(p.id) !== String(id)));
             dispatch(setPackages(allPlans));
           }
@@ -85,13 +89,12 @@ export default function PlanDetailPage() {
         }
 
         // ── Tier 3: full API hit ──
-        const [planRes, allPlansRes] = await Promise.all([
-          api.get(`/package/${id}`),
-          api.get("/package/user"),
+        const [fetchedPlan, allPlansRes] = await Promise.all([
+          packageApiUser.getPackageById(id),
+          packageApiUser.fetchUserPackages(),
         ]);
 
-        const fetchedPlan = planRes?.data?.data || null;
-        const allPlans = allPlansRes?.data?.data || [];
+        const allPlans = allPlansRes?.data || [];
 
         if (!fetchedPlan) {
           setError(true);

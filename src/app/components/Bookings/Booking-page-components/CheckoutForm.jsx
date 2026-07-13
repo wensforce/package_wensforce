@@ -24,6 +24,9 @@ import {INR,
 import PaymentRegionSelector from "./PaymentRegionSelector";
 import OrderSummary from "./OrderSummary";
 import { useCurrency } from "@/app/hooks/useCurrency";
+import { paymentApiUser } from "@/app/user-apis/payment.api";
+import { bookingApiUser } from "@/app/user-apis/booking.api";
+import { authApiUser } from "@/app/user-apis/auth.api";
 
 /* ── Pricing helpers (pure functions, no state) ───────────────────────── */
 
@@ -175,7 +178,7 @@ export default function CheckoutForm({
         plan_name: packageData.name || "Unknown",
       });
 
-      const res = await api.post("/payment/create-order", payload);
+      const res = await paymentApiUser.createOrder(payload);
       const data = res.data?.data;
 
       if (!data?.payment_session_id)
@@ -184,7 +187,7 @@ export default function CheckoutForm({
         );
 
       await Promise.all([
-        api.post("/booking", {
+        bookingApiUser.createBooking({
           packageName: packageData.name,
           packageId: packageData.id,
           validity: packageData.validity,
@@ -195,7 +198,7 @@ export default function CheckoutForm({
           purchaseDate: new Date().toISOString(),
         }),
         !user?.name || !user?.email || (!user?.city && form.city)
-          ? api.put("/auth/update-profile", {
+          ? authApiUser.updateProfile({
               name: form.name.trim(),
               email: form.email.trim(),
               city: form.city || "Not specified",

@@ -9,7 +9,6 @@ import {
   CheckCircle,
   Star,
 } from "lucide-react";
-import api from "@/app/axios/axios";
 import { usePackages } from "../../hooks/usePackages";
 
 const WA_NUMBER = "917304607954";

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { Check, ArrowRight, Sparkles } from "lucide-react";
-import api from "@/app/axios/axios"; 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";

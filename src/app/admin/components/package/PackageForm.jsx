@@ -5,6 +5,8 @@ import { Loader2, ImagePlus, X, Plus, Trash2, Search } from "lucide-react";
 
 import { packageApi } from "../../packages/apis/packages.api";
 import { servicesApi } from "../../services/apis/services.api";
+import { useImagePreview } from "../../hooks/useImagePreview";
+import { useFormState } from "../../hooks/useFormState";
 
 const emptyServiceItem = { id: "", title: "", query: "", count: 1 };
 
@@ -26,9 +28,16 @@ const initialFormState = {
 
 export default function PackageForm({ packageId, initialData, onSaved }) {
   const isEditMode = Boolean(packageId);
-  const [form, setForm] = useState(initialFormState);
-  const [thumbnail, setThumbnail] = useState(null);
-  const [preview, setPreview] = useState(null);
+  const { form, setForm, handleFieldChange } = useFormState(initialFormState);
+  const {
+    file: thumbnail,
+    setFile: setThumbnail,
+    previewUrl: preview,
+    setPreviewUrl: setPreview,
+    handleFileChange,
+    removeImage,
+  } = useImagePreview(initialData?.thumbnailUrl || null);
+
   const [existingThumbnailKey, setExistingThumbnailKey] = useState(null);
   const [serviceSuggestions, setServiceSuggestions] = useState({});
   const [saving, setSaving] = useState(false);
@@ -45,13 +54,13 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
         discountedPrice: initialData.discountedPrice ?? "",
         services:
           Array.isArray(initialData.packageServices) &&
-          initialData.packageServices.length > 0
+            initialData.packageServices.length > 0
             ? initialData.packageServices.map((ps) => ({
-                id: ps.service?.id ?? "",
-                title: ps.service?.title ?? ps.service?.name ?? "",
-                query: ps.service?.title ?? ps.service?.name ?? "",
-                count: ps.count ?? 1,
-              }))
+              id: ps.service?.id ?? "",
+              title: ps.service?.title ?? ps.service?.name ?? "",
+              query: ps.service?.title ?? ps.service?.name ?? "",
+              count: ps.count ?? 1,
+            }))
             : [{ ...emptyServiceItem }],
         vehicleType: initialData.vehicleType ?? "",
         vehicleModel: initialData.vehicleModel ?? "",
@@ -80,17 +89,8 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
   useEffect(() => {
     return () => {
       Object.values(serviceSearchTimeouts.current).forEach(clearTimeout);
-      if (preview && thumbnail) URL.revokeObjectURL(preview);
     };
-  }, [preview, thumbnail]);
-
-  function handleFieldChange(e) {
-    const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  }
+  }, []);
 
   function handleServiceChange(index, field, value) {
     setForm((prev) => {
@@ -188,21 +188,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
     });
   }
 
-  function handleFileChange(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (preview && thumbnail) URL.revokeObjectURL(preview);
-    setThumbnail(file);
-    setPreview(URL.createObjectURL(file));
-  }
 
-  function removeImage() {
-    if (preview && thumbnail) URL.revokeObjectURL(preview);
-    setThumbnail(null);
-    setPreview(null);
-    setExistingThumbnailKey(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  }
 
   function validateForm() {
     if (!form.name.trim()) return "Name is required.";
@@ -611,7 +597,10 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                     </button>
                     <button
                       type="button"
-                      onClick={removeImage}
+                      onClick={() => {
+                        removeImage(fileInputRef);
+                        setExistingThumbnailKey(null);
+                      }}
                       disabled={saving}
                       className="flex items-center gap-1.5 rounded-full bg-red-500/80 px-4 py-2 text-xs font-semibold text-white hover:bg-red-600 transition-colors"
                     >
@@ -736,14 +725,12 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                   setForm((prev) => ({ ...prev, isActive: !prev.isActive }))
                 }
                 disabled={saving}
-                className={`relative h-7 w-14 rounded-full transition-colors duration-200 focus:outline-none ${
-                  form.isActive ? "bg-[#0B1E3F]" : "bg-[#CBD5E0]"
-                }`}
+                className={`relative h-7 w-14 rounded-full transition-colors duration-200 focus:outline-none ${form.isActive ? "bg-[#0B1E3F]" : "bg-[#CBD5E0]"
+                  }`}
               >
                 <span
-                  className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform duration-200 ${
-                    form.isActive ? "translate-x-7" : "translate-x-0"
-                  }`}
+                  className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform duration-200 ${form.isActive ? "translate-x-7" : "translate-x-0"
+                    }`}
                 />
               </button>
             </div>

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Loader2, Search, X } from "lucide-react";
 import Modal from "../Modal";
 import { useFetchList } from "../../hooks/useFetchList";
+import { useFormState } from "../../hooks/useFormState";
 
 import { couponApi } from "../../coupons/apis/coupons.api";
 import { packageApi } from "../../packages/apis/packages.api";
@@ -35,7 +36,7 @@ export default function CouponCreateModal({
   onUpdated,
   coupon,
 }) {
-  const [form, setForm] = useState(INITIAL_FORM);
+  const { form, setForm, handleFieldChange } = useFormState(INITIAL_FORM);
   const [selectedPackages, setSelectedPackages] = useState([]);
   const [selectedPackageMeta, setSelectedPackageMeta] = useState({});
   const [packageSuggestions, setPackageSuggestions] = useState([]);
@@ -139,10 +140,7 @@ export default function CouponCreateModal({
       .slice(0, 5);
   }, [packageSuggestions, selectedPackages]);
 
-  function handleFieldChange(e) {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  }
+
 
   function togglePackage(id) {
     setSelectedPackages((prev) =>

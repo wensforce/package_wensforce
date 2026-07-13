@@ -10,6 +10,7 @@ import {
   PlusCircle,
 } from "lucide-react";
 import Modal from "../Modal";
+import { useFormState } from "../../hooks/useFormState";
 
 import { userApi } from "../../users/apis/user.api";
 import { packageApi } from "../../packages/apis/packages.api";
@@ -33,7 +34,7 @@ function toLocalDateTimeValue(date) {
 }
 
 export default function CreateSubscriptionModal({ open, onClose, onCreated }) {
-  const [form, setForm] = useState(INITIAL_FORM);
+  const { form, setForm, handleFieldChange } = useFormState(INITIAL_FORM);
   const [userSearch, setUserSearch] = useState("");
   const [debouncedUserSearch, setDebouncedUserSearch] = useState("");
   const [userOptions, setUserOptions] = useState([]);
@@ -138,10 +139,7 @@ export default function CreateSubscriptionModal({ open, onClose, onCreated }) {
     };
   }, [debouncedPackageSearch, open]);
 
-  function handleFieldChange(e) {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  }
+
 
   function validateForm() {
     if (!selectedUser?.id) return "Please search and select a user.";

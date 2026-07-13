@@ -1,9 +1,9 @@
 "use client";
-import api from "@/app/axios/axios";
 import BookingPageContent from "@/app/components/Bookings/BookingPageContent";
 import { useParams } from "next/navigation";
 import React, { Suspense, useEffect, useState } from "react";
 import { useExitIntent } from "@/app/hooks/useExitIntent";
+import { packageApiUser } from "@/app/user-apis/package.api";
 
 export const BookingPage = () => {
   const { id } = useParams();
@@ -13,8 +13,8 @@ export const BookingPage = () => {
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const res = await api.get(`/package/${id}`);
-        setPackageData(res?.data?.data || null);
+        const res = await packageApiUser.getPackageById(id);
+        setPackageData(res);
       } catch (err) {
         console.error("Failed to fetch package", id, err);
         return null;

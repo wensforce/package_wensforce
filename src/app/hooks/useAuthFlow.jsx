@@ -1,6 +1,6 @@
 "use client"
 import { useState, useRef, useEffect } from "react";
-import api from "@/app/axios/axios";
+import { authApiUser } from "@/app/user-apis/auth.api";
 import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
 const COUNTRY_CODES = [
@@ -29,21 +29,26 @@ export const useAuthFlow = ({ onSuccess } = {}) => {
   const [step, setStep] = useState("phone");
   const [phone, setPhone] = useState("");
   const [selectedCountry, setSelectedCountry] = useState(COUNTRY_CODES[0]);
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [otp, setOtp] = useState(Array(6).fill(""));
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
-  const countdownRef = useRef(null);
   const otpRefs = useRef([]);
+  const countdownIntervalRef = useRef(null);
   const { login } = useAuth();
 
-  // Start 30s cooldown
+  useEffect(() => {
+    return () => {
+      if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    };
+  }, []);
+
   const startCountdown = () => {
-    if (countdownRef.current) clearInterval(countdownRef.current);
-    setCountdown(30);
-    countdownRef.current = setInterval(() => {
+    setCountdown(60);
+    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    countdownIntervalRef.current = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
-          clearInterval(countdownRef.current);
+          clearInterval(countdownIntervalRef.current);
           return 0;
         }
         return prev - 1;
@@ -55,9 +60,7 @@ export const useAuthFlow = ({ onSuccess } = {}) => {
     e.preventDefault();
     try {
       setLoading(true);
-      await api.post("/auth/send-otp", {
-        mobileNumber: selectedCountry.code + phone,
-      });
+      await authApiUser.sendOtp(selectedCountry.code + phone);
       setStep("otp");
       startCountdown();
     } catch (error) {
@@ -74,10 +77,10 @@ export const useAuthFlow = ({ onSuccess } = {}) => {
     e.preventDefault();
     try {
       setLoading(true);
-      const { data } = await api.post("/auth/verify-otp", {
-        mobileNumber: selectedCountry.code + phone,
-        otp: otp.join(""),
-      });
+      const data = await authApiUser.verifyOtp(
+        selectedCountry.code + phone,
+        otp.join(""),
+      );
       await login(data.data.accessToken, data.data.user);
       onSuccess?.(data.data.user);
     } catch (error) {
@@ -123,10 +126,7 @@ export const useAuthFlow = ({ onSuccess } = {}) => {
   const handleResendViaSms = async () => {
     try {
       startCountdown();
-      await api.post("/auth/resend-otp", {
-        mobileNumber: selectedCountry.code + phone,
-        platform: "SMS",
-      });
+      await authApiUser.resendOtp(selectedCountry.code + phone, "SMS");
     } catch (error) {
       toast.error(
         error?.response?.data?.message || "Failed to resend OTP via SMS.",
@@ -137,10 +137,7 @@ export const useAuthFlow = ({ onSuccess } = {}) => {
   const handleResendViaWhatsapp = async () => {
     try {
       startCountdown();
-      await api.post("/auth/resend-otp", {
-        mobileNumber: selectedCountry.code + phone,
-        platform: "Whatsapp",
-      });
+      await authApiUser.resendOtp(selectedCountry.code + phone, "Whatsapp");
     } catch (error) {
       toast.error(
         error?.response?.data?.message || "Failed to resend OTP via WhatsApp.",
@@ -151,7 +148,7 @@ export const useAuthFlow = ({ onSuccess } = {}) => {
   const handleBack = () => {
     setStep("phone");
     setOtp(["", "", "", "", "", ""]);
-    if (countdownRef.current) clearInterval(countdownRef.current);
+    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
     setCountdown(0);
   };
   return {

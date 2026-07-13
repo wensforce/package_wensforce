@@ -7,7 +7,7 @@ import {
   setPackagesLoading,
   setPackagesError,
 } from "@/app/membership/slices/package-slice";
-import api from "@/app/axios/axios";
+import { packageApiUser } from "@/app/user-apis/package.api";
 
 let isFetching = false;
 
@@ -29,8 +29,8 @@ export function usePackages() {
     const run = async () => {
       dispatch(setPackagesLoading(true));
       try {
-        const res = await api.get("/package/user");
-        const data = res?.data?.data ?? [];
+        const res = await packageApiUser.fetchUserPackages();
+        const data = res?.data ?? [];
         dispatch(setPackages(data));
       } catch (err) {
         console.error("usePackages: fetch failed", err);

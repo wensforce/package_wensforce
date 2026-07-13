@@ -17,8 +17,6 @@ import { useCurrency } from "@/app/hooks/useCurrency";
 
 const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
 
-
-
 function fmtForeign(amount, code) {
   const cur = CURRENCIES.find((c) => c.code === code);
   if (!cur || !amount) return "";
