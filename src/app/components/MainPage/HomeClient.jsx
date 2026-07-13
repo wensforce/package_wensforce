@@ -1,7 +1,7 @@
 "use client";
 
 import { usePackages } from "../../hooks/usePackages";
-import PlansSection      from "./PlansSection";
+import PlansSection from "./PlansSection";
 import { ComparisonTable } from "../Comparison-Table/ComparisonTable";
 import FoundingMemberBanner from "./FoundingMemberBanner";
 
@@ -15,7 +15,7 @@ export default function HomeClient({ slot, welcomeIndia }) {
   if (slot === "founding") {
     return (
       <FoundingMemberBanner
-        packages={packages}   // ← now correctly reads storePackages
+        packages={packages} // ← now correctly reads storePackages
         loading={loading}
         error={error}
       />

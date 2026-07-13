@@ -8,7 +8,7 @@ const DEFAULT_MSG =
 
 export default function FloatingWhatsApp({ tierContext = "" }) {
   const [showBubble, setShowBubble] = useState(false);
-  
+
   const message = tierContext
     ? `Hi WENS Force, I'm interested in the ${tierContext} membership. Can you help?`
     : DEFAULT_MSG;

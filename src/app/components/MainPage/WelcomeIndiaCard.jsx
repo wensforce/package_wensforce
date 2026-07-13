@@ -13,20 +13,11 @@ import {
   Sparkles,
 } from "lucide-react";
 import { plans } from "../../data/welcomeIndia";
+import { useCurrency } from "@/app/hooks/useCurrency";
 
 const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
 
-const CURRENCIES = [
-  { code: "USD", flag: "🇺🇸", symbol: "$", name: "US Dollar" },
-  { code: "EUR", flag: "🇪🇺", symbol: "€", name: "Euro" },
-  { code: "JPY", flag: "🇯🇵", symbol: "¥", name: "Japanese Yen" },
-  { code: "GBP", flag: "🇬🇧", symbol: "£", name: "British Pound" },
-  { code: "CNY", flag: "🇨🇳", symbol: "¥", name: "Chinese Yuan" },
-  { code: "CHF", flag: "🇨🇭", symbol: "Fr", name: "Swiss Franc" },
-  { code: "CAD", flag: "🇨🇦", symbol: "C$", name: "Canadian Dollar" },
-  { code: "AUD", flag: "🇦🇺", symbol: "A$", name: "Australian Dollar" },
-  { code: "INR", flag: "🇮🇳", symbol: "₹", name: "Indian Rupee" },
-];
+
 
 function fmtForeign(amount, code) {
   const cur = CURRENCIES.find((c) => c.code === code);
@@ -240,22 +231,15 @@ const USD_PRICES = {
 };
 
 export default function WelcomeIndiaCard() {
-  const [currency, setCurrency] = useState("INR");
-  const [rate, setRate] = useState(1); // INR per 1 unit of selected currency
-  const [rateLoading, setRateLoading] = useState(false);
-
-  useEffect(() => {
-    if (currency === "INR" || currency === "USD") {
-      setRate(1);
-      return;
-    }
-    setRateLoading(true);
-    fetch(`/api/exchange-rate?currency=${currency}`)
-      .then((r) => r.json())
-      .then((d) => setRate(d.rate ?? 1))
-      .catch(() => setRate(1))
-      .finally(() => setRateLoading(false));
-  }, [currency]);
+  const {
+    currency,
+    setCurrency,
+    rate,
+    rateLoading,
+    CURRENCIES,
+    fmtForeign,
+    INR,
+  } = useCurrency("INR");
 
   const convertPrice = (inrAmount, planId) => {
     if (currency === "INR") return INR(inrAmount);
@@ -270,8 +254,6 @@ export default function WelcomeIndiaCard() {
     if (rateLoading) return "…";
     return fmtForeign(inrAmount / rate, currency);
   };
-
-  const selectedCur = CURRENCIES.find((c) => c.code === currency);
   return (
     <section id="plans" className="bg-[#EDE8DF] px-5 pt-[88px] pb-[112px]">
       <style>{`

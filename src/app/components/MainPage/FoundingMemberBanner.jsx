@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
@@ -288,7 +288,9 @@ export default function FoundingMemberBanner() {
                       {pkg.name ?? slug}
                     </p>
                     <p className="text-[11px] font-semibold text-[#C9A24B] text-center">
-                      {formatPrice(pkg.discountedPrice ?? pkg.regularPrice ?? pkg.price)}
+                      {formatPrice(
+                        pkg.discountedPrice ?? pkg.regularPrice ?? pkg.price,
+                      )}
                     </p>
                     <p className="text-[8px] text-white/20 text-center">
                       /year

@@ -15,6 +15,7 @@ import ServicesSection from "../sections/ServiceSection";
 import BreakdownSection from "../sections/BreakDownSection";
 import FAQSection from "../sections/FaqSection";
 import OtherPlansSection from "../sections/OtherPlansSection";
+import { useExitIntent } from "@/app/hooks/useExitIntent";
 
 const WA_NUMBER = "917304607954";
 const S3_BASE = "https://subscription-package-images.s3.ap-south-1.amazonaws.com";
@@ -39,6 +40,10 @@ export default function PlanDetailPage() {
   const [otherPlans, setOtherPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [exitPopupVisible, setExitPopupVisible] = useState(false);
+
+  // Only fire exit intent after the plan has loaded — no point nudging a blank page
+  useExitIntent(() => { if (plan) setExitPopupVisible(true); });
 
   useEffect(() => {
     if (!id) return;
@@ -155,6 +160,58 @@ export default function PlanDetailPage() {
       </div>
 
       <Footer />
+
+      {/* ── Exit intent: concierge nudge ── */}
+      {exitPopupVisible && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center px-4">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setExitPopupVisible(false)}
+          />
+          <div
+            className="relative bg-white rounded-3xl p-8 sm:p-10 max-w-md w-full shadow-2xl animate-scale-in"
+            style={{ boxShadow: "0 24px 64px rgba(11,30,63,0.25)" }}
+          >
+            <button
+              onClick={() => setExitPopupVisible(false)}
+              className="absolute top-5 right-5 text-gray-300 hover:text-gray-500 text-xl leading-none"
+              aria-label="Close"
+            >
+              ✕
+            </button>
+            <p className="text-[#C9A24B] text-[10px] tracking-[0.4em] uppercase font-semibold mb-3">
+              Still Deciding?
+            </p>
+            <h3 className="font-serif-display text-2xl font-bold text-[#0B1E3F] mb-2 leading-snug">
+              Let our concierge answer your questions
+            </h3>
+            <p className="text-gray-500 text-sm font-light leading-relaxed mb-6">
+              Not sure if the{" "}
+              <span className="font-semibold text-[#0B1E3F]">{plan.name}</span>{" "}
+              plan is right for you? Our concierge is available 24×7 — no commitment needed.
+            </p>
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setExitPopupVisible(false)}
+              className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl text-white font-semibold text-sm transition-all hover:opacity-90"
+              style={{ backgroundColor: "#25D366" }}
+            >
+              <svg viewBox="0 0 32 32" width="18" height="18" fill="white">
+                <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.668 4.799 1.836 6.793L2 30l7.393-1.812A13.918 13.918 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2z" />
+              </svg>
+              Chat with Concierge on WhatsApp
+            </a>
+            <button
+              onClick={() => setExitPopupVisible(false)}
+              className="mt-4 w-full text-center text-xs text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              No thanks, I'll keep browsing
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

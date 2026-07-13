@@ -1,4 +1,3 @@
-"use-client";
 import { Suspense } from "react";
 import { Phone } from "lucide-react";
 import { plans } from "./data/plans";
@@ -17,13 +16,13 @@ import { ComparisonTable } from "./components/Comparison-Table/ComparisonTable";
 import PlansSection from "./components/MainPage/PlansSection";
 import FoundingMemberBanner from "./components/MainPage/FoundingMemberBanner";
 import WelcomeIndiaCard from "./components/MainPage/WelcomeIndiaCard";
-export const metadata = {
-  title:
-    "WENS Force — India's Only Luxury Travel + Armed Protection + VIP Darshan Subscription",
-  description:
-    "Five tiers. One annual fee. Vehicle, bodyguard, and lifestyle privileges pre-arranged for the year. VIP Darshan at Tirupati, Vaishno Devi, Mahakaleshwar. PSARA-licensed security. From ₹24,999/year.",
-  alternates: { canonical: "https://subscription.wensforce.com" },
-};
+// export const metadata = {
+//   title:
+//     "WENS Force — India's Only Luxury Travel + Armed Protection + VIP Darshan Subscription",
+//   description:
+//     "Five tiers. One annual fee. Vehicle, bodyguard, and lifestyle privileges pre-arranged for the year. VIP Darshan at Tirupati, Vaishno Devi, Mahakaleshwar. PSARA-licensed security. From ₹24,999/year.",
+//   alternates: { canonical: "https://subscription.wensforce.com" },
+// };
 const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
 const WA_NUMBER = "917304607954";
 
