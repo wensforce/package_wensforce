@@ -174,7 +174,7 @@ export default function ServiceCreateModal({
                 alt="Thumbnail preview"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+              <div className="absolute inset-0 bg-black/30 opacity-100 lg:opacity-0 lg:hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
@@ -227,7 +227,7 @@ export default function ServiceCreateModal({
             onClick={() =>
               !loading && setForm((p) => ({ ...p, isActive: !p.isActive }))
             }
-            className={`relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none
+            className={`relative w-11 h-6 shrink-0 rounded-full transition-colors duration-200 focus:outline-none
               ${form.isActive ? "bg-[#0B1E3F]" : "bg-[#CBD5E0]"}`}
           >
             <span

@@ -7,7 +7,10 @@ import PlanVideoPlayer from "../../components/MainPage/PlanVideoPlayer";
 import MetaViewTracker from "@/app/components/MainPage/MetaViewTracker";
 import { useDispatch, useSelector } from "react-redux";
 import { setPackages } from "@/app/membership/slices/package-slice";
-import { setPackage,getPackageById } from "@/app/membership/slices/detailed-package-slice";
+import {
+  setPackage,
+  getPackageById,
+} from "@/app/membership/slices/detailed-package-slice";
 import Header from "../sections/Header";
 import Footer from "../sections/Footer";
 import HeroSection from "../sections/HeroSection";
@@ -18,7 +21,8 @@ import OtherPlansSection from "../sections/OtherPlansSection";
 import { useExitIntent } from "@/app/hooks/useExitIntent";
 
 const WA_NUMBER = "917304607954";
-const S3_BASE = "https://subscription-package-images.s3.ap-south-1.amazonaws.com";
+const S3_BASE =
+  "https://subscription-package-images.s3.ap-south-1.amazonaws.com";
 
 const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
 
@@ -43,11 +47,10 @@ export default function PlanDetailPage() {
   const [exitPopupVisible, setExitPopupVisible] = useState(false);
 
   // Only fire exit intent after the plan has loaded — no point nudging a blank page
-  const { isExitIntent } = useExitIntent(exitPopupVisible && !!plan);
-
-  useEffect(() => {
-    if (isExitIntent) setExitPopupVisible(true);
-  }, [isExitIntent]);
+  useExitIntent(() => {
+    if (!plan) return false;
+    setExitPopupVisible(true);
+  });
 
   useEffect(() => {
     if (!id) return;
@@ -63,7 +66,9 @@ export default function PlanDetailPage() {
 
           if (storePackages && storePackages.length > 0) {
             // otherPlans already in packages store
-            setOtherPlans(storePackages.filter((p) => String(p.id) !== String(id)));
+            setOtherPlans(
+              storePackages.filter((p) => String(p.id) !== String(id)),
+            );
           } else {
             // detailedPlan found but no list yet — fetch list only
             const allPlansRes = await packageApiUser.fetchUserPackages();
@@ -78,10 +83,14 @@ export default function PlanDetailPage() {
 
         // ── Tier 2: packages (list) store has this plan ──
         if (storePackages && storePackages.length > 0) {
-          const foundPlan = storePackages.find((p) => String(p.id) === String(id));
+          const foundPlan = storePackages.find(
+            (p) => String(p.id) === String(id),
+          );
           if (foundPlan) {
             setPlan(foundPlan);
-            setOtherPlans(storePackages.filter((p) => String(p.id) !== String(id)));
+            setOtherPlans(
+              storePackages.filter((p) => String(p.id) !== String(id)),
+            );
             dispatch(setPackage(foundPlan)); // promote into detailedPackages cache
             setLoading(false);
             return;
@@ -102,7 +111,9 @@ export default function PlanDetailPage() {
         }
 
         setPlan(fetchedPlan);
-        setOtherPlans(allPlans.filter((p) => String(p.id) !== String(fetchedPlan.id)));
+        setOtherPlans(
+          allPlans.filter((p) => String(p.id) !== String(fetchedPlan.id)),
+        );
 
         // Save to both stores
         dispatch(setPackage(fetchedPlan));
@@ -191,7 +202,8 @@ export default function PlanDetailPage() {
             <p className="text-gray-500 text-sm font-light leading-relaxed mb-6">
               Not sure if the{" "}
               <span className="font-semibold text-[#0B1E3F]">{plan.name}</span>{" "}
-              plan is right for you? Our concierge is available 24×7 — no commitment needed.
+              plan is right for you? Our concierge is available 24×7 — no
+              commitment needed.
             </p>
             <a
               href={waUrl}
@@ -201,8 +213,14 @@ export default function PlanDetailPage() {
               className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl text-white font-semibold text-sm transition-all hover:opacity-90"
               style={{ backgroundColor: "#25D366" }}
             >
-              <svg viewBox="0 0 32 32" width="18" height="18" fill="white">
-                <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.668 4.799 1.836 6.793L2 30l7.393-1.812A13.918 13.918 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2z" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 32 32"
+                width="28"
+                height="28"
+                fill="white"
+              >
+                <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.668 4.799 1.836 6.793L2 30l7.393-1.812A13.918 13.918 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.6a11.543 11.543 0 01-5.88-1.604l-.42-.248-4.39 1.074 1.106-4.274-.272-.44A11.556 11.556 0 014.4 16C4.4 9.592 9.592 4.4 16 4.4S27.6 9.592 27.6 16 22.408 27.6 16 27.6zm6.327-8.627c-.348-.174-2.055-1.014-2.374-1.13-.318-.115-.55-.174-.78.174-.23.348-.894 1.13-1.097 1.362-.201.231-.404.26-.752.086-.348-.174-1.47-.542-2.799-1.727-1.034-.922-1.732-2.062-1.934-2.41-.202-.348-.022-.536.152-.71.156-.155.348-.405.522-.607.174-.202.23-.348.348-.58.115-.231.058-.434-.03-.607-.086-.174-.78-1.882-1.07-2.578-.282-.677-.568-.585-.78-.596-.201-.01-.434-.012-.665-.012-.23 0-.607.086-.926.434-.318.348-1.214 1.186-1.214 2.892 0 1.707 1.243 3.356 1.417 3.588.174.231 2.447 3.734 5.928 5.234.83.358 1.478.572 1.982.732.833.265 1.59.227 2.19.138.668-.1 2.055-.84 2.346-1.652.29-.81.29-1.505.202-1.652-.086-.145-.318-.231-.665-.405z" />
               </svg>
               Chat with Concierge on WhatsApp
             </a>
@@ -218,5 +236,3 @@ export default function PlanDetailPage() {
     </div>
   );
 }
-
-

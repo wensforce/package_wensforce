@@ -109,9 +109,7 @@ export const useComparison = ({ packages = [], bestValueId }) => {
   const allServiceTitles = [
     ...new Set(
       packages.flatMap((p) =>
-        (p.packageServices || [])
-          .map((s) => s.service?.title)
-          .filter(Boolean)
+        (p.packageServices || []).map((s) => s.service?.title).filter(Boolean),
       ),
     ),
   ];
@@ -121,7 +119,7 @@ export const useComparison = ({ packages = [], bestValueId }) => {
     isServiceRow: true,
     render: (pkg) => {
       const match = (pkg.packageServices || []).find(
-        (s) => s.service?.title === title
+        (s) => s.service?.title === title,
       );
       return match ? `${match.count}×` : null; // null → ✗ in CellValue
     },

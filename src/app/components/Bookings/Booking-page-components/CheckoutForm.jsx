@@ -13,7 +13,8 @@ import {
   Mail,
   ArrowLeft,
 } from "lucide-react";
-import {INR,
+import {
+  INR,
   WA_NUMBER,
   GST_RATE,
   CITIES,
@@ -149,23 +150,23 @@ export default function CheckoutForm({
     try {
       const payload = isIndia
         ? {
-            amount: indiaTotalINR,
-            currency: "INR",
-            customerName: form.name.trim(),
-            customerPhone: form.phone,
-            customerEmail: form.email.trim(),
-            packageId: packageData.id,
-            planName: packageData.name,
-          }
+          amount: indiaTotalINR,
+          currency: "INR",
+          customerName: form.name.trim(),
+          customerPhone: form.phone,
+          customerEmail: form.email.trim(),
+          packageId: packageData.id,
+          planName: packageData.name,
+        }
         : {
-            amount: intlTotalForeign,
-            currency: selectedCurrency,
-            customerName: form.name.trim(),
-            customerPhone: form.phone,
-            customerEmail: form.email.trim(),
-            packageId: packageData.id,
-            planName: packageData.name,
-          };
+          amount: intlTotalForeign,
+          currency: selectedCurrency,
+          customerName: form.name.trim(),
+          customerPhone: form.phone,
+          customerEmail: form.email.trim(),
+          packageId: packageData.id,
+          planName: packageData.name,
+        };
 
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
@@ -199,10 +200,10 @@ export default function CheckoutForm({
         }),
         !user?.name || !user?.email || (!user?.city && form.city)
           ? authApiUser.updateProfile({
-              name: form.name.trim(),
-              email: form.email.trim(),
-              city: form.city || "Not specified",
-            })
+            name: form.name.trim(),
+            email: form.email.trim(),
+            city: form.city || "Not specified",
+          })
           : Promise.resolve(),
       ]);
 

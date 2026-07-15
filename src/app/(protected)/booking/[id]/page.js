@@ -2,9 +2,8 @@
 import BookingPageContent from "@/app/components/Bookings/BookingPageContent";
 import { useParams } from "next/navigation";
 import React, { Suspense, useEffect, useState } from "react";
-import { useExitIntent } from "@/app/hooks/useExitIntent";
 import { packageApiUser } from "@/app/user-apis/package.api";
-
+import { useExitIntent } from "@/app/hooks/useExitIntent";
 export const BookingPage = () => {
   const { id } = useParams();
   const [packageData, setPackageData] = useState({});
@@ -26,7 +25,10 @@ export const BookingPage = () => {
 
   // Fire only after package data is available so the popup has context
   useExitIntent(
-    () => { if (packageData?.name) setAbandonPopupVisible(true); },
+    () => {
+      if (!packageData?.name) return false;
+      setAbandonPopupVisible(true);
+    },
     { scrollThreshold: 0.3 }, // lower threshold — checkout page is shorter
   );
 
@@ -62,15 +64,16 @@ export const BookingPage = () => {
               <span className="text-[#C9A24B]">{packageData?.name}</span> spot
             </h3>
             <p className="text-gray-500 text-sm font-light leading-relaxed mb-6">
-              Founding spots are limited. Complete your reservation now — or chat
-              with our concierge if you have any questions before paying.
+              Founding spots are limited. Complete your reservation now — or
+              chat with our concierge if you have any questions before paying.
             </p>
             <div className="flex flex-col gap-3">
               <button
                 onClick={() => setAbandonPopupVisible(false)}
                 className="w-full py-3.5 rounded-xl text-sm font-bold tracking-wide transition-all hover:opacity-90"
                 style={{
-                  background: "linear-gradient(135deg, #C9A24B 0%, #e0b85a 100%)",
+                  background:
+                    "linear-gradient(135deg, #C9A24B 0%, #e0b85a 100%)",
                   color: "#000",
                 }}
               >

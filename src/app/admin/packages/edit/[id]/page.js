@@ -36,35 +36,38 @@ export default function PackageEditPage() {
   }, [packageId]);
 
   return (
-    <div className="min-h-screen bg-[#F8F6F1] py-8">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 rounded-[32px] border border-[#E8E3DB] bg-white p-6 shadow-sm">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0B1E3F] text-white shadow-sm">
-                <Package size={20} />
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#718096]">
-                  Package admin
-                </p>
-                <h1 className="mt-2 text-3xl font-semibold text-[#0B1E3F]">
-                  Edit package
-                </h1>
-              </div>
+    <div className="p-6 md:p-8 space-y-6">
+      <div className="bg-white rounded-2xl border border-[#CBD5E0] overflow-hidden">
+
+        {/* Header — mirrors CouponDetailHeader / PackageCreatePage layout */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#CBD5E0]">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0B1E3F] text-white shadow-sm">
+              <Package size={18} />
             </div>
-            <button
-              type="button"
-              onClick={() => router.push("/admin/packages")}
-              className="inline-flex items-center gap-2 rounded-full border border-[#E8E3DB] bg-[#F8F6F1] px-4 py-2 text-sm font-semibold text-[#4A5568] transition-colors hover:bg-[#EFF1F3]"
-            >
-              <ArrowLeft size={16} /> Back
-            </button>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-[#718096]">
+                Package Admin
+              </p>
+              <h1 className="text-lg font-semibold text-[#1A202C] leading-tight">
+                Edit Package
+              </h1>
+            </div>
           </div>
+
+          <button
+            type="button"
+            onClick={() => router.push("/admin/packages")}
+            className="inline-flex items-center gap-2 rounded-full border border-[#CBD5E0] bg-white px-4 py-2 text-sm font-medium text-[#4A5568] hover:bg-[#FAF6EC] transition-colors"
+          >
+            <ArrowLeft size={15} />
+            Back
+          </button>
         </div>
 
+        {/* Body */}
         {loading ? (
-          <div className="rounded-[32px] border border-[#E8E3DB] bg-white p-12 text-center text-[#4A5568]">
+          <div className="p-12 text-center text-[#4A5568]">
             <Loader2
               size={24}
               className="mx-auto mb-4 animate-spin text-[#0B1E3F]"
@@ -72,11 +75,11 @@ export default function PackageEditPage() {
             Loading package...
           </div>
         ) : error ? (
-          <div className="rounded-[32px] border border-red-200 bg-red-50 p-8 text-sm text-red-700">
+          <div className="m-6 rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">
             {error}
           </div>
         ) : (
-          <div className="rounded-[32px] border border-[#E8E3DB] bg-white shadow-sm">
+          <div className="p-6">
             <PackageForm
               packageId={packageId}
               initialData={packageData}
@@ -84,7 +87,8 @@ export default function PackageEditPage() {
             />
           </div>
         )}
+
       </div>
     </div>
   );
-}
+} 

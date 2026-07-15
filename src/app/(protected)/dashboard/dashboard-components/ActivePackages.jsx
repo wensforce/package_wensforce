@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { toast } from "sonner";
-import RequestTripModal from "./RequestTrip";
+// import RequestTripModal from "./RequestTrip";
 import { useDispatch, useSelector } from "react-redux";
 import { setActivePackages } from "../slices/active-packages-slice";
 import { subscriptionApiUser } from "@/app/user-apis/subscription.api";
@@ -388,7 +388,7 @@ function PackageCard({ plan, onRequestTrip }) {
                 {formatDate(plan.endDate)}
               </span>
             </p>
-            <button
+            {/* <button
               onClick={() => onRequestTrip(plan)}
               className="flex cursor-pointer items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
               style={{
@@ -399,7 +399,7 @@ function PackageCard({ plan, onRequestTrip }) {
             >
               <MapPin size={14} />
               Request a Trip
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
@@ -589,13 +589,13 @@ export default function ActivePackages() {
         )}
       </div>
 
-      {/* Request Trip Modal */}
+      {/* Request Trip Modal
       {tripModalPlan && (
         <RequestTripModal
           plan={tripModalPlan}
           onClose={() => setTripModalPlan(null)}
         />
-      )}
+      )} */}
 
       <style jsx>{`
         @keyframes spin {

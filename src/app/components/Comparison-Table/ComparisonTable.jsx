@@ -76,7 +76,7 @@ function CellValue({ value, isHighlight, isBold, isServiceRow }) {
 
 export function ComparisonTable() {
   const waBase = `https://wa.me/${WA_NUMBER}?text=`;
- const { packages, bestValueId } = usePackages();
+  const { packages, bestValueId } = usePackages();
 
   // ── Guard: nothing to render ──────────────────────────────────────────────
   if (!packages || packages.length === 0) return null;

@@ -10,4 +10,13 @@ export const paymentApiUser = {
     const res = await api.post("/payment/create-order", payload);
     return res.data;
   },
+  /**
+   * Fetch User's Payment History.
+   * 
+   * @returns {Promise<object>}
+   */
+  getMyPayments:async()=>{
+    const res = await api.get("/payment/user");
+    return res.data
+  }
 };

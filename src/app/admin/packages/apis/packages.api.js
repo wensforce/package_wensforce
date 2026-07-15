@@ -108,7 +108,6 @@ export const packageApi = {
       const { key } = await uploadImageToS3(thumbnail);
       uploadedKey = key;
     }
-
     const finalPayload = {
       ...payload,
       ...(uploadedKey

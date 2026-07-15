@@ -14,14 +14,19 @@ import { useEffect, useRef, useCallback } from "react";
  * @param {number}     options.scrollThreshold  - 0–1, default 0.7 (70% scroll)
  * @param {number}     options.mouseLeaveY      - px from top, default 10
  */
-export function useExitIntent(onIntent, { scrollThreshold = 0.7, mouseLeaveY = 10 } = {}) {
+export function useExitIntent(
+  onIntent,
+  { scrollThreshold = 0.7, mouseLeaveY = 10 } = {},
+) {
   const firedRef = useRef(false);
 
   // Stable callback — won't re-register listeners on every render
   const trigger = useCallback(() => {
     if (firedRef.current) return;
-    firedRef.current = true;
-    onIntent();
+    const result = onIntent();
+    if (result !== false) {
+      firedRef.current = true;
+    }
   }, [onIntent]);
 
   useEffect(() => {
@@ -35,7 +40,8 @@ export function useExitIntent(onIntent, { scrollThreshold = 0.7, mouseLeaveY = 1
     const handleScroll = () => {
       const progress =
         window.scrollY / (document.body.scrollHeight - window.innerHeight);
-      if (progress >= scrollThreshold && window.scrollY < lastScrollY) trigger();
+      if (progress >= scrollThreshold && window.scrollY < lastScrollY)
+        trigger();
       lastScrollY = window.scrollY;
     };
 

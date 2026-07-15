@@ -46,11 +46,13 @@ export default function UserDetailPage() {
         else setRefreshing(false);
       }
     },
-    [userId],
+    [userId, setLoading, setError],
   );
 
   useEffect(() => {
-    fetchUser();
+    Promise.resolve().then(() => {
+      fetchUser();
+    });
   }, [fetchUser]);
 
   if (loading && !user) {
