@@ -111,20 +111,35 @@ export default function AdminTable({
           <div className="flex items-center gap-2">
             {headerActions}
             {onImport && (
-              <button
-                onClick={onImport}
-                className="flex items-center gap-1.5 text-sm font-semibold text-white bg-green-600 rounded-lg px-3 py-2 hover:bg-green-700 transition-colors"
-              >
-                <Upload size={14} />
-                Import
-              </button>
+              <div className="relative">
+                <input
+                  id="import-file"
+                  type="file"
+                  accept=".csv,.xlsx,.xls,.json"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      onImport(file);
+                      e.target.value = "";
+                    }
+                  }}
+                  className="hidden"
+                />
+                <label
+                  htmlFor="import-file"
+                  className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 border border-[#CBD5E0] bg-white rounded-lg px-3 py-2 hover:bg-[#FAF6EC] transition-colors cursor-pointer"
+                >
+                  <Upload size={14} className="text-[#C9A24B]" />
+                  Import
+                </label>
+              </div>
             )}
             {onExport && (
               <button
                 onClick={onExport}
-                className="flex items-center gap-1.5 text-sm font-semibold text-white bg-red-600 rounded-lg px-3 py-2 hover:bg-red-700 transition-colors"
+                className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 border border-[#CBD5E0] bg-white rounded-lg px-3 py-2 hover:bg-[#FAF6EC] transition-colors"
               >
-                <Download size={14} />
+                <Download size={14} className="text-[#C9A24B]" />
                 Export
               </button>
             )}

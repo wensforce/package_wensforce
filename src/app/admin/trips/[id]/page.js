@@ -383,6 +383,14 @@ export default function TripDetailPage() {
                     {trip.tripType || "-"}
                   </dd>
                 </div>
+                <div>
+                  <dt className="text-[#718096] mb-1">Additional Amount</dt>
+                  <dd className="text-[#1A202C] font-semibold">
+                    {trip.additionalAmount !== null && trip.additionalAmount !== undefined
+                      ? `₹${Number(trip.additionalAmount).toLocaleString("en-IN")}`
+                      : "-"}
+                  </dd>
+                </div>
               </dl>
             </section>
 

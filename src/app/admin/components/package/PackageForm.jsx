@@ -87,7 +87,9 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
               }))
             : [{ ...emptyServiceItem }],
         vehicleType: initialData.vehicleType ?? "",
-        vehicleModel: initialData.vehicleModel ?? "",
+        vehicleModel: Array.isArray(initialData.vehicleModel)
+          ? initialData.vehicleModel.join(", ")
+          : (initialData.vehicleModel ?? ""),
         bodyguardType: initialData.bodyguardType ?? "",
         trips: initialData.trips ?? "",
         validity: initialData.validity ?? "",
@@ -101,15 +103,15 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
       setError(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
       setExistingPhotos(
-        Array.isArray(initialData.photos)
-          ? initialData.photos.map((p) => ({ key: p.key ?? p.url, url: p.url }))
+        Array.isArray(initialData.images)
+          ? initialData.images.map((p) => ({ key: p.urlKey ?? p.url, url: p.url }))
           : [],
       );
       setPhotos([]);
       setExistingVideos(
         Array.isArray(initialData.videos)
           ? initialData.videos.map((v) => ({
-              key: v.key ?? v.url,
+              key: v.urlKey ?? v.url,
               url: v.url,
               name: v.name ?? "",
             }))
@@ -276,8 +278,15 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
       return "Regular price must be a positive number.";
     if (!form.discountedPrice || Number(form.discountedPrice) <= 0)
       return "Discounted price must be a positive number.";
+
+    const vehicleModelStr = typeof form.vehicleModel === "string"
+      ? form.vehicleModel
+      : Array.isArray(form.vehicleModel)
+        ? form.vehicleModel.join(", ")
+        : "";
+
     if (!form.vehicleType.trim()) return "Vehicle type is required.";
-    if (!form.vehicleModel.trim()) return "Vehicle model is required.";
+    if (!vehicleModelStr.trim()) return "Vehicle model is required.";
     if (!form.bodyguardType.trim()) return "Bodyguard type is required.";
     if (!form.trips || Number(form.trips) <= 0)
       return "Trips must be a positive integer.";
@@ -315,13 +324,23 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
     }
     setSaving(true);
     try {
+      const vehicleModelStr = typeof form.vehicleModel === "string"
+        ? form.vehicleModel
+        : Array.isArray(form.vehicleModel)
+          ? form.vehicleModel.join(", ")
+          : "";
+      const vehicleModelArray = vehicleModelStr
+        .split(",")
+        .map((m) => m.trim())
+        .filter(Boolean);
+
       const payload = {
         name: form.name.trim(),
         description: form.description.trim(),
         regularPrice: Number(form.regularPrice),
         discountedPrice: Number(form.discountedPrice),
         vehicleType: form.vehicleType.trim(),
-        vehicleModel: form.vehicleModel.trim(),
+        vehicleModel: vehicleModelArray,
         bodyguardType: form.bodyguardType.trim(),
         trips: Number(form.trips),
         validity: Number(form.validity),
@@ -732,17 +751,22 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                   >
                     <div className="relative aspect-video w-full overflow-hidden bg-[#0B1E3F]/5">
                       <video
-                        src={video.url}
-                        className="h-full w-full object-cover"
-                        preload="metadata"
-                        muted
-                        playsInline
-                        onMouseEnter={(e) => e.currentTarget.play()}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.pause();
-                          e.currentTarget.currentTime = 0;
-                        }}
-                      />
+  src={video.url}
+  className="h-full w-full object-cover"
+  preload="metadata"
+  muted
+  playsInline
+  onMouseEnter={(e) => {
+    const p = e.currentTarget.play();
+    if (p !== undefined) p.catch(() => {});
+  }}
+  onMouseLeave={(e) => {
+    const video = e.currentTarget;
+    const p = video.play();
+    if (p !== undefined) p.then(() => { video.pause(); video.currentTime = 0; }).catch(() => {});
+    else { video.pause(); video.currentTime = 0; }
+  }}
+/>
                       <div className="pointer-events-none absolute inset-0 flex items-center justify-center group-hover:opacity-0 transition-opacity duration-200">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/40">
                           <Play
@@ -776,17 +800,22 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                   >
                     <div className="relative aspect-video w-full overflow-hidden bg-[#0B1E3F]/5">
                       <video
-                        src={video.previewUrl}
-                        className="h-full w-full object-cover"
-                        preload="metadata"
-                        muted
-                        playsInline
-                        onMouseEnter={(e) => e.currentTarget.play()}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.pause();
-                          e.currentTarget.currentTime = 0;
-                        }}
-                      />
+  src={video.previewUrl}
+  className="h-full w-full object-cover"
+  preload="metadata"
+  muted
+  playsInline
+  onMouseEnter={(e) => {
+    const p = e.currentTarget.play();
+    if (p !== undefined) p.catch(() => {});
+  }}
+  onMouseLeave={(e) => {
+    const video = e.currentTarget;
+    const p = video.play();
+    if (p !== undefined) p.then(() => { video.pause(); video.currentTime = 0; }).catch(() => {});
+    else { video.pause(); video.currentTime = 0; }
+  }}
+/>
                       <div className="pointer-events-none absolute inset-0 flex items-center justify-center group-hover:opacity-0 transition-opacity duration-200">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/40">
                           <Play

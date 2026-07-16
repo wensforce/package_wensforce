@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Package, CheckCircle2, XCircle, Eye, Pencil } from "lucide-react";
 import { packageApi } from "./apis/packages.api";
 import AdminTable from "../components/AdminTable";
+import ExportModal from "../components/modals/ExportModal";
 import { useFetchList } from "../hooks/useFetchList";
 const PAGE_LIMIT = 10;
 
@@ -170,37 +171,80 @@ export default function PackagesPage() {
     }
   }
 
-  const handleImport = () => {
-    console.log("Import Packages clicked");
+  const [showExportModal, setShowExportModal] = useState(false);
+
+  const handleImport = async (file) => {
+    try {
+      await packageApi.importPackages(file);
+      alert("Packages imported successfully!");
+      refetch();
+    } catch (err) {
+      console.error(err);
+      alert(err?.response?.data?.message || "Failed to import packages.");
+    }
   };
 
-  const handleExport = () => {
-    console.log("Export Packages clicked");
+  const handleExport = async (format) => {
+    try {
+      const response = await packageApi.exportPackages(format);
+
+      const blob = new Blob([response.data], { type: response.headers["content-type"] });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+
+      let filename = `packages_export_${Date.now()}.${format}`;
+      const disposition = response.headers["content-disposition"];
+      if (disposition && disposition.indexOf("attachment") !== -1) {
+        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        const matches = filenameRegex.exec(disposition);
+        if (matches != null && matches[1]) {
+          filename = matches[1].replace(/['"]/g, "");
+        }
+      }
+
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to export packages.");
+    }
   };
 
   return (
-    <AdminTable
-      icon={<Package size={18} className="text-[#C9A24B]" />}
-      title="Packages"
-      subtitle={`${pagination.total} total package${pagination.total !== 1 ? "s" : ""}`}
-      searchPlaceholder="Search packages…"
-      searchValue={searchInput}
-      onSearchChange={setSearchInput}
-      columns={COLUMNS}
-      rows={packages}
-      renderCell={renderCell}
-      rowKey={(row) => row.id}
-      loading={loading}
-      error={error}
-      pagination={pagination}
-      onPageChange={setPage}
-      onRefresh={refetch}
-      onImport={handleImport}
-      onExport={handleExport}
-      onCreate={() => router.push("/admin/packages/create")}
-      createLabel="New Package"
-      emptyIcon={<Package size={32} />}
-      emptyText="No packages found"
-    />
+    <>
+      <AdminTable
+        icon={<Package size={18} className="text-[#C9A24B]" />}
+        title="Packages"
+        subtitle={`${pagination.total} total package${pagination.total !== 1 ? "s" : ""}`}
+        searchPlaceholder="Search packages…"
+        searchValue={searchInput}
+        onSearchChange={setSearchInput}
+        columns={COLUMNS}
+        rows={packages}
+        renderCell={renderCell}
+        rowKey={(row) => row.id}
+        loading={loading}
+        error={error}
+        pagination={pagination}
+        onPageChange={setPage}
+        onRefresh={refetch}
+        onImport={handleImport}
+        onExport={() => setShowExportModal(true)}
+        onCreate={() => router.push("/admin/packages/create")}
+        createLabel="New Package"
+        emptyIcon={<Package size={32} />}
+        emptyText="No packages found"
+      />
+
+      <ExportModal
+        open={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        onExport={handleExport}
+      />
+    </>
   );
 }

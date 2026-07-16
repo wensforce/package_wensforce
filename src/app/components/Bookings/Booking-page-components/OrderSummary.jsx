@@ -18,6 +18,8 @@ export default function OrderSummary({
   // Formatter helpers passed down from parent
   toForeign,
   fmtForeign,
+  isWelcomeIndia,
+  isFixedUSD,
 }) {
   return (
     <div
@@ -68,16 +70,26 @@ export default function OrderSummary({
         {/* GST */}
         <div className="flex justify-between items-center">
           <span className="flex items-center gap-1.5 text-xs text-gray-500">
-            <span className="bg-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
-              +18%
-            </span>
+            {isWelcomeIndia ? (
+              <span className="bg-green-50 text-green-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-green-200">
+                Included
+              </span>
+            ) : (
+              <span className="bg-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                +18%
+              </span>
+            )}
             GST
           </span>
           <div className="text-right">
             <span className="text-gray-600 text-sm font-semibold tabular-nums">
-              +{isIndia ? INR(gstAmount) : toForeign(intlGstAmount)}
+              {isWelcomeIndia ? (
+                "Included"
+              ) : (
+                `+${isIndia ? INR(gstAmount) : toForeign(intlGstAmount)}`
+              )}
             </span>
-            {!isIndia && !currencyRateLoading && (
+            {!isWelcomeIndia && !isIndia && !currencyRateLoading && (
               <p className="text-gray-400 text-[10px] tabular-nums">
                 +{INR(intlGstAmount)}
               </p>
@@ -106,7 +118,7 @@ export default function OrderSummary({
               </span>
               {!currencyRateLoading && intlTotalForeign !== null && (
                 <p className="text-gray-400 text-[10px] mt-0.5 tabular-nums">
-                  ≈ {INR(intlTotalINR)} · live rate
+                  {isFixedUSD ? `Fixed package price: $${intlTotalForeign} USD` : `≈ ${INR(intlTotalINR)} · live rate`}
                 </p>
               )}
             </>

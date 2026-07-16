@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Shield } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -10,10 +10,28 @@ import {
   ZERO_DECIMAL,
   THREE_DECIMAL,
 } from "../../(protected)/booking/booking-helpers";
+import { useCurrency, roundForeign } from "../../hooks/useCurrency";
 
 import SuccessState from "./Booking-page-components/SuccessState";
 import PackageSummaryPanel from "./Booking-page-components/PackageSummaryPanel";
 import CheckoutForm from "./Booking-page-components/CheckoutForm";
+
+import { plans as mainPlans } from "../../data/plans";
+import { plans as welcomePlans } from "../../data/welcomeIndia";
+
+const welcomePlanIds = new Set(welcomePlans.map((p) => p.id));
+
+const WELCOME_USD_PRICES = {
+  "comfortable-arrival": 100,
+  "arrive-in-style": 150,
+  "arrival-in-grandeur": 370,
+  "ultimate-convoy-matrix": 900,
+  "end-to-end-concierge": 2100,
+  "touch-red-carpet": 72,
+  "maharani-maharaja": 215,
+};
+
+const plans = [...mainPlans, ...welcomePlans];
 /* ── Pricing display helper (only needed here for displayPrice) ─────── */
 
 const fmtForeign = (amount, code) => {
@@ -27,14 +45,31 @@ const fmtForeign = (amount, code) => {
 
 export default function BookingPageContent({
   packageData,
-  // foundingSpots = 30,
 }) {
   const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const params = useParams();
 
   const [submitted, setSubmitted] = useState(false);
   const [successForm, setSuccessForm] = useState(null);
+
+  const slug = params?.id;
+  const isWelcomeIndia = welcomePlanIds.has(packageData?.id) || welcomePlanIds.has(slug);
+  const matchedWelcomeId = welcomePlanIds.has(packageData?.id) ? packageData.id : (welcomePlanIds.has(slug) ? slug : null);
+
+  const urlCurrency = searchParams.get("currency");
+  const initCurrency = urlCurrency && urlCurrency !== "INR" ? urlCurrency : "INR";
+
+  const {
+    currency: selectedCurrency,
+    setCurrency: setSelectedCurrency,
+    rate: currencyRate,
+    rateLoading: currencyRateLoading,
+    toForeign,
+  } = useCurrency(initCurrency);
+
+  const isFixedUSD = selectedCurrency === "USD" && isWelcomeIndia;
 
   /* Loading state */
   if (!packageData || !packageData.id) {
@@ -52,15 +87,27 @@ export default function BookingPageContent({
 
   /* Success screen */
   if (submitted && successForm) {
-    return <SuccessState packageData={packageData} form={successForm} />;
+    return (
+      <SuccessState
+        packageData={packageData}
+        form={successForm}
+        isWelcomeIndia={isWelcomeIndia}
+      />
+    );
   }
 
-  /* Derive displayPrice to pass to both panels so they stay in sync */
-  const urlCurrency = searchParams.get("currency");
-  const isIntlUrl = urlCurrency && urlCurrency !== "INR";
-  const displayPrice = isIntlUrl
-    ? fmtForeign(packageData.discountedPrice, urlCurrency)
-    : INR(packageData.discountedPrice);
+  const displayPrice = selectedCurrency === "INR"
+    ? INR(packageData.discountedPrice)
+    : (isFixedUSD && matchedWelcomeId
+      ? fmtForeign(WELCOME_USD_PRICES[matchedWelcomeId], "USD")
+      : (currencyRateLoading
+        ? "…"
+        : fmtForeign(
+          roundForeign(packageData.discountedPrice / currencyRate, selectedCurrency),
+          selectedCurrency,
+        )
+      )
+    );
 
   return (
     <div>
@@ -107,6 +154,7 @@ export default function BookingPageContent({
           <PackageSummaryPanel
             packageData={packageData}
             displayPrice={displayPrice}
+            isWelcomeIndia={isWelcomeIndia}
           />
 
           <CheckoutForm
@@ -118,6 +166,16 @@ export default function BookingPageContent({
               setSuccessForm(form);
               setSubmitted(true);
             }}
+            selectedCurrency={selectedCurrency}
+            setSelectedCurrency={setSelectedCurrency}
+            currencyRate={currencyRate}
+            currencyRateLoading={currencyRateLoading}
+            toForeign={toForeign}
+            isWelcomeIndia={isWelcomeIndia}
+            isFixedUSD={isFixedUSD}
+            matchedWelcomeId={matchedWelcomeId}
+            welcomePlanIds={welcomePlanIds}
+            WELCOME_USD_PRICES={WELCOME_USD_PRICES}
           />
         </div>
 

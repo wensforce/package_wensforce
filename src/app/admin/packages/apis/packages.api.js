@@ -21,10 +21,10 @@ export const packageApi = {
       data.items ||
       (Array.isArray(data) ? data : []);
     const pagination = data.pagination || {
-      page,
-      limit: PAGE_LIMIT,
-      total: rows.length,
-      totalPages: Math.ceil(rows.length / PAGE_LIMIT) || 1,
+      page: data.page || page || 1,
+      limit: data.limit || PAGE_LIMIT,
+      total: data.total !== undefined ? data.total : rows.length,
+      totalPages: Math.ceil((data.total !== undefined ? data.total : rows.length) / (data.limit || PAGE_LIMIT)) || 1,
     };
 
     return {
@@ -67,25 +67,46 @@ export const packageApi = {
    * @param {File|null} thumbnail - New image file (optional)
    * @returns {Promise<void>}
    */
-  createPackage: async (payload, thumbnail) => {
-    let uploadedKey = null;
+  createPackage: async (payload, thumbnail, photoFiles = [], videoFiles = []) => {
+  let uploadedThumbnailKey = null;
+  const uploadedImageKeys = [];
+  const uploadedVideoKeys = [];
 
+  try {
+    // Upload thumbnail
     if (thumbnail) {
       const { key } = await uploadImageToS3(thumbnail);
-      uploadedKey = key;
+      uploadedThumbnailKey = key;
     }
 
+    // Upload photos
+    for (const file of photoFiles) {
+      const { key } = await uploadImageToS3(file);
+      uploadedImageKeys.push(key);
+    }
+
+    // Upload videos
+    for (const file of videoFiles) {
+      const { key } = await uploadImageToS3(file); // use uploadVideoToS3 if you have one
+      uploadedVideoKeys.push(key);
+    }
+console.log(uploadedImageKeys,uploadedVideoKeys,"hfhfh")
     const finalPayload = {
       ...payload,
-      ...(uploadedKey && { thumbnailUrlKey: uploadedKey }),
+      ...(uploadedThumbnailKey && { thumbnailUrlKey: uploadedThumbnailKey }),
+      images: uploadedImageKeys,
+      videos: uploadedVideoKeys,
     };
-    try {
-      await api.post("/package", finalPayload);
-    } catch (err) {
-      if (uploadedKey) await rollbackS3Upload(uploadedKey);
-      throw err;
-    }
-  },
+
+    await api.post("/package", finalPayload);
+
+  } catch (err) {
+    // Rollback all uploaded files on failure
+    const allKeys = [uploadedThumbnailKey, ...uploadedImageKeys, ...uploadedVideoKeys].filter(Boolean);
+    await Promise.all(allKeys.map((key) => rollbackS3Upload(key)));
+    throw err;
+  }
+},
 
   /**
    * Update an existing package.
@@ -97,17 +118,36 @@ export const packageApi = {
    * @returns {Promise<void>}
    */
   updatePackage: async (
-    packageId,
-    payload,
-    thumbnail,
-    existingThumbnailKey,
-  ) => {
-    let uploadedKey = null;
+  packageId,
+  payload,
+  thumbnail,
+  existingThumbnailKey,
+  photoFiles = [],
+  videoFiles = [],
+) => {
+  let uploadedKey = null;
+  const uploadedImageKeys = [];
+  const uploadedVideoKeys = [];
 
+  try {
+    // Upload thumbnail
     if (thumbnail) {
       const { key } = await uploadImageToS3(thumbnail);
       uploadedKey = key;
     }
+
+    // Upload photos
+    for (const file of photoFiles) {
+      const { key } = await uploadImageToS3(file);
+      uploadedImageKeys.push(key);
+    }
+
+    // Upload videos
+    for (const file of videoFiles) {
+      const { key } = await uploadImageToS3(file);
+      uploadedVideoKeys.push(key);
+    }
+console.log(uploadedImageKeys,uploadedVideoKeys,"hfhfh")
     const finalPayload = {
       ...payload,
       ...(uploadedKey
@@ -115,14 +155,19 @@ export const packageApi = {
         : existingThumbnailKey
           ? { thumbnailUrlKey: existingThumbnailKey }
           : {}),
+      images: uploadedImageKeys,
+      videos: uploadedVideoKeys,
     };
-    try {
-      await api.put(`/package/${packageId}`, finalPayload);
-    } catch (err) {
-      if (uploadedKey) await rollbackS3Upload(uploadedKey);
-      throw err;
-    }
-  },
+
+    await api.put(`/package/${packageId}`, finalPayload);
+
+  } catch (err) {
+    // Rollback all uploaded files on failure
+    const allKeys = [uploadedKey, ...uploadedImageKeys, ...uploadedVideoKeys].filter(Boolean);
+    await Promise.all(allKeys.map((key) => rollbackS3Upload(key)));
+    throw err;
+  }
+},
   /**
    * Delete a package by ID.
    * @param {number|string} id - Package ID to delete
@@ -130,5 +175,32 @@ export const packageApi = {
    */
   deletePackage: async (id) => {
     await api.delete(`/package/${id}`);
+  },
+
+  /**
+   * Import packages file.
+   * @param {File} file - Excel/CSV/JSON file
+   * @returns {Promise<any>}
+   */
+  importPackages: async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await api.post("/admin/import?target=packages", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return res.data;
+  },
+
+  /**
+   * Export packages file.
+   * @param {string} format - xlsx, csv, json
+   * @returns {Promise<object>} - Axios response with blob
+   */
+  exportPackages: async (format) => {
+    return await api.get(`/admin/export?target=packages&type=${format}`, {
+      responseType: "blob",
+    });
   },
 };

@@ -3,7 +3,7 @@
 import { usePackages } from "../../hooks/usePackages";
 import PlansSection from "./PlansSection";
 import { ComparisonTable } from "../Comparison-Table/ComparisonTable";
-import FoundingMemberBanner from "./FoundingMemberBanner";
+import FoundingMemberBanner from "./Offer";
 
 export default function HomeClient({ slot, welcomeIndia }) {
   const { packages, loading, error } = usePackages();

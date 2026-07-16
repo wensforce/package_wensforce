@@ -8,7 +8,8 @@ import {
 } from "@/app/lib/metaPixel.js";
 
 async function sendCapi(payload) {
-  await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/meta-event`, {
+  console.log(payload,"payload for meta")
+  await fetch(`${process.env.NEXT_PUBLIC_API_META_BASE_URL}/meta-event`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

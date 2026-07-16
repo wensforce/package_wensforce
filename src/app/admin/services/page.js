@@ -13,6 +13,7 @@ import {
 import { servicesApi } from "./apis/services.api";
 import AdminTable from "../components/AdminTable";
 import ServiceCreateModal from "../components/modals/ServiceCreateModal";
+import ExportModal from "../components/modals/ExportModal";
 import { useFetchList } from "../hooks/useFetchList";
 import { useModal } from "../hooks/useModal";
 const PAGE_LIMIT = 10;
@@ -170,12 +171,47 @@ export default function ServicesPage() {
     }
   }
 
-  const handleImport = () => {
-    console.log("Import Services clicked");
+  const [showExportModal, setShowExportModal] = useState(false);
+
+  const handleImport = async (file) => {
+    try {
+      await servicesApi.importServices(file);
+      alert("Services imported successfully!");
+      refetch();
+    } catch (err) {
+      console.error(err);
+      alert(err?.response?.data?.message || "Failed to import services.");
+    }
   };
 
-  const handleExport = () => {
-    console.log("Export Services clicked");
+  const handleExport = async (format) => {
+    try {
+      const response = await servicesApi.exportServices(format);
+      
+      const blob = new Blob([response.data], { type: response.headers["content-type"] });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+
+      let filename = `services_export_${Date.now()}.${format}`;
+      const disposition = response.headers["content-disposition"];
+      if (disposition && disposition.indexOf("attachment") !== -1) {
+        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        const matches = filenameRegex.exec(disposition);
+        if (matches != null && matches[1]) {
+          filename = matches[1].replace(/['"]/g, "");
+        }
+      }
+
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to export services.");
+    }
   };
 
   return (
@@ -197,7 +233,7 @@ export default function ServicesPage() {
         onPageChange={setPage}
         onRefresh={refetch}
         onImport={handleImport}
-        onExport={handleExport}
+        onExport={() => setShowExportModal(true)}
         onCreate={openCreateModal}
         createLabel="New Service"
         emptyIcon={<Layers size={32} />}
@@ -208,6 +244,12 @@ export default function ServicesPage() {
         open={showCreate}
         onClose={closeCreateModal}
         onCreated={refetch}
+      />
+
+      <ExportModal
+        open={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        onExport={handleExport}
       />
     </>
   );

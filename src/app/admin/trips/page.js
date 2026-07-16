@@ -26,6 +26,7 @@ const COLUMNS = [
   { key: "tripDate", label: "Trip Date" },
   { key: "tripType", label: "Trip Type" },
   { key: "services", label: "Services" },
+  { key: "additionalAmount", label: "Add. Cost" },
   { key: "status", label: "Status" },
   { key: "actions", label: "Actions" },
 ];
@@ -217,6 +218,14 @@ export default function TripsPage() {
           </span>
         );
       }
+      case "additionalAmount":
+        return trip.additionalAmount !== null && trip.additionalAmount !== undefined ? (
+          <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-full px-2.5 py-1 whitespace-nowrap">
+            ₹{Number(trip.additionalAmount).toLocaleString("en-IN")}
+          </span>
+        ) : (
+          <span className="text-xs text-[#A0AEC0]">-</span>
+        );
       case "status":
         return (
           <span

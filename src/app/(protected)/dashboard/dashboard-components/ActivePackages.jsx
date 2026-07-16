@@ -532,7 +532,7 @@ export default function ActivePackages() {
               <PackageCard
                 key={plan.id ?? i}
                 plan={plan}
-                onRequestTrip={setTripModalPlan}
+                // onRequestTrip={setTripModalPlan}
               />
             ))}
           </div>
@@ -589,8 +589,8 @@ export default function ActivePackages() {
         )}
       </div>
 
-      {/* Request Trip Modal
-      {tripModalPlan && (
+      {/* Request Trip Modal */}
+      {/* {tripModalPlan && (
         <RequestTripModal
           plan={tripModalPlan}
           onClose={() => setTripModalPlan(null)}

@@ -134,7 +134,14 @@ export default function PackageOverviewCard({ packageData }) {
           <Row label="Regular Price" value={formatPrice(packageData.regularPrice)} />
           <Row label="Discounted Price" value={formatPrice(packageData.discountedPrice)} />
           <Row label="Vehicle Type" value={packageData.vehicleType || "—"} />
-          <Row label="Vehicle Model" value={packageData.vehicleModel || "—"} />
+          <Row
+            label="Vehicle Model"
+            value={
+              Array.isArray(packageData.vehicleModel)
+                ? packageData.vehicleModel.join(", ")
+                : (packageData.vehicleModel || "—")
+            }
+          />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
           <Row 

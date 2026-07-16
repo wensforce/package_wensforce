@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { load } from "@cashfreepayments/cashfree-js";
 import {
   Check,
@@ -25,6 +26,7 @@ import {
 import PaymentRegionSelector from "./PaymentRegionSelector";
 import OrderSummary from "./OrderSummary";
 import { useCurrency } from "@/app/hooks/useCurrency";
+import { useMetaEvents } from "@/app/hooks/useMetaEvents";
 import { paymentApiUser } from "@/app/user-apis/payment.api";
 import { bookingApiUser } from "@/app/user-apis/booking.api";
 import { authApiUser } from "@/app/user-apis/auth.api";
@@ -52,23 +54,25 @@ export default function CheckoutForm({
   searchParams,
   displayPrice,
   onSuccess,
+  selectedCurrency,
+  setSelectedCurrency,
+  currencyRate,
+  currencyRateLoading,
+  toForeign,
+  isWelcomeIndia,
+  isFixedUSD,
+  matchedWelcomeId,
+  welcomePlanIds,
+  WELCOME_USD_PRICES,
 }) {
+  const { trackLead } = useMetaEvents();
+
   /* ── Payment region & currency ── */
   const urlCurrency = searchParams.get("currency");
   const initMethod =
     urlCurrency && urlCurrency !== "INR" ? "international" : "india";
-  const initCurrency =
-    urlCurrency && urlCurrency !== "INR" ? urlCurrency : "USD";
 
   const [paymentMethod, setPaymentMethod] = useState(initMethod);
-  const {
-    currency: selectedCurrency,
-    setCurrency: setSelectedCurrency,
-    rate: currencyRate,
-    rateLoading: currencyRateLoading,
-    toForeign,
-  } = useCurrency(initCurrency);
-
   const isIndia = paymentMethod === "india";
 
   /* ── Form ── */
@@ -97,17 +101,27 @@ export default function CheckoutForm({
     }));
   }, [user, isIndia]); // eslint-disable-line
 
-
-
   /* ── Derived pricing ── */
   const price = packageData.discountedPrice;
-  const gstAmount = Math.ceil(price * GST_RATE);
+  const effectiveGstRate = isWelcomeIndia ? 0 : GST_RATE;
+  const gstAmount = Math.ceil(price * effectiveGstRate);
   const indiaTotalINR = price + gstAmount;
-  const intlGstAmount = Math.ceil(price * GST_RATE);
+  const intlGstAmount = Math.ceil(price * effectiveGstRate);
   const intlTotalINR = price + intlGstAmount;
-  const intlTotalForeign = currencyRateLoading
-    ? null
-    : roundForeign(intlTotalINR / currencyRate, selectedCurrency);
+  const intlTotalForeign = isFixedUSD
+    ? (WELCOME_USD_PRICES[matchedWelcomeId] ?? null)
+    : currencyRateLoading
+      ? null
+      : roundForeign(intlTotalINR / currencyRate, selectedCurrency);
+
+  const customToForeign = (inrAmount) => {
+    if (isFixedUSD && matchedWelcomeId) {
+      const usdBase = WELCOME_USD_PRICES[matchedWelcomeId] ?? 0;
+      const scaled = Math.round((inrAmount / (price || 1)) * usdBase);
+      return fmtForeign(scaled, "USD");
+    }
+    return toForeign(inrAmount);
+  };
 
   /* ── Handlers ── */
   const handleMethodChange = (method) => {
@@ -168,21 +182,27 @@ export default function CheckoutForm({
           planName: packageData.name,
         };
 
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({
-        event: "pay_button_click",
-        conversion_value: "0",
-        currency: isIndia ? "INR" : selectedCurrency,
-        customer_name: form.name.trim() || "Unknown",
-        customer_phone: form.phone || "Unknown",
-        service_city: form.city || "Unknown",
-        plan_name: packageData.name || "Unknown",
-      });
+      // await trackLead({
+      //   value: isIndia ? indiaTotalINR : intlTotalForeign,
+      //   phone: form.phone,
+      //   userData: { fullName: form.name, email: form.email, city: form.city },
+      // });
+
+      // window.dataLayer = window.dataLayer || [];
+      // window.dataLayer.push({
+      //   event: "pay_button_click",
+      //   conversion_value: "0",
+      //   currency: isIndia ? "INR" : selectedCurrency,
+      //   customer_name: form.name.trim() || "Unknown",
+      //   customer_phone: form.phone || "Unknown",
+      //   service_city: form.city || "Unknown",
+      //   plan_name: packageData.name || "Unknown",
+      // });
 
       const res = await paymentApiUser.createOrder(payload);
-      const data = res.data?.data;
-
-      if (!data?.payment_session_id)
+      const data = res.data;
+console.log(data,"data")
+      if (!data?.paymentSessionId)
         throw new Error(
           data?.error || "Could not initiate payment. Please try again.",
         );
@@ -191,7 +211,7 @@ export default function CheckoutForm({
         bookingApiUser.createBooking({
           packageName: packageData.name,
           packageId: packageData.id,
-          validity: packageData.validity,
+          validity: packageData.validity.toString(),
           serviceCity: form.city || "Not specified",
           cashfreeId: data.order_id,
           currency: isIndia ? "INR" : selectedCurrency,
@@ -207,6 +227,7 @@ export default function CheckoutForm({
           : Promise.resolve(),
       ]);
 
+      
       const cashfree = await load({
         mode:
           process.env.NEXT_PUBLIC_CASHFREE_ENV === "production"
@@ -214,7 +235,7 @@ export default function CheckoutForm({
             : "sandbox",
       });
       cashfree.checkout({
-        paymentSessionId: data.payment_session_id,
+        paymentSessionId: data.paymentSessionId,
         redirectTarget: "_self",
       });
     } catch (err) {
@@ -259,7 +280,9 @@ export default function CheckoutForm({
               >
                 {displayPrice}
               </p>
-              <p className="text-gray-400 text-[10px] mt-0.5">per year</p>
+              <p className="text-gray-400 text-[10px] mt-0.5">
+                {packageData.validity === "Single Trip" ? "single trip" : "per year"}
+              </p>
             </div>
           </div>
 
@@ -274,6 +297,7 @@ export default function CheckoutForm({
               currencyRateLoading={currencyRateLoading}
               onMethodChange={handleMethodChange}
               onCurrencyChange={setSelectedCurrency}
+              isFixedUSD={isFixedUSD}
             />
 
             {/* Row 1: Name + Phone */}
@@ -432,8 +456,10 @@ export default function CheckoutForm({
               intlGstAmount={intlGstAmount}
               intlTotalINR={intlTotalINR}
               intlTotalForeign={intlTotalForeign}
-              toForeign={toForeign}
+              toForeign={customToForeign}
               fmtForeign={fmtForeign}
+              isWelcomeIndia={isWelcomeIndia}
+              isFixedUSD={isFixedUSD}
             />
 
             {/* Pay button */}

@@ -130,6 +130,11 @@ getPackageServices: async (packageId, query = "") => {
       throw err;
     }
   },
+    // Get services that are not included in the package
+  servicesNotIncluded: async (packageId, params) => {
+    const res = await api.get(`/service/not-included/${packageId}`, { params });
+    return res.data?.data;
+  },
   /**
    * Delete a service by ID.
    * @param {number|string} id - Service ID to delete
@@ -137,5 +142,32 @@ getPackageServices: async (packageId, query = "") => {
    */
   deleteService: async (id) => {
     await api.delete(`/service/${id}`);
+  },
+
+  /**
+   * Import services file.
+   * @param {File} file - Excel/CSV/JSON file
+   * @returns {Promise<any>}
+   */
+  importServices: async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await api.post("/admin/import?target=services", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return res.data;
+  },
+
+  /**
+   * Export services file.
+   * @param {string} format - xlsx, csv, json
+   * @returns {Promise<object>} - Axios response with blob
+   */
+  exportServices: async (format) => {
+    return await api.get(`/admin/export?target=services&type=${format}`, {
+      responseType: "blob",
+    });
   },
 };

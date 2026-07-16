@@ -8,23 +8,36 @@ import {
   AlertTriangle,
   CheckCircle,
   Star,
+  Shield,
+  Zap,
+  Heart,
+  Award,
+  Clock,
+  Gift,
 } from "lucide-react";
-import { usePackages } from "../../hooks/usePackages";
+import { offerApi } from "@/app/user-apis/offer.api";
 
 const WA_NUMBER = "917304607954";
 
-// ── helpers ───────────────────────────────────────────────────────────────────
+// ── Icon map ──────────────────────────────────────────────────────────────────
+// Maps icon name strings from the API to actual Lucide components
+const ICON_MAP = {
+  Tag,
+  Star,
+  CheckCircle,
+  Shield,
+  Zap,
+  Heart,
+  Award,
+  Clock,
+  Gift,
+  Crown,
+  Gem,
+};
 
-const getEndOfCurrentMonth = () =>
-  new Date(
-    new Date().getFullYear(),
-    new Date().getMonth() + 1,
-    0,
-    23,
-    59,
-    59,
-    999,
-  );
+const resolveIcon = (name) => ICON_MAP[name] ?? CheckCircle;
+
+// ── helpers ───────────────────────────────────────────────────────────────────
 
 const formatPrice = (price) =>
   price != null
@@ -38,6 +51,14 @@ const toShortDate = (date) =>
     year: "numeric",
     timeZone: "Asia/Kolkata",
   });
+
+/**
+ * Replace all occurrences of {date} and {packageName} in a template string.
+ */
+const interpolate = (template = "", vars = {}) =>
+  template
+    .replace(/\{date\}/g, vars.date ?? "")
+    .replace(/\{packageName\}/g, vars.packageName ?? "");
 
 // ── CountdownBlock ────────────────────────────────────────────────────────────
 
@@ -111,55 +132,86 @@ function CountdownBlock({ deadline }) {
   );
 }
 
-// ── PricingPillsSkeleton ──────────────────────────────────────────────────────
+// ── Skeleton ──────────────────────────────────────────────────────────────────
 
-function PricingPillsSkeleton() {
+function BannerSkeleton() {
   return (
-    <div className="grid grid-cols-5 gap-2 sm:gap-3">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <div
-          key={i}
-          className="rounded-2xl px-2 py-4 h-[72px] animate-pulse"
-          style={{ background: "rgba(255,255,255,0.04)" }}
-        />
-      ))}
-    </div>
+    <section
+      className="relative overflow-hidden py-20 px-6"
+      style={{ backgroundColor: "#060D1F" }}
+    >
+      <div className="relative max-w-3xl mx-auto space-y-6 animate-pulse">
+        {/* alert pill */}
+        <div className="flex justify-center">
+          <div className="h-7 w-72 rounded-full bg-white/5" />
+        </div>
+        {/* eyebrow */}
+        <div className="flex justify-center">
+          <div className="h-3 w-56 rounded bg-white/5" />
+        </div>
+        {/* headline */}
+        <div className="space-y-2 flex flex-col items-center">
+          <div className="h-10 w-80 rounded bg-white/5" />
+          <div className="h-10 w-64 rounded bg-white/5" />
+        </div>
+        {/* countdown placeholder */}
+        <div className="flex justify-center gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="w-16 h-16 rounded-2xl bg-white/5" />
+          ))}
+        </div>
+        {/* pricing pills */}
+        <div className="grid grid-cols-3 gap-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-20 rounded-2xl bg-white/5" />
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
 // ── FoundingMemberBanner ──────────────────────────────────────────────────────
 
 export default function FoundingMemberBanner() {
-  const { packages, loading, error } = usePackages();
-  // ── deadline: owned by this component, unrelated to packages ─────────────
-  const [deadline, setDeadline] = useState(getEndOfCurrentMonth());
+  const [offer, setOffer] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // api for getting the deadline
-  // useEffect(() => {
-  //   const fetchDeadline = async () => {
-  //     try {
-  //       const res = await api.get("/config/founding-deadline");
-  //       const raw = res?.data?.data?.deadline ?? res?.data?.deadline;
-  //       if (raw) setDeadline(new Date(raw));
-  //     } catch {
-  //       // silently keep end-of-month fallback
-  //     }
-  //   };
-  //   fetchDeadline();
-  // }, []);
+  useEffect(() => {
+    offerApi
+      .getOfferForUser()
+      .then((res) => {
+        // Support both { data: offer } and offer-as-root shapes
+        setOffer(res?.data ?? res);
+      })
+      .catch((err) => {
+        console.error("Failed to load offer:", err);
+        setError(err);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
-  // ── derived values ────────────────────────────────────────────────────────
+  if (loading) return <BannerSkeleton />;
 
+  // If the offer failed to load or is inactive, render nothing
+  if (error || !offer || !offer.isActive) return null;
+
+  // ── Derived values ────────────────────────────────────────────────────────
+
+  const deadline = new Date(offer.endDate);
   const deadlineDateLabel = toShortDate(deadline);
 
-  const featuredPkg =
-    packages.find((p) => p.featured) ??
-    packages.find((p) => (p.id ?? p.slug) === "premium") ??
-    packages[Math.floor(packages.length / 2)] ??
-    null;
+  const pkg = offer.featuredPackage;
+  const packageName = pkg?.name ?? "Premium";
+  const pkgSlug = offer.ctaPrimaryHref ?? `/booking/${offer.featuredPackageId}`;
 
-  const featuredSlug = featuredPkg?.id ?? featuredPkg?.slug ?? "premium";
-  const featuredName = featuredPkg?.name ?? "Premium";
+  // Helper: resolve template vars once
+  const t = (str) => interpolate(str, { date: deadlineDateLabel, packageName });
+
+  const benefits = Array.isArray(offer.benefits)
+    ? [...offer.benefits].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    : [];
 
   const waMessage = encodeURIComponent(
     `Hi WENS Force, I want to claim Founding Member pricing before ${deadlineDateLabel}. Please guide me.`,
@@ -202,7 +254,7 @@ export default function FoundingMemberBanner() {
             }}
           >
             <AlertTriangle size={12} strokeWidth={2.5} />
-            Access Closes {deadlineDateLabel} — 11:59 PM IST
+            {t(offer.alertText)}
           </div>
         </div>
 
@@ -210,28 +262,26 @@ export default function FoundingMemberBanner() {
         <div className="flex items-center justify-center gap-2 mb-3">
           <Crown size={15} strokeWidth={1.5} className="text-[#C9A24B]" />
           <p className="text-[#C9A24B] text-[10px] tracking-[0.4em] uppercase font-semibold">
-            Financial Year Founding Member Access
+            {offer.eyebrow}
           </p>
           <Crown size={15} strokeWidth={1.5} className="text-[#C9A24B]" />
         </div>
 
         {/* Headline */}
         <h2 className="font-serif-display text-center text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
-          Lock In Founding Rates.
+          {offer.title}
           <br />
-          <span style={{ color: "#C9A24B" }}>Before the FY Window Closes.</span>
+          <span style={{ color: "#C9A24B" }}>{offer.titleAccent}</span>
         </h2>
 
         <p className="text-center text-white/40 text-sm font-light mb-10 max-w-lg mx-auto leading-relaxed">
-          After {deadlineDateLabel}, all new members pay the updated price for
-          the next cycle. Join now and pay today&apos;s rate for your first
-          membership year.
+          {t(offer.description)}
         </p>
 
         {/* Countdown */}
         <div className="mb-10">
           <p className="text-center text-white/30 text-[10px] uppercase tracking-[0.3em] font-medium mb-4">
-            Time remaining to claim founding rates
+            {offer.countdownLabel}
           </p>
           <CountdownBlock deadline={deadline} />
         </div>
@@ -245,114 +295,85 @@ export default function FoundingMemberBanner() {
           }}
         />
 
-        {/* Tier pricing pills */}
-        <div className="mb-10">
-          <p className="text-center text-white/30 text-[10px] uppercase tracking-[0.3em] font-medium mb-5">
-            Current founding rates — valid till {deadlineDateLabel}
-          </p>
-
-          {loading && <PricingPillsSkeleton />}
-
-          {error && (
-            <p className="text-center text-white/30 text-xs py-4">
-              Pricing unavailable — call concierge for rates.
+        {/* Featured package pricing pill */}
+        {pkg && (
+          <div className="mb-10">
+            <p className="text-center text-white/30 text-[10px] uppercase tracking-[0.3em] font-medium mb-5">
+              {t(offer.pricingLabel)}
             </p>
-          )}
+            <div className="flex justify-center">
+              <div
+                className="flex flex-col items-center gap-1.5 rounded-2xl px-8 py-5 transition-all"
+                style={{
+                  background: "rgba(201,162,75,0.1)",
+                  border: "1px solid rgba(201,162,75,0.3)",
+                  minWidth: 180,
+                }}
+              >
+                <p className="text-[9px] text-white/40 uppercase tracking-wide font-light text-center">
+                  {pkg.name}
+                </p>
+                <p className="text-[13px] font-semibold text-[#C9A24B] text-center">
+                  {formatPrice(pkg.discountedPrice ?? pkg.regularPrice)}
+                </p>
+                {pkg.discountedPrice && pkg.regularPrice && (
+                  <p className="text-[10px] text-white/20 line-through text-center">
+                    {`₹${Number(pkg.regularPrice).toLocaleString("en-IN")}`}
+                  </p>
+                )}
+                <p className="text-[8px] text-white/20 text-center">/year</p>
+              </div>
+            </div>
+          </div>
+        )}
 
-          {!loading && !error && packages.length > 0 && (
+        {/* What founding means — dynamic benefits from API */}
+        {benefits.length > 0 && (
+          <div
+            className="rounded-2xl px-5 py-5 mb-10 mt-8"
+            style={{
+              background: "rgba(201,162,75,0.07)",
+              border: "1px solid rgba(201,162,75,0.15)",
+            }}
+          >
+            <p className="text-[#C9A24B] text-[10px] uppercase tracking-[0.3em] font-semibold mb-3">
+              {offer.benefitsHeading}
+            </p>
             <div
-              className="gap-2 sm:gap-3"
+              className="gap-3"
               style={{
                 display: "grid",
-                gridTemplateColumns: `repeat(${packages.length}, minmax(0, 1fr))`,
+                gridTemplateColumns: `repeat(${Math.min(benefits.length, 3)}, minmax(0, 1fr))`,
               }}
             >
-              {packages.map((pkg) => {
-                const slug = pkg.id ?? pkg.slug;
-                const isFeatured = slug === featuredSlug;
+              {benefits.map((benefit) => {
+                const Icon = resolveIcon(benefit.icon);
                 return (
-                  <div
-                    key={slug}
-                    className="flex flex-col items-center gap-1.5 rounded-2xl px-2 py-4 transition-all"
-                    style={{
-                      background: isFeatured
-                        ? "rgba(201,162,75,0.1)"
-                        : "rgba(255,255,255,0.04)",
-                      border: isFeatured
-                        ? "1px solid rgba(201,162,75,0.3)"
-                        : "1px solid rgba(255,255,255,0.07)",
-                    }}
-                  >
-                    <p className="text-[9px] text-white/40 uppercase tracking-wide font-light text-center">
-                      {pkg.name ?? slug}
-                    </p>
-                    <p className="text-[11px] font-semibold text-[#C9A24B] text-center">
-                      {formatPrice(
-                        pkg.discountedPrice ?? pkg.regularPrice ?? pkg.price,
-                      )}
-                    </p>
-                    <p className="text-[8px] text-white/20 text-center">
-                      /year
-                    </p>
+                  <div key={benefit.id} className="flex items-start gap-3">
+                    <div
+                      className="mt-0.5 w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                      style={{ backgroundColor: "rgba(201,162,75,0.15)" }}
+                    >
+                      <Icon
+                        size={13}
+                        strokeWidth={1.75}
+                        className="text-[#C9A24B]"
+                      />
+                    </div>
+                    <div>
+                      <p className="text-white/70 text-xs font-semibold leading-tight mb-0.5">
+                        {benefit.title}
+                      </p>
+                      <p className="text-white/30 text-[11px] font-light leading-snug">
+                        {benefit.description}
+                      </p>
+                    </div>
                   </div>
                 );
               })}
             </div>
-          )}
-        </div>
-
-        {/* What founding means */}
-        <div
-          className="rounded-2xl px-5 py-5 mb-10 mt-8"
-          style={{
-            background: "rgba(201,162,75,0.07)",
-            border: "1px solid rgba(201,162,75,0.15)",
-          }}
-        >
-          <p className="text-[#C9A24B] text-[10px] uppercase tracking-[0.3em] font-semibold mb-3">
-            What you get as a founding member
-          </p>
-          <div className="grid sm:grid-cols-3 gap-3">
-            {[
-              {
-                icon: Tag,
-                title: "Current FY Pricing",
-                desc: "You pay today's rate for this membership year — before the next cycle update.",
-              },
-              {
-                icon: Star,
-                title: "Founding Member Status",
-                desc: "Recognised as an early member when WENS Force launched its premium tier.",
-              },
-              {
-                icon: CheckCircle,
-                title: "Priority Onboarding",
-                desc: "Your concierge calls within 12 hours of joining to set everything up.",
-              },
-            ].map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="flex items-start gap-3">
-                <div
-                  className="mt-0.5 w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                  style={{ backgroundColor: "rgba(201,162,75,0.15)" }}
-                >
-                  <Icon
-                    size={13}
-                    strokeWidth={1.75}
-                    className="text-[#C9A24B]"
-                  />
-                </div>
-                <div>
-                  <p className="text-white/70 text-xs font-semibold leading-tight mb-0.5">
-                    {title}
-                  </p>
-                  <p className="text-white/30 text-[11px] font-light leading-snug">
-                    {desc}
-                  </p>
-                </div>
-              </div>
-            ))}
           </div>
-        </div>
+        )}
 
         {/* Deadline note */}
         <div
@@ -369,22 +390,21 @@ export default function FoundingMemberBanner() {
           />
           <p className="text-red-300/70 text-xs font-light leading-relaxed">
             <strong className="text-red-300 font-semibold">
-              After {deadlineDateLabel}:
-            </strong>{" "}
-            New memberships will be onboarded at the updated pricing for the
-            next financial year cycle. This window will not be extended.
+              {t(offer.deadlineNoteStrong)}{" "}
+            </strong>
+            {t(offer.deadlineNoteBody)}
           </p>
         </div>
 
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
-            href={`/booking/${featuredSlug}`}
+            href={pkgSlug}
             className="flex items-center justify-center gap-2 font-bold py-4 px-9 rounded-full text-sm transition-all hover:opacity-90 hover:shadow-[0_0_32px_rgba(201,162,75,0.35)] w-full sm:w-auto"
             style={{ backgroundColor: "#C9A24B", color: "#000" }}
           >
             <Gem size={15} strokeWidth={2} />
-            Claim Founding Rate — {featuredName}
+            {t(offer.ctaPrimaryText)}
           </Link>
           <a
             href={`https://wa.me/${WA_NUMBER}?text=${waMessage}`}
@@ -404,13 +424,12 @@ export default function FoundingMemberBanner() {
               e.currentTarget.style.color = "rgba(255,255,255,0.6)";
             }}
           >
-            Ask Concierge →
+            {offer.ctaSecondaryText}
           </a>
         </div>
 
         <p className="text-center text-white/15 text-xs mt-6">
-          wensforce.com &nbsp;·&nbsp; +91-73046 07954 &nbsp;·&nbsp; Founding
-          access closes {deadlineDateLabel}
+          {t(offer.footerNote)}
         </p>
       </div>
     </section>

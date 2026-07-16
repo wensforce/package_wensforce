@@ -7,6 +7,7 @@ import { packageApi } from "../apis/packages.api";
 import PackageDetailHeader from "../../components/package/PackageDetailHeader";
 import PackageOverviewCard from "../../components/package/PackageOverviewCard";
 import { useFetchList } from "../../hooks/useFetchList";
+import PackageMediaSection from "../../components/package/PackageMediaSection";
 
 export default function PackageDetailPage() {
   const router = useRouter();
@@ -29,6 +30,7 @@ export default function PackageDetailPage() {
 
       try {
         const data = await packageApi.getPackageById(packageId);
+        console.log(data.images, data.videos, "gdhdh")
         setPackageData(data);
       } catch (err) {
         setError(
@@ -91,8 +93,8 @@ export default function PackageDetailPage() {
           <PackageDetailHeader
             onBack={() => router.push("/admin/packages")}
             onRefresh={() => fetchPackage()}
-            onEdit={() => {}}
-            onDelete={() => {}}
+            onEdit={() => { }}
+            onDelete={() => { }}
             refreshing={refreshing}
             deleting={deleting}
           />
@@ -150,8 +152,14 @@ export default function PackageDetailPage() {
         <div className="p-6">
           <PackageOverviewCard packageData={packageData} />
         </div>
+        <div className="px-6 pb-6">
+          <PackageMediaSection
+
+            images={packageData.images ?? []}
+            videos={packageData.videos ?? []}
+          />
+        </div>
       </div>
     </div>
   );
 }
-

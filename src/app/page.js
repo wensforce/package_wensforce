@@ -14,7 +14,7 @@ import JsonLd from "./components/MainPage/JsonLd";
 import ServicesVideoSection from "./components/MainPage/ServicesVideoSection";
 import { ComparisonTable } from "./components/Comparison-Table/ComparisonTable";
 import PlansSection from "./components/MainPage/PlansSection";
-import FoundingMemberBanner from "./components/MainPage/FoundingMemberBanner";
+import FoundingMemberBanner from "./components/MainPage/Offer";
 import WelcomeIndiaCard from "./components/MainPage/WelcomeIndiaCard";
 // export const metadata = {
 //   title:

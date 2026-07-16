@@ -18,7 +18,7 @@ export function formatMoney(value) {
 export function getStatusUI(status) {
   const s = String(status || "PENDING").toUpperCase();
 
-  if (s === "SUCCESS" || s === "COMPLETED" || s === "PAID") {
+  if (s === "SUCCESS" || s === "COMPLETED" || s === "PAID" || s === "ACTIVE") {
     return {
       className: "bg-green-100 text-green-700",
       icon: <CheckCircle2 size={12} />,

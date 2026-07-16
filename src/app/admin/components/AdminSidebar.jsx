@@ -15,6 +15,7 @@ import {
   LogOut,
   X,
   Hash,
+  Gift,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { authApi } from "./auth.api";
@@ -25,6 +26,7 @@ const navItems = [
   { label: "Services", href: "/admin/services", icon: Wrench },
   { label: "Users", href: "/admin/users", icon: Users },
   { label: "Coupons", href: "/admin/coupons", icon: Hash },
+  { label: "Offers", href: "/admin/offers", icon: Gift },
   { label: "Subscriptions", href: "/admin/subscriptions", icon: CalendarCheck },
   { label: "Trips", href: "/admin/trips", icon: CalendarCheck },
 ];

@@ -4,10 +4,11 @@ import Link from "next/link";
 import { Check, ArrowLeft } from "lucide-react";
 import { INR, WA_NUMBER } from "@/app/(protected)/booking/booking-helpers";
 
-export default function SuccessState({ packageData, form }) {
+export default function SuccessState({ packageData, form, isWelcomeIndia, matchedLocalPlan }) {
   const price = packageData.discountedPrice;
+  const validitySuffix = packageData.validity === "Single Trip" ? "" : "/yr";
   const waMsg = encodeURIComponent(
-    `Hi WENS Force! I just reserved the ${packageData.name} Package (${INR(price)}/yr).\n\nName: ${form.name}\nMobile: ${form.phone}\nCity: ${form.city || "Not specified"}\n\nPlease send the payment link.`,
+    `Hi WENS Force! I just reserved the ${packageData.name} Package (${INR(price)}${validitySuffix}).\n\nName: ${form.name}\nMobile: ${form.phone}\nCity: ${form.city || "Not specified"}\n\nPlease send the payment link.`,
   );
 
   return (

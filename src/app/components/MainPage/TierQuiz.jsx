@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { usePackages } from "@/app/hooks/usePackages";
 
-const WA_NUMBER = "917304607954";
+const WA_NUMBER = process.env.WA_NUMBER;
 
 const QUESTIONS = [
   {

@@ -62,7 +62,11 @@ const buildCapsules = (pkg) => {
 
 /* ── Component ────────────────────────────────────────────────────────── */
 
-export default function PackageSummaryPanel({ packageData, displayPrice }) {
+export default function PackageSummaryPanel({
+  packageData,
+  displayPrice,
+  isWelcomeIndia,
+}) {
   const { regularPrice: anchorPrice, discountedPrice: price } = packageData;
   const hasDiscount = anchorPrice > price;
   const capsules = buildCapsules(packageData);
@@ -143,7 +147,9 @@ export default function PackageSummaryPanel({ packageData, displayPrice }) {
               {displayPrice}
             </span>
             <span className="text-gray-400 text-xs mb-1">
-              GST 18% Extra · / year, all-inclusive
+              {isWelcomeIndia
+                ? `All Inclusive · ${packageData.validity || "Single Trip"}`
+                : `GST 18% Extra · ${packageData.validity || "12 Months"} Validity`}
             </span>
             {hasDiscount && (
               <span

@@ -19,6 +19,7 @@ import BreakdownSection from "../sections/BreakDownSection";
 import FAQSection from "../sections/FaqSection";
 import OtherPlansSection from "../sections/OtherPlansSection";
 import { useExitIntent } from "@/app/hooks/useExitIntent";
+import MediaSection from "../sections/MediaSection";
 
 const WA_NUMBER = "917304607954";
 const S3_BASE =
@@ -166,7 +167,10 @@ export default function PlanDetailPage() {
             planName={plan.name}
           />
         )}
-
+  <MediaSection
+  images={plan.images ?? []}
+  videos={plan.videos ?? []}
+/>
         <ServicesSection services={includedServicesWithImage} />
         <BreakdownSection plan={plan} waUrl={waUrl} />
         <FAQSection plan={plan} />
