@@ -1257,6 +1257,7 @@ export default function BookingPageContent({
   const [payError, setPayError] = useState("");
   const searchParams = useSearchParams();
   const urlCurrency = searchParams.get("currency");
+  const expoSlug = searchParams.get("expo"); // Expo Arrival origin tracking
   const initCurrency =
     urlCurrency && urlCurrency !== "INR" ? urlCurrency : "USD";
   const initMethod =
@@ -1399,7 +1400,12 @@ export default function BookingPageContent({
       await trackLead({
         value: isIntl ? intlTotalForeign : indiaTotalINR,
         phone: form.phone,
-        userData: { fullName: form.name, email: form.email, city: form.city },
+        userData: {
+          fullName: form.name,
+          email: form.email,
+          city: form.city,
+          expoSlug: expoSlug || undefined,
+        },
       }); 
 
 
@@ -1418,6 +1424,7 @@ export default function BookingPageContent({
         customer_phone: form.phone || "Unknown",
         service_city: form.city || "Unknown",
         plan_name: plan.name || "Unknown", // your existing plan variable
+        expo_slug: expoSlug || undefined, // Expo Arrival origin (if applicable)
       });
       if (!res.ok || !data.payment_session_id) {
         throw new Error(
