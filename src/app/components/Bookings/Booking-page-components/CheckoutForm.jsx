@@ -182,22 +182,22 @@ export default function CheckoutForm({
           planName: packageData.name,
         };
 
-      // await trackLead({
-      //   value: isIndia ? indiaTotalINR : intlTotalForeign,
-      //   phone: form.phone,
-      //   userData: { fullName: form.name, email: form.email, city: form.city },
-      // });
+      await trackLead({
+        value: isIndia ? indiaTotalINR : intlTotalForeign,
+        phone: form.phone,
+        userData: { fullName: form.name, email: form.email, city: form.city },
+      });
 
-      // window.dataLayer = window.dataLayer || [];
-      // window.dataLayer.push({
-      //   event: "pay_button_click",
-      //   conversion_value: "0",
-      //   currency: isIndia ? "INR" : selectedCurrency,
-      //   customer_name: form.name.trim() || "Unknown",
-      //   customer_phone: form.phone || "Unknown",
-      //   service_city: form.city || "Unknown",
-      //   plan_name: packageData.name || "Unknown",
-      // });
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: "pay_button_click",
+        conversion_value: "0",
+        currency: isIndia ? "INR" : selectedCurrency,
+        customer_name: form.name.trim() || "Unknown",
+        customer_phone: form.phone || "Unknown",
+        service_city: form.city || "Unknown",
+        plan_name: packageData.name || "Unknown",
+      });
 
       const res = await paymentApiUser.createOrder(payload);
       const data = res.data;

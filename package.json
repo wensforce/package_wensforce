@@ -11,6 +11,12 @@
   "dependencies": {
     "@cashfreepayments/cashfree-js": "^1.0.7",
     "@reduxjs/toolkit": "^2.12.0",
+    "@tiptap/extension-placeholder": "^3.28.0",
+    "@tiptap/extension-underline": "^3.28.0",
+    "@tiptap/html": "^3.28.0",
+    "@tiptap/pm": "^3.28.0",
+    "@tiptap/react": "^3.28.0",
+    "@tiptap/starter-kit": "^3.28.0",
     "@vercel/analytics": "^2.0.1",
     "axios": "^1.16.0",
     "lucide-react": "^1.14.0",

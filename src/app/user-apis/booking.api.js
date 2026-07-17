@@ -7,7 +7,7 @@ export const bookingApiUser = {
    * @returns {Promise<object>}
    */
   createBooking: async (payload) => {
-    const res = await api.post("/booking", payload);
+    const res = await api.post("/payment/create-order", payload);
     return res.data;
   },
 };

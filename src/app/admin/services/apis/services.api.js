@@ -87,6 +87,7 @@ getPackageServices: async (packageId, query = "") => {
     const payload = {
       title: form.title.trim(),
       isActive: form.isActive,
+      price: form.price != null && form.price !== "" ? Number(form.price) : 0,
       ...(form.description.trim() && { description: form.description.trim() }),
       ...(uploadedKey && { thumbnailUrlKey: uploadedKey }),
     };
@@ -118,6 +119,7 @@ getPackageServices: async (packageId, query = "") => {
     const payload = {
       title: form.title.trim(),
       isActive: form.isActive,
+      price: form.price != null && form.price !== "" ? Number(form.price) : 0,
       ...(form.description.trim() && { description: form.description.trim() }),
       ...(uploadedKey && { thumbnailUrlKey: uploadedKey }),
     };

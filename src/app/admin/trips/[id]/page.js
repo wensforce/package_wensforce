@@ -104,6 +104,7 @@ export default function TripDetailPage() {
         }
 
         const data = await tripApi.getTripById(tripId);
+        console.log(data,"trip data")
         setTrip(data);
       } catch (err) {
         setError(
@@ -148,7 +149,15 @@ export default function TripDetailPage() {
     setApproveError(null);
 
     try {
-      await tripApi.approveTrip(tripId, assignmentId);
+      const payload = {
+        assignmentId,
+        customerName: trip?.user?.name || "",
+        plan: trip?.subscriptionId || "",
+        packageName: trip?.subscription?.package?.name || trip?.subscription?.package?.name || "",
+        tripId: trip?.id ? Number(trip.id) : Number(tripId),
+        phone:trip?.user?.mobileNumber || ""
+      };
+      await tripApi.approveTrip(tripId, payload);
 
       approveModal.close();
       await fetchTrip({ silent: true });

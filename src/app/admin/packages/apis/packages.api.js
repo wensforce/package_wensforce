@@ -90,7 +90,6 @@ export const packageApi = {
       const { key } = await uploadImageToS3(file); // use uploadVideoToS3 if you have one
       uploadedVideoKeys.push(key);
     }
-console.log(uploadedImageKeys,uploadedVideoKeys,"hfhfh")
     const finalPayload = {
       ...payload,
       ...(uploadedThumbnailKey && { thumbnailUrlKey: uploadedThumbnailKey }),
@@ -147,7 +146,6 @@ console.log(uploadedImageKeys,uploadedVideoKeys,"hfhfh")
       const { key } = await uploadImageToS3(file);
       uploadedVideoKeys.push(key);
     }
-console.log(uploadedImageKeys,uploadedVideoKeys,"hfhfh")
     const finalPayload = {
       ...payload,
       ...(uploadedKey

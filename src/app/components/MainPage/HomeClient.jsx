@@ -3,7 +3,8 @@
 import { usePackages } from "../../hooks/usePackages";
 import PlansSection from "./PlansSection";
 import { ComparisonTable } from "../Comparison-Table/ComparisonTable";
-import FoundingMemberBanner from "./Offer";
+import dynamic from "next/dynamic";
+const FoundingMemberBanner = dynamic(() => import("./Offer"), { ssr: false });
 
 export default function HomeClient({ slot, welcomeIndia }) {
   const { packages, loading, error } = usePackages();

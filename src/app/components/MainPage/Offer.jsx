@@ -202,9 +202,10 @@ export default function FoundingMemberBanner() {
   const deadline = new Date(offer.endDate);
   const deadlineDateLabel = toShortDate(deadline);
 
-  const pkg = offer.featuredPackage;
-  const packageName = pkg?.name ?? "Premium";
-  const pkgSlug = offer.ctaPrimaryHref ?? `/booking/${offer.featuredPackageId}`;
+  const featuredPkgs = offer.featuredPackages ?? [];
+  const packageName = featuredPkgs.map((p) => p.name).join(" / ") || "Premium";
+  const firstPkg = featuredPkgs[0];
+  const pkgSlug = offer.ctaPrimaryHref ?? (firstPkg ? `/booking/${firstPkg.id}` : "#plans");
 
   // Helper: resolve template vars once
   const t = (str) => interpolate(str, { date: deadlineDateLabel, packageName });
@@ -295,34 +296,38 @@ export default function FoundingMemberBanner() {
           }}
         />
 
-        {/* Featured package pricing pill */}
-        {pkg && (
+        {/* Featured packages pricing pills */}
+        {featuredPkgs.length > 0 && (
           <div className="mb-10">
             <p className="text-center text-white/30 text-[10px] uppercase tracking-[0.3em] font-medium mb-5">
               {t(offer.pricingLabel)}
             </p>
-            <div className="flex justify-center">
-              <div
-                className="flex flex-col items-center gap-1.5 rounded-2xl px-8 py-5 transition-all"
-                style={{
-                  background: "rgba(201,162,75,0.1)",
-                  border: "1px solid rgba(201,162,75,0.3)",
-                  minWidth: 180,
-                }}
-              >
-                <p className="text-[9px] text-white/40 uppercase tracking-wide font-light text-center">
-                  {pkg.name}
-                </p>
-                <p className="text-[13px] font-semibold text-[#C9A24B] text-center">
-                  {formatPrice(pkg.discountedPrice ?? pkg.regularPrice)}
-                </p>
-                {pkg.discountedPrice && pkg.regularPrice && (
-                  <p className="text-[10px] text-white/20 line-through text-center">
-                    {`₹${Number(pkg.regularPrice).toLocaleString("en-IN")}`}
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              {featuredPkgs.map((p) => (
+                <Link
+                  key={p.id}
+                  href={`/booking/${p.id}`}
+                  className="flex flex-col items-center gap-1.5 rounded-2xl px-8 py-5 transition-all hover:scale-105 hover:bg-white/5 cursor-pointer"
+                  style={{
+                    background: "rgba(201,162,75,0.1)",
+                    border: "1px solid rgba(201,162,75,0.3)",
+                    minWidth: 180,
+                  }}
+                >
+                  <p className="text-[9px] text-white/40 uppercase tracking-wide font-light text-center">
+                    {p.name}
                   </p>
-                )}
-                <p className="text-[8px] text-white/20 text-center">/year</p>
-              </div>
+                  <p className="text-[13px] font-semibold text-[#C9A24B] text-center">
+                    {formatPrice(p.discountedPrice ?? p.regularPrice)}
+                  </p>
+                  {p.discountedPrice && p.regularPrice && (
+                    <p className="text-[10px] text-white/20 line-through text-center">
+                      {`₹${Number(p.regularPrice).toLocaleString("en-IN")}`}
+                    </p>
+                  )}
+                  <p className="text-[8px] text-white/20 text-center">/year</p>
+                </Link>
+              ))}
             </div>
           </div>
         )}

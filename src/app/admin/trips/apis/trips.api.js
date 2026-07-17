@@ -67,13 +67,13 @@ export const tripApi = {
   },
 
   /**
-   * Approve a trip with an assignment ID.
+   * Approve a trip with an assignment ID and details.
    * @param {number|string} id - Trip ID
-   * @param {string} assignmentId - Assignment ID to attach
+   * @param {object} payload - Approval details
    * @returns {Promise<object>}
    */
-  approveTrip: async (id, assignmentId) => {
-    const res = await api.post(`/trip/approve/${id}`, { assignmentId });
+  approveTrip: async (id, payload) => {
+    const res = await api.post(`/trip/approve/${id}`, payload);
     return res.data;
   },
 

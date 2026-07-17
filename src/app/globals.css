@@ -472,3 +472,83 @@ body {
     cursor: not-allowed;
   }
 }
+
+/* ── Tiptap editor base styles ──────────────────────────────────────────── */
+.tiptap-editor .ProseMirror {
+  outline: none;
+  min-height: 200px;
+}
+
+.tiptap-editor .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #A0AEC0;
+  pointer-events: none;
+  height: 0;
+}
+
+/* ── Tiptap prose output (read-only preview & editor) ───────────────────── */
+.tiptap-prose h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0B1E3F;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.tiptap-prose h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0B1E3F;
+  margin-top: 1rem;
+  margin-bottom: 0.375rem;
+}
+
+.tiptap-prose p {
+  margin-bottom: 0.625rem;
+  line-height: 1.65;
+  color: #1A202C;
+}
+
+.tiptap-prose ul {
+  list-style-type: disc;
+  padding-left: 1.4rem;
+  margin-bottom: 0.625rem;
+}
+
+.tiptap-prose ol {
+  list-style-type: decimal;
+  padding-left: 1.4rem;
+  margin-bottom: 0.625rem;
+}
+
+.tiptap-prose li {
+  margin-bottom: 0.25rem;
+  color: #1A202C;
+}
+
+.tiptap-prose blockquote {
+  border-left: 3px solid #C9A24B;
+  padding-left: 1rem;
+  color: #4A5568;
+  font-style: italic;
+  margin: 0.75rem 0;
+}
+
+.tiptap-prose hr {
+  border: none;
+  border-top: 1px solid #CBD5E0;
+  margin: 1rem 0;
+}
+
+.tiptap-prose strong {
+  font-weight: 700;
+}
+
+.tiptap-prose em {
+  font-style: italic;
+}
+
+.tiptap-prose u {
+  text-decoration: underline;
+}

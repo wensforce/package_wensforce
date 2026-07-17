@@ -77,8 +77,14 @@ export default function ServiceOverviewCard({ service }) {
             </p>
           </div>
 
-          {/* Created / Updated */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* Price, Created / Updated */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="rounded-xl border border-[#CBD5E0] bg-[#FAFAFA] px-4 py-3">
+              <p className="text-xs font-semibold text-[#718096] mb-1">Price</p>
+              <p className="text-sm font-semibold text-[#0B1E3F]">
+                ₹{service.price != null ? Number(service.price).toLocaleString("en-IN") : "0"}
+              </p>
+            </div>
             <div className="rounded-xl border border-[#CBD5E0] bg-[#FAFAFA] px-4 py-3">
               <p className="text-xs font-semibold text-[#718096] mb-1">Created</p>
               <p className="text-sm font-medium text-[#1A202C]">

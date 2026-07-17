@@ -23,6 +23,7 @@ const COLUMNS = [
   { key: "thumbnail", label: "Thumbnail" },
   { key: "title", label: "Title" },
   { key: "description", label: "Description" },
+  { key: "price", label: "Price" },
   { key: "status", label: "Status" },
   { key: "createdAt", label: "Created" },
   { key: "updatedAt", label: "Updated" },
@@ -129,6 +130,12 @@ export default function ServicesPage() {
         return (
           <span className="text-[#4A5568] text-xs" title={s.description ?? ""}>
             {truncateWords(s.description, 5)}
+          </span>
+        );
+      case "price":
+        return (
+          <span className="text-[#1A202C] font-semibold text-sm">
+            ₹{s.price != null ? Number(s.price).toLocaleString("en-IN") : "—"}
           </span>
         );
       case "status":

@@ -10,4 +10,8 @@ export const subscriptionApiUser = {
     const res = await api.get("/subscription/my");
     return res.data;
   },
+  getMySubscriptionHistory: async () => {
+    const res = await api.get("/subscription/my/history");
+    return res.data;
+  },
 };

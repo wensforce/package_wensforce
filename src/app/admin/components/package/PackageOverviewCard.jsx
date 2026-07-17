@@ -1,6 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { generateHTML } from "@tiptap/html";
+import StarterKit from "@tiptap/starter-kit";
+import Underline from "@tiptap/extension-underline";
 import { 
   Package, 
   Shield, 
@@ -11,7 +14,8 @@ import {
   DollarSign, 
   Calendar,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  FileText
 } from "lucide-react";
 
 function Row({ label, value, mono = false }) {
@@ -253,6 +257,27 @@ export default function PackageOverviewCard({ packageData }) {
           <Row label="Last Updated" value={formatDate(packageData.updatedAt)} />
         </div>
       </SectionCard>
+
+      {/* Terms & Conditions */}
+      {packageData.termsAndConditions && (
+        <SectionCard icon={<FileText size={16} />} title="Terms &amp; Conditions">
+          <div
+            className="tiptap-prose text-sm leading-relaxed"
+            dangerouslySetInnerHTML={{
+              __html: (() => {
+                try {
+                  return generateHTML(packageData.termsAndConditions, [
+                    StarterKit,
+                    Underline,
+                  ]);
+                } catch {
+                  return "<p>Unable to render terms content.</p>";
+                }
+              })(),
+            }}
+          />
+        </SectionCard>
+      )}
     </div>
   );
 }

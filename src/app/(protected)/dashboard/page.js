@@ -12,10 +12,12 @@ import {
   CreditCard,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import ActivePackages from "./dashboard-components/ActivePackages";
-import TripHistory from "./dashboard-components/TripHistory";
-import PackageHistory from "./dashboard-components/PackageHistory";
-import PaymentHistory from "./dashboard-components/PaymentHistory";
+import dynamic from "next/dynamic";
+
+const ActivePackages = dynamic(() => import("./dashboard-components/ActivePackages"), { ssr: false });
+const TripHistory = dynamic(() => import("./dashboard-components/TripHistory"), { ssr: false });
+const PackageHistory = dynamic(() => import("./dashboard-components/PackageHistory"), { ssr: false });
+const PaymentHistory = dynamic(() => import("./dashboard-components/PaymentHistory"), { ssr: false });
 import { authApiUser } from "@/app/user-apis/auth.api";
 // ── Tab config ────────────────────────────────────────────────────────────────
 const TABS = [

@@ -107,7 +107,9 @@ export default function OfferDetailPage() {
   useEffect(() => {
     fetchOfferDetails();
   }, [fetchOfferDetails]);
-  // Auto-populate alertText when endDate changes
+
+  // Auto-populate Alert Banner Text, Countdown Label, Pricing Label
+  // and Deadline Note Strong whenever endDate changes
   useEffect(() => {
     if (!editForm.endDate) return;
     const formatted = new Date(editForm.endDate).toLocaleDateString("en-IN", {
@@ -119,8 +121,12 @@ export default function OfferDetailPage() {
     setEditForm((prev) => ({
       ...prev,
       alertText: `Access Closes ${formatted}`,
+      countdownLabel: `Time remaining to claim founding rates till ${formatted}`,
+      pricingLabel: `Current founding rates — valid till ${formatted}`,
+      deadlineNoteStrong: `After ${formatted}:`,
     }));
   }, [editForm.endDate]);
+
   // Status computation
   const statusUI = useMemo(() => {
     if (!offer)
@@ -174,7 +180,7 @@ export default function OfferDetailPage() {
       ctaPrimaryHref: offer.ctaPrimaryHref || "",
       ctaSecondaryText: offer.ctaSecondaryText || "",
       footerNote: offer.footerNote || "",
-      featuredPackageId: offer.featuredPackageId || "",
+      featuredPackageIds: offer.featuredPackages ? offer.featuredPackages.map((p) => p.id) : [],
     });
     setEditBenefits(
       Array.isArray(offer.benefits)
@@ -248,9 +254,7 @@ export default function OfferDetailPage() {
       const payload = {
         ...editForm,
         category: editForm.category.toLowerCase().trim(),
-        featuredPackageId: editForm.featuredPackageId
-          ? parseInt(editForm.featuredPackageId)
-          : null,
+        featuredPackageIds: editForm.featuredPackageIds || [],
         startDate: editForm.startDate
           ? new Date(editForm.startDate).toISOString()
           : null,
@@ -258,7 +262,12 @@ export default function OfferDetailPage() {
         benefits: editBenefits.map((b, idx) => ({ ...b, order: idx })),
       };
 
-      await offersApi.updateOffer(offerId, payload);
+      const res = await offersApi.updateOffer(offerId, payload);
+      if (res && res.success === false) {
+        setEditError(res.message || "Failed to update offer.");
+        setEditSubmitting(false);
+        return;
+      }
       toast.success("Offer updated successfully!");
       setEditModalOpen(false);
       fetchOfferDetails({ silent: true });
@@ -796,26 +805,34 @@ export default function OfferDetailPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-gray-500 mb-1">
-                      Countdown Label
+                      Countdown Label{" "}
+                      <span className="text-[#C9A24B] font-normal normal-case tracking-normal">
+                        (auto-filled from end date)
+                      </span>
                     </label>
                     <input
                       type="text"
                       name="countdownLabel"
                       value={editForm.countdownLabel}
                       onChange={handleEditInputChange}
-                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#C9A24B] text-[#1A202C]"
+                      readOnly
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-[#1A202C] cursor-not-allowed opacity-70"
                     />
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-gray-500 mb-1">
-                      Pricing Label
+                      Pricing Label{" "}
+                      <span className="text-[#C9A24B] font-normal normal-case tracking-normal">
+                        (auto-filled from end date)
+                      </span>
                     </label>
                     <input
                       type="text"
                       name="pricingLabel"
                       value={editForm.pricingLabel}
                       onChange={handleEditInputChange}
-                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#C9A24B] text-[#1A202C]"
+                      readOnly
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-[#1A202C] cursor-not-allowed opacity-70"
                     />
                   </div>
                 </div>
@@ -828,22 +845,33 @@ export default function OfferDetailPage() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1">
-                      Featured Package
+                    <label className="block text-xs font-semibold text-gray-500 mb-2">
+                      Featured Packages
                     </label>
-                    <select
-                      name="featuredPackageId"
-                      value={editForm.featuredPackageId}
-                      onChange={handleEditInputChange}
-                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#C9A24B] text-[#1A202C]"
-                    >
-                      <option value="">-- Select Package --</option>
+                    <div className="space-y-2 max-h-48 overflow-y-auto bg-white p-3 border border-gray-200 rounded-lg">
                       {packages.map((pkg) => (
-                        <option key={pkg.id} value={pkg.id}>
-                          {pkg.name} (₹{pkg.discountedPrice})
-                        </option>
+                        <label key={pkg.id} className="flex items-center gap-2 text-sm text-[#1A202C] cursor-pointer font-sans">
+                          <input
+                            type="checkbox"
+                            checked={editForm.featuredPackageIds?.includes(pkg.id) || false}
+                            onChange={(e) => {
+                              const checked = e.target.checked;
+                              setEditForm((prev) => {
+                                const ids = prev.featuredPackageIds || [];
+                                return {
+                                  ...prev,
+                                  featuredPackageIds: checked
+                                    ? [...ids, pkg.id]
+                                    : ids.filter((id) => id !== pkg.id),
+                                };
+                              });
+                            }}
+                            className="rounded text-[#C9A24B] focus:ring-[#C9A24B]"
+                          />
+                          <span className="truncate">{pkg.name} (₹{pkg.discountedPrice ?? pkg.regularPrice})</span>
+                        </label>
                       ))}
-                    </select>
+                    </div>
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-gray-500 mb-1">
@@ -901,14 +929,18 @@ export default function OfferDetailPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold text-gray-500 mb-1">
-                      Deadline Note Strong
+                      Deadline Note Strong{" "}
+                      <span className="text-[#C9A24B] font-normal normal-case tracking-normal">
+                        (auto-filled from end date)
+                      </span>
                     </label>
                     <input
                       type="text"
                       name="deadlineNoteStrong"
                       value={editForm.deadlineNoteStrong}
                       onChange={handleEditInputChange}
-                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#C9A24B] text-[#1A202C]"
+                      readOnly
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-[#1A202C] cursor-not-allowed opacity-70"
                     />
                   </div>
                   <div>

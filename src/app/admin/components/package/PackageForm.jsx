@@ -16,6 +16,7 @@ import { packageApi } from "../../packages/apis/packages.api";
 import { servicesApi } from "../../services/apis/services.api";
 import { useImagePreview } from "../../hooks/useImagePreview";
 import { useFormState } from "../../hooks/useFormState";
+import TiptapEditor from "./TiptapEditor";
 
 const emptyServiceItem = { id: "", title: "", query: "", count: 1 };
 
@@ -33,6 +34,7 @@ const initialFormState = {
   isActive: true,
   category: "",
   tags: "",
+  termsAndConditions: null,
 };
 
 // Shared input class — xl radius, CBD5E0 border, FAF6EC bg, gold focus ring
@@ -96,6 +98,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
         isActive: initialData.isActive ?? true,
         category: initialData.category ?? "",
         tags: initialData.tags ?? "",
+        termsAndConditions: initialData.termsAndConditions ?? null,
       });
       setExistingThumbnailKey(initialData.thumbnailUrlKey ?? null);
       setPreview(initialData.thumbnailUrl ?? null);
@@ -355,6 +358,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
           })),
         existingPhotoKeys: existingPhotos.map((p) => p.key),
         existingVideoKeys: existingVideos.map((v) => v.key),
+        termsAndConditions: form.termsAndConditions || null,
       };
       if (isEditMode) {
         await packageApi.updatePackage(
@@ -919,6 +923,26 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                 />
               </div>
             </div>
+          </div>
+
+          {/* ── Terms & Conditions ── */}
+          <div className={cardCls}>
+            <div className="mb-5 border-b border-[#CBD5E0] pb-4">
+              <h3 className="text-base font-semibold text-[#1A202C]">
+                Terms &amp; Conditions
+              </h3>
+              <p className="mt-1 text-sm text-[#4A5568]">
+                Rich text terms that customers must agree to before booking.
+              </p>
+            </div>
+            <TiptapEditor
+              content={form.termsAndConditions}
+              onChange={(json) =>
+                setForm((prev) => ({ ...prev, termsAndConditions: json }))
+              }
+              disabled={saving}
+              placeholder="Add terms and conditions…"
+            />
           </div>
         </div>
 

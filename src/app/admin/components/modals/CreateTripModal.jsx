@@ -245,11 +245,27 @@ export default function CreateTripModal({
     setLoadingServices(true);
     servicesApi
       .getPackageServices(selectedSubscription.packageId, debouncedServiceQuery)
-      .then((rows) => { if (!cancelled) setPackageServices(rows ?? []); })
+      .then((rows) => {
+        if (!cancelled) {
+          const subServices = Array.isArray(selectedSubscription.services)
+            ? selectedSubscription.services
+            : [];
+          const list = (rows ?? []).map((svc) => {
+            const matchedSubSvc = subServices.find(
+              (subSvc) => Number(subSvc.id) === Number(svc.id)
+            );
+            return {
+              ...svc,
+              count: matchedSubSvc ? matchedSubSvc.count : (svc.count ?? 0),
+            };
+          });
+          setPackageServices(list);
+        }
+      })
       .catch(() => { if (!cancelled) setPackageServices([]); })
       .finally(() => { if (!cancelled) setLoadingServices(false); });
     return () => { cancelled = true; };
-  }, [selectedSubscription?.packageId, debouncedServiceQuery, open]);
+  }, [selectedSubscription?.packageId, selectedSubscription?.services, debouncedServiceQuery, open]);
 
   // ── Fetch additional (not-included) services ──────────────────────────────
   useEffect(() => {
@@ -384,6 +400,7 @@ export default function CreateTripModal({
         tripDate: form.tripDate,
         tripType: form.tripType,
         services,
+        packageName: selectedSubscription.package?.name ?? null,
         userId: Number(selectedUser.id),
         ...(additionalServices.length > 0 && {
           additionalServices,

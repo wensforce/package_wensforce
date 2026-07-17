@@ -15,8 +15,10 @@ import {
   LogOut,
   X,
   Hash,
-  Gift,
+  Gift,Route
+  
 } from "lucide-react";
+
 import { useAuth } from "../../context/AuthContext";
 import { authApi } from "./auth.api";
 const navItems = [
@@ -28,7 +30,7 @@ const navItems = [
   { label: "Coupons", href: "/admin/coupons", icon: Hash },
   { label: "Offers", href: "/admin/offers", icon: Gift },
   { label: "Subscriptions", href: "/admin/subscriptions", icon: CalendarCheck },
-  { label: "Trips", href: "/admin/trips", icon: CalendarCheck },
+  { label: "Trips", href: "/admin/trips", icon: Route },
 ];
 
 function SidebarContent({ collapsed, setCollapsed, onClose, isMobile }) {

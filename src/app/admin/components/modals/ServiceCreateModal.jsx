@@ -15,7 +15,7 @@ export default function ServiceCreateModal({
   onUpdated,
   service,
 }) {
-  const initialForm = { title: "", description: "", isActive: true };
+  const initialForm = { title: "", description: "", price: "", isActive: true };
 
   const { form, setForm, handleFieldChange: handleChange } = useFormState(initialForm);
   const {
@@ -39,6 +39,7 @@ export default function ServiceCreateModal({
       setForm({
         title: service.title || "",
         description: service.description || "",
+        price: service.price != null ? String(service.price) : "",
         isActive: service.isActive ?? true,
       });
       setThumbnail(null);
@@ -63,6 +64,10 @@ export default function ServiceCreateModal({
     }
     if (!form.description.trim()) {
       setError("Description is required.");
+      return;
+    }
+    if (form.price === "" || isNaN(Number(form.price)) || Number(form.price) < 0) {
+      setError("Price must be a non-negative number.");
       return;
     }
     setLoading(true);
@@ -150,6 +155,23 @@ export default function ServiceCreateModal({
             rows={3}
             disabled={loading}
             className="w-full text-sm rounded-lg border border-[#CBD5E0] bg-[#FAF6EC] px-3 py-2.5 text-[#1A202C] placeholder:text-[#A0AEC0] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors resize-none disabled:opacity-60"
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="block text-sm font-semibold text-[#0B1E3F]">
+            Price (₹) <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="number"
+            name="price"
+            value={form.price}
+            onChange={handleChange}
+            placeholder="e.g. 100"
+            min="0"
+            step="any"
+            disabled={loading}
+            className="w-full text-sm rounded-lg border border-[#CBD5E0] bg-[#FAF6EC] px-3 py-2.5 text-[#1A202C] placeholder:text-[#A0AEC0] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 transition-colors disabled:opacity-60"
           />
         </div>
 

@@ -310,7 +310,6 @@ function AddServiceDrawer({ packageId, onAdd, onClose, existingIds }) {
 // ── RequestTripModal ──────────────────────────────────────────────────────────
 export default function RequestTripModal({ plan, onClose }) {
   if (!plan) return null;
-
   const pkg = plan.package ?? {};
   const packageId = pkg.id ?? plan.packageId ?? null;
   const vehicleImg = getImageUrl(pkg.thumbnailUrl ?? pkg.thumbnailUrlKey);
@@ -343,7 +342,16 @@ export default function RequestTripModal({ plan, onClose }) {
       .getPackageServices(packageId, debouncedServiceQuery)
       .then((rows) => {
         if (cancelled) return;
-        const list = toArray(rows);
+        const subServices = Array.isArray(plan.services) ? plan.services : [];
+        const list = toArray(rows).map((svc) => {
+          const matchedSubSvc = subServices.find(
+            (subSvc) => Number(subSvc.id) === Number(svc.id)
+          );
+          return {
+            ...svc,
+            count: matchedSubSvc ? matchedSubSvc.count : (svc.count ?? 0),
+          };
+        });
         setPackageServices(list);
         // Pre-select all on first load (no search active)
         if (!debouncedServiceQuery) {
@@ -353,7 +361,7 @@ export default function RequestTripModal({ plan, onClose }) {
       .catch(() => { if (!cancelled) setPackageServices([]); })
       .finally(() => { if (!cancelled) setLoadingServices(false); });
     return () => { cancelled = true; };
-  }, [packageId, debouncedServiceQuery]);
+  }, [packageId, debouncedServiceQuery, plan.services]);
 
   // Derived: select-all state
   const allChecked = packageServices.length > 0 && selectedServices.length === packageServices.length;
@@ -410,9 +418,10 @@ export default function RequestTripModal({ plan, onClose }) {
         id: svc.id,
         name: svc.title,
       }));
-
+      
       const payload = {
         subscriptionId: plan.id,
+        planName:plan.package?.name,
         pickupLocation: pickupLocation.trim(),
         dropLocation: dropLocation.trim(),
         tripDate: new Date(tripDate).toISOString(),

@@ -61,10 +61,26 @@ export default function OffersPage() {
     ctaPrimaryHref: "",
     ctaSecondaryText: "Ask Concierge →",
     footerNote: "wensforce.com · founding access closes {date}",
-    featuredPackageId: "",
+    featuredPackageIds: [],
   });
 
   const [benefits, setBenefits] = useState([]);
+
+  const [packageSearchQuery, setPackageSearchQuery] = useState("");
+  const [debouncedPackageSearchQuery, setDebouncedPackageSearchQuery] = useState("");
+
+  // Debounce package search query
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedPackageSearchQuery(packageSearchQuery);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [packageSearchQuery]);
+
+  // Filter packages based on search query
+  const filteredPackagesForCreate = packages.filter((pkg) =>
+    pkg.name.toLowerCase().includes(debouncedPackageSearchQuery.toLowerCase())
+  );
 
   // Load All Offers and Packages
   const loadData = useCallback(async () => {
@@ -89,20 +105,25 @@ export default function OffersPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
-  // Auto-populate alertText when endDate changes
-useEffect(() => {
-  if (!form.endDate) return;
-  const formatted = new Date(form.endDate).toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "Asia/Kolkata",
-  });
-  setForm((prev) => ({
-    ...prev,
-    alertText: `Access Closes ${formatted}`,
-  }));
-}, [form.endDate]);
+
+  // Auto-populate Alert Banner Text, Countdown Label, Pricing Label
+  // and Deadline Note Strong whenever endDate changes
+  useEffect(() => {
+    if (!form.endDate) return;
+    const formatted = new Date(form.endDate).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      timeZone: "Asia/Kolkata",
+    });
+    setForm((prev) => ({
+      ...prev,
+      alertText: `Access Closes ${formatted}`,
+      countdownLabel: `Time remaining to claim founding rates till ${formatted}`,
+      pricingLabel: `Current founding rates — valid till ${formatted}`,
+      deadlineNoteStrong: `After ${formatted}:`,
+    }));
+  }, [form.endDate]);
 
   // Handle Input Changes
   const handleInputChange = (e) => {
@@ -155,12 +176,13 @@ useEffect(() => {
       ctaPrimaryHref: "",
       ctaSecondaryText: "Ask Concierge →",
       footerNote: "wensforce.com · founding access closes {date}",
-      featuredPackageId: "",
+      featuredPackageIds: [],
     });
     setBenefits([
       { icon: "Star", title: "Current FY Pricing", description: "You pay today's rate for this membership year.", order: 0 },
       { icon: "Tag", title: "Lock-in Rate", description: "Your price is protected from future adjustments.", order: 1 }
     ]);
+    setPackageSearchQuery("");
     setFormError(null);
     setCreateModalOpen(true);
   };
@@ -197,13 +219,18 @@ useEffect(() => {
       const payload = {
         ...form,
         category: form.category.toLowerCase().trim(),
-        featuredPackageId: form.featuredPackageId ? parseInt(form.featuredPackageId) : null,
+        featuredPackageIds: form.featuredPackageIds || [],
         startDate: form.startDate ? new Date(form.startDate).toISOString() : null,
         endDate: new Date(form.endDate).toISOString(),
         benefits: benefits.map((b, idx) => ({ ...b, order: idx })),
       };
 
-      await offersApi.createOffer(payload);
+      const res = await offersApi.createOffer(payload);
+      if (res && res.success === false) {
+        setFormError(res.message || "Failed to create offer.");
+        setSubmitting(false);
+        return;
+      }
       toast.success("Offer created successfully!");
       setCreateModalOpen(false);
       loadData();
@@ -612,21 +639,21 @@ useEffect(() => {
                     />
                   </div>
                   <div>
-  <label className="block text-xs font-semibold text-gray-500 mb-1">
-    Alert Banner Text{" "}
-    <span className="text-[#C9A24B] font-normal normal-case tracking-normal">
-      (auto-filled from end date)
-    </span>
-  </label>
-  <input
-    type="text"
-    name="alertText"
-    value={form.alertText}
-    onChange={handleInputChange}
-    readOnly
-    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-[#1A202C] cursor-not-allowed opacity-70"
-  />
-</div>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">
+                      Alert Banner Text{" "}
+                      <span className="text-[#C9A24B] font-normal normal-case tracking-normal">
+                        (auto-filled from end date)
+                      </span>
+                    </label>
+                    <input
+                      type="text"
+                      name="alertText"
+                      value={form.alertText}
+                      onChange={handleInputChange}
+                      readOnly
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-[#1A202C] cursor-not-allowed opacity-70"
+                    />
+                  </div>
                 </div>
 
                 <div>
@@ -643,23 +670,35 @@ useEffect(() => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1">Countdown Label</label>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">
+                      Countdown Label{" "}
+                      <span className="text-[#C9A24B] font-normal normal-case tracking-normal">
+                        (auto-filled from end date)
+                      </span>
+                    </label>
                     <input
                       type="text"
                       name="countdownLabel"
                       value={form.countdownLabel}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#C9A24B] text-[#1A202C]"
+                      readOnly
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-[#1A202C] cursor-not-allowed opacity-70"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1">Pricing Label</label>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">
+                      Pricing Label{" "}
+                      <span className="text-[#C9A24B] font-normal normal-case tracking-normal">
+                        (auto-filled from end date)
+                      </span>
+                    </label>
                     <input
                       type="text"
                       name="pricingLabel"
                       value={form.pricingLabel}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#C9A24B] text-[#1A202C]"
+                      readOnly
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-[#1A202C] cursor-not-allowed opacity-70"
                     />
                   </div>
                 </div>
@@ -672,20 +711,42 @@ useEffect(() => {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1">Featured Package</label>
-                    <select
-                      name="featuredPackageId"
-                      value={form.featuredPackageId}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#C9A24B] text-[#1A202C]"
-                    >
-                      <option value="">-- Select Package --</option>
-                      {packages.map((pkg) => (
-                        <option key={pkg.id} value={pkg.id}>
-                          {pkg.name} (₹{pkg.discountedPrice})
-                        </option>
-                      ))}
-                    </select>
+                    <label className="block text-xs font-semibold text-gray-500 mb-2">Featured Packages</label>
+                    <input
+                      type="text"
+                      placeholder="Search packages..."
+                      value={packageSearchQuery}
+                      onChange={(e) => setPackageSearchQuery(e.target.value)}
+                      className="w-full mb-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-[#C9A24B] text-[#1A202C]"
+                    />
+                    <div className="space-y-2 max-h-48 overflow-y-auto bg-white p-3 border border-gray-200 rounded-lg">
+                      {filteredPackagesForCreate.length > 0 ? (
+                        filteredPackagesForCreate.map((pkg) => (
+                          <label key={pkg.id} className="flex items-center gap-2 text-sm text-[#1A202C] cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={form.featuredPackageIds?.includes(pkg.id) || false}
+                              onChange={(e) => {
+                                const checked = e.target.checked;
+                                setForm((prev) => {
+                                  const ids = prev.featuredPackageIds || [];
+                                  return {
+                                    ...prev,
+                                    featuredPackageIds: checked
+                                      ? [...ids, pkg.id]
+                                      : ids.filter((id) => id !== pkg.id),
+                                  };
+                                });
+                              }}
+                              className="rounded text-[#C9A24B] focus:ring-[#C9A24B]"
+                            />
+                            <span className="truncate">{pkg.name} (₹{pkg.discountedPrice ?? pkg.regularPrice})</span>
+                          </label>
+                        ))
+                      ) : (
+                        <p className="text-xs text-gray-400 italic">No packages found</p>
+                      )}
+                    </div>
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-gray-500 mb-1">CTA Primary Text</label>
@@ -735,14 +796,19 @@ useEffect(() => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1">Deadline Note Strong</label>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">
+                      Deadline Note Strong{" "}
+                      <span className="text-[#C9A24B] font-normal normal-case tracking-normal">
+                        (auto-filled from end date)
+                      </span>
+                    </label>
                     <input
                       type="text"
                       name="deadlineNoteStrong"
                       value={form.deadlineNoteStrong}
                       onChange={handleInputChange}
-                      placeholder="e.g. After {date}:"
-                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#C9A24B] text-[#1A202C]"
+                      readOnly
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-[#1A202C] cursor-not-allowed opacity-70"
                     />
                   </div>
                   <div>

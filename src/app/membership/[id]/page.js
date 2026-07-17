@@ -20,6 +20,7 @@ import FAQSection from "../sections/FaqSection";
 import OtherPlansSection from "../sections/OtherPlansSection";
 import { useExitIntent } from "@/app/hooks/useExitIntent";
 import MediaSection from "../sections/MediaSection";
+import TermsAndConditionsSection from "../sections/TermsAndConditionsSection";
 
 const WA_NUMBER = "917304607954";
 const S3_BASE =
@@ -66,13 +67,13 @@ export default function PlanDetailPage() {
           setPlan(detailedPlan);
 
           if (storePackages && storePackages.length > 0) {
-            // otherPlans already in packages store
+            // otherPlans already in packages store, filter by same category
             setOtherPlans(
-              storePackages.filter((p) => String(p.id) !== String(id)),
+              storePackages.filter((p) => String(p.id) !== String(id) && p.category === detailedPlan.category),
             );
           } else {
-            // detailedPlan found but no list yet — fetch list only
-            const allPlansRes = await packageApiUser.fetchUserPackages();
+            // detailedPlan found but no list yet — fetch list of same category
+            const allPlansRes = await packageApiUser.fetchUserPackages(detailedPlan.category || "membership");
             const allPlans = allPlansRes?.data || [];
             setOtherPlans(allPlans.filter((p) => String(p.id) !== String(id)));
             dispatch(setPackages(allPlans));
@@ -90,7 +91,7 @@ export default function PlanDetailPage() {
           if (foundPlan) {
             setPlan(foundPlan);
             setOtherPlans(
-              storePackages.filter((p) => String(p.id) !== String(id)),
+              storePackages.filter((p) => String(p.id) !== String(id) && p.category === foundPlan.category),
             );
             dispatch(setPackage(foundPlan)); // promote into detailedPackages cache
             setLoading(false);
@@ -99,17 +100,14 @@ export default function PlanDetailPage() {
         }
 
         // ── Tier 3: full API hit ──
-        const [fetchedPlan, allPlansRes] = await Promise.all([
-          packageApiUser.getPackageById(id),
-          packageApiUser.fetchUserPackages(),
-        ]);
-
-        const allPlans = allPlansRes?.data || [];
-
+        const fetchedPlan = await packageApiUser.getPackageById(id);
         if (!fetchedPlan) {
           setError(true);
           return;
         }
+
+        const allPlansRes = await packageApiUser.fetchUserPackages(fetchedPlan.category || "membership");
+        const allPlans = allPlansRes?.data || [];
 
         setPlan(fetchedPlan);
         setOtherPlans(
@@ -167,13 +165,14 @@ export default function PlanDetailPage() {
             planName={plan.name}
           />
         )}
-  <MediaSection
-  images={plan.images ?? []}
-  videos={plan.videos ?? []}
-/>
+        <MediaSection
+          images={plan.images ?? []}
+          videos={plan.videos ?? []}
+        />
         <ServicesSection services={includedServicesWithImage} />
         <BreakdownSection plan={plan} waUrl={waUrl} />
         <FAQSection plan={plan} />
+        <TermsAndConditionsSection plan={plan} />
         <OtherPlansSection plans={otherPlans} currentId={plan.id} />
       </div>
 

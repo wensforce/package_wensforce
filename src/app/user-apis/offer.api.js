@@ -6,7 +6,7 @@ export const offerApi = {
    * @returns {Promise<object>}
    */
   getOfferForUser: async () => {
-    const res = await api.get("/homepage/offer/category/user");
+    const res = await api.get("/offer/category/user");
     return res.data;
   },
 
@@ -16,7 +16,7 @@ export const offerApi = {
    * @returns {Promise<object>}
    */
   getOfferByCategory: async (category) => {
-    const res = await api.get(`/homepage/offer/category/${category}`);
+    const res = await api.get(`/offer/category/${category}`);
     return res.data;
   },
 };
