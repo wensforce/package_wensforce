@@ -28,9 +28,9 @@ import WelcomeIndiaCard from "./components/WelcomeIndiaCard";
 import ServicesVideoSection from "./components/ServicesVideoSection";
 
 export const metadata = {
-  title: "WENS Force — India's Only Luxury Travel + Armed Protection + VIP Darshan Subscription",
+  title: "WENS Force — India's Only Luxury Travel + Armed Protection + Darshan Subscription",
   description:
-    "Five tiers. One annual fee. Vehicle, bodyguard, and lifestyle privileges pre-arranged for the year. VIP Darshan at Tirupati, Vaishno Devi, Mahakaleshwar. PSARA-licensed security. From ₹24,999/year.",
+    "Five tiers. One annual fee. Vehicle, bodyguard, and lifestyle privileges pre-arranged for the year. Darshan at Tirupati, Vaishno Devi, Mahakaleshwar. PSARA-licensed security. From ₹24,999/year.",
   alternates: { canonical: "https://subscription.wensforce.com" },
 };
 const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
@@ -102,7 +102,7 @@ const COMPARISON_ROWS = [
     label: "Security",
     values: ["MMA", "MMA", "✓ Armed", "✓ Armed", "✓ Armed"],
   },
-  { label: "VIP Darshan Vouchers", values: ["1", "2", "3", "5", "Unlimited"] },
+  { label: "Darshan Vouchers", values: ["1", "2", "3", "5", "Unlimited"] },
   {
     label: "Airport Lounge",
     values: ["1 visit", "2 visits", "3 visits", "Unlimited", "Unlimited"],

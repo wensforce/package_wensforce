@@ -23,7 +23,7 @@ export const plans = [
     anchorPrice: 65000,
     privileges: [
       {
-        title: "1× VIP Darshan Voucher",
+        title: "1× Darshan Voucher",
         desc: "at any 1 partner temple — Siddhivinayak (Mumbai), Mahalakshmi, ISKCON, or local equivalent",
         worth: 4000,
         icon: "🛕",
@@ -108,7 +108,7 @@ export const plans = [
     tag: null,
     privileges: [
       {
-        title: "2× VIP Darshan Vouchers",
+        title: "2× Darshan Vouchers",
         desc: "Ujjain, Tirupati, Shirdi Sai, Siddhivinayak, Mahalaxmi, DagduShet, Khatu Shyam, Salasar Balaji",
         worth: 10000,
         icon: "🛕",
@@ -166,7 +166,7 @@ export const plans = [
     faqs: [
       {
         q: "Why do 6 in 10 subscribers choose Executive?",
-        a: "Executive offers the best entry into the WENS experience — a 7-seater SUV, 4 trips, VIP darshan, and a free vehicle upgrade voucher. For families or frequent travellers it hits the sweet spot.",
+        a: "Executive offers the best entry into the WENS experience — a 7-seater SUV, 4 trips, Darshan, and a free vehicle upgrade voucher. For families or frequent travellers it hits the sweet spot.",
       },
       {
         q: "Can I choose which temples to visit with my 2 Darshan Vouchers?",
@@ -199,7 +199,7 @@ export const plans = [
     anchorPrice: 135000,
     privileges: [
       {
-        title: "3× VIP Darshan Vouchers",
+        title: "3× Darshan Vouchers",
         desc: "Ujjain Mahakaleshwar, Khatu Shyam, Salasar Balaji, DagduShet, Siddhivinayak, Mahalaxmi, ISKCON, Shirdi Sai",
         worth: 20000,
         icon: "🛕",
@@ -296,7 +296,7 @@ export const plans = [
     tag: null,
     privileges: [
       {
-        title: "5× Premium VIP Darshan Vouchers",
+        title: "5× Premium Darshan Vouchers",
         desc: "Ujjain, Khatu Shyam, Salasar Balaji, Jagannath Puri, DagduShet, Siddhivinayak, Mahalaxmi, ISKCON",
         worth: 25000,
         icon: "🛕",
@@ -403,7 +403,7 @@ export const plans = [
     tag: "ULTRA EXCLUSIVE",
     privileges: [
       {
-        title: "Unlimited VIP Darshan Privileges",
+        title: "Unlimited Darshan Privileges",
         desc: "Tirupati, Vaishno Devi, Shirdi, Ujjain Mahakaleshwar, Rameshwaram, Salasar Balaji, DagduShet, Khatu Shyam, Jagannath Puri, Siddhivinayak, Mahalaxmi",
         worth: 50000,
         icon: "🛕",
@@ -521,7 +521,7 @@ export const comparisonFeatures = [
   },
   {
     key: "darshan",
-    label: "VIP Darshan Vouchers",
+    label: "Darshan Vouchers",
     values: ["1", "2", "3", "5", "Unlimited"],
   },
   {

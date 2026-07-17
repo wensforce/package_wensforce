@@ -48,12 +48,12 @@ const NOT_INCLUDED = {
   essential: ['Armed Bodyguard', 'International Lounge Access', 'Heritage Fast-Track Pass', 'Spa / Wellness', 'Fine Dining', 'Dedicated Relationship Manager', 'Security Risk Assessment'],
   executive: ['Armed Bodyguard', 'International Lounge Access', 'Spa / Wellness', 'Fine Dining', 'Dedicated Relationship Manager', 'Security Risk Assessment'],
   premium: ['3× International Lounge Access', 'Fine Dining Voucher', 'Same-Day SUV Upgrade', 'Personalised Gift Delivery'],
-  elite: ['Bhasm Aarti VVIP Booking at Ujjain (Sovereign exclusive)', 'Unlimited VIP Darshan', 'Airport Concierge Service', '4× Spa Sessions', 'Family Extension Booking Line'],
+  elite: ['Bhasm Aarti VVIP Booking at Ujjain (Sovereign exclusive)', 'Unlimited Darshan', 'Airport Concierge Service', '4× Spa Sessions', 'Family Extension Booking Line'],
   sovereign: [],
-  'comfortable-arrival': ['Annual Membership', 'Multi-Trip Package', 'VIP Darshan Access', 'Spa / Wellness', 'Fine Dining', 'Heritage Fast-Track'],
-  'arrive-in-style': ['Annual Membership', 'Multi-Trip Package', 'VIP Darshan Access', 'Spa / Wellness', 'Fine Dining', 'Heritage Fast-Track'],
-  'arrival-en-grandeur': ['Annual Membership', 'Multi-Trip Package', 'VIP Darshan Access', 'Spa / Wellness', 'Fine Dining'],
-  'ultimate-convoy-matrix': ['Annual Membership', 'Multi-Trip Package', 'VIP Darshan Access', 'Spa / Wellness', 'Fine Dining'],
+  'comfortable-arrival': ['Annual Membership', 'Multi-Trip Package', 'Darshan Access', 'Spa / Wellness', 'Fine Dining', 'Heritage Fast-Track'],
+  'arrive-in-style': ['Annual Membership', 'Multi-Trip Package', 'Darshan Access', 'Spa / Wellness', 'Fine Dining', 'Heritage Fast-Track'],
+  'arrival-en-grandeur': ['Annual Membership', 'Multi-Trip Package', 'Darshan Access', 'Spa / Wellness', 'Fine Dining'],
+  'ultimate-convoy-matrix': ['Annual Membership', 'Multi-Trip Package', 'Darshan Access', 'Spa / Wellness', 'Fine Dining'],
   'end-to-end-concierge': [],
 };
 
@@ -85,7 +85,7 @@ const PLAN_SERVICES = {
       img: 'vip_darshan',
       cat: 'Curated Journeys',
       title: 'Skip the Queue.\nEnter in Reverence.',
-      body: '3 VIP darshan experiences per year at India\'s most sacred shrines — pre-arranged so you arrive in peace, not in line.',
+      body: '3 Darshan experiences per year at India\'s most sacred shrines — pre-arranged so you arrive in peace, not in line.',
       Icon: Building2,
     },
     {
@@ -159,7 +159,7 @@ const PLAN_SERVICES = {
   elite: [
     {
       img: 'vip_darshan',
-      cat: 'VVIP Darshan',
+      cat: 'VDarshan',
       title: 'The Inner Sanctum\nAwaits You.',
       body: 'Bhasm Aarti VVIP booking at Ujjain, priority access at Kashi Vishwanath, Shirdi, Tirupati — all pre-arranged, no exceptions.',
       Icon: Building2,
@@ -191,7 +191,7 @@ const PLAN_SERVICES = {
       img: 'vip_darshan',
       cat: 'Unlimited VVIP Access',
       title: 'Every Shrine.\nNo Limits.',
-      body: 'Unlimited VIP darshan, exclusive Bhasm Aarti VVIP reservations, and bespoke pilgrimage curation — the sovereign standard.',
+      body: 'Unlimited Darshan, exclusive Bhasm Aarti VVIP reservations, and bespoke pilgrimage curation — the sovereign standard.',
       Icon: Crown,
     },
     {

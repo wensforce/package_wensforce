@@ -261,10 +261,10 @@ export default function LoginPage() {
             style={{ color: "rgba(255,255,255,0.55)" }}
           >
             India's only subscription combining premium vehicles, PSARA-licensed
-            protection, and VIP Darshan — pre-arranged for the year.
+            protection, and Darshan — pre-arranged for the year.
           </p>
           <div className="flex flex-wrap gap-3 pt-2">
-            {["5 Exclusive Tiers", "PSARA Licensed", "VIP Darshan Access"].map(
+            {["5 Exclusive Tiers", "PSARA Licensed", "Darshan Access"].map(
               (tag) => (
                 <span
                   key={tag}

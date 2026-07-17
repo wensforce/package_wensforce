@@ -46,7 +46,7 @@ export default function FounderStoryBlock() {
                 celebrities — were patching together services from six different vendors for a single trip.
               </p>
               <p>
-                Vehicle from one. Bodyguard from another. VIP Darshan from a third. None of them spoke
+                Vehicle from one. Bodyguard from another. Darshan from a third. None of them spoke
                 to each other. Service was inconsistent. Trust was uncertain.
               </p>
               <p>

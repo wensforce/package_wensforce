@@ -34,14 +34,14 @@ export const metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
     default:
-      "WENS Force — India's Only Luxury Travel + Armed Protection + VIP Darshan Subscription",
+      "WENS Force — India's Only Luxury Travel + Armed Protection + Darshan Subscription",
     template: "%s | WENS Force",
   },
   description:
-    "Five tiers. One annual fee. Vehicle, bodyguard, and lifestyle privileges pre-arranged for the year. VIP Darshan at Tirupati, Vaishno Devi, Mahakaleshwar. PSARA-licensed security. From ₹24,999/year.",
+    "Five tiers. One annual fee. Vehicle, bodyguard, and lifestyle privileges pre-arranged for the year. Darshan at Tirupati, Vaishno Devi, Mahakaleshwar. PSARA-licensed security. From ₹24,999/year.",
   keywords: [
     "luxury travel subscription India",
-    "VIP darshan Tirupati",
+    "Darshan Tirupati",
     "armed bodyguard service India",
     "PSARA licensed security",
     "premium car with driver India",
@@ -58,9 +58,9 @@ export const metadata = {
     url: BASE_URL,
     siteName: "WENS Force",
     title:
-      "WENS Force — India's Only Luxury Travel + Armed Protection + VIP Darshan Subscription",
+      "WENS Force — India's Only Luxury Travel + Armed Protection + Darshan Subscription",
     description:
-      "Five tiers. One annual fee. Vehicle, bodyguard, and lifestyle privileges pre-arranged for the year. VIP Darshan at Tirupati, Vaishno Devi, Mahakaleshwar. PSARA-licensed security. From ₹24,999/year.",
+      "Five tiers. One annual fee. Vehicle, bodyguard, and lifestyle privileges pre-arranged for the year. Darshan at Tirupati, Vaishno Devi, Mahakaleshwar. PSARA-licensed security. From ₹24,999/year.",
     images: [
       {
         url: "/og-default.webp",
@@ -73,7 +73,7 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title:
-      "WENS Force — India's Only Luxury Travel + Armed Protection + VIP Darshan Subscription",
+      "WENS Force — India's Only Luxury Travel + Armed Protection + Darshan Subscription",
     description:
       "Five tiers. One annual fee. Vehicle, bodyguard, and lifestyle privileges pre-arranged for the year. PSARA-licensed security. From ₹24,999/year.",
     images: ["/og-default.webp"],

@@ -220,7 +220,7 @@ export default function PlansSection() {
             Choose Your Membership
           </h2>
           <p className="text-[13px] font-light text-[#8a7e6e] leading-[1.75] max-w-[320px] mx-auto">
-            VIP darshan, airport lounges, 24×7 concierge &amp; luxury transport
+            Darshan, airport lounges, 24×7 concierge &amp; luxury transport
             — curated for the year ahead.
           </p>
         </div>

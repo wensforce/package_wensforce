@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 const EVENTS = [
   { name: 'Mr. R.S.', location: 'Worli', action: 'just joined Elite', time: '7m ago' },
   { name: 'Ms. P.K.', location: 'Banjara Hills', action: 'upgraded to Sovereign', time: '14m ago' },
-  { name: 'Mr. A.M.', location: 'Juhu', action: 'booked VIP Darshan at Tirupati', time: '22m ago' },
+  { name: 'Mr. A.M.', location: 'Juhu', action: 'booked Darshan at Tirupati', time: '22m ago' },
   { name: 'Mrs. S.R.', location: 'Koramangala', action: 'just joined Premium', time: '31m ago' },
   { name: 'Mr. V.N.', location: 'Andheri West', action: 'upgraded to Elite', time: '45m ago' },
   { name: 'Mr. D.B.', location: 'Gurgaon', action: 'just joined Executive', time: '53m ago' },

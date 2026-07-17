@@ -3,7 +3,7 @@
 const WA_NUMBER = '917304607954';
 
 export default function ReferralBanner() {
-  const shareMsg = "I'm a member of @WENS_Force — India's only luxury subscription with VIP Darshan + Armed Protection. You can get ₹10,000 off any tier above Essential. Join here:";
+  const shareMsg = "I'm a member of @WENS_Force — India's only luxury subscription with Darshan + Armed Protection. You can get ₹10,000 off any tier above Essential. Join here:";
   const waUrl = `https://wa.me/?text=${encodeURIComponent(shareMsg + ' https://subscription.wensforce.com')}`;
 
   return (

@@ -104,7 +104,7 @@ export default function HeroSection({ welcomeIndia }) {
               Added
             </span>
             <span className="block text-white text-[18px] tracking-[0.45em] mt-2 uppercase">
-              VIP Darshan
+              Darshan
             </span>
           </h1>
 

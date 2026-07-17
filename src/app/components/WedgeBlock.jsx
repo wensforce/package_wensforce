@@ -8,7 +8,7 @@ const CARDS = [
         <circle cx="24" cy="38" r="4" fill="#C9A24B" opacity="0.3"/>
       </svg>
     ),
-    headline: 'VIP Darshan, Booked For You',
+    headline: 'Darshan, Booked For You',
     body: 'Tirupati Suprabhatam. Vaishno Devi Helicopter. Mahakaleshwar Bhasm Aarti. Booked in your name within 48 hours by your personal concierge.',
     cta: 'Available from Premium tier',
     href: '/membership/premium',

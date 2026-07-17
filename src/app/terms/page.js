@@ -23,7 +23,7 @@ const TERMS = [
   },
   {
     title: "Privileges",
-    body: "VIP Darshan, Heritage Monument access, lounge access, and partner privileges are subject to third-party schedules and availability. WENS Force facilitates bookings as part of concierge service.",
+    body: "Darshan, Heritage Monument access, lounge access, and partner privileges are subject to third-party schedules and availability. WENS Force facilitates bookings as part of concierge service.",
   },
   {
     title: "Renewal",
