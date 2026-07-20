@@ -9,6 +9,7 @@ export default function OrderSummary({
   currencyRateLoading,
   // INR amounts
   price,
+  discountAmount = 0,
   gstAmount,
   indiaTotalINR,
   intlGstAmount,
@@ -20,6 +21,7 @@ export default function OrderSummary({
   fmtForeign,
   isWelcomeIndia,
   isFixedUSD,
+  packageData,
 }) {
   return (
     <div
@@ -67,29 +69,46 @@ export default function OrderSummary({
           </div>
         </div>
 
+        {/* Promo Discount */}
+        {discountAmount > 0 && (
+          <div className="flex justify-between items-center text-green-600">
+            <span className="text-xs font-semibold">Promo Discount</span>
+            <div className="text-right">
+              <span className="text-sm font-semibold tabular-nums">
+                -{isIndia ? INR(discountAmount) : toForeign(discountAmount)}
+              </span>
+              {!isIndia && !currencyRateLoading && (
+                <p className="text-green-500 text-[10px] tabular-nums">
+                  -{INR(discountAmount)}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* GST */}
         <div className="flex justify-between items-center">
           <span className="flex items-center gap-1.5 text-xs text-gray-500">
-            {isWelcomeIndia ? (
+            {isWelcomeIndia || packageData?.gst === null || packageData?.gst === undefined ? (
               <span className="bg-green-50 text-green-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-green-200">
                 Included
               </span>
             ) : (
               <span className="bg-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
-                +18%
+                +{packageData?.gst}%
               </span>
             )}
             GST
           </span>
           <div className="text-right">
             <span className="text-gray-600 text-sm font-semibold tabular-nums">
-              {isWelcomeIndia ? (
+              {isWelcomeIndia || packageData?.gst === null || packageData?.gst === undefined ? (
                 "Included"
               ) : (
                 `+${isIndia ? INR(gstAmount) : toForeign(intlGstAmount)}`
               )}
             </span>
-            {!isWelcomeIndia && !isIndia && !currencyRateLoading && (
+            {!(isWelcomeIndia || packageData?.gst === null || packageData?.gst === undefined) && !isIndia && !currencyRateLoading && (
               <p className="text-gray-400 text-[10px] tabular-nums">
                 +{INR(intlGstAmount)}
               </p>

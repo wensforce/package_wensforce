@@ -15,6 +15,7 @@ import {
   BadgePlus,
 } from "lucide-react";
 import Modal from "../Modal";
+import SubscriptionNotActiveModal from "@/app/components/SubscriptionNotActiveModal";
 
 import { subscriptionApi } from "../../subscriptions/apis/subscription.api";
 import { userApi } from "../../users/apis/user.api";
@@ -90,6 +91,8 @@ export default function CreateTripModal({
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [inactiveModalOpen, setInactiveModalOpen] = useState(false);
+  const [inactivePackageName, setInactivePackageName] = useState("");
 
   // ── Derived: total additional cost ───────────────────────────────────────
   const additionalAmount = Array.from(selectedAdditionalServices.values()).reduce(
@@ -343,6 +346,11 @@ export default function CreateTripModal({
   }
 
   function handleSelectSubscription(sub) {
+    if (sub.status !== "active") {
+      setInactivePackageName(sub.package?.name || "");
+      setInactiveModalOpen(true);
+      return;
+    }
     const packageId = sub.packageId ?? sub.package?.id ?? null;
     const enrichedSub = { ...sub, packageId };
     if (selectedSubscription?.packageId !== packageId) {
@@ -436,7 +444,8 @@ export default function CreateTripModal({
   const selectedAdditionalList = Array.from(selectedAdditionalServices.values());
 
   return (
-    <Modal
+    <>
+      <Modal
       open={open}
       onClose={() => { if (!submitting) onClose(); }}
       title={isEditMode ? "Update Trip" : "New Trip"}
@@ -987,5 +996,13 @@ export default function CreateTripModal({
         </div>
       </form>
     </Modal>
-  );
+
+    <SubscriptionNotActiveModal
+      open={inactiveModalOpen}
+      onClose={() => setInactiveModalOpen(false)}
+      packageName={inactivePackageName}
+      isAdmin={true}
+    />
+  </>
+);
 }

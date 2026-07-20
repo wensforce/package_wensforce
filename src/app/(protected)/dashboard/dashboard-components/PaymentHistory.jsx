@@ -152,15 +152,15 @@ function PaymentCard({ payment }) {
       <div className="space-y-3 flex-1">
         {/* Top Header section: IDs & Status */}
         <div className="flex items-start justify-between gap-2">
-          <div className="flex flex-col">
+          <div className="flex flex-col min-w-0">
             <span
               className="text-sm font-bold tracking-tight"
               style={{ color: "var(--color-navy)" }}
             >
               {displayId}
             </span>
-            <span className="text-[10px] text-slate-400 font-semibold mt-0.5">
-              Order ID: {payment.cashfreeOrderId ?? "—"}
+            <span className="text-[10px] text-slate-400 font-semibold mt-0.5 break-all">
+              Order ID: <span className="font-mono">{payment.cashfreeOrderId ?? "—"}</span>
             </span>
           </div>
           <StatusBadge status={payment.status} />
@@ -235,15 +235,15 @@ function PaymentCard({ payment }) {
         <div className="h-px bg-slate-100 my-2" />
 
         {/* Payment ID */}
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-slate-400 font-semibold text-[10px]">
+        <div className="flex items-start justify-between text-xs gap-4 min-w-0">
+          <span className="text-slate-400 font-semibold text-[10px] shrink-0 mt-0.5">
             Payment ID
           </span>
           <span
-            className="font-bold text-[11px] truncate max-w-[60%] text-right"
+            className="font-bold text-[11px] font-mono text-right select-all break-all"
             style={{ color: "var(--color-navy)" }}
           >
-            {payment.paymentId ?? "Pending"}
+            {payment.id ?? "Pending"}
           </span>
         </div>
       </div>

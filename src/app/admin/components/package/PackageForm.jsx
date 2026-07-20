@@ -35,6 +35,8 @@ const initialFormState = {
   category: "",
   tags: "",
   termsAndConditions: null,
+  gstType: "inclusive",
+  gstValue: "18",
 };
 
 // Shared input class — xl radius, CBD5E0 border, FAF6EC bg, gold focus ring
@@ -99,6 +101,8 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
         category: initialData.category ?? "",
         tags: initialData.tags ?? "",
         termsAndConditions: initialData.termsAndConditions ?? null,
+        gstType: initialData.gst !== null && initialData.gst !== undefined ? "exclusive" : "inclusive",
+        gstValue: initialData.gst !== null && initialData.gst !== undefined ? String(initialData.gst) : "18",
       });
       setExistingThumbnailKey(initialData.thumbnailUrlKey ?? null);
       setPreview(initialData.thumbnailUrl ?? null);
@@ -313,6 +317,11 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
     }
     if (!existingThumbnailKey && !thumbnail)
       return "Thumbnail image is required.";
+    if (form.gstType === "exclusive") {
+      if (!form.gstValue || isNaN(Number(form.gstValue)) || Number(form.gstValue) < 0) {
+        return "GST percentage must be a valid non-negative number.";
+      }
+    }
     return null;
   }
 
@@ -359,6 +368,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
         existingPhotoKeys: existingPhotos.map((p) => p.key),
         existingVideoKeys: existingVideos.map((v) => v.key),
         termsAndConditions: form.termsAndConditions || null,
+        gst: form.gstType === "exclusive" ? Number(form.gstValue) : null,
       };
       if (isEditMode) {
         await packageApi.updatePackage(
@@ -473,7 +483,59 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                     placeholder="₹ 1499"
                     className={`${inputCls} appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
                   />
+              </div>
+            </div>
+
+              {/* GST configuration */}
+              <div className="border-t border-[#CBD5E0]/50 pt-4 space-y-4">
+                <label className="block text-sm font-semibold text-[#0B1E3F]">
+                  GST Configuration
+                </label>
+                <div className="flex gap-6">
+                  <label className="flex items-center gap-2 cursor-pointer text-sm text-[#4A5568]">
+                    <input
+                      type="radio"
+                      name="gstType"
+                      value="inclusive"
+                      checked={form.gstType === "inclusive"}
+                      onChange={handleFieldChange}
+                      disabled={saving}
+                      className="accent-[#C9A24B] h-4 w-4"
+                    />
+                    GST Inclusive
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer text-sm text-[#4A5568]">
+                    <input
+                      type="radio"
+                      name="gstType"
+                      value="exclusive"
+                      checked={form.gstType === "exclusive"}
+                      onChange={handleFieldChange}
+                      disabled={saving}
+                      className="accent-[#C9A24B] h-4 w-4"
+                    />
+                    GST Exclusive
+                  </label>
                 </div>
+
+                {form.gstType === "exclusive" && (
+                  <div className="space-y-1.5 animate-fadeIn">
+                    <label className="block text-xs font-semibold text-[#4A5568]">
+                      GST Percentage (%) <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      name="gstValue"
+                      type="number"
+                      min="0"
+                      step="any"
+                      value={form.gstValue}
+                      onChange={handleFieldChange}
+                      disabled={saving}
+                      placeholder="e.g. 18"
+                      className={inputCls}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>

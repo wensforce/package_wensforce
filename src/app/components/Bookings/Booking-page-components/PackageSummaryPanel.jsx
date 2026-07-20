@@ -149,7 +149,10 @@ export default function PackageSummaryPanel({
             <span className="text-gray-400 text-xs mb-1">
               {isWelcomeIndia
                 ? `All Inclusive · ${packageData.validity || "Single Trip"}`
-                : `GST 18% Extra · ${packageData.validity || "12 Months"} Validity`}
+                : (packageData.gst === null || packageData.gst === undefined
+                  ? `GST Inclusive · ${packageData.validity || "12 Months"} Validity`
+                  : `GST ${packageData.gst}% Extra · ${packageData.validity || "12 Months"} Validity`
+                )}
             </span>
             {hasDiscount && (
               <span

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { load } from "@cashfreepayments/cashfree-js";
@@ -29,6 +30,7 @@ import { useCurrency } from "@/app/hooks/useCurrency";
 import { useMetaEvents } from "@/app/hooks/useMetaEvents";
 import { paymentApiUser } from "@/app/user-apis/payment.api";
 import { bookingApiUser } from "@/app/user-apis/booking.api";
+import { couponApiUser } from "@/app/user-apis/coupon.api";
 import { authApiUser } from "@/app/user-apis/auth.api";
 
 /* ── Pricing helpers (pure functions, no state) ───────────────────────── */
@@ -88,6 +90,13 @@ export default function CheckoutForm({
   const [loading, setLoading] = useState(false);
   const [payError, setPayError] = useState("");
 
+  /* ── Coupon Code ── */
+  const [couponInput, setCouponInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState("");
+  const [showCouponPanel, setShowCouponPanel] = useState(false);
+
   /* Pre-fill from auth */
   useEffect(() => {
     if (!user) return;
@@ -103,11 +112,13 @@ export default function CheckoutForm({
 
   /* ── Derived pricing ── */
   const price = packageData.discountedPrice;
-  const effectiveGstRate = isWelcomeIndia ? 0 : GST_RATE;
-  const gstAmount = Math.ceil(price * effectiveGstRate);
-  const indiaTotalINR = price + gstAmount;
-  const intlGstAmount = Math.ceil(price * effectiveGstRate);
-  const intlTotalINR = price + intlGstAmount;
+  const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+  const discountedBasePrice = Math.max(1, price - discountAmount);
+  const effectiveGstRate = (isWelcomeIndia || packageData.gst === null || packageData.gst === undefined) ? 0 : Number(packageData.gst) / 100;
+  const gstAmount = Math.ceil(discountedBasePrice * effectiveGstRate);
+  const indiaTotalINR = discountedBasePrice + gstAmount;
+  const intlGstAmount = Math.ceil(discountedBasePrice * effectiveGstRate);
+  const intlTotalINR = discountedBasePrice + intlGstAmount;
   const intlTotalForeign = isFixedUSD
     ? (WELCOME_USD_PRICES[matchedWelcomeId] ?? null)
     : currencyRateLoading
@@ -121,6 +132,38 @@ export default function CheckoutForm({
       return fmtForeign(scaled, "USD");
     }
     return toForeign(inrAmount);
+  };
+
+  /* ── Coupon Handlers ── */
+  const handleApplyCoupon = async () => {
+    if (!couponInput.trim()) return;
+    setCouponLoading(true);
+    setCouponError("");
+    try {
+      const res = await couponApiUser.validateCoupon(couponInput.trim(), packageData.id);
+      if (res?.success && res?.data) {
+        setAppliedCoupon({
+          code: couponInput.trim().toUpperCase(),
+          discountType: res.data.discountType,
+          discountValue: res.data.discountValue,
+          discountAmount: res.data.discountAmount,
+        });
+        toast.success(`Coupon ${couponInput.trim().toUpperCase()} applied successfully!`);
+      } else {
+        setCouponError(res?.message || "Invalid coupon code");
+      }
+    } catch (err) {
+      setCouponError(err?.response?.data?.message || err?.message || "Failed to validate coupon");
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponInput("");
+    setCouponError("");
+    toast.info("Coupon code removed");
   };
 
   /* ── Handlers ── */
@@ -171,6 +214,7 @@ export default function CheckoutForm({
           customerEmail: form.email.trim(),
           packageId: packageData.id,
           planName: packageData.name,
+          couponCode: appliedCoupon?.code || undefined,
         }
         : {
           amount: intlTotalForeign,
@@ -180,6 +224,7 @@ export default function CheckoutForm({
           customerEmail: form.email.trim(),
           packageId: packageData.id,
           planName: packageData.name,
+          couponCode: appliedCoupon?.code || undefined,
         };
 
       await trackLead({
@@ -444,6 +489,105 @@ console.log(data,"data")
               </div>
             </div>
 
+            {/* Promo / Coupon Code Section */}
+            {!isWelcomeIndia && (
+              <div className="border border-[#CBD5E0]/20 rounded-xl bg-white overflow-hidden transition-all duration-300 ease-in-out mt-4 shadow-sm">
+                {/* Collapsible Header/Toggle */}
+                <button
+                  type="button"
+                  onClick={() => setShowCouponPanel(!showCouponPanel)}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-[#FAF6EC]/30 hover:bg-[#FAF6EC]/60 transition-colors text-left"
+                >
+                  <span className="text-xs font-bold text-[#0B1E3F] tracking-wide flex items-center gap-2">
+                    <svg
+                      className="w-4 h-4 text-[#C9A24B] shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M7 7h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 00-2 2z"
+                      />
+                    </svg>
+                    Have a promo or coupon code?
+                  </span>
+                  <svg
+                    className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${
+                      showCouponPanel ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                {/* Collapsible Content Container */}
+                <div
+                  className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                    showCouponPanel
+                      ? "max-h-[160px] border-t border-[#CBD5E0]/20 p-4 opacity-100"
+                      : "max-h-0 opacity-0 p-0"
+                  }`}
+                >
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-bold text-gray-400 tracking-[0.22em] uppercase">
+                      Promo Code
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={couponInput}
+                        onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                        placeholder="ENTER PROMO CODE"
+                        disabled={couponLoading || appliedCoupon}
+                        className="flex-1 px-3.5 py-2 border border-[#CBD5E0]/70 rounded-lg text-sm text-gray-800 focus:outline-none focus:border-[#C9A24B] uppercase bg-white disabled:bg-gray-50 disabled:cursor-not-allowed"
+                      />
+                      {appliedCoupon ? (
+                        <button
+                          type="button"
+                          onClick={handleRemoveCoupon}
+                          className="px-4 py-2 bg-red-50 border border-red-200 text-red-600 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handleApplyCoupon}
+                          disabled={!couponInput.trim() || couponLoading}
+                          className="px-5 py-2 bg-[#C9A24B] text-white rounded-lg text-xs font-bold hover:bg-[#B58E3D] transition-colors disabled:opacity-60 flex items-center gap-1.5"
+                        >
+                          {couponLoading ? (
+                            <div className="w-3.5 h-3.5 rounded-full border border-white/20 border-t-white animate-spin" />
+                          ) : (
+                            "Apply"
+                          )}
+                        </button>
+                      )}
+                    </div>
+                    {couponError && (
+                      <p className="text-red-500 text-[10px] font-medium">{couponError}</p>
+                    )}
+                    {appliedCoupon && (
+                      <p className="text-green-600 text-[10px] font-semibold flex items-center gap-1">
+                        ✓ Code "{appliedCoupon.code}" applied successfully! (-{isIndia ? `₹${appliedCoupon.discountAmount}` : customToForeign(appliedCoupon.discountAmount)})
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Order Summary */}
             <OrderSummary
               packageName={packageData.name}
@@ -451,6 +595,7 @@ console.log(data,"data")
               selectedCurrency={selectedCurrency}
               currencyRateLoading={currencyRateLoading}
               price={price}
+              discountAmount={discountAmount}
               gstAmount={gstAmount}
               indiaTotalINR={indiaTotalINR}
               intlGstAmount={intlGstAmount}
@@ -460,6 +605,7 @@ console.log(data,"data")
               fmtForeign={fmtForeign}
               isWelcomeIndia={isWelcomeIndia}
               isFixedUSD={isFixedUSD}
+              packageData={packageData}
             />
 
             {/* Pay button */}

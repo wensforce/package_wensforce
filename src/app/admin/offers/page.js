@@ -20,14 +20,24 @@ import {
 } from "lucide-react";
 import { offersApi } from "./apis/offers.api";
 import { toast } from "sonner";
+import AdminTable from "../components/AdminTable";
+import { useFetchList } from "../hooks/useFetchList";
+
+const PAGE_LIMIT = 10;
+
+const COLUMNS = [
+  { key: "title", label: "Title" },
+  { key: "slug", label: "Slug" },
+  { key: "category", label: "Category" },
+  { key: "dates", label: "Start / End Dates" },
+  { key: "status", label: "Status" },
+  { key: "actions", label: "Actions", className: "text-right" },
+];
 
 export default function OffersPage() {
   const router = useRouter();
-  const [offers, setOffers] = useState([]);
   const [packages, setPackages] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
   const [categoryFilter, setCategoryFilter] = useState("all");
 
   // Create Modal state
@@ -82,29 +92,32 @@ export default function OffersPage() {
     pkg.name.toLowerCase().includes(debouncedPackageSearchQuery.toLowerCase())
   );
 
-  // Load All Offers and Packages
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [offersData, packagesData] = await Promise.all([
-        offersApi.fetchOffers(),
-        offersApi.fetchPackagesList(),
-      ]);
-      setOffers(offersData);
-      setPackages(packagesData);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to fetch offers or packages data.");
-      toast.error("Error loading data.");
-    } finally {
-      setLoading(false);
-    }
+  // stable wrapper: reads search/page from its own args, not closure
+  const fetchOffersForHook = useCallback(async () => {
+    const [offersData, packagesData] = await Promise.all([
+      offersApi.fetchOffers(),
+      offersApi.fetchPackagesList(),
+    ]);
+    setPackages(packagesData);
+    return offersData;
   }, []);
 
+  const {
+    rows: offers,
+    loading,
+    error,
+    searchInput,
+    setSearchInput,
+    search,
+    refetch,
+  } = useFetchList({
+    fetchFn: fetchOffersForHook,
+  });
+
+  // Reset to page 1 when search query or category filter changes
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    setPage(1);
+  }, [search, categoryFilter]);
 
   // Auto-populate Alert Banner Text, Countdown Label, Pricing Label
   // and Deadline Note Strong whenever endDate changes
@@ -233,7 +246,7 @@ export default function OffersPage() {
       }
       toast.success("Offer created successfully!");
       setCreateModalOpen(false);
-      loadData();
+      refetch();
     } catch (err) {
       console.error(err);
       setFormError(err.response?.data?.message || err.response?.data?.errors?.[0]?.msg || "Failed to create offer.");
@@ -256,7 +269,7 @@ export default function OffersPage() {
       await offersApi.deleteOffer(offerToDelete.id);
       toast.success("Offer deleted successfully!");
       setDeleteModalOpen(false);
-      loadData();
+      refetch();
     } catch (err) {
       console.error(err);
       toast.error("Failed to delete offer.");
@@ -280,227 +293,123 @@ export default function OffersPage() {
     });
   };
 
-  // Filter and Search logic
-  const filteredOffers = offers.filter((offer) => {
+  // Filter and Search logic (client-side)
+  const filteredOffers = (offers || []).filter((offer) => {
     const matchesSearch =
-      offer.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      offer.slug.toLowerCase().includes(searchQuery.toLowerCase());
+      offer.title?.toLowerCase().includes(search.toLowerCase()) ||
+      offer.slug?.toLowerCase().includes(search.toLowerCase());
     const matchesCategory =
-      categoryFilter === "all" || offer.category.toLowerCase() === categoryFilter.toLowerCase();
+      categoryFilter === "all" ||
+      offer.category?.toLowerCase() === categoryFilter.toLowerCase();
     return matchesSearch && matchesCategory;
   });
 
-  const categories = ["All", ...new Set(offers.map((o) => o.category))];
+  const categories = ["all", ...new Set((offers || []).map((o) => o.category?.toLowerCase() || ""))].filter(Boolean);
+
+  // Pagination slicing (client-side)
+  const total = filteredOffers.length;
+  const limit = PAGE_LIMIT;
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+  const paginatedOffers = filteredOffers.slice(
+    (page - 1) * limit,
+    page * limit
+  );
+
+  const pagination = {
+    page,
+    limit,
+    total,
+    totalPages,
+  };
+
+  function renderCell(row, key) {
+    switch (key) {
+      case "title":
+        return <span className="font-semibold text-[#0B1E3F]">{row.title}</span>;
+      case "slug":
+        return <span className="text-xs font-mono text-gray-500">{row.slug}</span>;
+      case "category":
+        return (
+          <span className="capitalize bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs font-medium">
+            {row.category}
+          </span>
+        );
+      case "dates":
+        return (
+          <div className="text-xs text-gray-500">
+            <div>Start: {formatDate(row.startDate)}</div>
+            <div className="mt-0.5">End: {formatDate(row.endDate)}</div>
+          </div>
+        );
+      case "status": {
+        const isActive = row.isActive && new Date(row.endDate) >= new Date();
+        return (
+          <span
+            className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${
+              isActive
+                ? "bg-green-50 text-green-700 border border-green-200"
+                : "bg-red-50 text-red-700 border border-red-200"
+            }`}
+          >
+            <div
+              className={`w-1.5 h-1.5 rounded-full ${
+                isActive ? "bg-green-600" : "bg-red-600"
+              }`}
+            />
+            {isActive ? "Active" : "Expired / Inactive"}
+          </span>
+        );
+      }
+      case "actions":
+        return (
+          <div className="flex items-center justify-end gap-2">
+            <Link
+              href={`/admin/offers/${row.id}`}
+              className="p-1.5 hover:bg-gray-100 text-[#0B1E3F] rounded-lg transition-colors"
+              title="View details"
+            >
+              <Eye size={16} />
+            </Link>
+            <button
+              onClick={() => confirmDelete(row)}
+              className="p-1.5 hover:bg-red-50 text-red-600 rounded-lg transition-colors"
+              title="Delete offer"
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+        );
+      default:
+        return null;
+    }
+  }
 
   return (
-    <div className="p-6 md:p-8 space-y-6 bg-[#FAF6EC] min-h-screen text-[#1A202C]">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold font-serif-display text-[#0B1E3F]">
-            Offers Management
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Create, view, and configure promotional landing page offers.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={loadData}
-            disabled={loading}
-            className="flex items-center justify-center p-2.5 rounded-lg bg-white border border-gray-200 text-[#0B1E3F] hover:bg-gray-50 transition-colors shadow-sm disabled:opacity-50"
-            title="Refresh list"
-          >
-            <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
-          </button>
-          <button
-            onClick={openCreateModal}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#0B1E3F] text-white hover:bg-[#1E3A6F] transition-colors shadow-md text-sm font-semibold"
-          >
-            <Plus size={16} /> Create Offer
-          </button>
-        </div>
-      </div>
-
-      {/* Filter and Search */}
-      <div className="flex flex-col md:flex-row gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 text-gray-400" size={18} />
-          <input
-            type="text"
-            placeholder="Search by title or slug..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-[#FAF6EC] border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#C9A24B] text-[#1A202C]"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <Layers size={16} className="text-gray-400" />
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="bg-[#FAF6EC] border border-gray-200 rounded-lg px-3 py-2 text-sm text-[#1A202C] focus:outline-none focus:border-[#C9A24B]"
-          >
-            {categories.map((c) => (
-              <option key={c} value={c.toLowerCase()}>
-                {c === "All" ? "All Categories" : c}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Offers Table / Mobile Cards */}
-      {loading ? (
-        <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-[#C9A24B]"></div>
-          <p className="text-[#0B1E3F] font-medium text-sm">Loading offers...</p>
-        </div>
-      ) : error ? (
-        <div className="text-center py-12 bg-white rounded-2xl border border-gray-100 shadow-sm">
-          <AlertTriangle size={34} className="mx-auto text-red-500 mb-3" />
-          <h2 className="text-lg font-semibold text-[#1A202C] mb-1">Failed to load offers</h2>
-          <p className="text-sm text-gray-500 mb-4">{error}</p>
-          <button
-            onClick={loadData}
-            className="px-4 py-2 rounded-lg bg-[#0B1E3F] text-white hover:bg-[#1E3A6F] text-sm font-medium transition-colors"
-          >
-            Retry
-          </button>
-        </div>
-      ) : filteredOffers.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-2xl border border-gray-100 shadow-sm">
-          <Gift size={38} className="mx-auto text-gray-300 mb-3" />
-          <h3 className="text-base font-semibold text-[#0B1E3F]">No offers found</h3>
-          <p className="text-xs text-gray-400 max-w-sm mx-auto mt-1">
-            No offers match your criteria. Click "Create Offer" to setup a new promotion.
-          </p>
-        </div>
-      ) : (
-        <>
-          {/* Desktop Table View */}
-          <div className="hidden lg:block bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                  <th className="px-6 py-4">Title</th>
-                  <th className="px-6 py-4">Slug</th>
-                  <th className="px-6 py-4">Category</th>
-                  <th className="px-6 py-4">Start / End Dates</th>
-                  <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50 text-sm">
-                {filteredOffers.map((offer) => {
-                  const isActive = offer.isActive && new Date(offer.endDate) >= new Date();
-                  return (
-                    <tr key={offer.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 font-semibold text-[#0B1E3F]">{offer.title}</td>
-                      <td className="px-6 py-4 text-xs font-mono text-gray-500">{offer.slug}</td>
-                      <td className="px-6 py-4">
-                        <span className="capitalize bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs font-medium">
-                          {offer.category}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-xs text-gray-500">
-                        <div>Start: {formatDate(offer.startDate)}</div>
-                        <div className="mt-0.5">End: {formatDate(offer.endDate)}</div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${
-                            isActive ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"
-                          }`}
-                        >
-                          <div className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-green-600" : "bg-red-600"}`} />
-                          {isActive ? "Active" : "Expired / Inactive"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Link
-                            href={`/admin/offers/${offer.id}`}
-                            className="p-1.5 hover:bg-gray-100 text-[#0B1E3F] rounded-lg transition-colors"
-                            title="View details"
-                          >
-                            <Eye size={16} />
-                          </Link>
-                          <button
-                            onClick={() => confirmDelete(offer)}
-                            className="p-1.5 hover:bg-red-50 text-red-600 rounded-lg transition-colors"
-                            title="Delete offer"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile Card View */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:hidden gap-6">
-            {filteredOffers.map((offer) => {
-              const isActive = offer.isActive && new Date(offer.endDate) >= new Date();
-              return (
-                <div key={offer.id} className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-start gap-4">
-                      <div>
-                        <span className="text-[10px] uppercase font-bold tracking-wider text-[#C9A24B]">
-                          {offer.category}
-                        </span>
-                        <h3 className="font-bold text-[#0B1E3F] text-base mt-0.5">{offer.title}</h3>
-                      </div>
-                      <span
-                        className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                          isActive ? "bg-green-50 text-green-700 border border-green-100" : "bg-red-50 text-red-700 border border-red-100"
-                        }`}
-                      >
-                        {isActive ? "Active" : "Inactive"}
-                      </span>
-                    </div>
-
-                    <div className="text-xs space-y-1 bg-[#FAF6EC] p-3 rounded-lg border border-gray-100">
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">Slug:</span>
-                        <span className="font-mono font-medium">{offer.slug}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">Starts:</span>
-                        <span>{formatDate(offer.startDate)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">Ends:</span>
-                        <span>{formatDate(offer.endDate)}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between border-t border-gray-100 pt-3 mt-4">
-                    <button
-                      onClick={() => confirmDelete(offer)}
-                      className="text-xs text-red-600 font-semibold inline-flex items-center gap-1 hover:underline"
-                    >
-                      <Trash2 size={13} /> Delete
-                    </button>
-                    <Link
-                      href={`/admin/offers/${offer.id}`}
-                      className="text-xs text-[#0B1E3F] font-bold inline-flex items-center gap-1 hover:underline"
-                    >
-                      View details <ArrowRight size={13} />
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </>
-      )}
+    <div className="bg-[#FAF6EC] min-h-screen text-[#1A202C]">
+      <AdminTable
+        icon={<Gift size={18} className="text-[#C9A24B]" />}
+        title="Offers Management"
+        subtitle="Create, view, and configure promotional landing page offers."
+        tabs={categories}
+        activeTab={categoryFilter}
+        onTabChange={setCategoryFilter}
+        searchPlaceholder="Search by title or slug..."
+        searchValue={searchInput}
+        onSearchChange={setSearchInput}
+        columns={COLUMNS}
+        rows={paginatedOffers}
+        renderCell={renderCell}
+        rowKey={(offer) => offer.id}
+        loading={loading}
+        error={error}
+        pagination={pagination}
+        onPageChange={setPage}
+        onRefresh={refetch}
+        onCreate={openCreateModal}
+        createLabel="Create Offer"
+        emptyIcon={<Gift size={32} />}
+        emptyText="No offers found"
+      />
 
       {/* CREATE OFFER MODAL */}
       {createModalOpen && (

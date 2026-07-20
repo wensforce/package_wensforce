@@ -23,6 +23,7 @@ import RequestTripModal from "./RequestTrip";
 import { useDispatch, useSelector } from "react-redux";
 import { setPackageHistory } from "../slices/package-history-slice";
 import { subscriptionApiUser } from "@/app/user-apis/subscription.api";
+import SubscriptionNotActiveModal from "@/app/components/SubscriptionNotActiveModal";
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const ASSETS_BASE = process.env.NEXT_PUBLIC_ASSETS_URL ?? "";
@@ -445,6 +446,17 @@ export default function PackageHistory() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [tripModalPlan, setTripModalPlan] = useState(null);
+  const [inactiveModalOpen, setInactiveModalOpen] = useState(false);
+  const [inactivePackageName, setInactivePackageName] = useState("");
+
+  function handleRequestTrip(plan) {
+    if (plan.status === "active") {
+      setTripModalPlan(plan);
+    } else {
+      setInactivePackageName(plan.package?.name || "This package");
+      setInactiveModalOpen(true);
+    }
+  }
 
   async function fetchFromApi({ isRefresh = false } = {}) {
     if (isRefresh) {
@@ -542,7 +554,7 @@ export default function PackageHistory() {
               <PackageCard
                 key={plan.id ?? i}
                 plan={plan}
-                onRequestTrip={setTripModalPlan}
+                onRequestTrip={handleRequestTrip}
               />
             ))}
           </div>
@@ -606,6 +618,13 @@ export default function PackageHistory() {
           onClose={() => setTripModalPlan(null)}
         />
       )}
+
+      <SubscriptionNotActiveModal
+        open={inactiveModalOpen}
+        onClose={() => setInactiveModalOpen(false)}
+        packageName={inactivePackageName}
+        isAdmin={false}
+      />
 
       <style jsx>
         {`
