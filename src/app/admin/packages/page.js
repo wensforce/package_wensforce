@@ -2,10 +2,18 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Package, CheckCircle2, XCircle, Eye, Pencil } from "lucide-react";
+import {
+  Package,
+  CheckCircle2,
+  XCircle,
+  Eye,
+  Pencil,
+  ArrowUpDown,
+} from "lucide-react";
 import { packageApi } from "./apis/packages.api";
 import AdminTable from "../components/AdminTable";
 import ExportModal from "../components/modals/ExportModal";
+import SequenceModal from "../components/modals/SequenceModal";
 import { useFetchList } from "../hooks/useFetchList";
 const PAGE_LIMIT = 10;
 
@@ -63,7 +71,9 @@ export default function PackagesPage() {
 
   // reset to page 1 when search changes (hook no longer does this itself)
   useEffect(() => {
-    setPage(1);
+    Promise.resolve().then(() => {
+      setPage(1);
+    });
   }, [search]);
 
   function handleStatusUpdated(id, newStatus) {
@@ -172,6 +182,7 @@ export default function PackagesPage() {
   }
 
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showSequenceModal, setShowSequenceModal] = useState(false);
 
   const handleImport = async (file) => {
     try {
@@ -188,7 +199,9 @@ export default function PackagesPage() {
     try {
       const response = await packageApi.exportPackages(format);
 
-      const blob = new Blob([response.data], { type: response.headers["content-type"] });
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"],
+      });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -236,6 +249,16 @@ export default function PackagesPage() {
         onExport={() => setShowExportModal(true)}
         onCreate={() => router.push("/admin/packages/create")}
         createLabel="New Package"
+        headerActions={
+          <button
+            type="button"
+            onClick={() => setShowSequenceModal(true)}
+            className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 border border-[#CBD5E0] bg-white rounded-lg px-3 py-2 hover:bg-[#FAF6EC] transition-colors"
+          >
+            <ArrowUpDown size={14} className="text-[#C9A24B]" />
+            Sequence
+          </button>
+        }
         emptyIcon={<Package size={32} />}
         emptyText="No packages found"
       />
@@ -244,6 +267,12 @@ export default function PackagesPage() {
         open={showExportModal}
         onClose={() => setShowExportModal(false)}
         onExport={handleExport}
+      />
+
+      <SequenceModal
+        open={showSequenceModal}
+        onClose={() => setShowSequenceModal(false)}
+        onSaved={refetch}
       />
     </>
   );

@@ -23,7 +23,8 @@ export const offersApi = {
   fetchPackagesList: async () => {
     const res = await api.get("/package", { params: { page: 1, limit: 100 } });
     const data = res.data?.data ?? res.data ?? {};
-    const packages = data.packages || data.items || (Array.isArray(data) ? data : []);
+    const packages =
+      data.packages || data.items || (Array.isArray(data) ? data : []);
     return Array.isArray(packages) ? packages : [];
-  }
+  },
 };

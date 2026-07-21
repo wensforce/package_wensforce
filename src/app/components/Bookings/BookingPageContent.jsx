@@ -43,9 +43,7 @@ const fmtForeign = (amount, code) => {
 
 /* ── Component ──────────────────────────────────────────────────────── */
 
-export default function BookingPageContent({
-  packageData,
-}) {
+export default function BookingPageContent({ packageData }) {
   const { user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -55,11 +53,17 @@ export default function BookingPageContent({
   const [successForm, setSuccessForm] = useState(null);
 
   const slug = params?.id;
-  const isWelcomeIndia = welcomePlanIds.has(packageData?.id) || welcomePlanIds.has(slug);
-  const matchedWelcomeId = welcomePlanIds.has(packageData?.id) ? packageData.id : (welcomePlanIds.has(slug) ? slug : null);
+  const isWelcomeIndia =
+    welcomePlanIds.has(packageData?.id) || welcomePlanIds.has(slug);
+  const matchedWelcomeId = welcomePlanIds.has(packageData?.id)
+    ? packageData.id
+    : welcomePlanIds.has(slug)
+      ? slug
+      : null;
 
   const urlCurrency = searchParams.get("currency");
-  const initCurrency = urlCurrency && urlCurrency !== "INR" ? urlCurrency : "INR";
+  const initCurrency =
+    urlCurrency && urlCurrency !== "INR" ? urlCurrency : "INR";
 
   const {
     currency: selectedCurrency,
@@ -96,18 +100,20 @@ export default function BookingPageContent({
     );
   }
 
-  const displayPrice = selectedCurrency === "INR"
-    ? INR(packageData.discountedPrice)
-    : (isFixedUSD && matchedWelcomeId
-      ? fmtForeign(WELCOME_USD_PRICES[matchedWelcomeId], "USD")
-      : (currencyRateLoading
-        ? "…"
-        : fmtForeign(
-          roundForeign(packageData.discountedPrice / currencyRate, selectedCurrency),
-          selectedCurrency,
-        )
-      )
-    );
+  const displayPrice =
+    selectedCurrency === "INR"
+      ? INR(packageData.discountedPrice)
+      : isFixedUSD && matchedWelcomeId
+        ? fmtForeign(WELCOME_USD_PRICES[matchedWelcomeId], "USD")
+        : currencyRateLoading
+          ? "…"
+          : fmtForeign(
+              roundForeign(
+                packageData.discountedPrice / currencyRate,
+                selectedCurrency,
+              ),
+              selectedCurrency,
+            );
 
   return (
     <div>

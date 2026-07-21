@@ -101,8 +101,14 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
         category: initialData.category ?? "",
         tags: initialData.tags ?? "",
         termsAndConditions: initialData.termsAndConditions ?? null,
-        gstType: initialData.gst !== null && initialData.gst !== undefined ? "exclusive" : "inclusive",
-        gstValue: initialData.gst !== null && initialData.gst !== undefined ? String(initialData.gst) : "18",
+        gstType:
+          initialData.gst !== null && initialData.gst !== undefined
+            ? "exclusive"
+            : "inclusive",
+        gstValue:
+          initialData.gst !== null && initialData.gst !== undefined
+            ? String(initialData.gst)
+            : "18",
       });
       setExistingThumbnailKey(initialData.thumbnailUrlKey ?? null);
       setPreview(initialData.thumbnailUrl ?? null);
@@ -111,7 +117,10 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
       if (fileInputRef.current) fileInputRef.current.value = "";
       setExistingPhotos(
         Array.isArray(initialData.images)
-          ? initialData.images.map((p) => ({ key: p.urlKey ?? p.url, url: p.url }))
+          ? initialData.images.map((p) => ({
+              key: p.urlKey ?? p.url,
+              url: p.url,
+            }))
           : [],
       );
       setPhotos([]);
@@ -286,11 +295,12 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
     if (!form.discountedPrice || Number(form.discountedPrice) <= 0)
       return "Discounted price must be a positive number.";
 
-    const vehicleModelStr = typeof form.vehicleModel === "string"
-      ? form.vehicleModel
-      : Array.isArray(form.vehicleModel)
-        ? form.vehicleModel.join(", ")
-        : "";
+    const vehicleModelStr =
+      typeof form.vehicleModel === "string"
+        ? form.vehicleModel
+        : Array.isArray(form.vehicleModel)
+          ? form.vehicleModel.join(", ")
+          : "";
 
     if (!form.vehicleType.trim()) return "Vehicle type is required.";
     if (!vehicleModelStr.trim()) return "Vehicle model is required.";
@@ -318,7 +328,11 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
     if (!existingThumbnailKey && !thumbnail)
       return "Thumbnail image is required.";
     if (form.gstType === "exclusive") {
-      if (!form.gstValue || isNaN(Number(form.gstValue)) || Number(form.gstValue) < 0) {
+      if (
+        !form.gstValue ||
+        isNaN(Number(form.gstValue)) ||
+        Number(form.gstValue) < 0
+      ) {
         return "GST percentage must be a valid non-negative number.";
       }
     }
@@ -336,11 +350,12 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
     }
     setSaving(true);
     try {
-      const vehicleModelStr = typeof form.vehicleModel === "string"
-        ? form.vehicleModel
-        : Array.isArray(form.vehicleModel)
-          ? form.vehicleModel.join(", ")
-          : "";
+      const vehicleModelStr =
+        typeof form.vehicleModel === "string"
+          ? form.vehicleModel
+          : Array.isArray(form.vehicleModel)
+            ? form.vehicleModel.join(", ")
+            : "";
       const vehicleModelArray = vehicleModelStr
         .split(",")
         .map((m) => m.trim())
@@ -483,8 +498,8 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                     placeholder="₹ 1499"
                     className={`${inputCls} appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
                   />
+                </div>
               </div>
-            </div>
 
               {/* GST configuration */}
               <div className="border-t border-[#CBD5E0]/50 pt-4 space-y-4">
@@ -817,22 +832,29 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                   >
                     <div className="relative aspect-video w-full overflow-hidden bg-[#0B1E3F]/5">
                       <video
-  src={video.url}
-  className="h-full w-full object-cover"
-  preload="metadata"
-  muted
-  playsInline
-  onMouseEnter={(e) => {
-    const p = e.currentTarget.play();
-    if (p !== undefined) p.catch(() => {});
-  }}
-  onMouseLeave={(e) => {
-    const video = e.currentTarget;
-    const p = video.play();
-    if (p !== undefined) p.then(() => { video.pause(); video.currentTime = 0; }).catch(() => {});
-    else { video.pause(); video.currentTime = 0; }
-  }}
-/>
+                        src={video.url}
+                        className="h-full w-full object-cover"
+                        preload="metadata"
+                        muted
+                        playsInline
+                        onMouseEnter={(e) => {
+                          const p = e.currentTarget.play();
+                          if (p !== undefined) p.catch(() => {});
+                        }}
+                        onMouseLeave={(e) => {
+                          const video = e.currentTarget;
+                          const p = video.play();
+                          if (p !== undefined)
+                            p.then(() => {
+                              video.pause();
+                              video.currentTime = 0;
+                            }).catch(() => {});
+                          else {
+                            video.pause();
+                            video.currentTime = 0;
+                          }
+                        }}
+                      />
                       <div className="pointer-events-none absolute inset-0 flex items-center justify-center group-hover:opacity-0 transition-opacity duration-200">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/40">
                           <Play
@@ -866,22 +888,29 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                   >
                     <div className="relative aspect-video w-full overflow-hidden bg-[#0B1E3F]/5">
                       <video
-  src={video.previewUrl}
-  className="h-full w-full object-cover"
-  preload="metadata"
-  muted
-  playsInline
-  onMouseEnter={(e) => {
-    const p = e.currentTarget.play();
-    if (p !== undefined) p.catch(() => {});
-  }}
-  onMouseLeave={(e) => {
-    const video = e.currentTarget;
-    const p = video.play();
-    if (p !== undefined) p.then(() => { video.pause(); video.currentTime = 0; }).catch(() => {});
-    else { video.pause(); video.currentTime = 0; }
-  }}
-/>
+                        src={video.previewUrl}
+                        className="h-full w-full object-cover"
+                        preload="metadata"
+                        muted
+                        playsInline
+                        onMouseEnter={(e) => {
+                          const p = e.currentTarget.play();
+                          if (p !== undefined) p.catch(() => {});
+                        }}
+                        onMouseLeave={(e) => {
+                          const video = e.currentTarget;
+                          const p = video.play();
+                          if (p !== undefined)
+                            p.then(() => {
+                              video.pause();
+                              video.currentTime = 0;
+                            }).catch(() => {});
+                          else {
+                            video.pause();
+                            video.currentTime = 0;
+                          }
+                        }}
+                      />
                       <div className="pointer-events-none absolute inset-0 flex items-center justify-center group-hover:opacity-0 transition-opacity duration-200">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/40">
                           <Play

@@ -17,7 +17,11 @@ export default function ServiceCreateModal({
 }) {
   const initialForm = { title: "", description: "", price: "", isActive: true };
 
-  const { form, setForm, handleFieldChange: handleChange } = useFormState(initialForm);
+  const {
+    form,
+    setForm,
+    handleFieldChange: handleChange,
+  } = useFormState(initialForm);
   const {
     file: thumbnail,
     setFile: setThumbnail,
@@ -53,9 +57,6 @@ export default function ServiceCreateModal({
     }
   }, [service, open]);
 
-
-
-
   async function handleSubmit(e) {
     e.preventDefault();
     if (!form.title.trim()) {
@@ -66,7 +67,11 @@ export default function ServiceCreateModal({
       setError("Description is required.");
       return;
     }
-    if (form.price === "" || isNaN(Number(form.price)) || Number(form.price) < 0) {
+    if (
+      form.price === "" ||
+      isNaN(Number(form.price)) ||
+      Number(form.price) < 0
+    ) {
       setError("Price must be a non-negative number.");
       return;
     }
@@ -92,9 +97,9 @@ export default function ServiceCreateModal({
     } catch (err) {
       setError(
         err?.response?.data?.message ||
-        (isEditMode
-          ? "Failed to update service."
-          : "Failed to create service."),
+          (isEditMode
+            ? "Failed to update service."
+            : "Failed to create service."),
       );
     } finally {
       setLoading(false);

@@ -89,7 +89,9 @@ export default function OrderSummary({
         {/* GST */}
         <div className="flex justify-between items-center">
           <span className="flex items-center gap-1.5 text-xs text-gray-500">
-            {isWelcomeIndia || packageData?.gst === null || packageData?.gst === undefined ? (
+            {isWelcomeIndia ||
+            packageData?.gst === null ||
+            packageData?.gst === undefined ? (
               <span className="bg-green-50 text-green-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-green-200">
                 Included
               </span>
@@ -102,17 +104,23 @@ export default function OrderSummary({
           </span>
           <div className="text-right">
             <span className="text-gray-600 text-sm font-semibold tabular-nums">
-              {isWelcomeIndia || packageData?.gst === null || packageData?.gst === undefined ? (
-                "Included"
-              ) : (
-                `+${isIndia ? INR(gstAmount) : toForeign(intlGstAmount)}`
-              )}
+              {isWelcomeIndia ||
+              packageData?.gst === null ||
+              packageData?.gst === undefined
+                ? "Included"
+                : `+${isIndia ? INR(gstAmount) : toForeign(intlGstAmount)}`}
             </span>
-            {!(isWelcomeIndia || packageData?.gst === null || packageData?.gst === undefined) && !isIndia && !currencyRateLoading && (
-              <p className="text-gray-400 text-[10px] tabular-nums">
-                +{INR(intlGstAmount)}
-              </p>
-            )}
+            {!(
+              isWelcomeIndia ||
+              packageData?.gst === null ||
+              packageData?.gst === undefined
+            ) &&
+              !isIndia &&
+              !currencyRateLoading && (
+                <p className="text-gray-400 text-[10px] tabular-nums">
+                  +{INR(intlGstAmount)}
+                </p>
+              )}
           </div>
         </div>
       </div>
@@ -137,7 +145,9 @@ export default function OrderSummary({
               </span>
               {!currencyRateLoading && intlTotalForeign !== null && (
                 <p className="text-gray-400 text-[10px] mt-0.5 tabular-nums">
-                  {isFixedUSD ? `Fixed package price: $${intlTotalForeign} USD` : `≈ ${INR(intlTotalINR)} · live rate`}
+                  {isFixedUSD
+                    ? `Fixed package price: $${intlTotalForeign} USD`
+                    : `≈ ${INR(intlTotalINR)} · live rate`}
                 </p>
               )}
             </>

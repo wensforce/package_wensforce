@@ -9,7 +9,6 @@ import Modal from "../../components/Modal";
 import ServiceDetailHeader from "../../components/service/serviceDetailHeader";
 import ServiceOverviewCard from "../../components/service/serviceOverviewCard";
 
-
 import { useFetchList } from "../../hooks/useFetchList";
 import { useModal } from "../../hooks/useModal";
 
@@ -166,9 +165,8 @@ export default function ServiceDetailPage() {
       >
         <div className="p-6">
           <p className="text-[#4A5568] text-sm mb-6">
-            Are you sure you want to delete{" "}
-            <strong>{service?.title}</strong>? All associated data will be
-            permanently removed.
+            Are you sure you want to delete <strong>{service?.title}</strong>?
+            All associated data will be permanently removed.
           </p>
           <div className="flex gap-3 justify-end">
             <button

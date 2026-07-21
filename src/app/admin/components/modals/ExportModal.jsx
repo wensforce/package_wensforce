@@ -11,15 +11,18 @@ export default function ExportModal({ open, onClose, onExport }) {
     {
       key: "xlsx",
       title: "Excel Spreadsheet (.xlsx)",
-      description: "Best for viewing in Microsoft Excel or Google Sheets. Supports formulas and filtering.",
+      description:
+        "Best for viewing in Microsoft Excel or Google Sheets. Supports formulas and filtering.",
       icon: <FileSpreadsheet className="w-8 h-8 text-emerald-600" />,
-      colorClass: "hover:bg-emerald-50/50 hover:border-emerald-300 border-emerald-100",
+      colorClass:
+        "hover:bg-emerald-50/50 hover:border-emerald-300 border-emerald-100",
       bgClass: "bg-emerald-50",
     },
     {
       key: "csv",
       title: "Comma Separated Values (.csv)",
-      description: "Standard plain-text format. Highly compatible with databases, scripts, and other data tools.",
+      description:
+        "Standard plain-text format. Highly compatible with databases, scripts, and other data tools.",
       icon: <FileText className="w-8 h-8 text-blue-600" />,
       colorClass: "hover:bg-blue-50/50 hover:border-blue-300 border-blue-100",
       bgClass: "bg-blue-50",
@@ -27,9 +30,11 @@ export default function ExportModal({ open, onClose, onExport }) {
     {
       key: "json",
       title: "JSON Document (.json)",
-      description: "Structured raw data. Best for developers, API integrations, and developer-level transfers.",
+      description:
+        "Structured raw data. Best for developers, API integrations, and developer-level transfers.",
       icon: <FileJson className="w-8 h-8 text-amber-600" />,
-      colorClass: "hover:bg-amber-50/50 hover:border-amber-300 border-amber-100",
+      colorClass:
+        "hover:bg-amber-50/50 hover:border-amber-300 border-amber-100",
       bgClass: "bg-amber-50",
     },
   ];

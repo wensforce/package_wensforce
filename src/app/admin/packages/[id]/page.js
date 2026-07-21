@@ -30,7 +30,7 @@ export default function PackageDetailPage() {
 
       try {
         const data = await packageApi.getPackageById(packageId);
-        console.log(data.images, data.videos, "gdhdh")
+        console.log(data.images, data.videos, "gdhdh");
         setPackageData(data);
       } catch (err) {
         setError(
@@ -93,8 +93,8 @@ export default function PackageDetailPage() {
           <PackageDetailHeader
             onBack={() => router.push("/admin/packages")}
             onRefresh={() => fetchPackage()}
-            onEdit={() => { }}
-            onDelete={() => { }}
+            onEdit={() => {}}
+            onDelete={() => {}}
             refreshing={refreshing}
             deleting={deleting}
           />
@@ -154,7 +154,6 @@ export default function PackageDetailPage() {
         </div>
         <div className="px-6 pb-6">
           <PackageMediaSection
-
             images={packageData.images ?? []}
             videos={packageData.videos ?? []}
           />

@@ -6,7 +6,32 @@ import Modal from "../Modal";
 import { userApi } from "../../users/apis/user.api";
 import { useFetchList } from "../../hooks/useFetchList";
 import { useFormState } from "../../hooks/useFormState";
+
+const COUNTRY_CODES = [
+  { code: "+91", flag: "🇮🇳", name: "India" },
+  { code: "+1", flag: "🇺🇸", name: "United States" },
+  { code: "+1", flag: "🇨🇦", name: "Canada" },
+  { code: "+44", flag: "🇬🇧", name: "United Kingdom" },
+  { code: "+61", flag: "🇦🇺", name: "Australia" },
+  { code: "+971", flag: "🇦🇪", name: "UAE" },
+  { code: "+966", flag: "🇸🇦", name: "Saudi Arabia" },
+  { code: "+65", flag: "🇸🇬", name: "Singapore" },
+  { code: "+60", flag: "🇲🇾", name: "Malaysia" },
+  { code: "+49", flag: "🇩🇪", name: "Germany" },
+  { code: "+33", flag: "🇫🇷", name: "France" },
+  { code: "+81", flag: "🇯🇵", name: "Japan" },
+  { code: "+86", flag: "🇨🇳", name: "China" },
+  { code: "+92", flag: "🇵🇰", name: "Pakistan" },
+  { code: "+880", flag: "🇧🇩", name: "Bangladesh" },
+  { code: "+94", flag: "🇱🇰", name: "Sri Lanka" },
+  { code: "+977", flag: "🇳🇵", name: "Nepal" },
+  { code: "+27", flag: "🇿🇦", name: "South Africa" },
+  { code: "+55", flag: "🇧🇷", name: "Brazil" },
+  { code: "+7", flag: "🇷🇺", name: "Russia" },
+];
+
 const ROLES = ["user", "admin", "ops"];
+
 const INITIAL_FORM = {
   name: "",
   email: "",
@@ -14,6 +39,17 @@ const INITIAL_FORM = {
   role: "user",
   city: "",
 };
+
+function parseMobileNumber(fullNumber) {
+  if (!fullNumber) return { countryCode: "+91", number: "" };
+  const clean = fullNumber.trim();
+  for (const c of COUNTRY_CODES) {
+    if (clean.startsWith(c.code)) {
+      return { countryCode: c.code, number: clean.slice(c.code.length) };
+    }
+  }
+  return { countryCode: "+91", number: clean };
+}
 
 export default function UserCreateUpdateModal({
   open,
@@ -24,26 +60,32 @@ export default function UserCreateUpdateModal({
 }) {
   const { form, setForm, handleFieldChange } = useFormState(INITIAL_FORM);
   const { loading, setLoading, error, setError } = useFetchList();
+  const [selectedCountryCode, setSelectedCountryCode] = useState("+91");
 
   const isEditMode = Boolean(user?.id);
 
   useEffect(() => {
     if (!open) return;
 
-    if (isEditMode) {
-      setForm({
-        name: user?.name || "",
-        email: user?.email || "",
-        mobileNumber: user?.mobileNumber || "",
-        role: user?.role || "user",
-        city: user?.city || "",
-      });
-    } else {
-      setForm(INITIAL_FORM);
-    }
+    Promise.resolve().then(() => {
+      if (isEditMode) {
+        const parsed = parseMobileNumber(user?.mobileNumber || "");
+        setSelectedCountryCode(parsed.countryCode);
+        setForm({
+          name: user?.name || "",
+          email: user?.email || "",
+          mobileNumber: parsed.number,
+          role: user?.role || "user",
+          city: user?.city || "",
+        });
+      } else {
+        setSelectedCountryCode("+91");
+        setForm(INITIAL_FORM);
+      }
 
-    setError(null);
-  }, [open, isEditMode, user]);
+      setError(null);
+    });
+  }, [open, isEditMode, user, setForm, setError]);
 
   const hasAnyUpdateField = useMemo(() => {
     if (!isEditMode) return true;
@@ -51,7 +93,7 @@ export default function UserCreateUpdateModal({
     const updates = {
       name: form.name.trim(),
       email: form.email.trim(),
-      mobileNumber: form.mobileNumber.trim(),
+      mobileNumber: selectedCountryCode + form.mobileNumber.trim().replace(/[\s\-()+]/g, ""),
       role: form.role,
       city: form.city.trim(),
     };
@@ -65,9 +107,7 @@ export default function UserCreateUpdateModal({
     };
 
     return Object.keys(updates).some((key) => updates[key] !== original[key]);
-  }, [form, isEditMode, user]);
-
-
+  }, [form, isEditMode, user, selectedCountryCode]);
 
   function validate() {
     if (!isEditMode) {
@@ -78,6 +118,11 @@ export default function UserCreateUpdateModal({
       if (!form.role.trim()) return "Role is required.";
     } else if (!hasAnyUpdateField) {
       return "No changes to update.";
+    }
+
+    const cleanMobile = form.mobileNumber.trim().replace(/[\s\-()+]/g, "");
+    if (cleanMobile.length < 5 || !/^\d+$/.test(cleanMobile)) {
+      return "Please enter a valid mobile number.";
     }
 
     if (
@@ -103,20 +148,18 @@ export default function UserCreateUpdateModal({
     setError(null);
 
     try {
+      const cleanMobile = selectedCountryCode + form.mobileNumber.trim().replace(/[\s\-()+]/g, "");
+
       const cleaned = {
         name: form.name.trim(),
         email: form.email.trim(),
-        mobileNumber: form.mobileNumber.trim(),
+        mobileNumber: cleanMobile,
         role: form.role,
         city: form.city.trim(),
       };
 
       if (isEditMode) {
-        const payload = Object.fromEntries(
-          Object.entries(cleaned).filter(([, value]) => value !== ""),
-        );
-
-        const updated = await userApi.updateUser(user.id, payload);
+        const updated = await userApi.updateUser(user.id, cleaned);
         onUpdated?.(updated);
       } else {
         const created = await userApi.createUser(cleaned);
@@ -189,15 +232,30 @@ export default function UserCreateUpdateModal({
               Mobile Number
               {!isEditMode ? <span className="text-red-500"> *</span> : null}
             </label>
-            <input
-              type="text"
-              name="mobileNumber"
-              value={form.mobileNumber}
-              onChange={handleFieldChange}
-              placeholder="e.g. 9999999999"
-              disabled={loading}
-              className="w-full text-sm rounded-lg border border-[#CBD5E0] bg-[#FAF6EC] px-3 py-2.5 text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 disabled:opacity-60"
-            />
+            <div className="flex gap-2">
+              <select
+                value={selectedCountryCode}
+                onChange={(e) => setSelectedCountryCode(e.target.value)}
+                disabled={loading}
+                className="text-sm rounded-lg border border-[#CBD5E0] bg-[#FAF6EC] px-2 py-2.5 text-[#1A202C] outline-none focus:border-[#C9A24B] shrink-0"
+                style={{ width: "95px" }}
+              >
+                {COUNTRY_CODES.map((c, idx) => (
+                  <option key={`${c.code}-${c.name}-${idx}`} value={c.code}>
+                    {c.flag} {c.code}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="text"
+                name="mobileNumber"
+                value={form.mobileNumber}
+                onChange={handleFieldChange}
+                placeholder="e.g. 9999999999"
+                disabled={loading}
+                className="w-full text-sm rounded-lg border border-[#CBD5E0] bg-[#FAF6EC] px-3 py-2.5 text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 disabled:opacity-60"
+              />
+            </div>
           </div>
 
           <div className="space-y-1.5">

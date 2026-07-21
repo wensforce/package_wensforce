@@ -4,8 +4,6 @@ import { Shield, ArrowRight, Phone, ChevronLeft } from "lucide-react";
 
 import { useAuthFlow } from "../../hooks/useAuthFlow";
 
-
-
 export default function LoginModal({ onSuccess }) {
   const {
     // State

@@ -34,7 +34,6 @@ export function useFetchList({
   const paramsKey = JSON.stringify(params);
 
   const requestIdRef = useRef(0);
- 
 
   const fetchList = useCallback(async () => {
     if (!fetchFn) return;

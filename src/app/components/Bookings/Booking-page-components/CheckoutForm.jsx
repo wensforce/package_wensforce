@@ -114,7 +114,10 @@ export default function CheckoutForm({
   const price = packageData.discountedPrice;
   const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
   const discountedBasePrice = Math.max(1, price - discountAmount);
-  const effectiveGstRate = (isWelcomeIndia || packageData.gst === null || packageData.gst === undefined) ? 0 : Number(packageData.gst) / 100;
+  const effectiveGstRate =
+    isWelcomeIndia || packageData.gst === null || packageData.gst === undefined
+      ? 0
+      : Number(packageData.gst) / 100;
   const gstAmount = Math.ceil(discountedBasePrice * effectiveGstRate);
   const indiaTotalINR = discountedBasePrice + gstAmount;
   const intlGstAmount = Math.ceil(discountedBasePrice * effectiveGstRate);
@@ -140,7 +143,10 @@ export default function CheckoutForm({
     setCouponLoading(true);
     setCouponError("");
     try {
-      const res = await couponApiUser.validateCoupon(couponInput.trim(), packageData.id);
+      const res = await couponApiUser.validateCoupon(
+        couponInput.trim(),
+        packageData.id,
+      );
       if (res?.success && res?.data) {
         setAppliedCoupon({
           code: couponInput.trim().toUpperCase(),
@@ -148,12 +154,18 @@ export default function CheckoutForm({
           discountValue: res.data.discountValue,
           discountAmount: res.data.discountAmount,
         });
-        toast.success(`Coupon ${couponInput.trim().toUpperCase()} applied successfully!`);
+        toast.success(
+          `Coupon ${couponInput.trim().toUpperCase()} applied successfully!`,
+        );
       } else {
         setCouponError(res?.message || "Invalid coupon code");
       }
     } catch (err) {
-      setCouponError(err?.response?.data?.message || err?.message || "Failed to validate coupon");
+      setCouponError(
+        err?.response?.data?.message ||
+          err?.message ||
+          "Failed to validate coupon",
+      );
     } finally {
       setCouponLoading(false);
     }
@@ -207,25 +219,25 @@ export default function CheckoutForm({
     try {
       const payload = isIndia
         ? {
-          amount: indiaTotalINR,
-          currency: "INR",
-          customerName: form.name.trim(),
-          customerPhone: form.phone,
-          customerEmail: form.email.trim(),
-          packageId: packageData.id,
-          planName: packageData.name,
-          couponCode: appliedCoupon?.code || undefined,
-        }
+            amount: indiaTotalINR,
+            currency: "INR",
+            customerName: form.name.trim(),
+            customerPhone: form.phone,
+            customerEmail: form.email.trim(),
+            packageId: packageData.id,
+            planName: packageData.name,
+            couponCode: appliedCoupon?.code || undefined,
+          }
         : {
-          amount: intlTotalForeign,
-          currency: selectedCurrency,
-          customerName: form.name.trim(),
-          customerPhone: form.phone,
-          customerEmail: form.email.trim(),
-          packageId: packageData.id,
-          planName: packageData.name,
-          couponCode: appliedCoupon?.code || undefined,
-        };
+            amount: intlTotalForeign,
+            currency: selectedCurrency,
+            customerName: form.name.trim(),
+            customerPhone: form.phone,
+            customerEmail: form.email.trim(),
+            packageId: packageData.id,
+            planName: packageData.name,
+            couponCode: appliedCoupon?.code || undefined,
+          };
 
       await trackLead({
         value: isIndia ? indiaTotalINR : intlTotalForeign,
@@ -246,7 +258,7 @@ export default function CheckoutForm({
 
       const res = await paymentApiUser.createOrder(payload);
       const data = res.data;
-console.log(data,"data")
+      console.log(data, "data");
       if (!data?.paymentSessionId)
         throw new Error(
           data?.error || "Could not initiate payment. Please try again.",
@@ -265,14 +277,13 @@ console.log(data,"data")
         }),
         !user?.name || !user?.email || (!user?.city && form.city)
           ? authApiUser.updateProfile({
-            name: form.name.trim(),
-            email: form.email.trim(),
-            city: form.city || "Not specified",
-          })
+              name: form.name.trim(),
+              email: form.email.trim(),
+              city: form.city || "Not specified",
+            })
           : Promise.resolve(),
       ]);
 
-      
       const cashfree = await load({
         mode:
           process.env.NEXT_PUBLIC_CASHFREE_ENV === "production"
@@ -288,7 +299,6 @@ console.log(data,"data")
       setLoading(false);
     }
   };
-
 
   /* ── JSX ── */
   return (
@@ -326,7 +336,9 @@ console.log(data,"data")
                 {displayPrice}
               </p>
               <p className="text-gray-400 text-[10px] mt-0.5">
-                {packageData.validity === "Single Trip" ? "single trip" : "per year"}
+                {packageData.validity === "Single Trip"
+                  ? "single trip"
+                  : "per year"}
               </p>
             </div>
           </div>
@@ -547,7 +559,9 @@ console.log(data,"data")
                       <input
                         type="text"
                         value={couponInput}
-                        onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                        onChange={(e) =>
+                          setCouponInput(e.target.value.toUpperCase())
+                        }
                         placeholder="ENTER PROMO CODE"
                         disabled={couponLoading || appliedCoupon}
                         className="flex-1 px-3.5 py-2 border border-[#CBD5E0]/70 rounded-lg text-sm text-gray-800 focus:outline-none focus:border-[#C9A24B] uppercase bg-white disabled:bg-gray-50 disabled:cursor-not-allowed"
@@ -576,11 +590,17 @@ console.log(data,"data")
                       )}
                     </div>
                     {couponError && (
-                      <p className="text-red-500 text-[10px] font-medium">{couponError}</p>
+                      <p className="text-red-500 text-[10px] font-medium">
+                        {couponError}
+                      </p>
                     )}
                     {appliedCoupon && (
                       <p className="text-green-600 text-[10px] font-semibold flex items-center gap-1">
-                        ✓ Code "{appliedCoupon.code}" applied successfully! (-{isIndia ? `₹${appliedCoupon.discountAmount}` : customToForeign(appliedCoupon.discountAmount)})
+                        ✓ Code "{appliedCoupon.code}" applied successfully! (-
+                        {isIndia
+                          ? `₹${appliedCoupon.discountAmount}`
+                          : customToForeign(appliedCoupon.discountAmount)}
+                        )
                       </p>
                     )}
                   </div>

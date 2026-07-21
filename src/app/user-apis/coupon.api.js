@@ -8,7 +8,9 @@ export const couponApiUser = {
    * @returns {Promise<object>}
    */
   validateCoupon: async (code, packageId) => {
-    const res = await api.get(`/coupon/validate?code=${code}&packageId=${packageId}`);
+    const res = await api.get(
+      `/coupon/validate?code=${code}&packageId=${packageId}`,
+    );
     return res.data;
   },
 };

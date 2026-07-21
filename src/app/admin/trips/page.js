@@ -219,7 +219,8 @@ export default function TripsPage() {
         );
       }
       case "additionalAmount":
-        return trip.additionalAmount !== null && trip.additionalAmount !== undefined ? (
+        return trip.additionalAmount !== null &&
+          trip.additionalAmount !== undefined ? (
           <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-full px-2.5 py-1 whitespace-nowrap">
             ₹{Number(trip.additionalAmount).toLocaleString("en-IN")}
           </span>

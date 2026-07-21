@@ -15,8 +15,8 @@ import {
   LogOut,
   X,
   Hash,
-  Gift,Route
-  
+  Gift,
+  Route,
 } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";

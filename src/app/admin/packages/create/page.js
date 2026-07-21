@@ -10,7 +10,6 @@ export default function PackageCreatePage() {
   return (
     <div className="p-6 md:p-8 space-y-6">
       <div className="bg-white rounded-2xl border border-[#CBD5E0] overflow-hidden">
-
         {/* Header — mirrors CouponDetailHeader layout */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#CBD5E0]">
           <div className="flex items-center gap-3">
@@ -41,7 +40,6 @@ export default function PackageCreatePage() {
         <div className="p-6">
           <PackageForm onSaved={() => router.push("/admin/packages")} />
         </div>
-
       </div>
     </div>
   );

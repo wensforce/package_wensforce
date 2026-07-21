@@ -47,10 +47,12 @@ export function usePackages() {
   const bestValueId =
     Array.isArray(packages) && packages.length > 0
       ? packages.find((p) => p.featured)?.id ??
-        packages.find((p) => p.id === "premium")?.id ??
-        packages[Math.floor(packages.length / 2)]?.id ??
-        null
+      packages.find((p) => p.id === "premium")?.id ??
+      packages[Math.floor(packages.length / 2)]?.id ??
+      null
       : null;
 
+
   return { packages, loading, error, bestValueId };
+
 }

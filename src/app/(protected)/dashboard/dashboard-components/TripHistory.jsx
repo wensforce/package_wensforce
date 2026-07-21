@@ -176,27 +176,33 @@ function TripCard({ trip }) {
         </div>
 
         {/* Additional Amount */}
-        {trip.additionalAmount !== null && trip.additionalAmount !== undefined && (
-          <div
-            className="flex items-center justify-between text-xs py-1.5 px-2.5 rounded-xl border mt-2"
-            style={{
-              borderColor: "rgba(201, 162, 75, 0.2)",
-              background: "rgba(201, 162, 75, 0.05)",
-            }}
-          >
-            <span className="text-slate-500 font-medium">Additional Amount:</span>
-            <span
-              className="font-bold text-[11px] flex items-center gap-0.5"
-              style={{ color: "var(--color-navy)" }}
+        {trip.additionalAmount !== null &&
+          trip.additionalAmount !== undefined && (
+            <div
+              className="flex items-center justify-between text-xs py-1.5 px-2.5 rounded-xl border mt-2"
+              style={{
+                borderColor: "rgba(201, 162, 75, 0.2)",
+                background: "rgba(201, 162, 75, 0.05)",
+              }}
             >
-              <IndianRupee size={11} className="text-amber-600 animate-pulse" />
-              {Number(trip.additionalAmount).toLocaleString("en-IN", {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 2,
-              })}
-            </span>
-          </div>
-        )}
+              <span className="text-slate-500 font-medium">
+                Additional Amount:
+              </span>
+              <span
+                className="font-bold text-[11px] flex items-center gap-0.5"
+                style={{ color: "var(--color-navy)" }}
+              >
+                <IndianRupee
+                  size={11}
+                  className="text-amber-600 animate-pulse"
+                />
+                {Number(trip.additionalAmount).toLocaleString("en-IN", {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 2,
+                })}
+              </span>
+            </div>
+          )}
 
         <div className="h-px bg-slate-100 my-2" />
 
@@ -514,5 +520,3 @@ export default function TripHistory() {
     </div>
   );
 }
-
-

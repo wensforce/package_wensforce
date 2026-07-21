@@ -12,11 +12,11 @@ export const paymentApiUser = {
   },
   /**
    * Fetch User's Payment History.
-   * 
+   *
    * @returns {Promise<object>}
    */
-  getMyPayments:async()=>{
+  getMyPayments: async () => {
     const res = await api.get("/payment/user");
-    return res.data
-  }
+    return res.data;
+  },
 };

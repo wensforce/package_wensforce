@@ -39,6 +39,15 @@ export const userApi = {
     return res.data?.data;
   },
   /**
+   * Quick create user by admin when creating a subscription (no strict validation, name and email optional).
+   * @param {{ name?: string, email?: string, mobileNumber: string, city?: string }} payload
+   * @returns {Promise<object>} - Created or existing user data
+   */
+  quickCreateUser: async (payload) => {
+    const res = await api.post("/user/quick-create", payload);
+    return res.data?.data ?? res.data;
+  },
+  /**
    * Fetch paginated users with optional search.
    * @param {object} options
    * @param {number} options.page   - Current page number

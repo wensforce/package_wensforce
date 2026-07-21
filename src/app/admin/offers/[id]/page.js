@@ -180,7 +180,9 @@ export default function OfferDetailPage() {
       ctaPrimaryHref: offer.ctaPrimaryHref || "",
       ctaSecondaryText: offer.ctaSecondaryText || "",
       footerNote: offer.footerNote || "",
-      featuredPackageIds: offer.featuredPackages ? offer.featuredPackages.map((p) => p.id) : [],
+      featuredPackageIds: offer.featuredPackages
+        ? offer.featuredPackages.map((p) => p.id)
+        : [],
     });
     setEditBenefits(
       Array.isArray(offer.benefits)
@@ -850,10 +852,16 @@ export default function OfferDetailPage() {
                     </label>
                     <div className="space-y-2 max-h-48 overflow-y-auto bg-white p-3 border border-gray-200 rounded-lg">
                       {packages.map((pkg) => (
-                        <label key={pkg.id} className="flex items-center gap-2 text-sm text-[#1A202C] cursor-pointer font-sans">
+                        <label
+                          key={pkg.id}
+                          className="flex items-center gap-2 text-sm text-[#1A202C] cursor-pointer font-sans"
+                        >
                           <input
                             type="checkbox"
-                            checked={editForm.featuredPackageIds?.includes(pkg.id) || false}
+                            checked={
+                              editForm.featuredPackageIds?.includes(pkg.id) ||
+                              false
+                            }
                             onChange={(e) => {
                               const checked = e.target.checked;
                               setEditForm((prev) => {
@@ -868,7 +876,10 @@ export default function OfferDetailPage() {
                             }}
                             className="rounded text-[#C9A24B] focus:ring-[#C9A24B]"
                           />
-                          <span className="truncate">{pkg.name} (₹{pkg.discountedPrice ?? pkg.regularPrice})</span>
+                          <span className="truncate">
+                            {pkg.name} (₹
+                            {pkg.discountedPrice ?? pkg.regularPrice})
+                          </span>
                         </label>
                       ))}
                     </div>

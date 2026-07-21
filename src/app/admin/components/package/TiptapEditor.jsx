@@ -47,11 +47,7 @@ export default function TiptapEditor({
   placeholder = "Write terms and conditions here…",
 }) {
   const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Underline,
-      Placeholder.configure({ placeholder }),
-    ],
+    extensions: [StarterKit, Underline, Placeholder.configure({ placeholder })],
     content: content || null,
     editable: !disabled,
     onUpdate({ editor }) {
@@ -120,7 +116,9 @@ export default function TiptapEditor({
         <Divider />
 
         <ToolbarBtn
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 2 }).run()
+          }
           active={editor.isActive("heading", { level: 2 })}
           disabled={disabled}
           title="Heading 2"
@@ -128,7 +126,9 @@ export default function TiptapEditor({
           <Heading2 size={14} />
         </ToolbarBtn>
         <ToolbarBtn
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 3 }).run()
+          }
           active={editor.isActive("heading", { level: 3 })}
           disabled={disabled}
           title="Heading 3"

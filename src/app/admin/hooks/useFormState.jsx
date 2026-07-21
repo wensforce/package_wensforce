@@ -2,7 +2,7 @@ import { useCallback, useState, useRef, useEffect } from "react";
 
 /**
  * Standardized form state hook.
- * Stores initial state in a ref to keep callback identities stable even if 
+ * Stores initial state in a ref to keep callback identities stable even if
  * inline object literals are passed as arguments.
  */
 export function useFormState(initialState) {
@@ -45,6 +45,3 @@ export function useFormState(initialState) {
     resetForm,
   };
 }
-
-
-

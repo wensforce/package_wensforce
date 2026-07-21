@@ -140,8 +140,6 @@ export default function CouponCreateModal({
       .slice(0, 5);
   }, [packageSuggestions, selectedPackages]);
 
-
-
   function togglePackage(id) {
     setSelectedPackages((prev) =>
       prev.includes(id) ? prev.filter((pkgId) => pkgId !== id) : [...prev, id],

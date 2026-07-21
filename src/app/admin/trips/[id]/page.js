@@ -104,7 +104,7 @@ export default function TripDetailPage() {
         }
 
         const data = await tripApi.getTripById(tripId);
-        console.log(data,"trip data")
+        console.log(data, "trip data");
         setTrip(data);
       } catch (err) {
         setError(
@@ -153,9 +153,12 @@ export default function TripDetailPage() {
         assignmentId,
         customerName: trip?.user?.name || "",
         plan: trip?.subscriptionId || "",
-        packageName: trip?.subscription?.package?.name || trip?.subscription?.package?.name || "",
+        packageName:
+          trip?.subscription?.package?.name ||
+          trip?.subscription?.package?.name ||
+          "",
         tripId: trip?.id ? Number(trip.id) : Number(tripId),
-        phone:trip?.user?.mobileNumber || ""
+        phone: trip?.user?.mobileNumber || "",
       };
       await tripApi.approveTrip(tripId, payload);
 
@@ -395,7 +398,8 @@ export default function TripDetailPage() {
                 <div>
                   <dt className="text-[#718096] mb-1">Additional Amount</dt>
                   <dd className="text-[#1A202C] font-semibold">
-                    {trip.additionalAmount !== null && trip.additionalAmount !== undefined
+                    {trip.additionalAmount !== null &&
+                    trip.additionalAmount !== undefined
                       ? `₹${Number(trip.additionalAmount).toLocaleString("en-IN")}`
                       : "-"}
                   </dd>

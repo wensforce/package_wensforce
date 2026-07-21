@@ -520,7 +520,8 @@ export default function PackageHistory() {
               className="text-sm mt-0.5"
               style={{ color: "var(--color-text-tertiary)" }}
             >
-              View your entire package history, including active, inactive, and pending plans
+              View your entire package history, including active, inactive, and
+              pending plans
             </p>
           </div>
 

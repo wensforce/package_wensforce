@@ -4,18 +4,18 @@ import Link from "next/link";
 import { generateHTML } from "@tiptap/html";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
-import { 
-  Package, 
-  Shield, 
-  Clock, 
-  Route, 
-  Info, 
-  ExternalLink, 
-  DollarSign, 
+import {
+  Package,
+  Shield,
+  Clock,
+  Route,
+  Info,
+  ExternalLink,
+  DollarSign,
   Calendar,
   CheckCircle,
   AlertCircle,
-  FileText
+  FileText,
 } from "lucide-react";
 
 function Row({ label, value, mono = false }) {
@@ -109,7 +109,9 @@ export default function PackageOverviewCard({ packageData }) {
             <h2 className="text-2xl font-bold text-[#0B1E3F]">
               {packageData.name || "Unnamed Package"}
             </h2>
-            <p className="text-xs text-[#4A5568] mt-1 font-mono">ID: {packageData.id}</p>
+            <p className="text-xs text-[#4A5568] mt-1 font-mono">
+              ID: {packageData.id}
+            </p>
           </div>
         </div>
 
@@ -133,24 +135,37 @@ export default function PackageOverviewCard({ packageData }) {
       </div>
 
       {/* Pricing and Basic Info */}
-      <SectionCard icon={<DollarSign size={16} />} title="Pricing & Basic Information">
+      <SectionCard
+        icon={<DollarSign size={16} />}
+        title="Pricing & Basic Information"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pb-4 border-b border-[#CBD5E0]/60">
-          <Row label="Regular Price" value={formatPrice(packageData.regularPrice)} />
-          <Row label="Discounted Price" value={formatPrice(packageData.discountedPrice)} />
+          <Row
+            label="Regular Price"
+            value={formatPrice(packageData.regularPrice)}
+          />
+          <Row
+            label="Discounted Price"
+            value={formatPrice(packageData.discountedPrice)}
+          />
           <Row label="Vehicle Type" value={packageData.vehicleType || "—"} />
           <Row
             label="Vehicle Model"
             value={
               Array.isArray(packageData.vehicleModel)
                 ? packageData.vehicleModel.join(", ")
-                : (packageData.vehicleModel || "—")
+                : packageData.vehicleModel || "—"
             }
           />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-          <Row 
-            label="Category" 
-            value={packageData.category ? packageData.category.replace(/_/g, " ").toUpperCase() : "—"} 
+          <Row
+            label="Category"
+            value={
+              packageData.category
+                ? packageData.category.replace(/_/g, " ").toUpperCase()
+                : "—"
+            }
           />
           <Row label="Tags" value={packageData.tags || "—"} />
         </div>
@@ -169,15 +184,18 @@ export default function PackageOverviewCard({ packageData }) {
       {/* Specifications */}
       <SectionCard icon={<Shield size={16} />} title="Package Specifications">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Row label="Bodyguard Type" value={packageData.bodyguardType || "—"} />
+          <Row
+            label="Bodyguard Type"
+            value={packageData.bodyguardType || "—"}
+          />
           <Row label="Trips" value={packageData.trips || "—"} />
-          <Row 
-            label="Validity" 
+          <Row
+            label="Validity"
             value={
               packageData.validity
                 ? `${packageData.validity} month${packageData.validity > 1 ? "s" : ""}`
                 : "—"
-            } 
+            }
           />
         </div>
       </SectionCard>
@@ -188,7 +206,8 @@ export default function PackageOverviewCard({ packageData }) {
         title="Included Services"
         actions={
           <span className="text-xs font-semibold text-[#4A5568]">
-            {packageServices.length} service{packageServices.length !== 1 ? "s" : ""}
+            {packageServices.length} service
+            {packageServices.length !== 1 ? "s" : ""}
           </span>
         }
       >
@@ -224,7 +243,10 @@ export default function PackageOverviewCard({ packageData }) {
                     <td className="px-4 py-3 text-xs font-semibold text-[#0B1E3F] whitespace-nowrap">
                       {item.service?.title || "Unknown Service"}
                     </td>
-                    <td className="px-4 py-3 text-xs text-[#4A5568] max-w-xs truncate" title={item.service?.description}>
+                    <td
+                      className="px-4 py-3 text-xs text-[#4A5568] max-w-xs truncate"
+                      title={item.service?.description}
+                    >
                       {item.service?.description || "—"}
                     </td>
                     <td className="px-4 py-3 text-xs font-bold text-[#0B1E3F]">
@@ -260,7 +282,10 @@ export default function PackageOverviewCard({ packageData }) {
 
       {/* Terms & Conditions */}
       {packageData.termsAndConditions && (
-        <SectionCard icon={<FileText size={16} />} title="Terms &amp; Conditions">
+        <SectionCard
+          icon={<FileText size={16} />}
+          title="Terms &amp; Conditions"
+        >
           <div
             className="tiptap-prose text-sm leading-relaxed"
             dangerouslySetInnerHTML={{

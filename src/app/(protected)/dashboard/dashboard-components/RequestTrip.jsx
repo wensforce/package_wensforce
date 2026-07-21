@@ -69,7 +69,19 @@ function AddServiceDrawer({ packageId, onAdd, onClose, existingIds }) {
   const [services, setServices] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [selectedId, setSelectedId] = useState(null);
+  const [selectedIds, setSelectedIds] = useState(new Set());
+
+  const handleToggleSelect = (id) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
 
   const LIMIT = 10;
 
@@ -86,7 +98,9 @@ function AddServiceDrawer({ packageId, onAdd, onClose, existingIds }) {
   useEffect(() => {
     if (!packageId) return;
     let cancelled = false;
-    setLoading(true);
+    Promise.resolve().then(() => {
+      setLoading(true);
+    });
 
     servicesApi
       .servicesNotIncluded(packageId, {
@@ -99,7 +113,11 @@ function AddServiceDrawer({ packageId, onAdd, onClose, existingIds }) {
         const list = toArray(res);
         setServices(list);
         // Try to read total from response if available
-        const total = res?.pagination?.totalPages ?? res?.totalPages ?? res?.meta?.totalPages ?? null;
+        const total =
+          res?.pagination?.totalPages ??
+          res?.totalPages ??
+          res?.meta?.totalPages ??
+          null;
         setTotalPages(total ?? (list.length < LIMIT ? page : page + 1));
       })
       .catch(() => {
@@ -112,19 +130,22 @@ function AddServiceDrawer({ packageId, onAdd, onClose, existingIds }) {
         if (!cancelled) setLoading(false);
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [packageId, page, debouncedSearch]);
 
-  const selected = services.find((s) => s.id === selectedId);
-
   const handleAdd = () => {
-    if (!selected) return;
-    onAdd({
-      id: selected.id,
-      title: selected.title ?? selected.name,
-      price: selected.price ?? selected.amount ?? selected.cost ?? null,
-      thumbnailUrl: selected.thumbnailUrl ?? selected.thumbnailUrlKey ?? null,
-    });
+    if (selectedIds.size === 0) return;
+    const selectedList = services
+      .filter((s) => selectedIds.has(s.id))
+      .map((selected) => ({
+        id: selected.id,
+        title: selected.title ?? selected.name,
+        price: selected.price ?? selected.amount ?? selected.cost ?? null,
+        thumbnailUrl: selected.thumbnailUrl ?? selected.thumbnailUrlKey ?? null,
+      }));
+    onAdd(selectedList);
     onClose();
   };
 
@@ -147,7 +168,10 @@ function AddServiceDrawer({ packageId, onAdd, onClose, existingIds }) {
           <div>
             <h3
               className="text-base font-bold"
-              style={{ color: "var(--color-navy)", fontFamily: "var(--font-playfair)" }}
+              style={{
+                color: "var(--color-navy)",
+                fontFamily: "var(--font-playfair)",
+              }}
             >
               Add Extra Service
             </h3>
@@ -193,43 +217,57 @@ function AddServiceDrawer({ packageId, onAdd, onClose, existingIds }) {
             </div>
           ) : services.length === 0 ? (
             <p className="text-xs text-slate-400 text-center py-8">
-              {debouncedSearch ? "No services match your search." : "No additional services available."}
+              {debouncedSearch
+                ? "No services match your search."
+                : "No additional services available."}
             </p>
           ) : (
             services.map((svc) => {
+              const isSelected = selectedIds.has(svc.id);
               const isAlreadyAdded = existingIds.includes(svc.id);
-              const isSelected = selectedId === svc.id;
-              const svcImg = getImageUrl(svc.thumbnailUrl ?? svc.thumbnailUrlKey);
+              const svcImg = getImageUrl(
+                svc.thumbnailUrl ?? svc.thumbnailUrlKey,
+              );
               const price = svc.price ?? svc.amount ?? svc.cost ?? null;
 
               return (
                 <div
                   key={svc.id}
-                  onClick={() => !isAlreadyAdded && setSelectedId(svc.id)}
+                  onClick={() => !isAlreadyAdded && handleToggleSelect(svc.id)}
                   className={`flex items-center gap-3 p-3.5 rounded-2xl border transition-all ${
                     isAlreadyAdded
                       ? "opacity-50 cursor-not-allowed"
                       : "cursor-pointer hover:bg-slate-50/60"
                   }`}
                   style={{
-                    borderColor: isSelected ? "var(--color-navy)" : "var(--color-border)",
+                    borderColor: isSelected
+                      ? "var(--color-navy)"
+                      : "var(--color-border)",
                     background: isSelected ? "rgba(15,31,69,0.04)" : undefined,
                   }}
                 >
-                  {/* Radio dot */}
+                  {/* Checkbox */}
                   <div
-                    className="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all"
-                    style={isSelected ? { borderColor: "var(--color-navy)" } : { borderColor: "#cbd5e1" }}
+                    className="w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all"
+                    style={
+                      isSelected
+                        ? { borderColor: "var(--color-navy)", background: "var(--color-navy)" }
+                        : { borderColor: "#cbd5e1" }
+                    }
                   >
                     {isSelected && (
-                      <div className="w-2 h-2 rounded-full" style={{ background: "var(--color-navy)" }} />
+                      <Check size={10} className="text-white" />
                     )}
                   </div>
 
                   {/* Thumbnail */}
                   <div className="w-11 h-11 rounded-xl bg-slate-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
                     {svcImg ? (
-                      <img src={svcImg} alt={svc.title ?? svc.name} className="w-full h-full object-cover" />
+                      <img
+                        src={svcImg}
+                        alt={svc.title ?? svc.name}
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
                       <Package size={18} className="text-slate-400" />
                     )}
@@ -237,7 +275,10 @@ function AddServiceDrawer({ packageId, onAdd, onClose, existingIds }) {
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-xs font-bold truncate leading-tight" style={{ color: "var(--color-navy)" }}>
+                    <h4
+                      className="text-xs font-bold truncate leading-tight"
+                      style={{ color: "var(--color-navy)" }}
+                    >
                       {svc.title ?? svc.name}
                     </h4>
                     {price != null ? (
@@ -246,7 +287,9 @@ function AddServiceDrawer({ packageId, onAdd, onClose, existingIds }) {
                         {formatPrice(price)?.replace("₹", "")}
                       </p>
                     ) : (
-                      <p className="text-[10px] text-slate-400 mt-0.5">Price on request</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">
+                        Price on request
+                      </p>
                     )}
                   </div>
 
@@ -294,12 +337,12 @@ function AddServiceDrawer({ packageId, onAdd, onClose, existingIds }) {
         >
           <button
             onClick={handleAdd}
-            disabled={!selectedId}
+            disabled={selectedIds.size === 0}
             className="w-full py-3 rounded-xl text-xs font-bold text-white flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-40 disabled:scale-100"
             style={{ background: "var(--color-navy)" }}
           >
             <Plus size={13} />
-            Add Selected Service
+            Add Selected Services ({selectedIds.size})
           </button>
         </div>
       </div>
@@ -309,11 +352,10 @@ function AddServiceDrawer({ packageId, onAdd, onClose, existingIds }) {
 
 // ── RequestTripModal ──────────────────────────────────────────────────────────
 export default function RequestTripModal({ plan, onClose }) {
-  if (!plan) return null;
-  const pkg = plan.package ?? {};
-  const packageId = pkg.id ?? plan.packageId ?? null;
+  const pkg = plan?.package ?? {};
+  const packageId = pkg.id ?? plan?.packageId ?? null;
   const vehicleImg = getImageUrl(pkg.thumbnailUrl ?? pkg.thumbnailUrlKey);
-  const tripsLeft = (plan.tripsTotal ?? 0) - (plan.tripsUsed ?? 0);
+  const tripsLeft = (plan?.tripsTotal ?? 0) - (plan?.tripsUsed ?? 0);
 
   const [pickupLocation, setPickupLocation] = useState("");
   const [dropLocation, setDropLocation] = useState("");
@@ -329,15 +371,25 @@ export default function RequestTripModal({ plan, onClose }) {
 
   // Debounce service search query
   useEffect(() => {
-    const t = setTimeout(() => setDebouncedServiceQuery(serviceQuery.trim()), 350);
+    const t = setTimeout(
+      () => setDebouncedServiceQuery(serviceQuery.trim()),
+      350,
+    );
     return () => clearTimeout(t);
   }, [serviceQuery]);
 
   // Fetch included package services
   useEffect(() => {
-    if (!packageId) { setPackageServices([]); return; }
+    if (!packageId) {
+      Promise.resolve().then(() => {
+        setPackageServices([]);
+      });
+      return;
+    }
     let cancelled = false;
-    setLoadingServices(true);
+    Promise.resolve().then(() => {
+      setLoadingServices(true);
+    });
     servicesApi
       .getPackageServices(packageId, debouncedServiceQuery)
       .then((rows) => {
@@ -345,7 +397,7 @@ export default function RequestTripModal({ plan, onClose }) {
         const subServices = Array.isArray(plan.services) ? plan.services : [];
         const list = toArray(rows).map((svc) => {
           const matchedSubSvc = subServices.find(
-            (subSvc) => Number(subSvc.id) === Number(svc.id)
+            (subSvc) => Number(subSvc.id) === Number(svc.id),
           );
           return {
             ...svc,
@@ -358,14 +410,24 @@ export default function RequestTripModal({ plan, onClose }) {
           setSelectedServices(list.map((s) => s.id));
         }
       })
-      .catch(() => { if (!cancelled) setPackageServices([]); })
-      .finally(() => { if (!cancelled) setLoadingServices(false); });
-    return () => { cancelled = true; };
+      .catch(() => {
+        if (!cancelled) setPackageServices([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingServices(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [packageId, debouncedServiceQuery, plan.services]);
 
   // Derived: select-all state
-  const allChecked = packageServices.length > 0 && selectedServices.length === packageServices.length;
-  const someChecked = selectedServices.length > 0 && selectedServices.length < packageServices.length;
+  const allChecked =
+    packageServices.length > 0 &&
+    selectedServices.length === packageServices.length;
+  const someChecked =
+    selectedServices.length > 0 &&
+    selectedServices.length < packageServices.length;
 
   const toggleAll = () => {
     if (allChecked) setSelectedServices([]);
@@ -399,29 +461,42 @@ export default function RequestTripModal({ plan, onClose }) {
     setExtraServices((prev) => prev.filter((s) => s.id !== id));
   };
 
-  const handleAddService = (svc) => {
-    setExtraServices((prev) => [...prev, svc]);
+  const handleAddService = (svcs) => {
+    const arr = Array.isArray(svcs) ? svcs : [svcs];
+    setExtraServices((prev) => [...prev, ...arr]);
   };
 
   const handleSubmit = async () => {
-    if (!pickupLocation.trim()) { toast.error("Please enter a pickup location."); return; }
-    if (!dropLocation.trim()) { toast.error("Please enter a drop location."); return; }
-    if (!tripDate) { toast.error("Please select a trip date and time."); return; }
+    if (!pickupLocation.trim()) {
+      toast.error("Please enter a pickup location.");
+      return;
+    }
+    if (!dropLocation.trim()) {
+      toast.error("Please enter a drop location.");
+      return;
+    }
+    if (!tripDate) {
+      toast.error("Please select a trip date and time.");
+      return;
+    }
 
     setIsSubmitting(true);
     try {
       const includedSvcs = packageServices
         .filter((svc) => selectedServices.includes(svc.id))
-        .map((svc) => ({ id: svc.id, name: svc.title ?? svc.name ?? `Service #${svc.id}` }));
+        .map((svc) => ({
+          id: svc.id,
+          name: svc.title ?? svc.name ?? `Service #${svc.id}`,
+        }));
 
       const addedSvcs = extraServices.map((svc) => ({
         id: svc.id,
         name: svc.title,
       }));
-      
+
       const payload = {
         subscriptionId: plan.id,
-        planName:plan.package?.name,
+        planName: plan.package?.name,
         pickupLocation: pickupLocation.trim(),
         dropLocation: dropLocation.trim(),
         tripDate: new Date(tripDate).toISOString(),
@@ -442,11 +517,16 @@ export default function RequestTripModal({ plan, onClose }) {
       }
     } catch (error) {
       console.error("Error submitting trip request:", error);
-      toast.error(error.response?.data?.message || "An error occurred while submitting request.");
+      toast.error(
+        error.response?.data?.message ||
+          "An error occurred while submitting request.",
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (!plan) return null;
 
   return (
     <>
@@ -471,16 +551,21 @@ export default function RequestTripModal({ plan, onClose }) {
 
           {/* Scrollable Content */}
           <div className="p-6 overflow-y-auto space-y-6 flex-1">
-
             {/* Header */}
             <div className="space-y-1">
               <h2
                 className="text-2xl font-bold text-[26px]"
-                style={{ color: "var(--color-navy)", fontFamily: "var(--font-playfair)" }}
+                style={{
+                  color: "var(--color-navy)",
+                  fontFamily: "var(--font-playfair)",
+                }}
               >
                 Request a Trip
               </h2>
-              <p className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
+              <p
+                className="text-xs"
+                style={{ color: "var(--color-text-secondary)" }}
+              >
                 Fill in the details below to request your trip
               </p>
             </div>
@@ -494,31 +579,48 @@ export default function RequestTripModal({ plan, onClose }) {
                 >
                   1
                 </div>
-                <span className="font-bold text-xs" style={{ color: "var(--color-navy)" }}>
+                <span
+                  className="font-bold text-xs"
+                  style={{ color: "var(--color-navy)" }}
+                >
                   Select Package
                 </span>
               </div>
 
               <div
                 className="flex items-center gap-3 p-3 rounded-2xl border"
-                style={{ borderColor: "var(--color-border)", background: "var(--color-white)" }}
+                style={{
+                  borderColor: "var(--color-border)",
+                  background: "var(--color-white)",
+                }}
               >
                 <div className="w-12 h-12 rounded-xl bg-slate-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
                   {vehicleImg ? (
-                    <img src={vehicleImg} alt={pkg.name ?? "Package"} className="w-full h-full object-cover" />
+                    <img
+                      src={vehicleImg}
+                      alt={pkg.name ?? "Package"}
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <Package size={20} className="text-slate-400" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-bold truncate leading-tight" style={{ color: "var(--color-navy)" }}>
+                  <h4
+                    className="text-sm font-bold truncate leading-tight"
+                    style={{ color: "var(--color-navy)" }}
+                  >
                     {pkg.name ?? "—"}
                   </h4>
                   <p className="text-xs text-slate-400 mt-0.5 leading-tight">
-                    {tripsLeft} {tripsLeft === 1 ? "trip" : "trips"} left • Valid till {formatDate(plan.endDate)}
+                    {tripsLeft} {tripsLeft === 1 ? "trip" : "trips"} left •
+                    Valid till {formatDate(plan.endDate)}
                   </p>
                 </div>
-                <ChevronDown size={18} className="text-slate-400 flex-shrink-0 mr-1" />
+                <ChevronDown
+                  size={18}
+                  className="text-slate-400 flex-shrink-0 mr-1"
+                />
               </div>
             </div>
 
@@ -531,14 +633,19 @@ export default function RequestTripModal({ plan, onClose }) {
                 >
                   2
                 </div>
-                <span className="font-bold text-xs" style={{ color: "var(--color-navy)" }}>
+                <span
+                  className="font-bold text-xs"
+                  style={{ color: "var(--color-navy)" }}
+                >
                   Trip Details
                 </span>
               </div>
 
               <div className="space-y-3.5">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-500">Pickup Location</label>
+                  <label className="text-xs font-semibold text-slate-500">
+                    Pickup Location
+                  </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                       <MapPin size={15} className="text-slate-400" />
@@ -559,7 +666,9 @@ export default function RequestTripModal({ plan, onClose }) {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-500">Drop Location</label>
+                  <label className="text-xs font-semibold text-slate-500">
+                    Drop Location
+                  </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                       <MapPin size={15} className="text-slate-400" />
@@ -581,7 +690,9 @@ export default function RequestTripModal({ plan, onClose }) {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-500">Trip Date & Time</label>
+                    <label className="text-xs font-semibold text-slate-500">
+                      Trip Date & Time
+                    </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                         <Calendar size={15} className="text-slate-400" />
@@ -601,7 +712,9 @@ export default function RequestTripModal({ plan, onClose }) {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-500">Trip Type</label>
+                    <label className="text-xs font-semibold text-slate-500">
+                      Trip Type
+                    </label>
                     <div className="relative">
                       <select
                         value={tripType}
@@ -613,7 +726,9 @@ export default function RequestTripModal({ plan, onClose }) {
                           background: "var(--color-white)",
                         }}
                       >
-                        <option value="airport-transfer">Airport Transfer</option>
+                        <option value="airport-transfer">
+                          Airport Transfer
+                        </option>
                         <option value="8Hr/80Km">Local 8Hr/80Km</option>
                         <option value="Full day">Full day</option>
                       </select>
@@ -635,7 +750,10 @@ export default function RequestTripModal({ plan, onClose }) {
                 >
                   3
                 </div>
-                <span className="font-bold text-xs" style={{ color: "var(--color-navy)" }}>
+                <span
+                  className="font-bold text-xs"
+                  style={{ color: "var(--color-navy)" }}
+                >
                   Select Services{" "}
                   <span className="text-[10px] font-normal text-slate-400 ml-0.5">
                     (Included in your package)
@@ -666,14 +784,21 @@ export default function RequestTripModal({ plan, onClose }) {
               {loadingServices ? (
                 <div className="flex items-center justify-center py-6 gap-2">
                   <Loader2 size={16} className="animate-spin text-slate-400" />
-                  <span className="text-xs text-slate-400">Loading services…</span>
+                  <span className="text-xs text-slate-400">
+                    Loading services…
+                  </span>
                 </div>
               ) : packageServices.length === 0 ? (
                 <p className="text-xs text-slate-400 text-center py-4">
-                  {serviceQuery.trim() ? "No services match your filter." : "No services found for this package."}
+                  {serviceQuery.trim()
+                    ? "No services match your filter."
+                    : "No services found for this package."}
                 </p>
               ) : (
-                <div className="rounded-2xl border overflow-hidden" style={{ borderColor: "var(--color-border)" }}>
+                <div
+                  className="rounded-2xl border overflow-hidden"
+                  style={{ borderColor: "var(--color-border)" }}
+                >
                   {/* Select all row */}
                   <label
                     className="flex items-center gap-3 px-3.5 py-2.5 border-b cursor-pointer select-none hover:bg-slate-50/60 transition-colors"
@@ -682,7 +807,9 @@ export default function RequestTripModal({ plan, onClose }) {
                     <input
                       type="checkbox"
                       checked={allChecked}
-                      ref={(el) => { if (el) el.indeterminate = someChecked; }}
+                      ref={(el) => {
+                        if (el) el.indeterminate = someChecked;
+                      }}
                       onChange={toggleAll}
                       className="w-4 h-4 rounded cursor-pointer accent-[var(--color-navy)]"
                     />
@@ -690,19 +817,27 @@ export default function RequestTripModal({ plan, onClose }) {
                       Select all ({packageServices.length})
                     </span>
                     {selectedServices.length > 0 && (
-                      <span className="ml-auto text-[10px] font-semibold" style={{ color: "var(--color-navy)" }}>
+                      <span
+                        className="ml-auto text-[10px] font-semibold"
+                        style={{ color: "var(--color-navy)" }}
+                      >
                         {selectedServices.length} selected
                       </span>
                     )}
                   </label>
 
                   {/* Service rows */}
-                  <div className="max-h-52 overflow-y-auto divide-y" style={{ borderColor: "var(--color-border)" }}>
+                  <div
+                    className="max-h-52 overflow-y-auto divide-y"
+                    style={{ borderColor: "var(--color-border)" }}
+                  >
                     {packageServices.map((svc) => {
                       const id = svc.id;
                       const label = svc.title ?? svc.name ?? `Service #${id}`;
                       const isSelected = selectedServices.includes(id);
-                      const svcImg = getImageUrl(svc.thumbnailUrl ?? svc.thumbnailUrlKey);
+                      const svcImg = getImageUrl(
+                        svc.thumbnailUrl ?? svc.thumbnailUrlKey,
+                      );
                       const price = svc.price ?? svc.amount ?? svc.cost ?? null;
                       return (
                         <label
@@ -718,18 +853,27 @@ export default function RequestTripModal({ plan, onClose }) {
 
                           <div className="w-10 h-10 rounded-xl bg-slate-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
                             {svcImg ? (
-                              <img src={svcImg} alt={label} className="w-full h-full object-cover" />
+                              <img
+                                src={svcImg}
+                                alt={label}
+                                className="w-full h-full object-cover"
+                              />
                             ) : (
                               <Package size={16} className="text-slate-400" />
                             )}
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <h4 className="text-xs font-bold leading-tight truncate" style={{ color: "var(--color-navy)" }}>
+                            <h4
+                              className="text-xs font-bold leading-tight truncate"
+                              style={{ color: "var(--color-navy)" }}
+                            >
                               {label}
                             </h4>
                             {svc.count != null && (
-                              <p className="text-[10px] text-slate-400 mt-0.5">{svc.count} available</p>
+                              <p className="text-[10px] text-slate-400 mt-0.5">
+                                {svc.count} available
+                              </p>
                             )}
                           </div>
 
@@ -740,7 +884,9 @@ export default function RequestTripModal({ plan, onClose }) {
                                 {formatPrice(price)?.replace("₹", "")}
                               </span>
                             ) : null}
-                            <span className="text-[10px] text-slate-300">#{id}</span>
+                            <span className="text-[10px] text-slate-300">
+                              #{id}
+                            </span>
                           </div>
                         </label>
                       );
@@ -753,8 +899,13 @@ export default function RequestTripModal({ plan, onClose }) {
                 className="flex items-start gap-2.5 p-3.5 rounded-2xl text-[11px] leading-snug font-medium"
                 style={{ background: "#f0f5ff", color: "#2b6cb0" }}
               >
-                <Info size={14} className="flex-shrink-0 mt-0.5 text-blue-500" />
-                <span>You can only select services included in your package.</span>
+                <Info
+                  size={14}
+                  className="flex-shrink-0 mt-0.5 text-blue-500"
+                />
+                <span>
+                  You can only select services included in your package.
+                </span>
               </div>
             </div>
 
@@ -768,9 +919,14 @@ export default function RequestTripModal({ plan, onClose }) {
                   >
                     4
                   </div>
-                  <span className="font-bold text-xs" style={{ color: "var(--color-navy)" }}>
+                  <span
+                    className="font-bold text-xs"
+                    style={{ color: "var(--color-navy)" }}
+                  >
                     Add Extra Services{" "}
-                    <span className="text-[10px] font-normal text-slate-400 ml-0.5">(Optional)</span>
+                    <span className="text-[10px] font-normal text-slate-400 ml-0.5">
+                      (Optional)
+                    </span>
                   </span>
                 </div>
 
@@ -797,14 +953,21 @@ export default function RequestTripModal({ plan, onClose }) {
                         >
                           <div className="w-11 h-11 rounded-xl bg-slate-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
                             {svcImg ? (
-                              <img src={svcImg} alt={svc.title} className="w-full h-full object-cover" />
+                              <img
+                                src={svcImg}
+                                alt={svc.title}
+                                className="w-full h-full object-cover"
+                              />
                             ) : (
                               <Package size={18} className="text-slate-400" />
                             )}
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <h4 className="text-xs font-bold leading-tight truncate" style={{ color: "var(--color-navy)" }}>
+                            <h4
+                              className="text-xs font-bold leading-tight truncate"
+                              style={{ color: "var(--color-navy)" }}
+                            >
                               {svc.title}
                             </h4>
                             {svc.price != null ? (
@@ -813,7 +976,9 @@ export default function RequestTripModal({ plan, onClose }) {
                                 {formatPrice(svc.price)?.replace("₹", "")}
                               </p>
                             ) : (
-                              <p className="text-[10px] text-slate-400 mt-0.5">Price on request</p>
+                              <p className="text-[10px] text-slate-400 mt-0.5">
+                                Price on request
+                              </p>
                             )}
                           </div>
 
@@ -832,15 +997,24 @@ export default function RequestTripModal({ plan, onClose }) {
                   {additionalAmount > 0 && (
                     <div
                       className="flex items-center justify-between px-4 py-3 rounded-2xl border"
-                      style={{ borderColor: "#c9a24b44", background: "#FFFDF5" }}
+                      style={{
+                        borderColor: "#c9a24b44",
+                        background: "#FFFDF5",
+                      }}
                     >
                       <div className="flex items-center gap-2">
                         <BadgePlus size={14} style={{ color: "#C9A24B" }} />
-                        <span className="text-xs font-semibold" style={{ color: "var(--color-navy)" }}>
+                        <span
+                          className="text-xs font-semibold"
+                          style={{ color: "var(--color-navy)" }}
+                        >
                           Additional Cost
                         </span>
                       </div>
-                      <span className="text-sm font-bold flex items-center gap-0.5" style={{ color: "#C9A24B" }}>
+                      <span
+                        className="text-sm font-bold flex items-center gap-0.5"
+                        style={{ color: "#C9A24B" }}
+                      >
                         <IndianRupee size={13} />
                         {additionalAmount.toLocaleString("en-IN", {
                           minimumFractionDigits: 0,
@@ -857,7 +1031,9 @@ export default function RequestTripModal({ plan, onClose }) {
                   onClick={() => setShowAddService(true)}
                 >
                   <Plus size={14} className="text-slate-300" />
-                  <span className="text-xs text-slate-400 font-medium">No extra services added yet</span>
+                  <span className="text-xs text-slate-400 font-medium">
+                    No extra services added yet
+                  </span>
                 </div>
               )}
             </div>
@@ -886,7 +1062,6 @@ export default function RequestTripModal({ plan, onClose }) {
                 You can track your trip in Trip history
               </p>
             </div>
-
           </div>
         </div>
       </div>

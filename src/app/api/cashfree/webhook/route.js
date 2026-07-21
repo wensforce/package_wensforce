@@ -24,7 +24,7 @@ export async function POST(req) {
   }
 
   const event = JSON.parse(body);
-  
+
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/booking/webhook`,
     {
@@ -40,7 +40,7 @@ export async function POST(req) {
       }),
     },
   );
-  
+
   const resData = await res.json();
   if (resData.data?.count === 0) {
     return NextResponse.json({ message: "Already processed" }, { status: 200 });
@@ -55,7 +55,10 @@ export async function POST(req) {
 
     const isPaid = event.data?.payment?.payment_status === "SUCCESS";
     const orderId = event.data?.order?.order_id;
-    const reason = event.data?.payment?.payment_status === "USER_DROPPED" ? "User Dropped" : event.data?.error_details?.error_description || "N/A";
+    const reason =
+      event.data?.payment?.payment_status === "USER_DROPPED"
+        ? "User Dropped"
+        : event.data?.error_details?.error_description || "N/A";
 
     if (isPaid) {
       // Fire Meta CAPI Purchase event
@@ -64,26 +67,29 @@ export async function POST(req) {
         const firstName = nameParts[0] || "";
         const lastName = nameParts.slice(1).join(" ") || "";
         await sendCapiEvent({
-          eventName: 'Purchase',
-          eventId: generateEventId('Purchase'),
+          eventName: "Purchase",
+          eventId: generateEventId("Purchase"),
           userData: {
             phone: phone,
-            ip: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || undefined,
-            userAgent: req.headers.get('user-agent') || undefined,
+            ip:
+              req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+              req.headers.get("x-real-ip") ||
+              undefined,
+            userAgent: req.headers.get("user-agent") || undefined,
             fn: firstName,
             ln: lastName,
             em: event.data?.customer_details?.customer_email || null,
           },
           customData: {
             value: event.data?.payment?.payment_amount,
-            currency: event.data?.order?.order_currency || 'INR',
+            currency: event.data?.order?.order_currency || "INR",
             orderId,
             contentName: plan,
           },
-          eventSourceUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/booking/${event.data?.order?.order_tags?.plan_id || ''}`,
+          eventSourceUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/booking/${event.data?.order?.order_tags?.plan_id || ""}`,
         });
       } catch (err) {
-        console.error('CAPI Purchase webhook error:', err);
+        console.error("CAPI Purchase webhook error:", err);
       }
 
       // Send success template
@@ -102,7 +108,7 @@ export async function POST(req) {
           "abandoned cart",
           "abandoned_cart_payment_success",
           [orderId, customerName, plan, new Date().toISOString()],
-          phone
+          phone,
         ),
       ]);
       // Assign success custom fields
@@ -133,7 +139,7 @@ export async function POST(req) {
           "abandoned cart",
           "abandoned_cart_payment_failed",
           [customerName, plan, new Date().toISOString(), reason],
-          phone
+          phone,
         ),
       ]);
 

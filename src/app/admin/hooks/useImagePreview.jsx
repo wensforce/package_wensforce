@@ -6,8 +6,6 @@ export function useImagePreview(initialPreviewUrl = null) {
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(initialPreviewUrl);
 
-
-
   const handleFileChange = useCallback((e) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;

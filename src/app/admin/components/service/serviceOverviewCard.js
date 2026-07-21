@@ -82,17 +82,24 @@ export default function ServiceOverviewCard({ service }) {
             <div className="rounded-xl border border-[#CBD5E0] bg-[#FAFAFA] px-4 py-3">
               <p className="text-xs font-semibold text-[#718096] mb-1">Price</p>
               <p className="text-sm font-semibold text-[#0B1E3F]">
-                ₹{service.price != null ? Number(service.price).toLocaleString("en-IN") : "0"}
+                ₹
+                {service.price != null
+                  ? Number(service.price).toLocaleString("en-IN")
+                  : "0"}
               </p>
             </div>
             <div className="rounded-xl border border-[#CBD5E0] bg-[#FAFAFA] px-4 py-3">
-              <p className="text-xs font-semibold text-[#718096] mb-1">Created</p>
+              <p className="text-xs font-semibold text-[#718096] mb-1">
+                Created
+              </p>
               <p className="text-sm font-medium text-[#1A202C]">
                 {formatDate(service.createdAt)}
               </p>
             </div>
             <div className="rounded-xl border border-[#CBD5E0] bg-[#FAFAFA] px-4 py-3">
-              <p className="text-xs font-semibold text-[#718096] mb-1">Updated</p>
+              <p className="text-xs font-semibold text-[#718096] mb-1">
+                Updated
+              </p>
               <p className="text-sm font-medium text-[#1A202C]">
                 {formatDate(service.updatedAt)}
               </p>
@@ -130,16 +137,10 @@ export default function ServiceOverviewCard({ service }) {
 
         <div
           className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${
-            isActive
-              ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-600"
+            isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
           }`}
         >
-          {isActive ? (
-            <CheckCircle2 size={14} />
-          ) : (
-            <XCircle size={14} />
-          )}
+          {isActive ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
           {isActive ? "Active" : "Inactive"}
         </div>
       </div>
@@ -155,9 +156,7 @@ export default function ServiceOverviewCard({ service }) {
                 Features
               </p>
               <span className="text-xs text-[#718096]">
-                {Array.isArray(service.features)
-                  ? service.features.length
-                  : 1}{" "}
+                {Array.isArray(service.features) ? service.features.length : 1}{" "}
                 item(s)
               </span>
             </div>

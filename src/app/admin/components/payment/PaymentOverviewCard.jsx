@@ -66,13 +66,20 @@ export default function PaymentOverviewCard({ payment }) {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <Row label="Amount" value={formatMoney(payment.amount)} />
             <Row label="Discount" value={formatMoney(payment.discountAmount)} />
-            <Row label="Final Amount" value={formatMoney(payment.finalAmount)} />
+            <Row
+              label="Final Amount"
+              value={formatMoney(payment.finalAmount)}
+            />
             <Row label="Coupon" value={payment.couponCode || "None"} mono />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Row label="Payment ID" value={payment.paymentId || "-"} mono />
-            <Row label="Cashfree Order ID" value={payment.cashfreeOrderId || "-"} mono />
+            <Row
+              label="Cashfree Order ID"
+              value={payment.cashfreeOrderId || "-"}
+              mono
+            />
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -97,7 +104,11 @@ export default function PaymentOverviewCard({ payment }) {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Row label="Name" value={payment.user?.name || "-"} />
             <Row label="Email" value={payment.user?.email || "-"} />
-            <Row label="Mobile Number" value={payment.user?.mobileNumber || "-"} mono />
+            <Row
+              label="Mobile Number"
+              value={payment.user?.mobileNumber || "-"}
+              mono
+            />
           </div>
         </SectionCard>
 
@@ -108,7 +119,9 @@ export default function PaymentOverviewCard({ payment }) {
           actions={
             payment.packageId ? (
               <button
-                onClick={() => router.push(`/admin/packages/${payment.packageId}`)}
+                onClick={() =>
+                  router.push(`/admin/packages/${payment.packageId}`)
+                }
                 className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-md border border-[#CBD5E0] bg-white text-[#4A5568] hover:text-[#0B1E3F] hover:bg-[#FAF6EC] transition-colors"
               >
                 <ExternalLink size={12} /> View Package
@@ -121,8 +134,14 @@ export default function PaymentOverviewCard({ payment }) {
               label="Package"
               value={payment.package?.name || `#${payment.packageId ?? "-"}`}
             />
-            <Row label="Regular Price" value={formatMoney(payment.package?.regularPrice)} />
-            <Row label="Discounted Price" value={formatMoney(payment.package?.discountedPrice)} />
+            <Row
+              label="Regular Price"
+              value={formatMoney(payment.package?.regularPrice)}
+            />
+            <Row
+              label="Discounted Price"
+              value={formatMoney(payment.package?.discountedPrice)}
+            />
             <Row label="Package ID" value={payment.packageId ?? "-"} mono />
           </div>
           <Row

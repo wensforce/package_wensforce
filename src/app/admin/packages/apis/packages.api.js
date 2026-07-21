@@ -24,7 +24,11 @@ export const packageApi = {
       page: data.page || page || 1,
       limit: data.limit || PAGE_LIMIT,
       total: data.total !== undefined ? data.total : rows.length,
-      totalPages: Math.ceil((data.total !== undefined ? data.total : rows.length) / (data.limit || PAGE_LIMIT)) || 1,
+      totalPages:
+        Math.ceil(
+          (data.total !== undefined ? data.total : rows.length) /
+            (data.limit || PAGE_LIMIT),
+        ) || 1,
     };
 
     return {
@@ -67,45 +71,53 @@ export const packageApi = {
    * @param {File|null} thumbnail - New image file (optional)
    * @returns {Promise<void>}
    */
-  createPackage: async (payload, thumbnail, photoFiles = [], videoFiles = []) => {
-  let uploadedThumbnailKey = null;
-  const uploadedImageKeys = [];
-  const uploadedVideoKeys = [];
+  createPackage: async (
+    payload,
+    thumbnail,
+    photoFiles = [],
+    videoFiles = [],
+  ) => {
+    let uploadedThumbnailKey = null;
+    const uploadedImageKeys = [];
+    const uploadedVideoKeys = [];
 
-  try {
-    // Upload thumbnail
-    if (thumbnail) {
-      const { key } = await uploadImageToS3(thumbnail);
-      uploadedThumbnailKey = key;
+    try {
+      // Upload thumbnail
+      if (thumbnail) {
+        const { key } = await uploadImageToS3(thumbnail);
+        uploadedThumbnailKey = key;
+      }
+
+      // Upload photos
+      for (const file of photoFiles) {
+        const { key } = await uploadImageToS3(file);
+        uploadedImageKeys.push(key);
+      }
+
+      // Upload videos
+      for (const file of videoFiles) {
+        const { key } = await uploadImageToS3(file); // use uploadVideoToS3 if you have one
+        uploadedVideoKeys.push(key);
+      }
+      const finalPayload = {
+        ...payload,
+        ...(uploadedThumbnailKey && { thumbnailUrlKey: uploadedThumbnailKey }),
+        images: uploadedImageKeys,
+        videos: uploadedVideoKeys,
+      };
+
+      await api.post("/package", finalPayload);
+    } catch (err) {
+      // Rollback all uploaded files on failure
+      const allKeys = [
+        uploadedThumbnailKey,
+        ...uploadedImageKeys,
+        ...uploadedVideoKeys,
+      ].filter(Boolean);
+      await Promise.all(allKeys.map((key) => rollbackS3Upload(key)));
+      throw err;
     }
-
-    // Upload photos
-    for (const file of photoFiles) {
-      const { key } = await uploadImageToS3(file);
-      uploadedImageKeys.push(key);
-    }
-
-    // Upload videos
-    for (const file of videoFiles) {
-      const { key } = await uploadImageToS3(file); // use uploadVideoToS3 if you have one
-      uploadedVideoKeys.push(key);
-    }
-    const finalPayload = {
-      ...payload,
-      ...(uploadedThumbnailKey && { thumbnailUrlKey: uploadedThumbnailKey }),
-      images: uploadedImageKeys,
-      videos: uploadedVideoKeys,
-    };
-
-    await api.post("/package", finalPayload);
-
-  } catch (err) {
-    // Rollback all uploaded files on failure
-    const allKeys = [uploadedThumbnailKey, ...uploadedImageKeys, ...uploadedVideoKeys].filter(Boolean);
-    await Promise.all(allKeys.map((key) => rollbackS3Upload(key)));
-    throw err;
-  }
-},
+  },
 
   /**
    * Update an existing package.
@@ -117,55 +129,58 @@ export const packageApi = {
    * @returns {Promise<void>}
    */
   updatePackage: async (
-  packageId,
-  payload,
-  thumbnail,
-  existingThumbnailKey,
-  photoFiles = [],
-  videoFiles = [],
-) => {
-  let uploadedKey = null;
-  const uploadedImageKeys = [];
-  const uploadedVideoKeys = [];
+    packageId,
+    payload,
+    thumbnail,
+    existingThumbnailKey,
+    photoFiles = [],
+    videoFiles = [],
+  ) => {
+    let uploadedKey = null;
+    const uploadedImageKeys = [];
+    const uploadedVideoKeys = [];
 
-  try {
-    // Upload thumbnail
-    if (thumbnail) {
-      const { key } = await uploadImageToS3(thumbnail);
-      uploadedKey = key;
+    try {
+      // Upload thumbnail
+      if (thumbnail) {
+        const { key } = await uploadImageToS3(thumbnail);
+        uploadedKey = key;
+      }
+
+      // Upload photos
+      for (const file of photoFiles) {
+        const { key } = await uploadImageToS3(file);
+        uploadedImageKeys.push(key);
+      }
+
+      // Upload videos
+      for (const file of videoFiles) {
+        const { key } = await uploadImageToS3(file);
+        uploadedVideoKeys.push(key);
+      }
+      const finalPayload = {
+        ...payload,
+        ...(uploadedKey
+          ? { thumbnailUrlKey: uploadedKey }
+          : existingThumbnailKey
+            ? { thumbnailUrlKey: existingThumbnailKey }
+            : {}),
+        images: uploadedImageKeys,
+        videos: uploadedVideoKeys,
+      };
+
+      await api.put(`/package/${packageId}`, finalPayload);
+    } catch (err) {
+      // Rollback all uploaded files on failure
+      const allKeys = [
+        uploadedKey,
+        ...uploadedImageKeys,
+        ...uploadedVideoKeys,
+      ].filter(Boolean);
+      await Promise.all(allKeys.map((key) => rollbackS3Upload(key)));
+      throw err;
     }
-
-    // Upload photos
-    for (const file of photoFiles) {
-      const { key } = await uploadImageToS3(file);
-      uploadedImageKeys.push(key);
-    }
-
-    // Upload videos
-    for (const file of videoFiles) {
-      const { key } = await uploadImageToS3(file);
-      uploadedVideoKeys.push(key);
-    }
-    const finalPayload = {
-      ...payload,
-      ...(uploadedKey
-        ? { thumbnailUrlKey: uploadedKey }
-        : existingThumbnailKey
-          ? { thumbnailUrlKey: existingThumbnailKey }
-          : {}),
-      images: uploadedImageKeys,
-      videos: uploadedVideoKeys,
-    };
-
-    await api.put(`/package/${packageId}`, finalPayload);
-
-  } catch (err) {
-    // Rollback all uploaded files on failure
-    const allKeys = [uploadedKey, ...uploadedImageKeys, ...uploadedVideoKeys].filter(Boolean);
-    await Promise.all(allKeys.map((key) => rollbackS3Upload(key)));
-    throw err;
-  }
-},
+  },
   /**
    * Delete a package by ID.
    * @param {number|string} id - Package ID to delete
@@ -200,5 +215,33 @@ export const packageApi = {
     return await api.get(`/admin/export?target=packages&type=${format}`, {
       responseType: "blob",
     });
+  },
+
+  /**
+   * Fetch unique non-empty package categories.
+   * @returns {Promise<Array<string>>}
+   */
+  fetchCategories: async () => {
+    const res = await api.get("/package/categories");
+    return res.data?.data ?? [];
+  },
+
+  /**
+   * Fetch all packages for a specific category, sorted by sequence.
+   * @param {string} category
+   * @returns {Promise<Array>}
+   */
+  fetchPackagesByCategory: async (category) => {
+    const res = await api.get(`/package/category-packages/${category}`);
+    return res.data?.data ?? [];
+  },
+
+  /**
+   * Update the package sequence in bulk.
+   * @param {Array<number>} packageIds - Ordered list of package IDs
+   * @returns {Promise<void>}
+   */
+  updatePackageSequence: async (packageIds) => {
+    await api.put("/package/sequence", { packageIds });
   },
 };

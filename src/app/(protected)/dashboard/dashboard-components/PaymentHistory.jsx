@@ -160,7 +160,10 @@ function PaymentCard({ payment }) {
               {displayId}
             </span>
             <span className="text-[10px] text-slate-400 font-semibold mt-0.5 break-all">
-              Order ID: <span className="font-mono">{payment.cashfreeOrderId ?? "—"}</span>
+              Order ID:{" "}
+              <span className="font-mono">
+                {payment.cashfreeOrderId ?? "—"}
+              </span>
             </span>
           </div>
           <StatusBadge status={payment.status} />
@@ -200,7 +203,9 @@ function PaymentCard({ payment }) {
               className="font-bold leading-tight mt-0.5 block truncate"
               style={{ color: hasDiscount ? "#1a7a4a" : "var(--color-navy)" }}
             >
-              {hasDiscount ? `- ${formatCurrency(payment.discountAmount)}` : "—"}
+              {hasDiscount
+                ? `- ${formatCurrency(payment.discountAmount)}`
+                : "—"}
             </span>
           </div>
           <div>

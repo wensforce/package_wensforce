@@ -29,35 +29,6 @@ import {
  */
 
 /**
- * @typedef {Object} AdminTableProps
- * @property {React.ReactNode} icon - Icon rendered inside the header badge
- * @property {string} title - Page heading
- * @property {string} [subtitle] - Secondary text below the heading (e.g. "12 total services")
- * @property {string[]} [tabs] - Filter tabs; first entry is treated as "all". Omit to hide tabs.
- * @property {string} [activeTab] - Currently selected tab value
- * @property {(tab: string) => void} [onTabChange] - Called when user switches tabs
- * @property {string} [searchPlaceholder] - Placeholder text for the search input
- * @property {string} searchValue - Controlled value of the search input
- * @property {(value: string) => void} onSearchChange - Called on every search input change
- * @property {AdminTableColumn[]} columns - Column definitions
- * @property {any[]} rows - Data rows to render
- * @property {(row: any, colKey: string) => React.ReactNode} renderCell - Renders a single cell
- * @property {(row: any) => string | number} rowKey - Returns a unique key for each row
- * @property {boolean} loading - When true shows a spinner and disables pagination
- * @property {string | null} error - Error message shown in a red banner; `null` hides it
- * @property {AdminTablePagination} pagination - Pagination state
- * @property {(page: number) => void} onPageChange - Called when user changes page
- * @property {() => void} onRefresh - Called when user clicks Refresh
- * @property {() => void} [onExport] - Called when user clicks Export; omit to hide the button
- * @property {() => void} [onCreate] - Called when user clicks Create; omit to hide the button
- * @property {string} [createLabel] - Label for the Create button (default: "Create")
- * @property {React.ReactNode} [emptyIcon] - Icon shown in the empty-state row
- * @property {string} [emptyText] - Text shown when there are no rows (default: "No records found")
- * @property {React.ReactNode} [headerActions] - Extra ReactNode rendered before the action buttons
- * @property {React.ReactNode} [toolbarFilters] - Optional controls rendered in the table toolbar (e.g. date filter)
- */
-
-/**
  * Reusable paginated admin table with header, search, optional filter tabs,
  * Refresh / Export / Create buttons, and a pagination footer.
  *
@@ -93,22 +64,40 @@ export default function AdminTable({
 }) {
   const hasTabs = tabs.length > 0;
 
+  // Sliding window pagination to prevent layout breakage on mobile/tablet when there are many pages
+  const getPageNumbers = () => {
+    const total = pagination.totalPages;
+    const current = pagination.page;
+    if (total <= 5) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    if (current <= 3) {
+      return [1, 2, 3, 4, "...", total];
+    }
+    if (current >= total - 2) {
+      return [1, "...", total - 3, total - 2, total - 1, total];
+    }
+    return [1, "...", current - 1, current, current + 1, "...", total];
+  };
+
   return (
     <>
-      <div className="p-6 md:p-8 space-y-6">
+      <div className="p-4 sm:p-6 lg:p-8 space-y-6">
         {/* ── Page Header ──────────────────────────────────────────────── */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        {/* Uses lg:flex-row to stay side-by-side on desktop/iPad landscape, and stack cleanly on mobile/iPad portrait */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#0B1E3F] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-[#0B1E3F] flex items-center justify-center shrink-0">
               {icon}
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-[#0B1E3F]">{title}</h1>
-              {subtitle && <p className="text-sm text-[#4A5568]">{subtitle}</p>}
+              <h1 className="text-xl md:text-2xl font-bold text-[#0B1E3F]">{title}</h1>
+              {subtitle && <p className="text-xs md:text-sm text-[#4A5568]">{subtitle}</p>}
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          {/* Action buttons wrapper */}
+          <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
             {headerActions}
             {onImport && (
               <div className="relative">
@@ -127,7 +116,7 @@ export default function AdminTable({
                 />
                 <label
                   htmlFor="import-file"
-                  className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 border border-[#CBD5E0] bg-white rounded-lg px-3 py-2 hover:bg-[#FAF6EC] transition-colors cursor-pointer"
+                  className="flex items-center gap-1.5 text-xs font-semibold text-gray-700 border border-[#CBD5E0] bg-white rounded-lg px-2.5 py-1.5 md:text-sm md:px-3 md:py-2 hover:bg-[#FAF6EC] transition-colors cursor-pointer"
                 >
                   <Upload size={14} className="text-[#C9A24B]" />
                   Import
@@ -137,7 +126,7 @@ export default function AdminTable({
             {onExport && (
               <button
                 onClick={onExport}
-                className="flex items-center gap-1.5 text-sm font-semibold text-gray-700 border border-[#CBD5E0] bg-white rounded-lg px-3 py-2 hover:bg-[#FAF6EC] transition-colors"
+                className="flex items-center gap-1.5 text-xs font-semibold text-gray-700 border border-[#CBD5E0] bg-white rounded-lg px-2.5 py-1.5 md:text-sm md:px-3 md:py-2 hover:bg-[#FAF6EC] transition-colors"
               >
                 <Download size={14} className="text-[#C9A24B]" />
                 Export
@@ -146,7 +135,7 @@ export default function AdminTable({
             {onCreate && (
               <button
                 onClick={onCreate}
-                className="flex items-center gap-1.5 text-sm font-semibold text-white bg-[#0B1E3F] rounded-lg px-3 py-2 hover:bg-[#152d5a] transition-colors"
+                className="flex items-center gap-1.5 text-xs font-semibold text-white bg-[#0B1E3F] rounded-lg px-2.5 py-1.5 md:text-sm md:px-3 md:py-2 hover:bg-[#152d5a] transition-colors"
               >
                 <Plus size={14} />
                 {createLabel}
@@ -155,7 +144,7 @@ export default function AdminTable({
             <button
               onClick={onRefresh}
               disabled={loading}
-              className="flex items-center gap-1.5 text-sm text-[#4A5568] border border-[#CBD5E0] bg-white rounded-lg px-3 py-2 hover:bg-[#FAF6EC] transition-colors disabled:opacity-50"
+              className="flex items-center gap-1.5 text-xs text-[#4A5568] border border-[#CBD5E0] bg-white rounded-lg px-2.5 py-1.5 md:text-sm md:px-3 md:py-2 hover:bg-[#FAF6EC] transition-colors disabled:opacity-50"
             >
               <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
               Refresh
@@ -166,15 +155,15 @@ export default function AdminTable({
         {/* ── Main Table Card ───────────────────────────────────────────── */}
         <div className="bg-white rounded-2xl border border-[#CBD5E0] shadow-sm overflow-hidden">
           {/* Toolbar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-4 border-b border-[#CBD5E0]">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-3.5 lg:px-6 lg:py-4 border-b border-[#CBD5E0]">
             {hasTabs && (
-              <div>
-                {/* Mobile dropdown */}
+              <div className="w-full lg:w-auto">
+                {/* Mobile dropdown (displays on screens smaller than sm) */}
                 <div className="relative sm:hidden">
                   <select
                     value={activeTab}
                     onChange={(e) => onTabChange(e.target.value)}
-                    className="w-full appearance-none text-sm bg-[#FAF6EC] border border-[#CBD5E0] rounded-lg px-3 py-2 pr-8 text-[#1A202C] font-semibold capitalize outline-none focus:border-[#C9A24B] transition-colors"
+                    className="w-full appearance-none text-xs bg-[#FAF6EC] border border-[#CBD5E0] rounded-lg px-3 py-2 pr-8 text-[#1A202C] font-semibold capitalize outline-none focus:border-[#C9A24B] transition-colors"
                   >
                     {tabs.map((tab) => (
                       <option key={tab} value={tab} className="capitalize">
@@ -187,7 +176,7 @@ export default function AdminTable({
                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#A0AEC0] pointer-events-none"
                   />
                 </div>
-                {/* Desktop tabs */}
+                {/* Desktop/Tablet tabs (displays on screens >= sm, wraps dynamically) */}
                 <div className="hidden sm:flex items-center gap-1 bg-[#FAF6EC] rounded-lg p-1 flex-wrap">
                   {tabs.map((tab) => (
                     <button
@@ -207,7 +196,7 @@ export default function AdminTable({
               </div>
             )}
 
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:ml-auto w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:ml-auto w-full lg:w-auto">
               {toolbarFilters}
 
               {/* Search */}
@@ -218,7 +207,7 @@ export default function AdminTable({
                   placeholder={searchPlaceholder}
                   value={searchValue}
                   onChange={(e) => onSearchChange(e.target.value)}
-                  className="text-sm bg-transparent outline-none text-[#1A202C] placeholder:text-[#A0AEC0] w-full sm:w-48"
+                  className="text-xs md:text-sm bg-transparent outline-none text-[#1A202C] placeholder:text-[#A0AEC0] w-full sm:w-48"
                 />
               </div>
             </div>
@@ -231,15 +220,15 @@ export default function AdminTable({
             </div>
           )}
 
-          {/* Table */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          {/* Table container: overflow-x-auto enables scroll on mobile. min-w-max stops column squeezing */}
+          <div className="overflow-x-auto w-full">
+            <table className="w-full min-w-max text-sm table-auto">
               <thead>
                 <tr className="bg-[#FAF6EC] border-b border-[#CBD5E0]">
                   {columns.map((col) => (
                     <th
                       key={col.key}
-                      className={`text-left px-6 py-3 text-xs font-semibold text-[#4A5568] uppercase tracking-wider ${col.className ?? ""}`}
+                      className={`text-left px-4 py-3 sm:px-5 lg:px-6 text-xs font-semibold text-[#4A5568] uppercase tracking-wider whitespace-nowrap ${col.className ?? ""}`}
                     >
                       {col.label}
                     </th>
@@ -276,14 +265,18 @@ export default function AdminTable({
                       key={rowKey(row)}
                       className="hover:bg-[#FAF6EC]/60 transition-colors"
                     >
-                      {columns.map((col) => (
-                        <td
-                          key={col.key}
-                          className={`px-6 py-4 ${col.cellClassName ?? ""}`}
-                        >
-                          {renderCell(row, col.key)}
-                        </td>
-                      ))}
+                      {columns.map((col) => {
+                        // Apply whitespace-nowrap to standard compact values to prevent ugly word breaking on narrow layout sizes
+                        const isNowrap = ["id", "thumbnail", "price", "duration", "status", "createdAt", "updatedAt", "actions"].includes(col.key);
+                        return (
+                          <td
+                            key={col.key}
+                            className={`px-4 py-3 sm:px-5 lg:px-6 ${isNowrap ? "whitespace-nowrap" : ""} ${col.cellClassName ?? ""}`}
+                          >
+                            {renderCell(row, col.key)}
+                          </td>
+                        );
+                      })}
                     </tr>
                   ))
                 )}
@@ -292,8 +285,8 @@ export default function AdminTable({
           </div>
 
           {/* Pagination Footer */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-4 border-t border-[#CBD5E0] bg-[#FAF6EC]/50">
-            <span className="text-xs text-[#4A5568]">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center justify-between px-4 py-3 sm:px-5 lg:px-6 lg:py-4 border-t border-[#CBD5E0] bg-[#FAF6EC]/50">
+            <span className="text-xs text-[#4A5568] text-center sm:text-left">
               Showing{" "}
               <span className="font-semibold text-[#0B1E3F]">
                 {rows.length === 0
@@ -308,33 +301,42 @@ export default function AdminTable({
               </span>
             </span>
 
-            <div className="flex items-center gap-1">
+            <div className="flex flex-wrap items-center gap-1 justify-center">
               <button
                 onClick={() => onPageChange(Math.max(1, pagination.page - 1))}
                 disabled={pagination.page <= 1 || loading}
-                className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg border border-[#CBD5E0] text-[#4A5568] bg-white hover:bg-[#FAF6EC] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center gap-1 text-xs px-2.5 py-1.5 md:px-3 rounded-lg border border-[#CBD5E0] text-[#4A5568] bg-white hover:bg-[#FAF6EC] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronLeft size={13} /> Prev
               </button>
 
-              {Array.from(
-                { length: pagination.totalPages },
-                (_, i) => i + 1,
-              ).map((p) => (
-                <button
-                  key={p}
-                  onClick={() => onPageChange(p)}
-                  disabled={loading}
-                  className={`text-xs w-8 h-8 rounded-lg border transition-colors font-medium
-                    ${
-                      p === pagination.page
-                        ? "bg-[#0B1E3F] text-white border-[#0B1E3F]"
-                        : "bg-white border-[#CBD5E0] text-[#4A5568] hover:bg-[#FAF6EC]"
-                    }`}
-                >
-                  {p}
-                </button>
-              ))}
+              {getPageNumbers().map((p, idx) => {
+                if (p === "...") {
+                  return (
+                    <span
+                      key={`dots-${idx}`}
+                      className="px-2 text-xs font-semibold text-[#4A5568]"
+                    >
+                      ...
+                    </span>
+                  );
+                }
+                return (
+                  <button
+                    key={p}
+                    onClick={() => onPageChange(p)}
+                    disabled={loading}
+                    className={`text-xs w-8 h-8 rounded-lg border transition-colors font-medium
+                      ${
+                        p === pagination.page
+                          ? "bg-[#0B1E3F] text-white border-[#0B1E3F]"
+                          : "bg-white border-[#CBD5E0] text-[#4A5568] hover:bg-[#FAF6EC]"
+                      }`}
+                  >
+                    {p}
+                  </button>
+                );
+              })}
 
               <button
                 onClick={() =>
@@ -343,7 +345,7 @@ export default function AdminTable({
                   )
                 }
                 disabled={pagination.page >= pagination.totalPages || loading}
-                className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-lg border border-[#CBD5E0] text-[#4A5568] bg-white hover:bg-[#FAF6EC] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center gap-1 text-xs px-2.5 py-1.5 md:px-3 rounded-lg border border-[#CBD5E0] text-[#4A5568] bg-white hover:bg-[#FAF6EC] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Next <ChevronRight size={13} />
               </button>

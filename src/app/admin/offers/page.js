@@ -66,7 +66,8 @@ export default function OffersPage() {
     pricingLabel: "Current founding rates — valid till {date}",
     benefitsHeading: "What you get as a founding member",
     deadlineNoteStrong: "After {date}:",
-    deadlineNoteBody: "New memberships will be onboarded at the updated pricing...",
+    deadlineNoteBody:
+      "New memberships will be onboarded at the updated pricing...",
     ctaPrimaryText: "Claim Founding Rate",
     ctaPrimaryHref: "",
     ctaSecondaryText: "Ask Concierge →",
@@ -77,7 +78,8 @@ export default function OffersPage() {
   const [benefits, setBenefits] = useState([]);
 
   const [packageSearchQuery, setPackageSearchQuery] = useState("");
-  const [debouncedPackageSearchQuery, setDebouncedPackageSearchQuery] = useState("");
+  const [debouncedPackageSearchQuery, setDebouncedPackageSearchQuery] =
+    useState("");
 
   // Debounce package search query
   useEffect(() => {
@@ -89,7 +91,7 @@ export default function OffersPage() {
 
   // Filter packages based on search query
   const filteredPackagesForCreate = packages.filter((pkg) =>
-    pkg.name.toLowerCase().includes(debouncedPackageSearchQuery.toLowerCase())
+    pkg.name.toLowerCase().includes(debouncedPackageSearchQuery.toLowerCase()),
   );
 
   // stable wrapper: reads search/page from its own args, not closure
@@ -184,7 +186,8 @@ export default function OffersPage() {
       pricingLabel: "Current founding rates — valid till {date}",
       benefitsHeading: "What you get as a founding member",
       deadlineNoteStrong: "After {date}:",
-      deadlineNoteBody: "New memberships will be onboarded at the updated pricing...",
+      deadlineNoteBody:
+        "New memberships will be onboarded at the updated pricing...",
       ctaPrimaryText: "Claim Founding Rate",
       ctaPrimaryHref: "",
       ctaSecondaryText: "Ask Concierge →",
@@ -192,8 +195,18 @@ export default function OffersPage() {
       featuredPackageIds: [],
     });
     setBenefits([
-      { icon: "Star", title: "Current FY Pricing", description: "You pay today's rate for this membership year.", order: 0 },
-      { icon: "Tag", title: "Lock-in Rate", description: "Your price is protected from future adjustments.", order: 1 }
+      {
+        icon: "Star",
+        title: "Current FY Pricing",
+        description: "You pay today's rate for this membership year.",
+        order: 0,
+      },
+      {
+        icon: "Tag",
+        title: "Lock-in Rate",
+        description: "Your price is protected from future adjustments.",
+        order: 1,
+      },
     ]);
     setPackageSearchQuery("");
     setFormError(null);
@@ -233,7 +246,9 @@ export default function OffersPage() {
         ...form,
         category: form.category.toLowerCase().trim(),
         featuredPackageIds: form.featuredPackageIds || [],
-        startDate: form.startDate ? new Date(form.startDate).toISOString() : null,
+        startDate: form.startDate
+          ? new Date(form.startDate).toISOString()
+          : null,
         endDate: new Date(form.endDate).toISOString(),
         benefits: benefits.map((b, idx) => ({ ...b, order: idx })),
       };
@@ -249,7 +264,11 @@ export default function OffersPage() {
       refetch();
     } catch (err) {
       console.error(err);
-      setFormError(err.response?.data?.message || err.response?.data?.errors?.[0]?.msg || "Failed to create offer.");
+      setFormError(
+        err.response?.data?.message ||
+          err.response?.data?.errors?.[0]?.msg ||
+          "Failed to create offer.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -304,7 +323,10 @@ export default function OffersPage() {
     return matchesSearch && matchesCategory;
   });
 
-  const categories = ["all", ...new Set((offers || []).map((o) => o.category?.toLowerCase() || ""))].filter(Boolean);
+  const categories = [
+    "all",
+    ...new Set((offers || []).map((o) => o.category?.toLowerCase() || "")),
+  ].filter(Boolean);
 
   // Pagination slicing (client-side)
   const total = filteredOffers.length;
@@ -312,7 +334,7 @@ export default function OffersPage() {
   const totalPages = Math.max(1, Math.ceil(total / limit));
   const paginatedOffers = filteredOffers.slice(
     (page - 1) * limit,
-    page * limit
+    page * limit,
   );
 
   const pagination = {
@@ -325,9 +347,13 @@ export default function OffersPage() {
   function renderCell(row, key) {
     switch (key) {
       case "title":
-        return <span className="font-semibold text-[#0B1E3F]">{row.title}</span>;
+        return (
+          <span className="font-semibold text-[#0B1E3F]">{row.title}</span>
+        );
       case "slug":
-        return <span className="text-xs font-mono text-gray-500">{row.slug}</span>;
+        return (
+          <span className="text-xs font-mono text-gray-500">{row.slug}</span>
+        );
       case "category":
         return (
           <span className="capitalize bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs font-medium">
@@ -445,7 +471,9 @@ export default function OffersPage() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1">Slug *</label>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">
+                      Slug *
+                    </label>
                     <input
                       type="text"
                       name="slug"
@@ -457,7 +485,9 @@ export default function OffersPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1">Category *</label>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">
+                      Category *
+                    </label>
                     <input
                       type="text"
                       name="category"
@@ -484,7 +514,9 @@ export default function OffersPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1">Start Date</label>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">
+                      Start Date
+                    </label>
                     <input
                       type="datetime-local"
                       name="startDate"
@@ -494,7 +526,9 @@ export default function OffersPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1">End Date *</label>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">
+                      End Date *
+                    </label>
                     <input
                       type="datetime-local"
                       name="endDate"
@@ -514,7 +548,9 @@ export default function OffersPage() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1">Title *</label>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">
+                      Title *
+                    </label>
                     <input
                       type="text"
                       name="title"
@@ -526,7 +562,9 @@ export default function OffersPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1">Title Accent</label>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">
+                      Title Accent
+                    </label>
                     <input
                       type="text"
                       name="titleAccent"
@@ -537,7 +575,9 @@ export default function OffersPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1">Eyebrow</label>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">
+                      Eyebrow
+                    </label>
                     <input
                       type="text"
                       name="eyebrow"
@@ -566,7 +606,9 @@ export default function OffersPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 mb-1">Description</label>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1">
+                    Description
+                  </label>
                   <textarea
                     name="description"
                     value={form.description}
@@ -620,7 +662,9 @@ export default function OffersPage() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-2">Featured Packages</label>
+                    <label className="block text-xs font-semibold text-gray-500 mb-2">
+                      Featured Packages
+                    </label>
                     <input
                       type="text"
                       placeholder="Search packages..."
@@ -631,10 +675,16 @@ export default function OffersPage() {
                     <div className="space-y-2 max-h-48 overflow-y-auto bg-white p-3 border border-gray-200 rounded-lg">
                       {filteredPackagesForCreate.length > 0 ? (
                         filteredPackagesForCreate.map((pkg) => (
-                          <label key={pkg.id} className="flex items-center gap-2 text-sm text-[#1A202C] cursor-pointer">
+                          <label
+                            key={pkg.id}
+                            className="flex items-center gap-2 text-sm text-[#1A202C] cursor-pointer"
+                          >
                             <input
                               type="checkbox"
-                              checked={form.featuredPackageIds?.includes(pkg.id) || false}
+                              checked={
+                                form.featuredPackageIds?.includes(pkg.id) ||
+                                false
+                              }
                               onChange={(e) => {
                                 const checked = e.target.checked;
                                 setForm((prev) => {
@@ -649,16 +699,23 @@ export default function OffersPage() {
                               }}
                               className="rounded text-[#C9A24B] focus:ring-[#C9A24B]"
                             />
-                            <span className="truncate">{pkg.name} (₹{pkg.discountedPrice ?? pkg.regularPrice})</span>
+                            <span className="truncate">
+                              {pkg.name} (₹
+                              {pkg.discountedPrice ?? pkg.regularPrice})
+                            </span>
                           </label>
                         ))
                       ) : (
-                        <p className="text-xs text-gray-400 italic">No packages found</p>
+                        <p className="text-xs text-gray-400 italic">
+                          No packages found
+                        </p>
                       )}
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1">CTA Primary Text</label>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">
+                      CTA Primary Text
+                    </label>
                     <input
                       type="text"
                       name="ctaPrimaryText"
@@ -668,7 +725,9 @@ export default function OffersPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1">CTA Primary Href</label>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">
+                      CTA Primary Href
+                    </label>
                     <input
                       type="text"
                       name="ctaPrimaryHref"
@@ -682,7 +741,9 @@ export default function OffersPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1">CTA Secondary Text</label>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">
+                      CTA Secondary Text
+                    </label>
                     <input
                       type="text"
                       name="ctaSecondaryText"
@@ -692,7 +753,9 @@ export default function OffersPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1">Footer Note</label>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">
+                      Footer Note
+                    </label>
                     <input
                       type="text"
                       name="footerNote"
@@ -721,7 +784,9 @@ export default function OffersPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1">Deadline Note Body</label>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">
+                      Deadline Note Body
+                    </label>
                     <input
                       type="text"
                       name="deadlineNoteBody"
@@ -750,16 +815,25 @@ export default function OffersPage() {
                 </div>
 
                 {benefits.length === 0 ? (
-                  <p className="text-xs text-gray-400 text-center py-4">No benefits added. Add at least one benefit item.</p>
+                  <p className="text-xs text-gray-400 text-center py-4">
+                    No benefits added. Add at least one benefit item.
+                  </p>
                 ) : (
                   <div className="space-y-4 divide-y divide-gray-100">
                     {benefits.map((benefit, idx) => (
-                      <div key={idx} className="grid grid-cols-1 md:grid-cols-12 gap-3 pt-3 first:pt-0">
+                      <div
+                        key={idx}
+                        className="grid grid-cols-1 md:grid-cols-12 gap-3 pt-3 first:pt-0"
+                      >
                         <div className="md:col-span-3">
-                          <label className="block text-[10px] text-gray-400 font-semibold mb-0.5">Icon *</label>
+                          <label className="block text-[10px] text-gray-400 font-semibold mb-0.5">
+                            Icon *
+                          </label>
                           <select
                             value={benefit.icon}
-                            onChange={(e) => updateBenefit(idx, "icon", e.target.value)}
+                            onChange={(e) =>
+                              updateBenefit(idx, "icon", e.target.value)
+                            }
                             className="w-full px-2 py-1.5 bg-gray-50 border border-gray-200 rounded text-xs focus:outline-none focus:border-[#C9A24B] text-[#1A202C]"
                           >
                             <option value="Star">Star (★)</option>
@@ -770,22 +844,30 @@ export default function OffersPage() {
                           </select>
                         </div>
                         <div className="md:col-span-4">
-                          <label className="block text-[10px] text-gray-400 font-semibold mb-0.5">Title *</label>
+                          <label className="block text-[10px] text-gray-400 font-semibold mb-0.5">
+                            Title *
+                          </label>
                           <input
                             type="text"
                             value={benefit.title}
-                            onChange={(e) => updateBenefit(idx, "title", e.target.value)}
+                            onChange={(e) =>
+                              updateBenefit(idx, "title", e.target.value)
+                            }
                             placeholder="e.g. Current FY Pricing"
                             className="w-full px-2 py-1.5 bg-gray-50 border border-gray-200 rounded text-xs focus:outline-none focus:border-[#C9A24B] text-[#1A202C]"
                             required
                           />
                         </div>
                         <div className="md:col-span-4">
-                          <label className="block text-[10px] text-gray-400 font-semibold mb-0.5">Description *</label>
+                          <label className="block text-[10px] text-gray-400 font-semibold mb-0.5">
+                            Description *
+                          </label>
                           <input
                             type="text"
                             value={benefit.description}
-                            onChange={(e) => updateBenefit(idx, "description", e.target.value)}
+                            onChange={(e) =>
+                              updateBenefit(idx, "description", e.target.value)
+                            }
                             placeholder="Brief description..."
                             className="w-full px-2 py-1.5 bg-gray-50 border border-gray-200 rounded text-xs focus:outline-none focus:border-[#C9A24B] text-[#1A202C]"
                             required
@@ -834,10 +916,15 @@ export default function OffersPage() {
           <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-xl border border-gray-150">
             <div className="flex items-center gap-3 text-red-600 mb-4">
               <AlertTriangle size={26} />
-              <h3 className="text-lg font-bold text-[#0B1E3F]">Delete Promotional Offer</h3>
+              <h3 className="text-lg font-bold text-[#0B1E3F]">
+                Delete Promotional Offer
+              </h3>
             </div>
             <p className="text-sm text-gray-600 mb-6">
-              Are you sure you want to delete the offer <strong>"{offerToDelete?.title}"</strong>? This will permanently delete this offer and all associated benefits from the database. This action is irreversible.
+              Are you sure you want to delete the offer{" "}
+              <strong>"{offerToDelete?.title}"</strong>? This will permanently
+              delete this offer and all associated benefits from the database.
+              This action is irreversible.
             </p>
             <div className="flex items-center justify-end gap-3">
               <button
