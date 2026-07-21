@@ -141,6 +141,7 @@ export default function ExpoServiceCoverage({ expo }) {
           font-weight: 700;
           color: var(--navy);
           margin-bottom: 4px;
+          margin-right: 8px;
         }
 
         .airport-subtext {

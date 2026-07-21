@@ -353,9 +353,34 @@ export default function ExpoPackagesSection({ expo, packages }) {
         }
       `}</style>
 
-      <h2 style={{ marginBottom: '36px', marginTop: '0', fontSize: '24px', fontWeight: '700', color: '#0B1F3A' }}>
+      <h2 style={{ marginBottom: '16px', marginTop: '0', fontSize: '24px', fontWeight: '700', color: '#0B1F3A', textAlign: 'center' }}>
         Choose Your Package
       </h2>
+
+      {/* button for navigate custom quote */}
+      <div style={{ textAlign: 'center', marginBottom: '36px' }}>
+        <button
+          style={{
+            padding: '12px 24px',
+            background: '#4a7aaa',
+            color: '#ffffff',
+            fontWeight: '700',
+            fontSize: '14px',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+          }}
+          onClick={() => {
+            // Navigate to custom quote section
+            const customQuoteSection = document.getElementById('custom-quote-section');
+            if (customQuoteSection) {
+              customQuoteSection.scrollIntoView({ behavior: 'smooth' });
+            }
+          }}
+        >
+          Get a Custom Quote
+        </button>
+      </div>
 
       <div className="expo-packages-container">
         {packages.map((pkg, idx) => {

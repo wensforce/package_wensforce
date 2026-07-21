@@ -49,9 +49,9 @@ export default function ExpoCard({ expo }) {
           margin-bottom: 8px;
         }
         .card-name { 
-          font-family: 'Playfair Display', Georgia, serif;
+          font-family: 'Helvetica Neue', Helvetica, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           font-size: 18px; 
-          font-weight: 700;
+          font-weight: 600;
           color: #0B1F3A; 
           line-height: 1.3;
           margin-bottom: 12px;

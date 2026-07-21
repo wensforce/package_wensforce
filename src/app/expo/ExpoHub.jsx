@@ -134,9 +134,9 @@ export default function ExpoHub({ expos }) {
 
         html { scroll-behavior: smooth; }
 
-        .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+        .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; width: 100%; }
         .featured-section .wrap { max-width: 100%; padding: 0; width: 100%; height: auto; }
-        .hero .wrap { max-width: 100%; padding: 0; width: 100%; }
+        .hero .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; width: 100%; }
         @media (min-width: 1024px) {
           .featured-section .wrap { height: 100%; }
         }
@@ -278,11 +278,12 @@ export default function ExpoHub({ expos }) {
           color: #0B1E3F;
         }
         .uc-card-name {
-          font-family: 'Playfair Display', Georgia, serif;
+          font-family: 'Helvetica Neue', Helvetica, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           font-size: 18px;
-          font-weight: 700;
+          font-weight: 600;
           color: #0B1E3F;
           line-height: 1.3;
+          letter-spacing: -0.3px;
         }
         .uc-card-meta {
           display: flex;
@@ -362,7 +363,7 @@ export default function ExpoHub({ expos }) {
           position: relative;
           margin-top: 80px;
           width: 100vw;
-          padding: 120px 40px;
+          padding: 120px 0;
           min-height: 560px;
           display: flex;
           align-items: center;
@@ -396,7 +397,6 @@ export default function ExpoHub({ expos }) {
           z-index: 2;
           color: #fff;
           max-width: 600px;
-          padding: 0 24px;
         }
 
         .hero .eyebrow { font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 700; color: var(--gold2); margin-bottom: 16px; }
@@ -461,9 +461,9 @@ export default function ExpoHub({ expos }) {
         /* Filters section */
         .filters-sec { padding: 80px 0; background: #fff; }
         .filters-sec h2 { 
-          font-family: 'Playfair Display', Georgia, serif;
+          font-family: 'Helvetica Neue', Helvetica, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           font-size: clamp(32px, 3.4vw, 42px);
-          font-weight: 700;
+          font-weight: 600;
           margin-bottom: 40px;
         }
         .filters-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px; }
@@ -510,9 +510,8 @@ export default function ExpoHub({ expos }) {
         .results-info { font-size: 14px; color: var(--muted); margin-bottom: 24px; font-weight: 500; }
 
         @media (max-width: 768px) {
-          .hero { min-height: 420px; padding: 60px 20px; }
+          .hero { min-height: 420px; padding: 60px 0; }
           .hero h1 { margin-bottom: 16px; }
-          .hero-content { padding: 0; }
           .about-grid { gap: 32px; }
           .filters-sec { padding: 60px 0; }
         }

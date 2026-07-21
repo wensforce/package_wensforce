@@ -1434,7 +1434,7 @@ export default function BookingPageContent({
   
       await Promise.all([
         api.post("/booking", {
-          packageName: plan.name,
+          packageName: plan.name + `${expoSlug ? ` (${expoSlug})` : ""}`,
           packageId: plan.id,
           validity: plan.validity,
           serviceCity: form.city || "Not specified",
@@ -1489,7 +1489,7 @@ export default function BookingPageContent({
       >
         <div className="max-w-5xl mx-auto px-6 py-3.5 flex items-center justify-between">
           <Link
-            href={`/membership/${plan.id}`}
+            href={document.referrer || `/membership/${plan.id}`}
             className="flex items-center gap-2 text-gray-500 hover:text-gray-900 text-sm font-light transition-colors"
           >
             <ArrowLeft size={14} />
@@ -1513,6 +1513,27 @@ export default function BookingPageContent({
       <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-10 lg:py-14 grid grid-cols-1 lg:grid-cols-[1fr_440px] gap-10 items-start">
         {/* ── LEFT: Plan showcase ── */}
         <div className="lg:sticky lg:top-24">
+          {/* Expo Title if present */}
+
+          {expoSlug && (
+            <div className="mb-6">
+              <span className="text-[9px] font-bold tracking-[0.3em] uppercase px-3 py-1.5 rounded-full backdrop-blur-sm inline-block mb-2.5">
+                Expo Arrival
+              </span>
+              <h2 className="font-serif-display font-bold text-3xl sm:text-4xl text-[#0B1E3F] mb-1.5">
+                Welcome to {expoSlug.replace(/-/g, " ")}!
+              </h2>
+              <p className="text-[#0B1E3F]/60 text-sm font-light">
+                You&apos;ve arrived at WENS Force via the{" "}
+                <strong className="font-semibold">{expoSlug}</strong> expo
+                landing page. Your founding spot is reserved for the{" "}
+                <strong className="font-semibold">{plan.name}</strong>{" "}
+                Membership. Please complete your payment to activate your
+                membership.
+              </p>
+            </div>
+          )}
+
           {/* Plan image card */}
           <div
             className="relative overflow-hidden rounded-2xl mb-8 group"

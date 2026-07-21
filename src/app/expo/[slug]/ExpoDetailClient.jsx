@@ -12,6 +12,7 @@ import ExpoFAQ from '../../components/ExpoFAQ';
 import ExpoServiceCoverage from '../../components/ExpoServiceCoverage';
 import ExpoEventGallery from '../../components/ExpoEventGallery';
 import CountdownBadge from '../../components/CountdownBadge';
+import CustomQuoteSection from '../../components/CustomQuoteSection.jsx';
 
 export default function ExpoDetailClient({ expo, packages, faqs }) {
   const [activeTab, setActiveTab] = useState('packages');
@@ -416,9 +417,12 @@ export default function ExpoDetailClient({ expo, packages, faqs }) {
           <div className={`tab-content ${activeTab === 'faqs' ? 'active' : ''}`}>
             <ExpoFAQ faqs={faqs} expoName={expo.name} />
           </div>
+
         </div>
       </section>
       </div>
+      {/* Custom Quote Section — outside expo-detail-container to prevent CSS reset override */}
+      <CustomQuoteSection />
       <SimpleFooter />
     </>
   );
