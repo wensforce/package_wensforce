@@ -37,6 +37,7 @@ const COLUMNS = [
 export default function OffersPage() {
   const router = useRouter();
   const [packages, setPackages] = useState([]);
+  const [modalPackages, setModalPackages] = useState([]);
   const [page, setPage] = useState(1);
   const [categoryFilter, setCategoryFilter] = useState("all");
 
@@ -89,8 +90,25 @@ export default function OffersPage() {
     return () => clearTimeout(handler);
   }, [packageSearchQuery]);
 
+  // Fetch packages by category for the create modal
+  useEffect(() => {
+    if (form.category) {
+      offersApi
+        .getPackagesByCategoryForAdmin(form.category)
+        .then((data) => {
+          setModalPackages(data);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch packages by category", err);
+          setModalPackages([]);
+        });
+    } else {
+      setModalPackages([]);
+    }
+  }, [form.category]);
+
   // Filter packages based on search query
-  const filteredPackagesForCreate = packages.filter((pkg) =>
+  const filteredPackagesForCreate = modalPackages.filter((pkg) =>
     pkg.name.toLowerCase().includes(debouncedPackageSearchQuery.toLowerCase()),
   );
 
@@ -488,15 +506,20 @@ export default function OffersPage() {
                     <label className="block text-xs font-semibold text-gray-500 mb-1">
                       Category *
                     </label>
-                    <input
-                      type="text"
+                    <select
                       name="category"
                       value={form.category}
                       onChange={handleInputChange}
-                      placeholder="e.g. user"
                       className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#C9A24B] text-[#1A202C]"
                       required
-                    />
+                    >
+                      <option value="">Select category</option>
+                      <option value="membership">Membership</option>
+                      <option value="welcome_india">Welcome India</option>
+                      <option value="corporate">Corporate</option>
+                      <option value="pilgrims">Pilgrims</option>
+                      <option value="multi-region">Multi-Region</option>
+                    </select>
                   </div>
                   <div className="flex items-center h-full pt-5">
                     <label className="inline-flex items-center gap-2 text-sm text-gray-700 font-semibold cursor-pointer">
@@ -673,7 +696,11 @@ export default function OffersPage() {
                       className="w-full mb-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs focus:outline-none focus:border-[#C9A24B] text-[#1A202C]"
                     />
                     <div className="space-y-2 max-h-48 overflow-y-auto bg-white p-3 border border-gray-200 rounded-lg">
-                      {filteredPackagesForCreate.length > 0 ? (
+                      {!form.category ? (
+                        <p className="text-xs text-gray-400 italic">
+                          Please select a category first
+                        </p>
+                      ) : filteredPackagesForCreate.length > 0 ? (
                         filteredPackagesForCreate.map((pkg) => (
                           <label
                             key={pkg.id}
@@ -707,7 +734,7 @@ export default function OffersPage() {
                         ))
                       ) : (
                         <p className="text-xs text-gray-400 italic">
-                          No packages found
+                          No packages found for this category
                         </p>
                       )}
                     </div>

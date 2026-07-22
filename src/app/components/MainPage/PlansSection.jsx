@@ -9,9 +9,9 @@ import { setPackages } from "@/app/membership/slices/package-slice";
 import { usePackages } from "../../hooks/usePackages";
 const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
 
-export default function PlansSection() {
+export default function PlansSection({category}) {
   const router = useRouter();
-  const { packages, loading, error } = usePackages();
+  const { packages, loading, error } = usePackages(category);
 
   return (
     <section id="plans" className="bg-[#EDE8DF] px-5 pt-[88px] pb-[112px]">

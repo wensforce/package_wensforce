@@ -27,4 +27,8 @@ export const offersApi = {
       data.packages || data.items || (Array.isArray(data) ? data : []);
     return Array.isArray(packages) ? packages : [];
   },
+  getPackagesByCategoryForAdmin: async (category) => {
+    const res = await api.get(`/package/category-packages/${category}`);
+    return res.data?.data ?? res.data ?? [];
+  },
 };

@@ -75,7 +75,7 @@ export default function HeroSection({ plan, waUrl }) {
               </div>
 
               <h1
-                className="text-white font-black leading-none tracking-tight mb-4"
+                className="text-white font-black leading-[0.95] tracking-tight mb-4"
                 style={{ fontSize: 'clamp(38px, 7vw, 100px)' }}
               >
                 {plan.name}
@@ -136,7 +136,7 @@ export default function HeroSection({ plan, waUrl }) {
 
                 <Link
                   href={`/booking/${plan.id}`}
-                  className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-black text-black text-sm mb-2.5 transition-all hover:opacity-90 hover:-translate-y-0.5"
+                  className="flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl font-black text-black text-sm mb-2.5 transition-all hover:opacity-90 hover:-translate-y-0.5 text-center leading-snug"
                   style={{
                     background: 'linear-gradient(135deg,#C9A24B 0%,#f0c940 50%,#C9A24B 100%)',
                     boxShadow: '0 6px 24px rgba(201,162,75,0.5)',

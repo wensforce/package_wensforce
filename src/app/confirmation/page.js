@@ -63,10 +63,10 @@ function ConfirmationContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order_id") || searchParams.get("token");
 
-  const [loading, setLoading]       = useState(true);
-  const [orderData, setOrderData]   = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [orderData, setOrderData] = useState(null);
   const [packageData, setPackageData] = useState(null);
-  const [status, setStatus]         = useState("loading");
+  const [status, setStatus] = useState("loading");
 
   useEffect(() => {
     if (!orderId) { setStatus("failed"); setLoading(false); return; }
@@ -76,10 +76,10 @@ function ConfirmationContent() {
         const verifyRes = await api.get(`/payment/verify-payment/${orderId}`);
         const data = verifyRes.data?.data ?? verifyRes.data ?? {};
         setOrderData(data);
-        setStatus(["ACTIVE","success","PAID"].includes(data.status) ? "success" : "failed");
+        setStatus(["ACTIVE", "success", "PAID"].includes(data.status) ? "success" : "failed");
         if (data.packageId) setPackageData(await packageApiUser.getPackageById(data.packageId));
       } catch { setStatus("failed"); }
-      finally  { setLoading(false); }
+      finally { setLoading(false); }
     })();
   }, [orderId]);
 
@@ -91,18 +91,22 @@ function ConfirmationContent() {
     </div>
   );
 
-  const isSuccess  = status === "success";
+  const isSuccess = status === "success";
   const isWelcomeIndia = packageData ? welcomePlanIds.has(packageData.id) || welcomePlanIds.has(packageData.slug) : false;
-  const displayPrice   = packageData ? INR(packageData.discountedPrice) : "…";
+  const displayPrice = packageData ? INR(packageData.discountedPrice) : "…";
+  let homepageUrl = "/";
+
+  if (packageData?.category) { homepageUrl = packageData.category === "membership" ? "/" : `/${packageData.category}`; }
+
 
   const waMsg = packageData
     ? `Hi WENS Force! I just completed payment for the ${packageData.name} Membership.\n\nOrder ID: ${orderId}\n\nPlease activate my account.`
     : `Hi WENS Force! I just completed payment.\n\nOrder ID: ${orderId}\n\nPlease activate my account.`;
 
   /* ── colour tokens ── */
-  const ok   = { fg: "#16a34a", bg: "rgba(74,222,128,0.10)", border: "rgba(74,222,128,0.35)" };
-  const fail = { fg: "#dc2626", bg: "rgba(239,68,68,0.08)",  border: "rgba(239,68,68,0.28)"  };
-  const tok  = isSuccess ? ok : fail;
+  const ok = { fg: "#16a34a", bg: "rgba(74,222,128,0.10)", border: "rgba(74,222,128,0.35)" };
+  const fail = { fg: "#dc2626", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.28)" };
+  const tok = isSuccess ? ok : fail;
 
   return (
     <>
@@ -111,7 +115,7 @@ function ConfirmationContent() {
       {/* ── Header ── */}
       <div className="flex items-center justify-between gap-2 px-3 sm:px-6 py-3 border-b bg-white"
         style={{ borderColor: "rgba(201,162,75,0.12)" }}>
-        <Link href="/" className="flex items-center gap-1.5 text-gray-400 hover:text-gray-700 text-xs transition-colors flex-shrink-0">
+        <Link href={homepageUrl} className="flex items-center gap-1.5 text-gray-400 hover:text-gray-700 text-xs transition-colors flex-shrink-0">
           <ArrowLeft size={13} />
           <span className="hidden xs:inline">Back to Home</span>
         </Link>
@@ -124,7 +128,7 @@ function ConfirmationContent() {
         </div>
       </div>
 
-      
+
 
       {/* ── Main layout ── */}
       <div className="flex items-start justify-center p-3 sm:p-5 min-h-screen" style={{ backgroundColor: "#FAF6EC" }}>
@@ -184,8 +188,10 @@ function ConfirmationContent() {
                     </>
                   ) : (
                     <div className="w-16 h-16 rounded-full flex items-center justify-center icon-shake"
-                      style={{ background: "rgba(239,68,68,0.08)", border: "2px solid rgba(239,68,68,0.35)",
-                        boxShadow: "0 8px 24px rgba(239,68,68,0.18)" }}>
+                      style={{
+                        background: "rgba(239,68,68,0.08)", border: "2px solid rgba(239,68,68,0.35)",
+                        boxShadow: "0 8px 24px rgba(239,68,68,0.18)"
+                      }}>
                       <XCircle size={30} strokeWidth={1.5} className="text-red-500" />
                     </div>
                   )}
@@ -271,7 +277,7 @@ function ConfirmationContent() {
                   <span className="text-[15px] font-bold text-white leading-tight">Connect on WhatsApp</span>
                 </div>
 
-                
+
               </a>
 
               {/* Retry — only on failure */}
@@ -290,7 +296,7 @@ function ConfirmationContent() {
               )}
 
               {/* Home */}
-              <Link href="/"
+              <Link href={homepageUrl}
                 className="flex items-center justify-center w-full py-3 rounded-xl font-semibold text-gray-500 text-sm hover:bg-gray-50 transition-colors"
                 style={{ border: "1px solid rgba(0,0,0,0.09)" }}>
                 Return to Homepage

@@ -1,14 +1,14 @@
 import api from "../axios/axios";
 
 export const offerApi = {
-  /**
-   * Fetch the active offer for the 'user' category.
-   * @returns {Promise<object>}
-   */
-  getOfferForUser: async () => {
-    const res = await api.get("/offer/category/user");
-    return res.data;
-  },
+  // /**
+  //  * Fetch the active offer for the 'user' category.
+  //  * @returns {Promise<object>}
+  //  */
+  // getOfferForUser: async (category) => {
+  //   const res = await api.get(`/offer/category/${category}`);
+  //   return res.data;
+  // },
 
   /**
    * Alternatively, fetch the active offer by a dynamic category.

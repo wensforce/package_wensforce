@@ -60,6 +60,7 @@ export default function OfferDetailPage() {
 
   const [offer, setOffer] = useState(null);
   const [packages, setPackages] = useState([]);
+  const [modalPackages, setModalPackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -126,6 +127,23 @@ export default function OfferDetailPage() {
       deadlineNoteStrong: `After ${formatted}:`,
     }));
   }, [editForm.endDate]);
+
+  // Fetch packages by category for the edit modal
+  useEffect(() => {
+    if (editForm.category) {
+      offersApi
+        .getPackagesByCategoryForAdmin(editForm.category)
+        .then((data) => {
+          setModalPackages(data);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch packages by category", err);
+          setModalPackages([]);
+        });
+    } else {
+      setModalPackages([]);
+    }
+  }, [editForm.category]);
 
   // Status computation
   const statusUI = useMemo(() => {
@@ -677,15 +695,20 @@ export default function OfferDetailPage() {
                     <label className="block text-xs font-semibold text-gray-500 mb-1">
                       Category *
                     </label>
-                    <input
-                      type="text"
+                    <select
                       name="category"
                       value={editForm.category}
                       onChange={handleEditInputChange}
-                      placeholder="e.g. Premium"
                       className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#C9A24B] text-[#1A202C]"
                       required
-                    />
+                    >
+                      <option value="">Select category</option>
+                      <option value="membership">Membership</option>
+                      <option value="welcome_india">Welcome India</option>
+                      <option value="corporate">Corporate</option>
+                      <option value="pilgrims">Pilgrims</option>
+                      <option value="multi-region">Multi-Region</option>
+                    </select>
                   </div>
                   <div className="flex items-center h-full pt-5">
                     <label className="inline-flex items-center gap-2 text-sm text-gray-700 font-semibold cursor-pointer">
@@ -851,37 +874,47 @@ export default function OfferDetailPage() {
                       Featured Packages
                     </label>
                     <div className="space-y-2 max-h-48 overflow-y-auto bg-white p-3 border border-gray-200 rounded-lg">
-                      {packages.map((pkg) => (
-                        <label
-                          key={pkg.id}
-                          className="flex items-center gap-2 text-sm text-[#1A202C] cursor-pointer font-sans"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={
-                              editForm.featuredPackageIds?.includes(pkg.id) ||
-                              false
-                            }
-                            onChange={(e) => {
-                              const checked = e.target.checked;
-                              setEditForm((prev) => {
-                                const ids = prev.featuredPackageIds || [];
-                                return {
-                                  ...prev,
-                                  featuredPackageIds: checked
-                                    ? [...ids, pkg.id]
-                                    : ids.filter((id) => id !== pkg.id),
-                                };
-                              });
-                            }}
-                            className="rounded text-[#C9A24B] focus:ring-[#C9A24B]"
-                          />
-                          <span className="truncate">
-                            {pkg.name} (₹
-                            {pkg.discountedPrice ?? pkg.regularPrice})
-                          </span>
-                        </label>
-                      ))}
+                      {!editForm.category ? (
+                        <p className="text-xs text-gray-400 italic">
+                          Please select a category first
+                        </p>
+                      ) : modalPackages.length > 0 ? (
+                        modalPackages.map((pkg) => (
+                          <label
+                            key={pkg.id}
+                            className="flex items-center gap-2 text-sm text-[#1A202C] cursor-pointer font-sans"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={
+                                editForm.featuredPackageIds?.includes(pkg.id) ||
+                                false
+                              }
+                              onChange={(e) => {
+                                const checked = e.target.checked;
+                                setEditForm((prev) => {
+                                  const ids = prev.featuredPackageIds || [];
+                                  return {
+                                    ...prev,
+                                    featuredPackageIds: checked
+                                      ? [...ids, pkg.id]
+                                      : ids.filter((id) => id !== pkg.id),
+                                  };
+                                });
+                              }}
+                              className="rounded text-[#C9A24B] focus:ring-[#C9A24B]"
+                            />
+                            <span className="truncate">
+                              {pkg.name} (₹
+                              {pkg.discountedPrice ?? pkg.regularPrice})
+                            </span>
+                          </label>
+                        ))
+                      ) : (
+                        <p className="text-xs text-gray-400 italic">
+                          No packages found for this category
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div>

@@ -1,21 +1,21 @@
 import { Suspense } from "react";
 import { Phone } from "lucide-react";
-import { plans } from "./data/plans";
-import Header from "./components/MainPage/Header";
-import HowItWorks from "./components/MainPage/HowItWorks";
-import TrustStrip from "./components/MainPage/TrustStrip";
-import WedgeBlock from "./components/MainPage/WedgeBlock";
-import TierQuiz from "./components/MainPage/TierQuiz";
-import PressPartnerWall from "./components/MainPage/PressPartnerWall";
-import ExitIntentPopup from "./components/MainPage/ExitIntentPopup";
-import TestimonialsSection from "./components/MainPage/TestimonialsSection";
-import HeroSection from "./components/MainPage/HeroSection";
-import JsonLd from "./components/MainPage/JsonLd";
-import ServicesVideoSection from "./components/MainPage/ServicesVideoSection";
-import { ComparisonTable } from "./components/Comparison-Table/ComparisonTable";
-import PlansSection from "./components/MainPage/PlansSection";
-import FoundingMemberBanner from "./components/MainPage/Offer";
-import WelcomeIndiaCard from "./components/MainPage/WelcomeIndiaCard";
+import { plans } from "../data/plans";
+import Header from "../components/MainPage/Header";
+import HowItWorksWelcomeIndia from "../components/MainPage/HowItWorksWelcomeIndia";
+import TrustStrip from "../components/MainPage/TrustStrip";
+import WedgeBlock from "../components/MainPage/WedgeBlock";
+import TierQuiz from "../components/MainPage/TierQuiz";
+import PressPartnerWall from "../components/MainPage/PressPartnerWall";
+import ExitIntentPopup from "../components/MainPage/ExitIntentPopup";
+import TestimonialsSection from "../components/MainPage/TestimonialsSection";
+import HeroSection from "../components/MainPage/HeroSection";
+import JsonLd from "../components/MainPage/JsonLd";
+import ServicesVideoSection from "../components/MainPage/ServicesVideoSection";
+import { ComparisonTable } from "../components/Comparison-Table/ComparisonTable";
+import PlansSection from "../components/MainPage/PlansSection";
+import FoundingMemberBanner from "../components/MainPage/Offer";
+import WelcomeIndiaCard from "../components/MainPage/WelcomeIndiaCard";
 // export const metadata = {
 //   title:
 //     "WENS Force — India's Only Luxury Travel + Armed Protection + VIP Darshan Subscription",
@@ -127,7 +127,7 @@ function FAQSection() {
   );
 }
 
-export default async function HomePage({ searchParams }) {
+export default async function WelcomeIndiaPage({ searchParams }) {
   const { welcomeIndia } = await searchParams;
   const faqSchema = {
     "@context": "https://schema.org",
@@ -175,19 +175,16 @@ export default async function HomePage({ searchParams }) {
 
       {/* ── TRUST STRIP ── */}
       <TrustStrip />
-
-      {welcomeIndia === "true" && <ServicesVideoSection />}
+<ServicesVideoSection />
 
       {/* ── WEDGE BLOCK ── */}
-      <WedgeBlock />
+      {/* <WedgeBlock /> */}
 
       {/* ── PLANS SPOTLIGHT ── */}
       <section style={{ backgroundColor: "#FAF6EC" }}>
-        <PlansSection category="membership"/>
+        <PlansSection category="welcome_india" />
       </section>
 
-      {/* ── TIER QUIZ ── */}
-      <TierQuiz />
 
       {/* ── ALL PLANS GRID ── */}
       {/* <AllPlansGrid plans={plans} /> */}
@@ -200,13 +197,12 @@ export default async function HomePage({ searchParams }) {
       )}
 
       {/* ── HOW IT WORKS ── */}
-      <HowItWorks />
+      <HowItWorksWelcomeIndia />
 
       {/* ── TESTIMONIALS ── */}
       <TestimonialsSection />
 
-      {/* ── PRESS & PARTNERS ── */}
-      <PressPartnerWall />
+      
 
       {/* ── FOUNDER STORY ── */}
       {/* <FounderStoryBlock /> */}
@@ -218,7 +214,7 @@ export default async function HomePage({ searchParams }) {
       <FAQSection />
 
       {/* ── FOUNDING MEMBER BANNER ── */}
-      <FoundingMemberBanner category="membership"/>
+      <FoundingMemberBanner category="welcome_india" />
 
       {/* ── FOOTER ── */}
       <footer

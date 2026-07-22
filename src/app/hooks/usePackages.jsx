@@ -11,7 +11,7 @@ import { packageApiUser } from "@/app/user-apis/package.api";
 
 let isFetching = false;
 
-export function usePackages() {
+export function usePackages(category) {
   const dispatch = useDispatch();
   const packages = useSelector((state) =>
     Array.isArray(state.packages.value) ? state.packages.value : []
@@ -29,7 +29,7 @@ export function usePackages() {
     const run = async () => {
       dispatch(setPackagesLoading(true));
       try {
-        const res = await packageApiUser.fetchUserPackages();
+        const res = await packageApiUser.fetchUserPackages(category);
         const data = res?.data ?? [];
         dispatch(setPackages(data));
       } catch (err) {

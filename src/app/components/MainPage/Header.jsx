@@ -1,19 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Crown, Menu, X } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
 export default function Header() {
+  const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const isWelcomeIndia = searchParams.get("welcomeIndia") === "true";
+  const isWelcomeIndia = pathname === "/welcomeindia" || searchParams.get("welcomeindia") === "true";
 
   const { isLoggedIn, user } = useAuth();
 
   useEffect(() => {
+    setMounted(true);
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
     };
@@ -61,6 +64,18 @@ export default function Header() {
             >
               Plans
             </a>
+            {pathname === "/welcomeindia" && (
+              <a
+                href="#plans"
+                className={`text-sm font-medium transition-colors ${
+                  scrolled
+                    ? "text-gray-600 hover:text-gray-900"
+                    : "text-white/70 hover:text-white"
+                }`}
+              >
+                Welcome India
+              </a>
+            )}
             {!isWelcomeIndia && (
               <a
                 href="#compare"
@@ -107,9 +122,9 @@ export default function Header() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
-            {isLoggedIn ? (
+            {mounted && isLoggedIn ? (
               <Link
-                href={user.role === "admin" ? "/admin/dashboard" : "/dashboard"}
+                href={user?.role === "admin" ? "/admin/dashboard" : "/dashboard"}
                 className={`inline-flex items-center gap-2 font-semibold py-2.5 px-5 rounded-full text-sm transition-all ${
                   scrolled
                     ? "border border-gray-300 text-gray-700 hover:bg-gray-100"
@@ -182,6 +197,19 @@ export default function Header() {
               >
                 Plans
               </a>
+              {pathname === "/welcomeindia" && (
+                <a
+                  href="#plans"
+                  className={`block text-sm font-medium transition-colors ${
+                    scrolled
+                      ? "text-gray-600 hover:text-gray-900"
+                      : "text-white/70 hover:text-white"
+                  }`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Welcome India
+                </a>
+              )}
               {!isWelcomeIndia && (
                 <a
                   href="#compare"
@@ -228,7 +256,7 @@ export default function Header() {
               >
                 Offer
               </a>
-              {isLoggedIn && (
+              {mounted && isLoggedIn && (
                 <Link
                   href="/dashboard"
                   className={`block text-sm font-semibold transition-colors ${

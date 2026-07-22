@@ -15,7 +15,7 @@ export const packageApiUser = {
    * Fetch all packages visible to normal users.
    * @returns {Promise<object>}
    */
-  fetchUserPackages: async (category = "membership") => {
+  fetchUserPackages: async (category) => {
     const res = await api.get("/package/user", {
       params: { category },
     });

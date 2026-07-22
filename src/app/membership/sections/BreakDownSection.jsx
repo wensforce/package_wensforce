@@ -88,7 +88,7 @@ export default function BreakdownSection({ plan, waUrl }) {
             <div className="space-y-2.5">
               <Link
                 href={`/booking/${plan.id}`}
-                className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl font-black text-black text-sm transition-all hover:shadow-2xl hover:-translate-y-0.5"
+                className="flex items-center justify-center gap-2 w-full py-4 px-4 rounded-2xl font-black text-black text-sm transition-all hover:shadow-2xl hover:-translate-y-0.5 text-center leading-snug"
                 style={{
                   background: 'linear-gradient(135deg,#C9A24B 0%,#f0c940 50%,#C9A24B 100%)',
                   boxShadow: '0 6px 24px rgba(201,162,75,0.45)',

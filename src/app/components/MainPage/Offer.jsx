@@ -173,17 +173,21 @@ function BannerSkeleton() {
 
 // ── FoundingMemberBanner ──────────────────────────────────────────────────────
 
-export default function FoundingMemberBanner() {
+export default function FoundingMemberBanner({category}) {
   const [offer, setOffer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     offerApi
-      .getOfferForUser()
+      .getOfferByCategory(category)
       .then((res) => {
         // Support both { data: offer } and offer-as-root shapes
-        setOffer(res?.data ?? res);
+        if (res && res.success === false) {
+          setOffer(null);
+        } else {
+          setOffer(res?.data ?? res);
+        }
       })
       .catch((err) => {
         console.error("Failed to load offer:", err);
@@ -205,7 +209,8 @@ export default function FoundingMemberBanner() {
   const featuredPkgs = offer.featuredPackages ?? [];
   const packageName = featuredPkgs.map((p) => p.name).join(" / ") || "Premium";
   const firstPkg = featuredPkgs[0];
-  const pkgSlug = offer.ctaPrimaryHref ?? (firstPkg ? `/booking/${firstPkg.id}` : "#plans");
+  const pkgSlug =
+    offer.ctaPrimaryHref ?? (firstPkg ? `/booking/${firstPkg.id}` : "#plans");
 
   // Helper: resolve template vars once
   const t = (str) => interpolate(str, { date: deadlineDateLabel, packageName });
