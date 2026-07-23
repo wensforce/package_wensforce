@@ -56,7 +56,7 @@ export default function PackageEditPage() {
 
           <button
             type="button"
-            onClick={() => router.push("/admin/packages")}
+            onClick={() => router.back()}
             className="inline-flex items-center gap-2 rounded-full border border-[#CBD5E0] bg-white px-4 py-2 text-sm font-medium text-[#4A5568] hover:bg-[#FAF6EC] transition-colors"
           >
             <ArrowLeft size={15} />

@@ -109,7 +109,7 @@ export default function PaymentDetailPage() {
     <div className="p-6 md:p-8 space-y-6">
       <div className="bg-white rounded-2xl border border-[#CBD5E0] overflow-hidden">
         <PaymentDetailHeader
-          onBack={() => router.push("/admin/payments")}
+          onBack={() => router.back()}
           onRefresh={() => fetchPayment({ silent: true })}
           refreshing={refreshing}
         />

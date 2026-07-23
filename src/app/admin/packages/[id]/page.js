@@ -91,7 +91,7 @@ export default function PackageDetailPage() {
       <div className="p-6 md:p-8">
         <div className="bg-white rounded-2xl border border-[#CBD5E0] overflow-hidden">
           <PackageDetailHeader
-            onBack={() => router.push("/admin/packages")}
+            onBack={() => router.back()}
             onRefresh={() => fetchPackage()}
             onEdit={() => {}}
             onDelete={() => {}}
@@ -129,7 +129,7 @@ export default function PackageDetailPage() {
     <div className="p-6 md:p-8 space-y-6">
       <div className="bg-white rounded-2xl border border-[#CBD5E0] overflow-hidden">
         <PackageDetailHeader
-          onBack={() => router.push("/admin/packages")}
+          onBack={() => router.back()}
           onRefresh={() => fetchPackage({ silent: true })}
           onEdit={() => router.push(`/admin/packages/edit/${packageData.id}`)}
           onDelete={handleDelete}

@@ -119,7 +119,7 @@ export default function SubscriptionDetailPage() {
       <div className="p-6 md:p-8">
         <div className="bg-white rounded-2xl border border-[#CBD5E0] overflow-hidden">
           <SubscriptionDetailHeader
-            onBack={() => router.push("/admin/subscriptions")}
+            onBack={() => router.back()}
             onRefresh={() => fetchSubscription()}
             onVerify={() => {}}
             onCancel={() => {}}
@@ -159,7 +159,7 @@ export default function SubscriptionDetailPage() {
     <div className="p-6 md:p-8 space-y-6">
       <div className="bg-white rounded-2xl border border-[#CBD5E0] overflow-hidden">
         <SubscriptionDetailHeader
-          onBack={() => router.push("/admin/subscriptions")}
+          onBack={() => router.back()}
           onRefresh={() => fetchSubscription({ silent: true })}
           onVerify={() => openActionModal("verify")}
           onCancel={() => openActionModal("cancel")}

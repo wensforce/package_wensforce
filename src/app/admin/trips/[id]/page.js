@@ -252,7 +252,7 @@ export default function TripDetailPage() {
         <div className="bg-white rounded-2xl border border-[#CBD5E0] overflow-hidden">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 border-b border-[#CBD5E0] bg-white">
             <button
-              onClick={() => router.push("/admin/trips")}
+              onClick={() => router.back()}
               className="inline-flex items-center gap-2 text-sm font-medium text-[#4A5568] hover:text-[#0B1E3F] transition-colors"
             >
               <ArrowLeft size={16} /> Back
@@ -302,7 +302,7 @@ export default function TripDetailPage() {
         <div className="bg-white rounded-2xl border border-[#CBD5E0] overflow-hidden">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 border-b border-[#CBD5E0] bg-white">
             <button
-              onClick={() => router.push("/admin/trips")}
+              onClick={() => router.back()}
               className="inline-flex items-center gap-2 text-sm font-medium text-[#4A5568] hover:text-[#0B1E3F] transition-colors"
             >
               <ArrowLeft size={16} /> Back

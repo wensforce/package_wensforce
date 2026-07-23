@@ -339,7 +339,7 @@ export default function OfferDetailPage() {
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 border-b border-gray-100 bg-white">
             <button
-              onClick={() => router.push("/admin/offers")}
+              onClick={() => router.back()}
               className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-[#0B1E3F] transition-colors"
             >
               <ArrowLeft size={16} /> Back
@@ -381,7 +381,7 @@ export default function OfferDetailPage() {
         {/* Navigation & Action Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 border-b border-gray-100 bg-white">
           <button
-            onClick={() => router.push("/admin/offers")}
+            onClick={() => router.back()}
             className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-[#0B1E3F] transition-colors"
           >
             <ArrowLeft size={16} /> Back to Offers

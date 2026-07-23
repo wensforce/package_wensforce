@@ -86,7 +86,7 @@ export default function CouponDetailPage() {
       <div className="p-6 md:p-8">
         <div className="bg-white rounded-2xl border border-[#CBD5E0] overflow-hidden">
           <CouponDetailHeader
-            onBack={() => router.push("/admin/coupons")}
+            onBack={() => router.back()}
             onRefresh={() => fetchCoupon()}
             onEdit={() => {}}
             refreshing={refreshing}
@@ -123,7 +123,7 @@ export default function CouponDetailPage() {
       <div className="p-6 md:p-8 space-y-6">
         <div className="bg-white rounded-2xl border border-[#CBD5E0] overflow-hidden">
           <CouponDetailHeader
-            onBack={() => router.push("/admin/coupons")}
+            onBack={() => router.back()}
             onRefresh={() => fetchCoupon({ silent: true })}
             onEdit={() => editModal.open()}
             onDelete={() => deleteModal.open()}

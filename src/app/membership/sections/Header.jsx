@@ -1,18 +1,21 @@
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, Crown } from "lucide-react";
+import Link from "next/link";
 
 export default function Header({ planName, planId, waUrl }) {
+  const router = useRouter();
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-16 border-b bg-black border-white/8">
       <div className="max-w-6xl mx-auto px-3 sm:px-6 h-full grid grid-cols-[auto_1fr_auto] items-center gap-2">
         {/* Left: Back link */}
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-white/60 hover:text-white text-sm transition-colors shrink-0"
+        <button
+          onClick={() => router.back()}
+          className="flex items-center gap-2 text-white/60 hover:text-white text-sm transition-colors shrink-0 bg-transparent border-none p-0 cursor-pointer"
         >
           <ArrowLeft size={15} />
           <span className="hidden sm:inline">All Plans</span>
-        </Link>
+        </button>
 
         {/* Center: Brand / plan name — takes only the leftover space, never overlaps */}
         <div className="flex items-center justify-center gap-1.5 text-white/50 min-w-0 overflow-hidden">

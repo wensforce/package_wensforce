@@ -95,7 +95,7 @@ export default function ServiceDetailPage() {
       <div className="p-6 md:p-8">
         <div className="bg-white rounded-2xl border border-[#CBD5E0] overflow-hidden">
           <ServiceDetailHeader
-            onBack={() => router.push("/admin/services")}
+            onBack={() => router.back()}
             onRefresh={() => fetchService()}
             onEdit={() => {}}
             onDelete={() => {}}
@@ -136,7 +136,7 @@ export default function ServiceDetailPage() {
       <div className="p-6 md:p-8 space-y-6">
         <div className="bg-white rounded-2xl border border-[#CBD5E0] overflow-hidden">
           <ServiceDetailHeader
-            onBack={() => router.push("/admin/services")}
+            onBack={() => router.back()}
             onRefresh={() => fetchService({ silent: true })}
             onEdit={() => updateModal.open()}
             onDelete={() => deleteModal.open()}

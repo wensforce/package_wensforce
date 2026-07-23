@@ -11,7 +11,7 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const isWelcomeIndia = pathname === "/welcomeindia" || searchParams.get("welcomeindia") === "true";
+  const isWelcomeIndia = pathname === "/welcome_india" || searchParams.get("welcome_india") === "true";
 
   const { isLoggedIn, user } = useAuth();
 
@@ -64,7 +64,7 @@ export default function Header() {
             >
               Plans
             </a>
-            {pathname === "/welcomeindia" && (
+            {pathname === "/welcome_india" && (
               <a
                 href="#plans"
                 className={`text-sm font-medium transition-colors ${
@@ -197,7 +197,7 @@ export default function Header() {
               >
                 Plans
               </a>
-              {pathname === "/welcomeindia" && (
+              {pathname === "/welcome_india" && (
                 <a
                   href="#plans"
                   className={`block text-sm font-medium transition-colors ${

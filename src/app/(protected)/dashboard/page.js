@@ -89,13 +89,13 @@ export default function DashboardPage() {
           <div className="max-w-5xl mx-auto px-3 sm:px-5 h-14 flex items-center justify-between gap-2">
             {/* Left: Back button + Logo */}
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <Link
-                href="/"
-                className="flex items-center gap-1.5 text-white/60 hover:text-white text-sm transition-colors shrink-0"
+              <button
+                onClick={() => router.back()}
+                className="flex items-center gap-1.5 text-white/60 hover:text-white text-sm transition-colors shrink-0 bg-transparent border-none p-0 cursor-pointer"
               >
                 <ArrowLeft size={15} />
                 <span className="hidden sm:inline">Back</span>
-              </Link>
+              </button>
 
               <span className="w-px h-5 bg-white/10 shrink-0" />
 

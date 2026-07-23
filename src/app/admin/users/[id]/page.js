@@ -74,7 +74,7 @@ export default function UserDetailPage() {
       <div className="p-6 md:p-8">
         <div className="bg-white rounded-2xl border border-[#CBD5E0] overflow-hidden">
           <UserDetailHeader
-            onBack={() => router.push("/admin/users")}
+            onBack={() => router.back()}
             onRefresh={() => fetchUser()}
             onEdit={() => {}}
             refreshing={refreshing}
@@ -111,7 +111,7 @@ export default function UserDetailPage() {
       <div className="p-6 md:p-8 space-y-6">
         <div className="bg-white rounded-2xl border border-[#CBD5E0] overflow-hidden">
           <UserDetailHeader
-            onBack={() => router.push("/admin/users")}
+            onBack={() => router.back()}
             onRefresh={() => fetchUser({ silent: true })}
             onEdit={() => setShowEdit(true)}
             refreshing={refreshing}
