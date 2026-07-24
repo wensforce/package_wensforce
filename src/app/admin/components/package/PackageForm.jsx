@@ -16,6 +16,7 @@ import { packageApi } from "../../packages/apis/packages.api";
 import { servicesApi } from "../../services/apis/services.api";
 import { useImagePreview } from "../../hooks/useImagePreview";
 import { useFormState } from "../../hooks/useFormState";
+import { useCustomCategory } from "../../hooks/useCustomCategory";
 import TiptapEditor from "./TiptapEditor";
 
 const emptyServiceItem = { id: "", title: "", query: "", count: 1 };
@@ -48,7 +49,7 @@ const cardCls = "rounded-2xl border border-[#CBD5E0] bg-white p-6";
 
 export default function PackageForm({ packageId, initialData, onSaved }) {
   const isEditMode = Boolean(packageId);
-  const { form, setForm, handleFieldChange } = useFormState(initialFormState);
+  const { form, setForm, handleFieldChange, setFieldValue } = useFormState(initialFormState);
   const {
     file: thumbnail,
     setFile: setThumbnail,
@@ -67,6 +68,24 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
   const [existingPhotos, setExistingPhotos] = useState([]);
   const [videos, setVideos] = useState([]);
   const [existingVideos, setExistingVideos] = useState([]);
+  const {
+    category: categoryValue,
+    categoriesList,
+    isCustomCategory,
+    customCategoryInput,
+    toggleCustomMode,
+    handleSelectChange,
+    handleCustomInputChange,
+  } = useCustomCategory({
+    initialCategory: initialData?.category,
+    fetchCategoriesFn: packageApi.fetchCategories,
+  });
+
+  useEffect(() => {
+    if (categoryValue) {
+      setFieldValue("category", categoryValue);
+    }
+  }, [categoryValue, setFieldValue]);
 
   const fileInputRef = useRef(null);
   const photoInputRef = useRef(null);
@@ -82,13 +101,13 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
         discountedPrice: initialData.discountedPrice ?? "",
         services:
           Array.isArray(initialData.packageServices) &&
-          initialData.packageServices.length > 0
+            initialData.packageServices.length > 0
             ? initialData.packageServices.map((ps) => ({
-                id: ps.service?.id ?? "",
-                title: ps.service?.title ?? ps.service?.name ?? "",
-                query: ps.service?.title ?? ps.service?.name ?? "",
-                count: ps.count ?? 1,
-              }))
+              id: ps.service?.id ?? "",
+              title: ps.service?.title ?? ps.service?.name ?? "",
+              query: ps.service?.title ?? ps.service?.name ?? "",
+              count: ps.count ?? 1,
+            }))
             : [{ ...emptyServiceItem }],
         vehicleType: initialData.vehicleType ?? "",
         vehicleModel: Array.isArray(initialData.vehicleModel)
@@ -118,19 +137,19 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
       setExistingPhotos(
         Array.isArray(initialData.images)
           ? initialData.images.map((p) => ({
-              key: p.urlKey ?? p.url,
-              url: p.url,
-            }))
+            key: p.urlKey ?? p.url,
+            url: p.url,
+          }))
           : [],
       );
       setPhotos([]);
       setExistingVideos(
         Array.isArray(initialData.videos)
           ? initialData.videos.map((v) => ({
-              key: v.urlKey ?? v.url,
-              url: v.url,
-              name: v.name ?? "",
-            }))
+            key: v.urlKey ?? v.url,
+            url: v.url,
+            name: v.name ?? "",
+          }))
           : [],
       );
       setVideos([]);
@@ -839,7 +858,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                         playsInline
                         onMouseEnter={(e) => {
                           const p = e.currentTarget.play();
-                          if (p !== undefined) p.catch(() => {});
+                          if (p !== undefined) p.catch(() => { });
                         }}
                         onMouseLeave={(e) => {
                           const video = e.currentTarget;
@@ -848,7 +867,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                             p.then(() => {
                               video.pause();
                               video.currentTime = 0;
-                            }).catch(() => {});
+                            }).catch(() => { });
                           else {
                             video.pause();
                             video.currentTime = 0;
@@ -895,7 +914,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                         playsInline
                         onMouseEnter={(e) => {
                           const p = e.currentTarget.play();
-                          if (p !== undefined) p.catch(() => {});
+                          if (p !== undefined) p.catch(() => { });
                         }}
                         onMouseLeave={(e) => {
                           const video = e.currentTarget;
@@ -904,7 +923,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                             p.then(() => {
                               video.pause();
                               video.currentTime = 0;
-                            }).catch(() => {});
+                            }).catch(() => { });
                           else {
                             video.pause();
                             video.currentTime = 0;
@@ -982,23 +1001,67 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <label className="block text-sm font-semibold text-[#0B1E3F]">
-                  Category <span className="text-red-500">*</span>
-                </label>
-                <select
-                  name="category"
-                  value={form.category}
-                  onChange={handleFieldChange}
-                  disabled={saving}
-                  className={inputCls}
-                >
-                  <option value="">Select category</option>
-                  <option value="membership">Membership</option>
-                  <option value="welcome_india">Welcome India</option>
-                  <option value="corporate">Corporate</option>
-                  <option value="pilgrims">Pilgrims</option>
-                  <option value="multi-region">Multi-Region</option>
-                </select>
+                <div className="flex items-center justify-between">
+                  <label className="block text-sm font-semibold text-[#0B1E3F]">
+                    Category <span className="text-red-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextMode = !isCustomCategory;
+                      setIsCustomCategory(nextMode);
+                      if (nextMode) {
+                        setForm((prev) => ({ ...prev, category: customCategoryInput }));
+                      } else {
+                        setForm((prev) => ({
+                          ...prev,
+                          category: categoriesList[0] || "membership",
+                        }));
+                      }
+                    }}
+                    className="text-xs font-semibold text-[#C9A24B] hover:underline"
+                  >
+                    {isCustomCategory ? "Select from list" : "+ Add Custom Category"}
+                  </button>
+                </div>
+
+                {!isCustomCategory ? (
+                  <select
+                    name="category"
+                    value={form.category}
+                    onChange={(e) => {
+                      if (e.target.value === "__custom__") {
+                        setIsCustomCategory(true);
+                        setForm((prev) => ({ ...prev, category: customCategoryInput }));
+                      } else {
+                        handleFieldChange(e);
+                      }
+                    }}
+                    disabled={saving}
+                    className={inputCls}
+                  >
+                    <option value="">Select category</option>
+                    {categoriesList.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat.replace(/_/g, " ").toUpperCase()}
+                      </option>
+                    ))}
+                    <option value="__custom__">+ Add Custom Category...</option>
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    value={customCategoryInput}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setCustomCategoryInput(val);
+                      setForm((prev) => ({ ...prev, category: val }));
+                    }}
+                    disabled={saving}
+                    placeholder="Enter custom category (e.g. all, vip_events)"
+                    className={inputCls}
+                  />
+                )}
               </div>
               <div className="space-y-1.5">
                 <label className="block text-sm font-semibold text-[#0B1E3F]">
@@ -1203,14 +1266,12 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                   setForm((prev) => ({ ...prev, isActive: !prev.isActive }))
                 }
                 disabled={saving}
-                className={`relative h-7 w-14 shrink-0 rounded-full transition-colors duration-200 focus:outline-none ${
-                  form.isActive ? "bg-[#0B1E3F]" : "bg-[#CBD5E0]"
-                }`}
+                className={`relative h-7 w-14 shrink-0 rounded-full transition-colors duration-200 focus:outline-none ${form.isActive ? "bg-[#0B1E3F]" : "bg-[#CBD5E0]"
+                  }`}
               >
                 <span
-                  className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform duration-200 ${
-                    form.isActive ? "translate-x-7" : "translate-x-0"
-                  }`}
+                  className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform duration-200 ${form.isActive ? "translate-x-7" : "translate-x-0"
+                    }`}
                 />
               </button>
             </div>

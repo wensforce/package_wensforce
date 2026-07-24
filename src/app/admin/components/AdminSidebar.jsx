@@ -17,6 +17,7 @@ import {
   Hash,
   Gift,
   Route,
+  Share2,
 } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
@@ -31,6 +32,7 @@ const navItems = [
   { label: "Offers", href: "/admin/offers", icon: Gift },
   { label: "Subscriptions", href: "/admin/subscriptions", icon: CalendarCheck },
   { label: "Trips", href: "/admin/trips", icon: Route },
+  { label: "Referral Programs", href: "/admin/referral-programs", icon: Share2 },
 ];
 
 function SidebarContent({ collapsed, setCollapsed, onClose, isMobile }) {
@@ -86,10 +88,9 @@ function SidebarContent({ collapsed, setCollapsed, onClose, isMobile }) {
                   onClick={isMobile ? onClose : undefined}
                   title={collapsed && !isMobile ? label : undefined}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200
-                    ${
-                      isActive
-                        ? "bg-[#C9A24B] text-[#0B1E3F]"
-                        : "text-[#A0AEC0] hover:bg-[#1E3A6F] hover:text-white"
+                    ${isActive
+                      ? "bg-[#C9A24B] text-[#0B1E3F]"
+                      : "text-[#A0AEC0] hover:bg-[#1E3A6F] hover:text-white"
                     }`}
                 >
                   <Icon size={18} className="flex-shrink-0" />
@@ -161,7 +162,7 @@ export default function AdminSidebar({ mobileOpen, onMobileClose }) {
       >
         <SidebarContent
           collapsed={false}
-          setCollapsed={() => {}}
+          setCollapsed={() => { }}
           onClose={onMobileClose}
           isMobile
         />
@@ -175,7 +176,7 @@ export default function AdminSidebar({ mobileOpen, onMobileClose }) {
         <SidebarContent
           collapsed={collapsed}
           setCollapsed={setCollapsed}
-          onClose={() => {}}
+          onClose={() => { }}
           isMobile={false}
         />
       </aside>
