@@ -32,6 +32,7 @@ import ExpoHeroSlider from '../components/ExpoHeroSlider';
 import ExpoFilters from '../components/ExpoFilters';
 import ExpoCard from '../components/ExpoCard';
 import { exposGallery } from '../data/expos.js';
+import CustomQuoteSection from '../components/CustomQuoteSection';
 const WA_PHONE = '917304607954';
 
 export default function ExpoHub({ expos }) {
@@ -308,8 +309,17 @@ export default function ExpoHub({ expos }) {
           font-size: 13px;
           font-weight: 600;
           color: #C9A227;
-          padding-top: 12px;
-          border-top: 1px solid #E4E1D8;
+          padding: 10px 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 2px solid #C9A227;
+          border-radius: 6px;
+        }
+        .uc-card-cta:hover {
+          background: #C9A227;
+          color: #fff;
+          transition: all 0.3s ease;
         }
         .uc-footer-cta {
           max-width: 1120px;
@@ -693,7 +703,7 @@ export default function ExpoHub({ expos }) {
       </section>
 
       {/* Filters & Card Grid */}
-      <section className="filters-sec">
+      <section id='expo-hub' className="filters-sec">
         <div className="wrap">
           <h2>Browse All Events</h2>
           
@@ -762,6 +772,11 @@ export default function ExpoHub({ expos }) {
           </div>
         </div>
       </section>
+      </div>
+      <CustomQuoteSection />
+      <div className="wrap" style={{ maxWidth: '1120px', margin: '0 auto', padding: '60px 24px', display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '700px' }}>
+            <h5 style={{color: '#666', fontSize: '16px', lineHeight: '1.6', fontWeight: '600'}}>Disclaimer :</h5>
+            <p style={{color: '#666', fontSize: '14px', lineHeight: '1.6'}} >This page/article/publication contains news commentary and informational/directional updates regarding expo or event. We are independent platform and are not endorsed by, sponsored by, officially affiliated by, The owner, organizer or organization. All registered trademarks, logos, brand names belong to their respective owners. Content is used strictly for educational, review and news awareness purposes under fair use/ fair dealing principles can be down on authorized request.</p>
       </div>
       <SimpleFooter />
     </>

@@ -1,6 +1,6 @@
 'use client';
 
-import { MapPin, Plane, MapPinCheck, Clock, Users, Shield } from 'lucide-react';
+import { MapPin, Plane, MapPinCheck, Clock, Users, Shield, Users2, ConciergeBell, Key, ChefHat } from 'lucide-react';
 
 export default function ExpoServiceCoverage({ expo }) {
   // Get airport and coverage data from expo object
@@ -15,7 +15,7 @@ export default function ExpoServiceCoverage({ expo }) {
     pickupPoints: ['Multiple pickup locations'],
     dropLocation: expo.venue,
     serviceArea: `${expo.city} metropolitan area`,
-    amenities: ['Professional services', '24x7 support'],
+    amenities: ['Professional services', '24x7 support', 'imported Spring water', 'Customized Requests'],
   };
 
   const features = [
@@ -25,6 +25,10 @@ export default function ExpoServiceCoverage({ expo }) {
     { icon: Users, label: 'Professional Team', desc: 'Dedicated relationship manager' },
     { icon: Shield, label: 'Flight Tracking', desc: 'Real-time flight monitoring' },
     { icon: MapPin, label: 'Multi-Stop Support', desc: 'Flexible route customization' },
+    { icon: ConciergeBell, label: 'Concierge Request', desc: 'We take every request without annual enrolment for expo visitors.' },
+    { icon: Key , label: 'Access', desc: 'Event Planners, Hospitality Experts & 10,000+ Industry Connections to the rare, glamorous and exotic' },
+    { icon: ChefHat, label: 'Gourmet Chef', desc: 'Short term Chef for Culinary Experiences.' },
+    { icon: "Butler", label: 'Butler Services', desc: 'Delivers ultra-personalized and high-end hospitality for CxOs & UHNIs.' },
   ];
 
   return (
@@ -248,7 +252,14 @@ export default function ExpoServiceCoverage({ expo }) {
           {features.map((feature, idx) => (
             <div key={idx} className="feature-card">
               <div className="feature-icon">
-                <feature.icon size={24} />
+                {
+                  feature.icon === "Butler" ? (
+                    <img src="/butler.png" style={{padding: "8px"}} alt="Butler" />
+                  ) : (
+                    <feature.icon size={24} />
+                  )
+                }
+                {/* <feature.icon size={24} /> */}
               </div>
               <span className="feature-label">{feature.label}</span>
               <span className="feature-desc">{feature.desc}</span>

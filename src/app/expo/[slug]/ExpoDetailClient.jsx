@@ -422,7 +422,7 @@ export default function ExpoDetailClient({ expo, packages, faqs }) {
       </section>
       </div>
       {/* Custom Quote Section — outside expo-detail-container to prevent CSS reset override */}
-      <CustomQuoteSection />
+      <CustomQuoteSection expo={expo} />
       <SimpleFooter />
     </>
   );

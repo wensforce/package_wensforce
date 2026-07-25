@@ -12,7 +12,7 @@ import { ChevronRight, ChevronLeft, ShieldCheck, BadgeCheck } from 'lucide-react
 const brandSlides = [
   {
     id: 1,
-    headline: 'You land.',
+    headline: 'You land for Expo in India.',
     subheadline: 'We handle the rest.',
     description: 'Airport pickup, executive transfer, close protection — arranged before you land. No vendors to chase, no cars to book.',
     icon: null,
@@ -26,13 +26,13 @@ const brandSlides = [
     subheadline: 'Close Protection Officer',
     description: 'A sanitised premium vehicle and a trained, PSARA-compliant protection officer — one seamless team, from touchdown to the venue.',
     icon: null,
-    cta: 'View Packages',
+    cta: '24×7 Concierge',
     bgGradient: 'linear-gradient(135deg, rgba(26, 35, 50, 0.9), rgba(26, 35, 50, 0.7))',
     image: '/expo-banner/Banner2.png', // prompt 2 — chauffeur + CPO together
   },
   {
     id: 3,
-    headline: 'Licensed Since 2008,',
+    headline: 'From Risk Management to Lifestyle.',
     subheadline: 'Not Just Promised',
     description: 'PSARA-licensed, 24x7 concierge, a track record with VIP delegations — the credentials are on file, not just on the page.',
     icon: null,
@@ -352,6 +352,8 @@ export default function ExpoHeroSlider() {
           .hero-nav-button {
             width: 36px;
             height: 36px;
+            top: 16px;
+            transform: translateY(0);
           }
           .hero-nav-button svg {
             width: 16px;
@@ -369,6 +371,7 @@ export default function ExpoHeroSlider() {
           .hero-nav-button {
             width: 32px;
             height: 32px;
+            top: 12px;
           }
           .hero-nav-button svg {
             width: 14px;
@@ -437,12 +440,12 @@ export default function ExpoHeroSlider() {
                       <p className="hero-slide-description">
                         {slide.description}
                       </p>
-                      <Link
-                        href="/expo"
-                        className="hero-slide-cta"
-                      >
+
+                      <a
+                      href={slide.cta === 'View Packages' ? '#expo-hub' : '#custom-quote-section'}
+                      className="hero-slide-cta">
                         {slide.cta} <ChevronRight size={16} />
-                      </Link>
+                      </a>
                     </div>
 
                     {/* Footer: Credentials */}
@@ -459,6 +462,7 @@ export default function ExpoHeroSlider() {
         </Swiper>
 
         {/* Navigation Buttons */}
+        <div className="hero-nav-buttons">
         <button 
           className="hero-nav-button hero-nav-prev"
           onClick={() => swiperRef.current?.swiper.slidePrev()}
@@ -473,6 +477,7 @@ export default function ExpoHeroSlider() {
         >
           <ChevronRight size={20} />
         </button>
+        </div>
       </div>
     </>
   );

@@ -353,22 +353,19 @@ export default function ExpoPackagesSection({ expo, packages }) {
         }
       `}</style>
 
-      <h2 style={{ marginBottom: '16px', marginTop: '0', fontSize: '24px', fontWeight: '700', color: '#0B1F3A', textAlign: 'center' }}>
-        Choose Your Package
-      </h2>
-
-      {/* button for navigate custom quote */}
-      <div style={{ textAlign: 'center', marginBottom: '36px' }}>
+  {/* button for navigate custom quote */}
+      <div style={{ textAlign: 'center', marginBottom: '16px' }}>
         <button
           style={{
             padding: '12px 24px',
-            background: '#4a7aaa',
-            color: '#ffffff',
+            background: 'linear-gradient(90deg,rgba(230, 182, 64, 1) 0%, rgba(246, 218, 122, 1) 100%)',
+            color: '#3B3B3B',
             fontWeight: '700',
             fontSize: '14px',
-            border: 'none',
+            border: '1px solid #E6B640',
             borderRadius: '8px',
             cursor: 'pointer',
+            textTransform: 'uppercase',
           }}
           onClick={() => {
             // Navigate to custom quote section
@@ -378,9 +375,14 @@ export default function ExpoPackagesSection({ expo, packages }) {
             }
           }}
         >
-          Get a Custom Quote
+          Get Instant Custom Quote
         </button>
       </div>
+        <p style={{ textAlign: 'center', margin: '6px 0', fontWeight: '700', color: '#4b4b4b' }}>"or"</p>
+      <h2 style={{ marginBottom: '16px', marginTop: '0', fontSize: '24px', fontWeight: '700', color: '#0B1F3A', textAlign: 'center' }}>
+        Choose Your Package
+      </h2>
+    
 
       <div className="expo-packages-container">
         {packages.map((pkg, idx) => {

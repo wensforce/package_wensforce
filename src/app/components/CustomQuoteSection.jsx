@@ -4,7 +4,7 @@ import {
   Zap, Handshake, Target, Sparkles,
 } from 'lucide-react';
 
-export default function CustomQuoteSection() {
+export default function CustomQuoteSection({ expo}) {
 
   return (
     <>
@@ -28,7 +28,7 @@ export default function CustomQuoteSection() {
         {/* Zoho Form */}
         <div className="relative z-10 max-w-2xl mx-auto rounded-2xl overflow-hidden ">
           <iframe
-            src="https://forms.zohopublic.in/wensforceinternational1/form/ExpoPackage/formperma/bRcFTZDPC_uIEmUNzs1rK0GmhafB3Zs6l1gWJ50meLM"
+            src={`https://forms.zohopublic.in/wensforceinternational1/form/ExpoPackage/formperma/bRcFTZDPC_uIEmUNzs1rK0GmhafB3Zs6l1gWJ50meLM?expoName=${encodeURIComponent(expo?.name || "Not Specified")}`}
             width="100%"
             height="667px"
             style={{ border: 'none', display: 'block' }}
