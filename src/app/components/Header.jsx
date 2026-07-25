@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Crown, Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -10,9 +10,18 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const isWelcomeIndia = searchParams.get('welcomeIndia') === 'true';
 
   const { isLoggedIn, user } = useAuth();
+
+  // Helper function to navigate to sections
+  const getNavLink = (sectionId) => {
+    if (pathname === '/') {
+      return `#${sectionId}`;
+    }
+    return `/#${sectionId}`;
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -49,7 +58,7 @@ export default function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             <a
-              href="#plans"
+              href={getNavLink('plans')}
               className={`text-sm font-medium transition-colors ${
                 scrolled
                   ? 'text-gray-600 hover:text-gray-900'
@@ -60,7 +69,7 @@ export default function Header() {
             </a>
             {!isWelcomeIndia && (
             <a
-              href="#compare"
+              href={getNavLink('compare')}
               className={`text-sm font-medium transition-colors ${
                 scrolled
                   ? 'text-gray-600 hover:text-gray-900'
@@ -71,7 +80,7 @@ export default function Header() {
             </a>
             )}
             <a
-              href="#how-it-works"
+              href={getNavLink('how-it-works')}
               className={`text-sm font-medium transition-colors ${
                 scrolled
                   ? 'text-gray-600 hover:text-gray-900'
@@ -81,7 +90,7 @@ export default function Header() {
               How It Works
             </a>
             <a
-              href="#testimonials"
+              href={getNavLink('testimonials')}
               className={`text-sm font-medium transition-colors ${
                 scrolled
                   ? 'text-gray-600 hover:text-gray-900'
@@ -91,7 +100,7 @@ export default function Header() {
               Testimonials
             </a>
             <a
-              href="#founding"
+              href={getNavLink('founding')}
               className={`text-sm font-medium transition-colors ${
                 scrolled
                   ? 'text-gray-600 hover:text-gray-900'
@@ -100,6 +109,16 @@ export default function Header() {
             >
               Offer
             </a>
+            <Link
+              href="/expo"
+              className={`text-sm font-medium transition-colors ${
+                scrolled
+                  ? 'text-gray-600 hover:text-gray-900'
+                  : 'text-white/70 hover:text-white'
+              }`}
+            >
+              Expo
+            </Link>
           </nav>
 
           {/* Desktop CTA */}
@@ -129,7 +148,7 @@ export default function Header() {
             )
             }
             <a
-              href="#plans"
+              href={getNavLink('plans')}
               className={`inline-flex items-center gap-2 font-semibold py-2.5 px-6 rounded-full text-sm transition-all ${
                 scrolled
                   ? 'bg-[#BF9F00] text-black hover:bg-[#a88a00]'
@@ -160,7 +179,7 @@ export default function Header() {
           }`}>
             <nav className="px-6 py-4 space-y-3">
               <a
-                href="#plans"
+                href={getNavLink('plans')}
                 className={`block text-sm font-medium transition-colors ${
                   scrolled ? 'text-gray-600 hover:text-gray-900' : 'text-white/70 hover:text-white'
                 }`}
@@ -170,7 +189,7 @@ export default function Header() {
               </a>
               {!isWelcomeIndia && (
               <a
-                href="#compare"
+                href={getNavLink('compare')}
                 className={`block text-sm font-medium transition-colors ${
                   scrolled ? 'text-gray-600 hover:text-gray-900' : 'text-white/70 hover:text-white'
                 }`}
@@ -206,6 +225,15 @@ export default function Header() {
               >
                 Offer
               </a>
+              <Link
+                href="/expo"
+                className={`block text-sm font-medium transition-colors ${
+                  scrolled ? 'text-gray-600 hover:text-gray-900' : 'text-white/70 hover:text-white'
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Expo
+              </Link>
               {isLoggedIn && (
                 <Link
                   href="/dashboard"
@@ -218,7 +246,7 @@ export default function Header() {
                 </Link>
               )}
               <a
-                href="#plans"
+                href={getNavLink('plans')}
                 className="block w-full bg-[#BF9F00] text-black font-semibold py-2.5 rounded-full text-sm hover:bg-[#a88a00] transition-all text-center mt-4"
                 onClick={() => setMobileMenuOpen(false)}
               >
