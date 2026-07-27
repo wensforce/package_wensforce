@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useState, useRef, useEffect } from "react";
 import { authApiUser } from "@/app/user-apis/auth.api";
 import { useAuth } from "@/app/context/AuthContext";
@@ -35,16 +35,18 @@ export const useAuthFlow = ({ onSuccess } = {}) => {
   const otpRefs = useRef([]);
   const countdownIntervalRef = useRef(null);
   const { login } = useAuth();
-
+  const [newUser, setNewUser] = useState(false);
   useEffect(() => {
     return () => {
-      if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+      if (countdownIntervalRef.current)
+        clearInterval(countdownIntervalRef.current);
     };
   }, []);
 
   const startCountdown = () => {
     setCountdown(60);
-    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    if (countdownIntervalRef.current)
+      clearInterval(countdownIntervalRef.current);
     countdownIntervalRef.current = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
@@ -60,6 +62,7 @@ export const useAuthFlow = ({ onSuccess } = {}) => {
     e.preventDefault();
     try {
       setLoading(true);
+      setNewUser(false);
       await authApiUser.sendOtp(selectedCountry.code + phone);
       setStep("otp");
       startCountdown();
@@ -77,12 +80,15 @@ export const useAuthFlow = ({ onSuccess } = {}) => {
     e.preventDefault();
     try {
       setLoading(true);
-      const data = await authApiUser.verifyOtp(
+      const response = await authApiUser.verifyOtp(
         selectedCountry.code + phone,
         otp.join(""),
       );
-      await login(data.data.accessToken, data.data.user);
-      onSuccess?.(data.data.user);
+      const isNewUser =
+        response?.status === 201 || response?.statusCode === 201;
+      setNewUser(isNewUser);
+      await login(response.data.accessToken, response.data.user);
+      onSuccess?.(response.data.user, isNewUser);
     } catch (error) {
       console.error("handleVerifyOtp error:", error);
       toast.error(
@@ -146,35 +152,35 @@ export const useAuthFlow = ({ onSuccess } = {}) => {
   };
 
   const handleBack = () => {
+    setNewUser(false);
     setStep("phone");
     setOtp(["", "", "", "", "", ""]);
-    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    if (countdownIntervalRef.current)
+      clearInterval(countdownIntervalRef.current);
     setCountdown(0);
   };
   return {
-  // State
-  step,
-  phone,
-  setPhone,
-  selectedCountry,
-  setSelectedCountry,
-  otp,
-  loading,
-  countdown,
-  otpRefs,
-  COUNTRY_CODES,
+    // State
+    step,
+    phone,
+    setPhone,
+    newUser,
+    selectedCountry,
+    setSelectedCountry,
+    otp,
+    loading,
+    countdown,
+    otpRefs,
+    COUNTRY_CODES,
 
-  // Handlers
-  handleSendOtp,
-  handleVerifyOtp,
-  handleOtpChange,
-  handleOtpKeyDown,
-  handleOtpPaste,
-  handleResendViaSms,
-  handleResendViaWhatsapp,
-  handleBack,
-}
-}
-
-
-
+    // Handlers
+    handleSendOtp,
+    handleVerifyOtp,
+    handleOtpChange,
+    handleOtpKeyDown,
+    handleOtpPaste,
+    handleResendViaSms,
+    handleResendViaWhatsapp,
+    handleBack,
+  };
+};

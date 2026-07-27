@@ -10,6 +10,7 @@ export default function OrderSummary({
   // INR amounts
   price,
   discountAmount = 0,
+  referralDiscountAmount = 0,
   gstAmount,
   indiaTotalINR,
   intlGstAmount,
@@ -80,6 +81,23 @@ export default function OrderSummary({
               {!isIndia && !currencyRateLoading && (
                 <p className="text-green-500 text-[10px] tabular-nums">
                   -{INR(discountAmount)}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Referral Discount */}
+        {referralDiscountAmount > 0 && (
+          <div className="flex justify-between items-center text-[#C9A24B]">
+            <span className="text-xs font-bold">Referral Discount</span>
+            <div className="text-right">
+              <span className="text-sm font-bold tabular-nums">
+                -{isIndia ? INR(referralDiscountAmount) : toForeign(referralDiscountAmount)}
+              </span>
+              {!isIndia && !currencyRateLoading && (
+                <p className="text-[#C9A24B]/80 text-[10px] tabular-nums">
+                  -{INR(referralDiscountAmount)}
                 </p>
               )}
             </div>

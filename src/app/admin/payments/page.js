@@ -9,6 +9,7 @@ import {
   XCircle,
   Ban,
   Eye,
+  Sparkles,
 } from "lucide-react";
 import { paymentApi } from "./apis/payments.api";
 import AdminTable from "../components/AdminTable";
@@ -22,6 +23,7 @@ const COLUMNS = [
   { key: "package", label: "Package" },
   { key: "amount", label: "Amount" },
   { key: "discount", label: "Discount" },
+  { key: "referral", label: "Referral" },
   { key: "finalAmount", label: "Final" },
   { key: "coupon", label: "Coupon" },
   { key: "order", label: "Order ID" },
@@ -165,6 +167,24 @@ export default function PaymentsPage() {
           <span className="text-xs text-[#4A5568] whitespace-nowrap">
             {formatMoney(payment.discountAmount)}
           </span>
+        );
+      case "referral":
+        return payment.appliedReferralRewardId || payment.referralDiscountAmount ? (
+          <div className="flex flex-col gap-0.5">
+            {payment.referralDiscountAmount ? (
+              <span className="inline-flex items-center gap-1 rounded-md border border-[#C9A24B]/40 bg-[#FAF6EC] px-2 py-0.5 text-xs font-semibold text-[#0B1E3F] whitespace-nowrap">
+                <Sparkles size={11} className="text-[#C9A24B]" />
+                -{formatMoney(payment.referralDiscountAmount)}
+              </span>
+            ) : null}
+            {payment.appliedReferralRewardId ? (
+              <span className="text-[10px] text-[#718096]">
+                Reward #{payment.appliedReferralRewardId}
+              </span>
+            ) : null}
+          </div>
+        ) : (
+          <span className="text-xs text-[#A0AEC0]">-</span>
         );
       case "finalAmount":
         return (

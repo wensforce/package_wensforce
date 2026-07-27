@@ -67,10 +67,34 @@ export default function PaymentOverviewCard({ payment }) {
             <Row label="Amount" value={formatMoney(payment.amount)} />
             <Row label="Discount" value={formatMoney(payment.discountAmount)} />
             <Row
+              label="Referral Discount"
+              value={formatMoney(payment.referralDiscountAmount)}
+            />
+            <Row
               label="Final Amount"
               value={formatMoney(payment.finalAmount)}
             />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <Row label="Coupon" value={payment.couponCode || "None"} mono />
+            <Row
+              label="Referral Reward"
+              value={
+                payment.appliedReferralRewardId
+                  ? `#${payment.appliedReferralRewardId}${
+                      payment.referralRewardDetails
+                        ? ` (${
+                            payment.referralRewardDetails.rewardCalcType === "percentage"
+                              ? `${payment.referralRewardDetails.rewardValue}%`
+                              : `₹${payment.referralRewardDetails.rewardValue}`
+                          })`
+                        : ""
+                    }`
+                  : "None"
+              }
+              mono
+            />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

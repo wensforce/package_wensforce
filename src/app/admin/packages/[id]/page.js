@@ -17,8 +17,6 @@ export default function PackageDetailPage() {
   const [packageData, setPackageData] = useState(null);
   const { loading, setLoading, error, setError } = useFetchList();
   const [refreshing, setRefreshing] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState(null);
 
   const fetchPackage = useCallback(
     async ({ silent = false } = {}) => {
@@ -50,28 +48,6 @@ export default function PackageDetailPage() {
     });
   }, [fetchPackage]);
 
-  const handleDelete = async () => {
-    if (
-      !confirm(
-        "Are you sure you want to delete this package? This action cannot be undone.",
-      )
-    ) {
-      return;
-    }
-
-    setDeleting(true);
-    setDeleteError(null);
-    try {
-      await packageApi.deletePackage(packageId);
-      router.push("/admin/packages");
-    } catch (err) {
-      setDeleteError(
-        err?.response?.data?.message || "Failed to delete package.",
-      );
-      setDeleting(false);
-    }
-  };
-
   if (loading && !packageData) {
     return (
       <div className="p-8 min-h-[60vh] flex items-center justify-center">
@@ -94,9 +70,7 @@ export default function PackageDetailPage() {
             onBack={() => router.back()}
             onRefresh={() => fetchPackage()}
             onEdit={() => {}}
-            onDelete={() => {}}
             refreshing={refreshing}
-            deleting={deleting}
           />
 
           <div className="p-8 text-center">
@@ -132,20 +106,12 @@ export default function PackageDetailPage() {
           onBack={() => router.back()}
           onRefresh={() => fetchPackage({ silent: true })}
           onEdit={() => router.push(`/admin/packages/edit/${packageData.id}`)}
-          onDelete={handleDelete}
           refreshing={refreshing}
-          deleting={deleting}
         />
 
         {error && (
           <div className="mx-6 mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {error}
-          </div>
-        )}
-
-        {deleteError && (
-          <div className="mx-6 mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {deleteError}
           </div>
         )}
 

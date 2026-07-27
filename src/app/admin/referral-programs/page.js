@@ -17,11 +17,16 @@ import {
   Clock,
   Ban,
   Activity,
+  
   Pencil,
 } from "lucide-react";
+
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AdminTable from "../components/AdminTable";
 import { referralApi } from "./apis/referral.api";
+import { useDeleteReferralProgram } from "./hooks/useDeleteReferralProgram";
+import { toast } from "sonner";
 
 const PAGE_LIMIT = 10;
 
@@ -53,10 +58,17 @@ export default function ReferralProgramsPage() {
     totalPages: 1,
   });
 
-  // Delete / Cancel modal state
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [programToDelete, setProgramToDelete] = useState(null);
-  const [deleting, setDeleting] = useState(false);
+  // Use custom hook for deleting referral programs
+  const {
+    programToDelete,
+    deleteModalOpen,
+    deleting,
+    confirmDelete,
+    closeDeleteModal,
+    handleDelete,
+  } = useDeleteReferralProgram({
+    onSuccess: () => loadPrograms(),
+  });
 
   // View tracks modal state
   const [tracksModalOpen, setTracksModalOpen] = useState(false);
@@ -113,29 +125,6 @@ export default function ReferralProgramsPage() {
     router.push(`/admin/referral-programs/edit/${program.id}`);
   };
 
-  // Handle Delete
-  const confirmDelete = (program) => {
-    setProgramToDelete(program);
-    setDeleteModalOpen(true);
-  };
-
-  const handleDelete = async () => {
-    if (!programToDelete) return;
-    setDeleting(true);
-    try {
-      const res = await referralApi.deleteProgram(programToDelete.id);
-      const msg = res?.message || "Referral program processed successfully";
-      toast.success(msg);
-      setDeleteModalOpen(false);
-      setProgramToDelete(null);
-      loadPrograms();
-    } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed to delete referral program");
-    } finally {
-      setDeleting(false);
-    }
-  };
-
   // View tracks
   const handleViewTracks = async (program) => {
     setSelectedProgramForTracks(program);
@@ -163,12 +152,15 @@ export default function ReferralProgramsPage() {
       case "name":
         return (
           <div>
-            <div className="font-bold text-[#0B1E3F] text-sm flex items-center gap-2">
+            <Link
+              href={`/admin/referral-programs/${row.id}`}
+              className="font-bold text-[#0B1E3F] hover:text-[#C9A24B] hover:underline text-sm flex items-center gap-2 transition-colors"
+            >
               <span>{row.name}</span>
               <span className="text-[10px] font-semibold text-[#4A5568] bg-[#FAF6EC] border border-[#CBD5E0] px-1.5 py-0.5 rounded">
                 ID: {row.id}
               </span>
-            </div>
+            </Link>
             <div className="text-xs text-[#718096] mt-0.5">
               {row.startDate ? new Date(row.startDate).toLocaleDateString() : "No start limit"} —{" "}
               {row.endDate ? new Date(row.endDate).toLocaleDateString() : "No end limit"}
@@ -248,8 +240,8 @@ export default function ReferralProgramsPage() {
         return (
           <div className="flex items-center justify-end gap-1.5">
             <button
-              onClick={() => handleViewTracks(row)}
-              title="View Tracking History"
+              onClick={() => router.push(`/admin/referral-programs/${row.id}`)}
+              title="View Program Details & Audit History"
               className="p-1.5 text-[#4A5568] hover:text-[#0B1E3F] hover:bg-[#FAF6EC] rounded-lg transition-colors"
             >
               <Eye size={16} />
@@ -326,7 +318,7 @@ export default function ReferralProgramsPage() {
 
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#CBD5E0]">
               <button
-                onClick={() => setDeleteModalOpen(false)}
+                onClick={closeDeleteModal}
                 disabled={deleting}
                 className="px-4 py-2 text-xs font-semibold text-[#4A5568] bg-[#FAF6EC] hover:bg-[#E2E8F0] rounded-xl transition-colors"
               >

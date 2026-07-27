@@ -14,6 +14,7 @@ import {
   User,
   Mail,
   ArrowLeft,
+  Sparkles,
 } from "lucide-react";
 import {
   INR,
@@ -97,6 +98,43 @@ export default function CheckoutForm({
   const [couponError, setCouponError] = useState("");
   const [showCouponPanel, setShowCouponPanel] = useState(false);
 
+  /* ── Referral Reward State ── */
+  const [availableReferralRewards, setAvailableReferralRewards] = useState([]);
+  const [selectedReferralReward, setSelectedReferralReward] = useState(null);
+  const [referralRewardLoading, setReferralRewardLoading] = useState(false);
+  const [showReferralRewardPanel, setShowReferralRewardPanel] = useState(false);
+
+  useEffect(() => {
+    if (!user?.id || !packageData?.category) return;
+    let isMounted = true;
+    setReferralRewardLoading(true);
+
+    authApiUser
+      .getReferralSummary(packageData.category)
+      .then((res) => {
+        if (!isMounted) return;
+        const allRewards = res?.data?.rewards || [];
+        const eligible = allRewards.filter((r) => {
+          if (r.isRedeemed) return false;
+          const ids = r.eligiblePackageIds || [];
+          if (ids.length === 0) return true;
+          return ids.includes(packageData.id) || ids.includes(Number(packageData.id));
+        });
+        setAvailableReferralRewards(eligible);
+        if (eligible.length > 0) {
+          setShowReferralRewardPanel(true);
+        }
+      })
+      .catch((err) => console.error("Error loading referral rewards for checkout:", err))
+      .finally(() => {
+        if (isMounted) setReferralRewardLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.id, packageData?.category, packageData?.id]);
+
   /* Pre-fill from auth */
   useEffect(() => {
     if (!user) return;
@@ -113,7 +151,23 @@ export default function CheckoutForm({
   /* ── Derived pricing ── */
   const price = packageData.discountedPrice;
   const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
-  const discountedBasePrice = Math.max(1, price - discountAmount);
+
+  // Calculate Referral Discount
+  let referralDiscountAmount = 0;
+  if (selectedReferralReward) {
+    if (selectedReferralReward.rewardCalcType === "fixed") {
+      referralDiscountAmount = Number(selectedReferralReward.rewardValue || selectedReferralReward.rewardAmountINR || 0);
+    } else if (selectedReferralReward.rewardCalcType === "percentage") {
+      const base = Math.max(0, price - discountAmount);
+      referralDiscountAmount = base * (Number(selectedReferralReward.rewardValue || 0) / 100);
+    } else {
+      referralDiscountAmount = Number(selectedReferralReward.rewardAmountINR || 0);
+    }
+    referralDiscountAmount = Math.min(referralDiscountAmount, Math.max(0, price - discountAmount));
+  }
+
+  const totalDiscount = discountAmount + referralDiscountAmount;
+  const discountedBasePrice = Math.max(1, price - totalDiscount);
   const effectiveGstRate =
     isWelcomeIndia || packageData.gst === null || packageData.gst === undefined
       ? 0
@@ -227,6 +281,7 @@ export default function CheckoutForm({
             packageId: packageData.id,
             planName: packageData.name,
             couponCode: appliedCoupon?.code || undefined,
+            referralRewardId: selectedReferralReward?.id || undefined,
           }
         : {
             amount: intlTotalForeign,
@@ -237,6 +292,7 @@ export default function CheckoutForm({
             packageId: packageData.id,
             planName: packageData.name,
             couponCode: appliedCoupon?.code || undefined,
+            referralRewardId: selectedReferralReward?.id || undefined,
           };
 
       await trackLead({
@@ -501,6 +557,79 @@ export default function CheckoutForm({
               </div>
             </div>
 
+            {/* Referral Reward Section */}
+            {availableReferralRewards.length > 0 && (
+              <div className="border border-[#C9A24B]/30 rounded-xl bg-[#FAF6EC]/30 overflow-hidden transition-all duration-300 ease-in-out mt-4 shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => setShowReferralRewardPanel(!showReferralRewardPanel)}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-[#FAF6EC]/60 hover:bg-[#FAF6EC] transition-colors text-left"
+                >
+                  <span className="text-xs font-bold text-[#0B1E3F] tracking-wide flex items-center gap-2">
+                    <Sparkles size={16} className="text-[#C9A24B]" />
+                    Use Referral Reward ({availableReferralRewards.length} Available)
+                  </span>
+                  <span className="text-xs font-bold text-[#C9A24B]">
+                    {selectedReferralReward ? "Applied" : "Select"}
+                  </span>
+                </button>
+                <div
+                  className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                    showReferralRewardPanel
+                      ? "max-h-[220px] border-t border-[#CBD5E0]/20 p-4 opacity-100"
+                      : "max-h-0 opacity-0 p-0"
+                  }`}
+                >
+                  <div className="space-y-2">
+                    {selectedReferralReward ? (
+                      <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-[#C9A24B]/40">
+                        <div>
+                          <p className="text-xs font-bold text-[#0B1E3F]">
+                            ₹{Number(selectedReferralReward.rewardAmountINR || selectedReferralReward.rewardValue || 0).toLocaleString("en-IN")} Referral Reward
+                          </p>
+                          <p className="text-[10px] text-emerald-600 font-semibold">
+                            Applied to order (-₹{Math.round(referralDiscountAmount)})
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedReferralReward(null)}
+                          className="px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-bold hover:bg-red-100"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-2 max-h-36 overflow-y-auto">
+                        {availableReferralRewards.map((reward) => (
+                          <div
+                            key={reward.id}
+                            className="flex items-center justify-between p-2.5 bg-white rounded-lg border border-[#CBD5E0]"
+                          >
+                            <div>
+                              <p className="text-xs font-bold text-[#0B1E3F]">
+                                ₹{Number(reward.rewardAmountINR || reward.rewardValue || 0).toLocaleString("en-IN")} Reward
+                              </p>
+                              <p className="text-[10px] text-gray-500">
+                                Reward #{reward.id}
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setSelectedReferralReward(reward)}
+                              className="px-3 py-1 bg-[#0B1E3F] text-white rounded-lg text-xs font-bold hover:bg-[#1E3A6F]"
+                            >
+                              Apply
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Promo / Coupon Code Section */}
             {!isWelcomeIndia && (
               <div className="border border-[#CBD5E0]/20 rounded-xl bg-white overflow-hidden transition-all duration-300 ease-in-out mt-4 shadow-sm">
@@ -616,6 +745,7 @@ export default function CheckoutForm({
               currencyRateLoading={currencyRateLoading}
               price={price}
               discountAmount={discountAmount}
+              referralDiscountAmount={referralDiscountAmount}
               gstAmount={gstAmount}
               indiaTotalINR={indiaTotalINR}
               intlGstAmount={intlGstAmount}

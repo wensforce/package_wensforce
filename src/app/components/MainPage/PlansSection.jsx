@@ -9,9 +9,17 @@ import { setPackages } from "@/app/membership/slices/package-slice";
 import { usePackages } from "../../hooks/usePackages";
 const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
 
-export default function PlansSection({category}) {
+export default function PlansSection({ category, welcomeIndia }) {
   const router = useRouter();
   const { packages, loading, error } = usePackages(category);
+
+  const cleanCategory = typeof category === "string" ? category.trim().toLowerCase() : "";
+  const isWelcomeIndia =
+    welcomeIndia === "true" ||
+    welcomeIndia === true ||
+    cleanCategory === "welcome_india" ||
+    cleanCategory === "welcome india" ||
+    cleanCategory === "welcome-india";
 
   return (
     <section id="plans" className="bg-[#EDE8DF] px-5 pt-[88px] pb-[112px]">
@@ -122,12 +130,12 @@ export default function PlansSection({category}) {
           <div className="inline-flex items-center gap-4 mb-[16px]">
             <div className="h-px w-10 bg-gradient-to-r from-transparent to-[rgba(184,146,74,.4)]" />
             <span className="text-[9px] font-bold tracking-[.52em] uppercase text-[#a07838]">
-              Membership Tiers
+              {isWelcomeIndia ? "Package Options" : "Membership Tiers"}
             </span>
             <div className="h-px w-10 bg-gradient-to-l from-transparent to-[rgba(184,146,74,.4)]" />
           </div>
           <h2 className="font-serif text-[clamp(28px,3.6vw,44px)] font-bold text-[#0B1E3F] tracking-[-0.03em] leading-[1.08] mb-3">
-            Choose Your Membership
+            {isWelcomeIndia ? "Choose Your Package" : "Choose Your Membership"}
           </h2>
           <p className="text-[13px] font-light text-[#8a7e6e] leading-[1.75] max-w-[300px] mx-auto">
             VIP darshan, airport lounges, 24×7 concierge &amp; luxury transport

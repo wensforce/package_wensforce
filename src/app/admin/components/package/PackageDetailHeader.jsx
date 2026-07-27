@@ -1,14 +1,12 @@
 "use client";
 
-import { ArrowLeft, Pencil, RefreshCw, Trash2 } from "lucide-react";
+import { ArrowLeft, Pencil, RefreshCw } from "lucide-react";
 
 export default function PackageDetailHeader({
   onBack,
   onRefresh,
   onEdit,
-  onDelete,
   refreshing,
-  deleting,
 }) {
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 border-b border-[#CBD5E0] bg-white">
@@ -25,23 +23,15 @@ export default function PackageDetailHeader({
 
       <div className="flex flex-wrap items-center justify-end gap-2">
         <button
-          onClick={onDelete}
-          disabled={deleting || refreshing}
-          className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-red-200 bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors disabled:opacity-60"
-        >
-          <Trash2 size={14} />
-          {deleting ? "Deleting..." : "Delete"}
-        </button>
-        <button
           onClick={onEdit}
-          disabled={deleting || refreshing}
+          disabled={refreshing}
           className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-[#CBD5E0] bg-white text-[#1A202C] text-sm font-medium hover:bg-[#FAF6EC] transition-colors disabled:opacity-60"
         >
           <Pencil size={14} /> Edit
         </button>
         <button
           onClick={onRefresh}
-          disabled={deleting || refreshing}
+          disabled={refreshing}
           className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[#0B1E3F] text-white text-sm font-semibold hover:bg-[#152d5a] transition-colors disabled:opacity-60"
         >
           <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />

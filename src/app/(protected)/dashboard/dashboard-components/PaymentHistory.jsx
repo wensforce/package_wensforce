@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Tag,
   RefreshCw,
+  Sparkles,
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { paymentApiUser } from "@/app/user-apis/payment.api";
@@ -221,21 +222,31 @@ function PaymentCard({ payment }) {
           </div>
         </div>
 
-        {/* Coupon code, if present */}
-        {payment.couponCode && (
-          <div
-            className="flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-lg w-fit"
-            style={{
-              borderColor: "var(--color-gold-light)",
-              background: "rgba(201, 162, 75, 0.06)",
-              color: "var(--color-navy)",
-              border: "1px solid var(--color-gold-light)",
-            }}
-          >
-            <Tag size={11} />
-            {payment.couponCode}
-          </div>
-        )}
+        {/* Coupon code & Referral Reward badges */}
+        <div className="flex flex-wrap items-center gap-2">
+          {payment.couponCode && (
+            <div
+              className="flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-lg w-fit"
+              style={{
+                borderColor: "var(--color-gold-light)",
+                background: "rgba(201, 162, 75, 0.06)",
+                color: "var(--color-navy)",
+                border: "1px solid var(--color-gold-light)",
+              }}
+            >
+              <Tag size={11} />
+              {payment.couponCode}
+            </div>
+          )}
+
+          {(payment.appliedReferralRewardId || (payment.referralDiscountAmount ?? 0) > 0) && (
+            <div className="flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-lg w-fit border border-[#C9A24B]/30 bg-[#FAF6EC] text-[#0B1E3F]">
+              <Sparkles size={11} className="text-[#C9A24B]" />
+              Referral Reward {payment.appliedReferralRewardId ? `#${payment.appliedReferralRewardId}` : ""}
+              {(payment.referralDiscountAmount ?? 0) > 0 ? ` (-${formatCurrency(payment.referralDiscountAmount)})` : ""}
+            </div>
+          )}
+        </div>
 
         <div className="h-px bg-slate-100 my-2" />
 

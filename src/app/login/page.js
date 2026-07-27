@@ -9,17 +9,30 @@ import {
   ChevronLeft,
   ChevronDown,
   Search,
+  Sparkles,
+  Gift,
+  Loader2,
+  CheckCircle2,
 } from "lucide-react";
 
 import { useRouter } from "next/navigation";
 import { useAuthFlow } from "../hooks/useAuthFlow";
-
+import { useAuth } from "../context/AuthContext";
+import { authApiUser } from "../user-apis/auth.api";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { user } = useAuth();
+
+  // Referral step state
+  const [showReferralStep, setShowReferralStep] = useState(false);
+  const [pendingUser, setPendingUser] = useState(null);
+  const [referralCode, setReferralCode] = useState("");
+  const [referralLoading, setReferralLoading] = useState(false);
+  const [referralMessage, setReferralMessage] = useState("");
+  const [referralError, setReferralError] = useState("");
 
   const {
-    // State
     step,
     phone,
     setPhone,
@@ -30,8 +43,6 @@ export default function LoginPage() {
     countdown,
     otpRefs,
     COUNTRY_CODES,
-
-    // Handlers
     handleSendOtp,
     handleVerifyOtp,
     handleOtpChange,
@@ -40,12 +51,18 @@ export default function LoginPage() {
     handleResendViaSms,
     handleResendViaWhatsapp,
     handleBack,
+    newUser,
   } = useAuthFlow({
-    onSuccess: (user) => {
-      if (user?.role === "admin") {
-        router.push("/admin/dashboard");
+    onSuccess: (authUser, isNewUser) => {
+      setPendingUser(authUser);
+      if (isNewUser) {
+        setShowReferralStep(true);
+        setReferralCode("");
+        setReferralMessage("");
+        setReferralError("");
       } else {
-        router.push("/dashboard");
+        if (authUser?.role === "admin") router.push("/admin/dashboard");
+        else router.push("/dashboard");
       }
     },
   });
@@ -54,7 +71,6 @@ export default function LoginPage() {
   const [countrySearch, setCountrySearch] = useState("");
   const dropdownRef = useRef(null);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handler = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -72,7 +88,59 @@ export default function LoginPage() {
       c.code.includes(countrySearch),
   );
 
-  
+  const redirectAfterLogin = () => {
+    if (pendingUser?.role === "admin" || user?.role === "admin") {
+      router.push("/admin/dashboard");
+    } else {
+      router.push("/dashboard");
+    }
+  };
+
+  const handleReferralSubmit = async (skip = false) => {
+    if (skip) {
+      setShowReferralStep(false);
+      redirectAfterLogin();
+      return;
+    }
+
+    if (!referralCode.trim()) {
+      setReferralError("Please enter a referral code to continue.");
+      return;
+    }
+
+    setReferralLoading(true);
+    setReferralError("");
+    setReferralMessage("");
+
+    try {
+      const res = await authApiUser.applyReferralCode(
+        referralCode.trim(),
+        "membership",
+      );
+
+      if (res?.success) {
+        setReferralMessage("Referral code applied successfully.");
+        window.setTimeout(() => {
+          setShowReferralStep(false);
+          redirectAfterLogin();
+        }, 700);
+      } else {
+        setReferralError(res?.message || "Unable to apply referral code.");
+      }
+    } catch (error) {
+      setReferralError(
+        error?.response?.data?.message || "Unable to apply referral code.",
+      );
+    } finally {
+      setReferralLoading(false);
+    }
+  };
+
+  const shouldShowReferralStep = showReferralStep && newUser;
+
+  // 0 = phone, 1 = otp, 2 = referral
+  const currentStepIndex = shouldShowReferralStep ? 2 : step === "otp" ? 1 : 0;
+
   return (
     <div
       className="min-h-screen flex"
@@ -140,8 +208,9 @@ export default function LoginPage() {
             className="text-base leading-relaxed max-w-sm"
             style={{ color: "rgba(255,255,255,0.55)" }}
           >
-            India's only subscription combining premium vehicles, PSARA-licensed
-            protection, and VIP Darshan — pre-arranged for the year.
+            India&apos;s only subscription combining premium vehicles,
+            PSARA-licensed protection, and VIP Darshan — pre-arranged for the
+            year.
           </p>
           <div className="flex flex-wrap gap-3 pt-2">
             {["5 Exclusive Tiers", "PSARA Licensed", "VIP Darshan Access"].map(
@@ -171,9 +240,9 @@ export default function LoginPage() {
       </div>
 
       {/* ── Right panel ───────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col justify-center items-center px-6 py-12 sm:px-12">
+      <div className="flex-1 flex flex-col justify-center items-center px-4 py-10 sm:px-8 sm:py-12">
         {/* Mobile logo */}
-        <div className="flex lg:hidden items-center gap-2 mb-10">
+        <div className="flex lg:hidden items-center gap-2 mb-8">
           <Shield size={20} style={{ color: "var(--color-navy)" }} />
           <span
             className="text-lg font-semibold"
@@ -186,26 +255,29 @@ export default function LoginPage() {
           </span>
         </div>
 
-        <div className="w-full max-w-105 space-y-8">
-          {/* Step indicator */}
+        <div className="w-full max-w-[420px] space-y-7">
+          {/* ── Step indicator — 3 dots ── */}
           <div className="flex items-center gap-2">
-            <div
-              className="w-2 h-2 rounded-full transition-all duration-300"
-              style={{ background: "var(--color-navy)" }}
-            />
-            <div
-              className="w-2 h-2 rounded-full transition-all duration-300"
-              style={{
-                background:
-                  step === "otp" ? "var(--color-navy)" : "var(--color-border)",
-              }}
-            />
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="rounded-full transition-all duration-300"
+                style={{
+                  width: currentStepIndex === i ? "20px" : "8px",
+                  height: "8px",
+                  background:
+                    i <= currentStepIndex
+                      ? "var(--color-navy)"
+                      : "var(--color-border)",
+                }}
+              />
+            ))}
           </div>
 
           {/* ── STEP 1 — Phone ────────────────────────────────────── */}
-          {step === "phone" && (
-            <div className="space-y-8 animate-fade-in">
-              <div className="space-y-2">
+          {step === "phone" && !shouldShowReferralStep && (
+            <div className="space-y-7 animate-fade-in">
+              <div className="space-y-1.5">
                 <h1
                   className="text-3xl font-bold"
                   style={{
@@ -224,7 +296,7 @@ export default function LoginPage() {
               </div>
 
               <div
-                className="rounded-2xl p-8 space-y-6 shadow-sm"
+                className="rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm"
                 style={{
                   background: "var(--color-white)",
                   border: "1px solid var(--color-border)",
@@ -279,7 +351,6 @@ export default function LoginPage() {
                             width: "240px",
                           }}
                         >
-                          {/* Search */}
                           <div
                             className="flex items-center gap-2 px-3 py-2.5 border-b"
                             style={{ borderColor: "var(--color-border)" }}
@@ -298,12 +369,13 @@ export default function LoginPage() {
                               style={{ color: "var(--color-text-primary)" }}
                             />
                           </div>
-                          {/* List */}
                           <ul className="max-h-52 overflow-y-auto">
                             {filteredCountries.length === 0 ? (
                               <li
                                 className="px-4 py-3 text-xs"
-                                style={{ color: "var(--color-text-tertiary)" }}
+                                style={{
+                                  color: "var(--color-text-tertiary)",
+                                }}
                               >
                                 No results
                               </li>
@@ -405,20 +477,18 @@ export default function LoginPage() {
           )}
 
           {/* ── STEP 2 — OTP ──────────────────────────────────────── */}
-          {step === "otp" && (
-            <div className="space-y-8 animate-fade-in">
-              <div className="space-y-2">
-                {/* Back */}
+          {step === "otp" && !shouldShowReferralStep && (
+            <div className="space-y-7 animate-fade-in">
+              <div className="space-y-1.5">
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="flex items-center gap-1.5 text-xs font-medium mb-4 transition-opacity hover:opacity-60"
+                  className="flex items-center gap-1.5 text-xs font-medium mb-3 transition-opacity hover:opacity-60"
                   style={{ color: "var(--color-text-secondary)" }}
                 >
                   <ChevronLeft size={14} />
                   Change number
                 </button>
-
                 <h1
                   className="text-3xl font-bold"
                   style={{
@@ -443,7 +513,7 @@ export default function LoginPage() {
               </div>
 
               <div
-                className="rounded-2xl p-8 space-y-6 shadow-sm"
+                className="rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm"
                 style={{
                   background: "var(--color-white)",
                   border: "1px solid var(--color-border)",
@@ -458,9 +528,8 @@ export default function LoginPage() {
                       One-Time Passcode
                     </label>
 
-                    {/* OTP boxes */}
                     <div
-                      className="flex gap-2.5 justify-between"
+                      className="flex gap-2 sm:gap-2.5 justify-between"
                       onPaste={handleOtpPaste}
                     >
                       {otp.map((digit, i) => (
@@ -518,7 +587,7 @@ export default function LoginPage() {
                     className="text-center text-xs"
                     style={{ color: "var(--color-text-tertiary)" }}
                   >
-                    Didn't receive it?
+                    Didn&apos;t receive it?
                   </p>
                   <div className="grid grid-cols-2 gap-2.5">
                     {/* WhatsApp */}
@@ -539,7 +608,6 @@ export default function LoginPage() {
                             : "#128C4B",
                       }}
                     >
-                      {/* WhatsApp icon */}
                       <svg
                         width="14"
                         height="14"
@@ -594,23 +662,190 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Explore link */}
-          <p
-            className="text-center text-sm"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
-            Don't have an account?{" "}
-            <Link
-              href="/"
-              className="font-semibold transition-colors hover:opacity-70"
-              style={{ color: "var(--color-gold)" }}
+          {/* ── STEP 3 — Referral (inline, same card style) ───────── */}
+          {shouldShowReferralStep && (
+            <div className="space-y-7 animate-fade-in">
+              <div className="space-y-1.5">
+                {/* Gift icon badge — matches the gold accent style */}
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center mb-3"
+                  style={{
+                    background: "rgba(201,162,75,0.12)",
+                    border: "1px solid rgba(201,162,75,0.3)",
+                  }}
+                >
+                  <Gift size={17} style={{ color: "var(--color-gold)" }} />
+                </div>
+                <h1
+                  className="text-3xl font-bold"
+                  style={{
+                    color: "var(--color-navy)",
+                    fontFamily: "var(--font-playfair)",
+                  }}
+                >
+                  Have a referral?
+                </h1>
+                <p
+                  className="text-sm"
+                  style={{ color: "var(--color-text-secondary)" }}
+                >
+                  Enter a referral code to unlock membership benefits, or skip
+                  and continue to your dashboard.
+                </p>
+              </div>
+
+              <div
+                className="rounded-2xl p-6 sm:p-8 space-y-5 shadow-sm"
+                style={{
+                  background: "var(--color-white)",
+                  border: "1px solid var(--color-border)",
+                }}
+              >
+                {/* Input — same split-prefix style as phone */}
+                <div className="space-y-1.5">
+                  <label
+                    className="text-xs font-semibold uppercase tracking-widest"
+                    style={{ color: "var(--color-text-secondary)" }}
+                  >
+                    Referral Code
+                  </label>
+                  <div className="relative flex">
+                    {/* Sparkles prefix — mirrors the flag/code prefix */}
+                    <div
+                      className="flex items-center justify-center px-3.5 rounded-l-xl shrink-0"
+                      style={{
+                        background: "var(--color-cream)",
+                        border: "1px solid var(--color-border)",
+                        borderRight: "none",
+                      }}
+                    >
+                      <Sparkles
+                        size={14}
+                        style={{ color: "var(--color-gold)" }}
+                      />
+                    </div>
+                    <input
+                      type="text"
+                      value={referralCode}
+                      onChange={(e) => {
+                        setReferralCode(e.target.value.toUpperCase());
+                        setReferralError("");
+                      }}
+                      placeholder="e.g. WENS2026"
+                      autoFocus
+                      className="flex-1 pl-4 pr-4 py-3 rounded-r-xl text-sm font-mono outline-none transition-all duration-150 focus:ring-2 tracking-widest uppercase"
+                      style={{
+                        background: "var(--color-cream)",
+                        border: "1px solid var(--color-border)",
+                        color: "var(--color-text-primary)",
+                        "--tw-ring-color": "var(--color-gold)",
+                      }}
+                    />
+                  </div>
+
+                  {/* Error */}
+                  {referralError && (
+                    <p
+                      className="text-xs pl-0.5 mt-1"
+                      style={{ color: "#C53030" }}
+                    >
+                      {referralError}
+                    </p>
+                  )}
+
+                  {/* Success */}
+                  {referralMessage && (
+                    <div
+                      className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs mt-1"
+                      style={{
+                        background: "#F0FFF4",
+                        border: "1px solid #9AE6B4",
+                        color: "#276749",
+                      }}
+                    >
+                      <CheckCircle2 size={13} />
+                      {referralMessage}
+                    </div>
+                  )}
+                </div>
+
+                {/* Apply button — identical style to Next / Verify */}
+                <button
+                  type="button"
+                  onClick={() => handleReferralSubmit(false)}
+                  disabled={referralLoading}
+                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold tracking-wide transition-all duration-200 hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, var(--color-navy) 0%, var(--color-navy-light) 100%)",
+                    color: "var(--color-white)",
+                  }}
+                >
+                  {referralLoading ? (
+                    <Loader2 size={15} className="animate-spin" />
+                  ) : (
+                    <>
+                      Apply & Continue
+                      <ArrowRight size={15} />
+                    </>
+                  )}
+                </button>
+
+                {/* Divider */}
+                <div className="flex items-center gap-3">
+                  <div
+                    className="flex-1 h-px"
+                    style={{ background: "var(--color-border)" }}
+                  />
+                  <span
+                    className="text-xs"
+                    style={{ color: "var(--color-text-tertiary)" }}
+                  >
+                    or
+                  </span>
+                  <div
+                    className="flex-1 h-px"
+                    style={{ background: "var(--color-border)" }}
+                  />
+                </div>
+
+                {/* Skip — subtle, below divider */}
+                <button
+                  type="button"
+                  onClick={() => handleReferralSubmit(true)}
+                  disabled={referralLoading}
+                  className="w-full flex items-center justify-center py-2.5 rounded-xl text-sm font-medium transition-all duration-200 hover:opacity-70 disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{
+                    color: "var(--color-text-secondary)",
+                    background: "var(--color-cream)",
+                    border: "1px solid var(--color-border)",
+                  }}
+                >
+                  Skip for now
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Explore link — hidden on referral step */}
+          {!shouldShowReferralStep && (
+            <p
+              className="text-center text-sm"
+              style={{ color: "var(--color-text-secondary)" }}
             >
-              Explore memberships
-            </Link>
-          </p>
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/"
+                className="font-semibold transition-colors hover:opacity-70"
+                style={{ color: "var(--color-gold)" }}
+              >
+                Explore memberships
+              </Link>
+            </p>
+          )}
 
           {/* Trust line */}
-          <div className="flex items-center justify-center gap-2 pt-2">
+          <div className="flex items-center justify-center gap-2 pt-1">
             <Shield size={13} style={{ color: "var(--color-text-tertiary)" }} />
             <span
               className="text-xs"

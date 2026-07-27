@@ -28,7 +28,11 @@ export const authApiUser = {
    */
   verifyOtp: async (mobileNumber, otp) => {
     const res = await api.post("/auth/verify-otp", { mobileNumber, otp });
-    return res.data;
+    return {
+      ...res.data,
+      status: res.status,
+      statusCode: res.status,
+    };
   },
 
   /**
@@ -49,6 +53,33 @@ export const authApiUser = {
    */
   updateProfile: async (payload) => {
     const res = await api.put("/auth/update-profile", payload);
+    return res.data;
+  },
+
+  /**
+   * Fetch the authenticated user's referral summary for a category.
+   * @param {string} category
+   * @returns {Promise<object>}
+   */
+  getReferralSummary: async (category = "membership") => {
+    const res = await api.get("/referral/summary", {
+      params: { category },
+    });
+    return res.data;
+  },
+
+  /**
+   * Apply a referral code for the authenticated user.
+   * @param {string} referralCode
+   * @param {string} category
+   * @returns {Promise<object>}
+   */
+  applyReferralCode: async (referralCode, category = "membership") => {
+    const res = await api.post(
+      "/referral/apply",
+      { referralCode },
+      { params: { category } },
+    );
     return res.data;
   },
 };
