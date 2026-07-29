@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ChevronRight, MapPin, Calendar } from 'lucide-react';
+import { ChevronRight, MapPin, Calendar, Image } from 'lucide-react';
 import { formatDateRange, calculateCountdown } from '../lib/expoUtils';
 import { trackExpoCardClick } from '../lib/expoTracking';
 import CountdownBadge from './CountdownBadge';
@@ -29,6 +29,9 @@ export default function ExpoCard({ expo }) {
           transform: translateY(-2px);
         }
         .card-image { 
+          display:flex;
+          align-items: center;
+          justify-content: center;
           width: 100%; 
           height: 200px; 
           object-fit: cover; 
@@ -98,12 +101,16 @@ export default function ExpoCard({ expo }) {
       `}</style>
 
       <div className="card">
-        {expo.cardImage && (
+        {expo.cardImage ? (
           <img
             src={expo.cardImage}
             alt={expo.name}
             className="card-image"
           />
+        ) : (
+          <div className="card-image" >
+            <Image size={68} className='text-gray-400' />
+          </div>
         )}
         <div className="card-content">
           <div className="card-city">{expo.city}</div>
