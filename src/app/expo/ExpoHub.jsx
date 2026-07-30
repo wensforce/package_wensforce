@@ -592,9 +592,9 @@ export default function ExpoHub({ expos }) {
                       href={`/expo/${expo.slug}`}
                       className="uc-card"
                     >
-                      {expo.bannerImage || expo.cardImage ? (
+                      {expo.cardImage || expo.bannerImage ? (
                         <img
-                          src={expo.bannerImage || expo.cardImage}
+                          src={expo.cardImage || expo.bannerImage}
                           alt={expo.name}
                           className="uc-card-img"
                         />
