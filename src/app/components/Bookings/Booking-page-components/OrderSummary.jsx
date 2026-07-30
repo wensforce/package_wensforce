@@ -1,5 +1,6 @@
 "use client";
 
+import { Coins } from "lucide-react";
 import { INR } from "@/app/(protected)/booking/booking-helpers";
 
 export default function OrderSummary({
@@ -90,14 +91,22 @@ export default function OrderSummary({
         {/* Referral Discount */}
         {referralDiscountAmount > 0 && (
           <div className="flex justify-between items-center text-[#C9A24B]">
-            <span className="text-xs font-bold">Referral Discount</span>
+            <span className="text-xs font-bold flex items-center gap-1">
+              <Coins size={13} />
+              Referral Discount
+            </span>
             <div className="text-right">
-              <span className="text-sm font-bold tabular-nums">
-                -{isIndia ? INR(referralDiscountAmount) : toForeign(referralDiscountAmount)}
+              <span className="text-sm font-bold tabular-nums inline-flex items-center gap-0.5">
+                -{isIndia ? (
+                  <>
+                    <Coins size={13} />
+                    {Number(referralDiscountAmount).toLocaleString("en-IN")}
+                  </>
+                ) : toForeign(referralDiscountAmount)}
               </span>
               {!isIndia && !currencyRateLoading && (
-                <p className="text-[#C9A24B]/80 text-[10px] tabular-nums">
-                  -{INR(referralDiscountAmount)}
+                <p className="text-[#C9A24B]/80 text-[10px] tabular-nums inline-flex items-center gap-0.5">
+                  -<Coins size={11} />{Number(referralDiscountAmount).toLocaleString("en-IN")}
                 </p>
               )}
             </div>

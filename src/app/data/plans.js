@@ -570,3 +570,8 @@ export const comparisonFeatures = [
     values: ["₹8,000", "₹18,000", "₹28,000", "₹45,000", "₹95,000"],
   },
 ];
+
+
+
+
+

@@ -82,6 +82,13 @@ export default function LoginPage() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  useEffect(() => {
+    // Skip redirect if new user referral step is active or pending
+    if (user && !showReferralStep && !newUser) {
+      router.replace("/");
+    }
+  }, [user, router, showReferralStep, newUser]);
+
   const filteredCountries = COUNTRY_CODES.filter(
     (c) =>
       c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||

@@ -11,6 +11,7 @@ import {
   Tag,
   RefreshCw,
   Sparkles,
+  Coins,
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import { paymentApiUser } from "@/app/user-apis/payment.api";
@@ -243,7 +244,12 @@ function PaymentCard({ payment }) {
             <div className="flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-lg w-fit border border-[#C9A24B]/30 bg-[#FAF6EC] text-[#0B1E3F]">
               <Sparkles size={11} className="text-[#C9A24B]" />
               Referral Reward {payment.appliedReferralRewardId ? `#${payment.appliedReferralRewardId}` : ""}
-              {(payment.referralDiscountAmount ?? 0) > 0 ? ` (-${formatCurrency(payment.referralDiscountAmount)})` : ""}
+              {(payment.referralDiscountAmount ?? 0) > 0 ? (
+                <span className="inline-flex items-center gap-0.5">
+                  (-<Coins size={11} className="text-[#C9A24B]" />
+                  {Number(payment.referralDiscountAmount).toLocaleString("en-IN")})
+                </span>
+              ) : null}
             </div>
           )}
         </div>

@@ -17,8 +17,8 @@ import {
   Clock,
   Ban,
   Activity,
-  
   Pencil,
+  Coins,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -144,7 +144,12 @@ export default function ReferralProgramsPage() {
   const formatReward = (type, calcType, val) => {
     if (!type || type === "none") return "None";
     if (calcType === "percentage") return `${val}% ${type}`;
-    return `₹${val} ${type}`;
+    return (
+      <span className="inline-flex items-center gap-0.5">
+        <Coins size={12} className="text-[#C9A24B]" />
+        {val} {type}
+      </span>
+    );
   };
 
   const renderCell = (row, key) => {

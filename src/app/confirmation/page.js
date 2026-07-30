@@ -76,6 +76,7 @@ function ConfirmationContent() {
         const verifyRes = await api.get(`/payment/verify-payment/${orderId}`);
         const data = verifyRes.data?.data ?? verifyRes.data ?? {};
         setOrderData(data);
+
         setStatus(["ACTIVE", "success", "PAID"].includes(data.status) ? "success" : "failed");
         if (data.packageId) setPackageData(await packageApiUser.getPackageById(data.packageId));
       } catch { setStatus("failed"); }

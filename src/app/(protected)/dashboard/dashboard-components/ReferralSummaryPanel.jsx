@@ -8,6 +8,7 @@ import {
   Loader2,
   Sparkles,
   Users,
+  Coins,
 } from "lucide-react";
 import { toast } from "sonner";
 import { authApiUser } from "@/app/user-apis/auth.api";
@@ -221,10 +222,15 @@ export default function ReferralSummaryPanel({ onBack }) {
                 <div className="grid gap-3 text-xs sm:grid-cols-2">
                   <div className="rounded-xl bg-white p-3 border border-[#CBD5E0]/60">
                     <p className="font-semibold text-[#4A5568]">Referrer Reward</p>
-                    <p className="font-bold text-[#0B1E3F] text-sm mt-0.5 capitalize">
-                      {summary.activeProgram.referrerRewardCalcType === "percentage"
-                        ? `${summary.activeProgram.referrerRewardValue}%`
-                        : `₹${summary.activeProgram.referrerRewardValue}`}{" "}
+                    <p className="font-bold text-[#0B1E3F] text-sm mt-0.5 capitalize inline-flex items-center gap-1 flex-wrap">
+                      {summary.activeProgram.referrerRewardCalcType === "percentage" ? (
+                        `${summary.activeProgram.referrerRewardValue}%`
+                      ) : (
+                        <span className="inline-flex items-center gap-0.5">
+                          <Coins size={13} className="text-[#C9A24B]" />
+                          {summary.activeProgram.referrerRewardValue}
+                        </span>
+                      )}{" "}
                       {summary.activeProgram.referrerRewardType}
                     </p>
                     {summary.activeProgram.referrerAllowedPackages?.length > 0 && (
@@ -235,10 +241,15 @@ export default function ReferralSummaryPanel({ onBack }) {
                   </div>
                   <div className="rounded-xl bg-white p-3 border border-[#CBD5E0]/60">
                     <p className="font-semibold text-[#4A5568]">Friend (Referee) Reward</p>
-                    <p className="font-bold text-[#0B1E3F] text-sm mt-0.5 capitalize">
-                      {summary.activeProgram.refereeRewardCalcType === "percentage"
-                        ? `${summary.activeProgram.refereeRewardValue}%`
-                        : `₹${summary.activeProgram.refereeRewardValue}`}{" "}
+                    <p className="font-bold text-[#0B1E3F] text-sm mt-0.5 capitalize inline-flex items-center gap-1 flex-wrap">
+                      {summary.activeProgram.refereeRewardCalcType === "percentage" ? (
+                        `${summary.activeProgram.refereeRewardValue}%`
+                      ) : (
+                        <span className="inline-flex items-center gap-0.5">
+                          <Coins size={13} className="text-[#C9A24B]" />
+                          {summary.activeProgram.refereeRewardValue}
+                        </span>
+                      )}{" "}
                       {summary.activeProgram.refereeRewardType}
                     </p>
                     {summary.activeProgram.refereeAllowedPackages?.length > 0 && (
@@ -275,14 +286,23 @@ export default function ReferralSummaryPanel({ onBack }) {
                       className="flex flex-col gap-2 rounded-2xl border border-[#CBD5E0] bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
                     >
                       <div>
-                        <p className="text-sm font-semibold text-[#0B1E3F]">
-                          {reward.rewardCalcType === "percentage"
-                            ? `${reward.rewardValue}% Reward${
-                                reward.rewardAmountINR
-                                  ? ` (₹${Number(reward.rewardAmountINR).toLocaleString("en-IN")})`
-                                  : ""
-                              }`
-                            : `₹${Number(reward.rewardValue || reward.rewardAmountINR || 0).toLocaleString("en-IN")} Discount Reward`}
+                        <p className="text-sm font-semibold text-[#0B1E3F] inline-flex items-center gap-1 flex-wrap">
+                          {reward.rewardCalcType === "percentage" ? (
+                            <>
+                              {reward.rewardValue}% Reward
+                              {reward.rewardAmountINR ? (
+                                <span className="inline-flex items-center gap-0.5">
+                                  (<Coins size={13} className="text-[#C9A24B]" />
+                                  {Number(reward.rewardAmountINR).toLocaleString("en-IN")})
+                                </span>
+                              ) : null}
+                            </>
+                          ) : (
+                            <span className="inline-flex items-center gap-0.5">
+                              <Coins size={13} className="text-[#C9A24B]" />
+                              {Number(reward.rewardValue || reward.rewardAmountINR || 0).toLocaleString("en-IN")} Discount Reward
+                            </span>
+                          )}
                         </p>
                         <p className="text-xs text-[#4A5568] mt-0.5">
                           Eligible packages:{" "}

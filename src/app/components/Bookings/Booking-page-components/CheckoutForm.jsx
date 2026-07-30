@@ -15,6 +15,7 @@ import {
   Mail,
   ArrowLeft,
   Sparkles,
+  Coins,
 } from "lucide-react";
 import {
   INR,
@@ -47,6 +48,22 @@ const roundForeign = (amount, code) => {
   if (ZERO_DECIMAL.has(code)) return Math.ceil(amount);
   if (THREE_DECIMAL.has(code)) return Math.ceil(amount * 1000) / 1000;
   return Math.ceil(amount * 100) / 100;
+};
+
+const getReferralRewardDisplay = (reward) => {
+  if (!reward) return "";
+
+  const value = Number(reward.rewardValue ?? reward.rewardAmountINR ?? 0);
+  if (reward.rewardCalcType === "percentage") {
+    return `${value}% Referral Reward`;
+  }
+
+  return (
+    <span className="inline-flex items-center gap-0.5">
+      <Coins size={13} className="text-[#C9A24B]" />
+      {value.toLocaleString("en-IN")} Referral Reward
+    </span>
+  );
 };
 
 /* ── Component ────────────────────────────────────────────────────────── */
@@ -109,23 +126,51 @@ export default function CheckoutForm({
     let isMounted = true;
     setReferralRewardLoading(true);
 
+    // Categories that should be treated as interchangeable with each other.
+    const MEMBERSHIP_GROUP = new Set(["membership", "welcome_india"]);
+
+    // Two categories are considered a match if they're identical, or if
+    // both belong to the membership group (membership <-> welcome_india).
+    const inSameGroup = (a, b) =>
+      a === b || (MEMBERSHIP_GROUP.has(a) && MEMBERSHIP_GROUP.has(b));
+
     authApiUser
       .getReferralSummary(packageData.category)
       .then((res) => {
         if (!isMounted) return;
         const allRewards = res?.data?.rewards || [];
+        const packageId = Number(packageData.id);
+        const packageCategory = String(
+          packageData.category || "",
+        ).toLowerCase();
+
         const eligible = allRewards.filter((r) => {
           if (r.isRedeemed) return false;
+
           const ids = r.eligiblePackageIds || [];
+
+          // Empty eligiblePackageIds means scope = "any" — reward is valid for all packages.
           if (ids.length === 0) return true;
-          return ids.includes(packageData.id) || ids.includes(Number(packageData.id));
+
+          // Explicit package id match.
+          const matchesPackage =
+            ids.includes(packageId) || ids.includes(packageData.id);
+          if (matchesPackage) return true;
+
+          // Also accept if the reward belongs to the same package group
+          // (e.g. membership ↔ welcome_india).
+          const rewardCategory = String(r.category || "").toLowerCase();
+          return inSameGroup(packageCategory, rewardCategory);
         });
+
         setAvailableReferralRewards(eligible);
         if (eligible.length > 0) {
           setShowReferralRewardPanel(true);
         }
       })
-      .catch((err) => console.error("Error loading referral rewards for checkout:", err))
+      .catch((err) =>
+        console.error("Error loading referral rewards for checkout:", err),
+      )
       .finally(() => {
         if (isMounted) setReferralRewardLoading(false);
       });
@@ -156,14 +201,24 @@ export default function CheckoutForm({
   let referralDiscountAmount = 0;
   if (selectedReferralReward) {
     if (selectedReferralReward.rewardCalcType === "fixed") {
-      referralDiscountAmount = Number(selectedReferralReward.rewardValue || selectedReferralReward.rewardAmountINR || 0);
+      referralDiscountAmount = Number(
+        selectedReferralReward.rewardValue ||
+          selectedReferralReward.rewardAmountINR ||
+          0,
+      );
     } else if (selectedReferralReward.rewardCalcType === "percentage") {
       const base = Math.max(0, price - discountAmount);
-      referralDiscountAmount = base * (Number(selectedReferralReward.rewardValue || 0) / 100);
+      referralDiscountAmount =
+        base * (Number(selectedReferralReward.rewardValue || 0) / 100);
     } else {
-      referralDiscountAmount = Number(selectedReferralReward.rewardAmountINR || 0);
+      referralDiscountAmount = Number(
+        selectedReferralReward.rewardAmountINR || 0,
+      );
     }
-    referralDiscountAmount = Math.min(referralDiscountAmount, Math.max(0, price - discountAmount));
+    referralDiscountAmount = Math.min(
+      referralDiscountAmount,
+      Math.max(0, price - discountAmount),
+    );
   }
 
   const totalDiscount = discountAmount + referralDiscountAmount;
@@ -562,12 +617,15 @@ export default function CheckoutForm({
               <div className="border border-[#C9A24B]/30 rounded-xl bg-[#FAF6EC]/30 overflow-hidden transition-all duration-300 ease-in-out mt-4 shadow-sm">
                 <button
                   type="button"
-                  onClick={() => setShowReferralRewardPanel(!showReferralRewardPanel)}
+                  onClick={() =>
+                    setShowReferralRewardPanel(!showReferralRewardPanel)
+                  }
                   className="w-full flex items-center justify-between px-4 py-3 bg-[#FAF6EC]/60 hover:bg-[#FAF6EC] transition-colors text-left"
                 >
                   <span className="text-xs font-bold text-[#0B1E3F] tracking-wide flex items-center gap-2">
                     <Sparkles size={16} className="text-[#C9A24B]" />
-                    Use Referral Reward ({availableReferralRewards.length} Available)
+                    Use Referral Reward ({availableReferralRewards.length}{" "}
+                    Available)
                   </span>
                   <span className="text-xs font-bold text-[#C9A24B]">
                     {selectedReferralReward ? "Applied" : "Select"}
@@ -585,10 +643,10 @@ export default function CheckoutForm({
                       <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-[#C9A24B]/40">
                         <div>
                           <p className="text-xs font-bold text-[#0B1E3F]">
-                            ₹{Number(selectedReferralReward.rewardAmountINR || selectedReferralReward.rewardValue || 0).toLocaleString("en-IN")} Referral Reward
+                            {getReferralRewardDisplay(selectedReferralReward)}
                           </p>
-                          <p className="text-[10px] text-emerald-600 font-semibold">
-                            Applied to order (-₹{Math.round(referralDiscountAmount)})
+                          <p className="text-[10px] text-emerald-600 font-semibold inline-flex items-center gap-0.5">
+                            Applied to order (-<Coins size={11} className="text-[#C9A24B]" />{Math.round(referralDiscountAmount)})
                           </p>
                         </div>
                         <button
@@ -608,7 +666,7 @@ export default function CheckoutForm({
                           >
                             <div>
                               <p className="text-xs font-bold text-[#0B1E3F]">
-                                ₹{Number(reward.rewardAmountINR || reward.rewardValue || 0).toLocaleString("en-IN")} Reward
+                                {getReferralRewardDisplay(reward)}
                               </p>
                               <p className="text-[10px] text-gray-500">
                                 Reward #{reward.id}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ExternalLink, Package, UserRound, Wallet } from "lucide-react";
+import { Coins, ExternalLink, Package, UserRound, Wallet } from "lucide-react";
 import { getStatusUI, formatDate, formatMoney } from "./paymentUtils";
 
 function Row({ label, value, mono = false, valueClassName = "" }) {
@@ -68,7 +68,16 @@ export default function PaymentOverviewCard({ payment }) {
             <Row label="Discount" value={formatMoney(payment.discountAmount)} />
             <Row
               label="Referral Discount"
-              value={formatMoney(payment.referralDiscountAmount)}
+              value={
+                payment.referralDiscountAmount ? (
+                  <span className="inline-flex items-center gap-0.5">
+                    <Coins size={13} className="text-[#C9A24B]" />
+                    {Number(payment.referralDiscountAmount || 0).toLocaleString("en-IN")}
+                  </span>
+                ) : (
+                  formatMoney(0)
+                )
+              }
             />
             <Row
               label="Final Amount"
@@ -82,15 +91,24 @@ export default function PaymentOverviewCard({ payment }) {
               label="Referral Reward"
               value={
                 payment.appliedReferralRewardId
-                  ? `#${payment.appliedReferralRewardId}${
-                      payment.referralRewardDetails
-                        ? ` (${
-                            payment.referralRewardDetails.rewardCalcType === "percentage"
-                              ? `${payment.referralRewardDetails.rewardValue}%`
-                              : `₹${payment.referralRewardDetails.rewardValue}`
-                          })`
-                        : ""
-                    }`
+                  ? (
+                    <span className="inline-flex items-center gap-1 flex-wrap">
+                      #{payment.appliedReferralRewardId}
+                      {payment.referralRewardDetails && (
+                        <span className="inline-flex items-center gap-0.5">
+                          ({payment.referralRewardDetails.rewardCalcType === "percentage"
+                            ? `${payment.referralRewardDetails.rewardValue}%`
+                            : (
+                              <span className="inline-flex items-center gap-0.5">
+                                <Coins size={13} className="text-[#C9A24B]" />
+                                {payment.referralRewardDetails.rewardValue}
+                              </span>
+                            )
+                          })
+                        </span>
+                      )}
+                    </span>
+                  )
                   : "None"
               }
               mono

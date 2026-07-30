@@ -10,6 +10,7 @@ import {
   Ban,
   Eye,
   Sparkles,
+  Coins,
 } from "lucide-react";
 import { paymentApi } from "./apis/payments.api";
 import AdminTable from "../components/AdminTable";
@@ -173,8 +174,8 @@ export default function PaymentsPage() {
           <div className="flex flex-col gap-0.5">
             {payment.referralDiscountAmount ? (
               <span className="inline-flex items-center gap-1 rounded-md border border-[#C9A24B]/40 bg-[#FAF6EC] px-2 py-0.5 text-xs font-semibold text-[#0B1E3F] whitespace-nowrap">
-                <Sparkles size={11} className="text-[#C9A24B]" />
-                -{formatMoney(payment.referralDiscountAmount)}
+                <Coins size={11} className="text-[#C9A24B]" />
+                -{Number(payment.referralDiscountAmount || 0).toLocaleString("en-IN")}
               </span>
             ) : null}
             {payment.appliedReferralRewardId ? (

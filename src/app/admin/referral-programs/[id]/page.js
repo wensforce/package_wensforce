@@ -28,6 +28,7 @@ import {
   ChevronRight,
   ShieldCheck,
   Zap,
+  Coins,
 } from "lucide-react";
 import { referralApi } from "../apis/referral.api";
 import { useDeleteReferralProgram } from "../hooks/useDeleteReferralProgram";
@@ -49,10 +50,20 @@ function formatDate(iso) {
 function formatReward(type, calcType, value) {
   if (!type || type === "none") return "No Reward";
   const formattedVal =
-    calcType === "percentage"
-      ? `${value}%`
-      : `₹${Number(value || 0).toLocaleString("en-IN")}`;
-  return `${formattedVal} (${type})`;
+    calcType === "percentage" ? (
+      `${value}%`
+    ) : (
+      <span className="inline-flex items-center gap-0.5">
+        <Coins size={14} className="text-[#C9A24B]" />
+        {Number(value || 0).toLocaleString("en-IN")}
+      </span>
+    );
+  return (
+    <span className="inline-flex items-center gap-1">
+      {formattedVal}
+      <span className="font-normal">({type})</span>
+    </span>
+  );
 }
 
 export default function ReferralProgramDetailPage() {
@@ -98,14 +109,15 @@ export default function ReferralProgramDetailPage() {
       } catch (err) {
         console.error("Error fetching referral program details:", err);
         setError(
-          err?.response?.data?.message || "Failed to load referral program details."
+          err?.response?.data?.message ||
+          "Failed to load referral program details.",
         );
       } finally {
         if (!silent) setLoading(false);
         else setRefreshing(false);
       }
     },
-    [programId]
+    [programId],
   );
 
   // Fetch audit tracks
@@ -126,7 +138,7 @@ export default function ReferralProgramDetailPage() {
         setTracksLoading(false);
       }
     },
-    [programId]
+    [programId],
   );
 
   useEffect(() => {
@@ -164,8 +176,6 @@ export default function ReferralProgramDetailPage() {
       icon: <Ban size={13} />,
     };
   }, [program]);
-
-
 
   const totalPages = Math.max(1, Math.ceil(tracksTotal / tracksLimit));
 
@@ -315,11 +325,11 @@ export default function ReferralProgramDetailPage() {
                 style={{
                   width: program.maxTotalRedemptions
                     ? `${Math.min(
-                        100,
-                        ((program.totalRedemptionCount || 0) /
-                          program.maxTotalRedemptions) *
-                          100
-                      )}%`
+                      100,
+                      ((program.totalRedemptionCount || 0) /
+                        program.maxTotalRedemptions) *
+                      100,
+                    )}%`
                     : "100%",
                 }}
               />
@@ -359,7 +369,7 @@ export default function ReferralProgramDetailPage() {
                 {formatReward(
                   program.referrerRewardType,
                   program.referrerRewardCalcType,
-                  program.referrerRewardValue
+                  program.referrerRewardValue,
                 )}
               </span>
               <p className="text-[11px] text-[#718096] capitalize mt-0.5">
@@ -381,7 +391,7 @@ export default function ReferralProgramDetailPage() {
                 {formatReward(
                   program.refereeRewardType,
                   program.refereeRewardCalcType,
-                  program.refereeRewardValue
+                  program.refereeRewardValue,
                 )}
               </span>
               <p className="text-[11px] text-[#718096] capitalize mt-0.5">
@@ -497,10 +507,15 @@ export default function ReferralProgramDetailPage() {
                     <span className="text-[#718096] font-medium block">
                       Reward Value
                     </span>
-                    <span className="font-bold text-[#0B1E3F] text-sm">
-                      {program.referrerRewardCalcType === "percentage"
-                        ? `${program.referrerRewardValue}%`
-                        : `₹${Number(program.referrerRewardValue || 0).toLocaleString("en-IN")}`}
+                    <span className="font-bold text-[#0B1E3F] text-sm inline-flex items-center gap-0.5">
+                      {program.referrerRewardCalcType === "percentage" ? (
+                        `${program.referrerRewardValue}%`
+                      ) : (
+                        <>
+                          <Coins size={14} className="text-[#C9A24B]" />
+                          {Number(program.referrerRewardValue || 0).toLocaleString("en-IN")}
+                        </>
+                      )}
                     </span>
                   </div>
                 </div>
@@ -513,21 +528,39 @@ export default function ReferralProgramDetailPage() {
                       Trigger Packages (Packages referrer must purchase to earn)
                     </h4>
                     {Array.isArray(program.referrerTriggerPackages) &&
-                    program.referrerTriggerPackages.length > 0 ? (
+                      program.referrerTriggerPackages.length > 0 ? (
                       <div className="flex flex-wrap gap-2">
-                        {program.referrerTriggerPackages.map((pkg) => (
-                          <span
-                            key={pkg.id}
-                            className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-lg bg-gray-50 border border-gray-200 text-[#0B1E3F]"
-                          >
-                            <CheckCircle2 size={12} className="text-emerald-600" />
-                            {pkg.name} (₹{Number(pkg.discountedPrice || pkg.price || 0).toLocaleString()})
-                          </span>
-                        ))}
+                        {program.referrerTriggerPackages.map((pkg) => {
+                          const pkgName =
+                            pkg.name ||
+                            pkg.packageNameSnapshot ||
+                            `Package #${pkg.packageId}`;
+                          const pkgPrice =
+                            pkg.discountedPrice ?? pkg.regularPrice ?? null;
+                          return (
+                            <span
+                              key={pkg.id}
+                              className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-lg bg-gray-50 border border-gray-200 text-[#0B1E3F]"
+                            >
+                              <CheckCircle2
+                                size={12}
+                                className="text-emerald-600"
+                              />
+                              {pkgName}
+                              {pkgPrice != null && (
+                                <span className="text-[#718096]">
+                                  {" "}
+                                  (₹{Number(pkgPrice).toLocaleString("en-IN")})
+                                </span>
+                              )}
+                            </span>
+                          );
+                        })}
                       </div>
                     ) : (
                       <p className="text-xs text-[#718096] italic">
-                        No specific trigger packages selected (Applies to any package).
+                        No specific trigger packages selected (Applies to any
+                        package).
                       </p>
                     )}
 
@@ -536,7 +569,7 @@ export default function ReferralProgramDetailPage() {
                       Allowed Packages for Discount Application
                     </h4>
                     {Array.isArray(program.referrerAllowedPackages) &&
-                    program.referrerAllowedPackages.length > 0 ? (
+                      program.referrerAllowedPackages.length > 0 ? (
                       <div className="flex flex-wrap gap-2">
                         {program.referrerAllowedPackages.map((pkg) => (
                           <span
@@ -544,7 +577,9 @@ export default function ReferralProgramDetailPage() {
                             className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200 text-blue-900"
                           >
                             <PackageCheck size={12} className="text-blue-600" />
-                            {pkg.name}
+                            {pkg.name ||
+                              pkg.packageNameSnapshot ||
+                              `Package #${pkg.packageId}`}
                           </span>
                         ))}
                       </div>
@@ -592,10 +627,15 @@ export default function ReferralProgramDetailPage() {
                     <span className="text-[#718096] font-medium block">
                       Reward Value
                     </span>
-                    <span className="font-bold text-[#0B1E3F] text-sm">
-                      {program.refereeRewardCalcType === "percentage"
-                        ? `${program.refereeRewardValue}%`
-                        : `₹${Number(program.refereeRewardValue || 0).toLocaleString("en-IN")}`}
+                    <span className="font-bold text-[#0B1E3F] text-sm inline-flex items-center gap-0.5">
+                      {program.refereeRewardCalcType === "percentage" ? (
+                        `${program.refereeRewardValue}%`
+                      ) : (
+                        <>
+                          <Coins size={14} className="text-[#C9A24B]" />
+                          {Number(program.refereeRewardValue || 0).toLocaleString("en-IN")}
+                        </>
+                      )}
                     </span>
                   </div>
                 </div>
@@ -608,15 +648,20 @@ export default function ReferralProgramDetailPage() {
                       Allowed Referee Packages
                     </h4>
                     {Array.isArray(program.refereeAllowedPackages) &&
-                    program.refereeAllowedPackages.length > 0 ? (
+                      program.refereeAllowedPackages.length > 0 ? (
                       <div className="flex flex-wrap gap-2">
                         {program.refereeAllowedPackages.map((pkg) => (
                           <span
                             key={pkg.id}
                             className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-lg bg-purple-50 border border-purple-200 text-purple-900"
                           >
-                            <PackageCheck size={12} className="text-purple-600" />
-                            {pkg.name}
+                            <PackageCheck
+                              size={12}
+                              className="text-purple-600"
+                            />
+                            {pkg.name ||
+                              pkg.packageNameSnapshot ||
+                              `Package #${pkg.packageId}`}
                           </span>
                         ))}
                       </div>
@@ -640,7 +685,8 @@ export default function ReferralProgramDetailPage() {
                   Redemption & Audit Tracking History
                 </h3>
                 <p className="text-xs text-[#718096]">
-                  Real-time record of referral links generated, applied, and converted under this program.
+                  Real-time record of referral links generated, applied, and
+                  converted under this program.
                 </p>
               </div>
               <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#FAF6EC] text-[#0B1E3F] border border-[#CBD5E0] self-start sm:self-auto">
@@ -655,14 +701,19 @@ export default function ReferralProgramDetailPage() {
                   size={24}
                   className="animate-spin text-[#C9A24B] mx-auto mb-2"
                 />
-                <p className="text-xs text-[#718096]">Loading audit history...</p>
+                <p className="text-xs text-[#718096]">
+                  Loading audit history...
+                </p>
               </div>
             ) : tracks.length === 0 ? (
               <div className="p-8 text-center text-[#718096]">
                 <Activity size={32} className="mx-auto text-gray-300 mb-2" />
-                <p className="text-sm font-medium">No redemptions tracked yet</p>
+                <p className="text-sm font-medium">
+                  No redemptions tracked yet
+                </p>
                 <p className="text-xs text-gray-400">
-                  When users refer friends, their redemption lifecycle will be audited here.
+                  When users refer friends, their redemption lifecycle will be
+                  audited here.
                 </p>
               </div>
             ) : (
@@ -671,7 +722,6 @@ export default function ReferralProgramDetailPage() {
                   <thead>
                     <tr className="bg-[#FAF6EC] border-b border-[#CBD5E0] text-[#0B1E3F] font-bold">
                       <th className="py-3 px-4">Track ID</th>
-                      <th className="py-3 px-4">Referral Code</th>
                       <th className="py-3 px-4">Referrer User</th>
                       <th className="py-3 px-4">Referee User</th>
                       <th className="py-3 px-4">Status</th>
@@ -688,47 +738,52 @@ export default function ReferralProgramDetailPage() {
                           #{track.id}
                         </td>
                         <td className="py-3 px-4">
-                          <span className="font-mono font-bold text-[#0B1E3F] bg-[#FAF6EC] px-2 py-0.5 rounded border border-[#CBD5E0]">
-                            {track.referralCode || "-"}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4">
                           {track.referrer ? (
                             <div>
                               <p className="font-semibold text-[#0B1E3F]">
-                                {track.referrer.name || "User #" + track.referrer.id}
+                                {track.referrer.name ||
+                                  "User #" + track.referrer.id}
                               </p>
                               <p className="text-[11px] text-[#718096]">
-                                {track.referrer.email || track.referrer.mobileNumber || "-"}
+                                {track.referrer.email ||
+                                  track.referrer.mobileNumber ||
+                                  "-"}
                               </p>
                             </div>
                           ) : (
-                            <span className="text-gray-400">ID: {track.referrerUserId || "-"}</span>
+                            <span className="text-gray-400">
+                              ID: {track.referrerUserId || "-"}
+                            </span>
                           )}
                         </td>
                         <td className="py-3 px-4">
                           {track.referee ? (
                             <div>
                               <p className="font-semibold text-[#0B1E3F]">
-                                {track.referee.name || "User #" + track.referee.id}
+                                {track.referee.name ||
+                                  "User #" + track.referee.id}
                               </p>
                               <p className="text-[11px] text-[#718096]">
-                                {track.referee.email || track.referee.mobileNumber || "-"}
+                                {track.referee.email ||
+                                  track.referee.mobileNumber ||
+                                  "-"}
                               </p>
                             </div>
                           ) : (
-                            <span className="text-gray-400">ID: {track.refereeUserId || "-"}</span>
+                            <span className="text-gray-400">
+                              ID: {track.refereeUserId || "-"}
+                            </span>
                           )}
                         </td>
                         <td className="py-3 px-4">
                           <span
-                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border capitalize ${
-                              track.status === "rewarded" || track.status === "converted"
-                                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                                : track.status === "applied"
+                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border capitalize ${track.status === "rewarded" ||
+                              track.status === "converted"
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                              : track.status === "applied"
                                 ? "bg-blue-50 text-blue-700 border-blue-200"
                                 : "bg-amber-50 text-amber-700 border-amber-200"
-                            }`}
+                              }`}
                           >
                             {track.status || "registered"}
                           </span>
@@ -747,7 +802,8 @@ export default function ReferralProgramDetailPage() {
             {totalPages > 1 && (
               <div className="flex items-center justify-between pt-3 border-t border-[#CBD5E0] text-xs">
                 <span className="text-[#718096]">
-                  Showing page <strong className="text-[#0B1E3F]">{tracksPage}</strong> of{" "}
+                  Showing page{" "}
+                  <strong className="text-[#0B1E3F]">{tracksPage}</strong> of{" "}
                   <strong className="text-[#0B1E3F]">{totalPages}</strong>
                 </span>
                 <div className="flex items-center gap-2">
@@ -793,7 +849,10 @@ export default function ReferralProgramDetailPage() {
               </h3>
             </div>
             <p className="text-xs text-[#4A5568] leading-relaxed">
-              Are you sure you want to delete <strong>{program.name}</strong> (ID: #{program.id})? If this program has existing tracking records, it will be safely marked as <strong>cancelled</strong> to preserve audit history.
+              Are you sure you want to delete <strong>{program.name}</strong>{" "}
+              (ID: #{program.id})? If this program has existing tracking
+              records, it will be safely marked as <strong>cancelled</strong> to
+              preserve audit history.
             </p>
             <div className="flex items-center justify-end gap-3 pt-2">
               <button
