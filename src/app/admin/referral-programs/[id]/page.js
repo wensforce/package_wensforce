@@ -29,6 +29,8 @@ import {
   ShieldCheck,
   Zap,
   Coins,
+  Phone,
+  User,
 } from "lucide-react";
 import { referralApi } from "../apis/referral.api";
 import { useDeleteReferralProgram } from "../hooks/useDeleteReferralProgram";
@@ -63,6 +65,23 @@ function formatReward(type, calcType, value) {
       {formattedVal}
       <span className="font-normal">({type})</span>
     </span>
+  );
+}
+
+// Helper: display name or fallback to User #id
+function getUserLabel(user, userId) {
+  if (!user) return <span className="text-gray-400">User #{userId || "-"}</span>;
+  return (
+    <div>
+      <p className="font-semibold text-[#0B1E3F] flex items-center gap-1">
+        <User size={12} className="text-[#718096]" />
+        {user.name ? user.name : `User #${user.id}`}
+      </p>
+      <p className="text-[11px] text-[#718096] flex items-center gap-1 mt-0.5">
+        <Phone size={11} />
+        {user.mobileNumber || "-"}
+      </p>
+    </div>
   );
 }
 
@@ -721,74 +740,62 @@ export default function ReferralProgramDetailPage() {
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
                     <tr className="bg-[#FAF6EC] border-b border-[#CBD5E0] text-[#0B1E3F] font-bold">
-                      <th className="py-3 px-4">Track ID</th>
-                      <th className="py-3 px-4">Referrer User</th>
-                      <th className="py-3 px-4">Referee User</th>
-                      <th className="py-3 px-4">Status</th>
-                      <th className="py-3 px-4">Date & Time</th>
+                      <th className="py-3 px-4 whitespace-nowrap">#</th>
+                      <th className="py-3 px-4 whitespace-nowrap">
+                        <span className="flex items-center gap-1.5">
+                          <Gift size={13} className="text-emerald-600" />
+                          Referrer
+                        </span>
+                      </th>
+                      <th className="py-3 px-4 whitespace-nowrap">
+                        <span className="flex items-center gap-1.5">
+                          <Award size={13} className="text-purple-600" />
+                          Referee
+                        </span>
+                      </th>
+                      <th className="py-3 px-4 whitespace-nowrap">Status</th>
+                      <th className="py-3 px-4 whitespace-nowrap">Date & Time</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#CBD5E0] text-[#1A202C]">
-                    {tracks.map((track) => (
+                    {tracks.map((track, index) => (
                       <tr
                         key={track.id}
-                        className="hover:bg-gray-50 transition-colors"
+                        className="hover:bg-[#FAF6EC] transition-colors"
                       >
-                        <td className="py-3 px-4 font-mono font-medium text-[#718096]">
+                        {/* Serial / Track ID */}
+                        <td className="py-3 px-4 font-mono text-[#718096] text-[11px]">
                           #{track.id}
                         </td>
+
+                        {/* Referrer */}
                         <td className="py-3 px-4">
-                          {track.referrer ? (
-                            <div>
-                              <p className="font-semibold text-[#0B1E3F]">
-                                {track.referrer.name ||
-                                  "User #" + track.referrer.id}
-                              </p>
-                              <p className="text-[11px] text-[#718096]">
-                                {track.referrer.email ||
-                                  track.referrer.mobileNumber ||
-                                  "-"}
-                              </p>
-                            </div>
-                          ) : (
-                            <span className="text-gray-400">
-                              ID: {track.referrerUserId || "-"}
-                            </span>
-                          )}
+                          {getUserLabel(track.referrer, track.referrerUserId)}
                         </td>
+
+                        {/* Referee */}
                         <td className="py-3 px-4">
-                          {track.referee ? (
-                            <div>
-                              <p className="font-semibold text-[#0B1E3F]">
-                                {track.referee.name ||
-                                  "User #" + track.referee.id}
-                              </p>
-                              <p className="text-[11px] text-[#718096]">
-                                {track.referee.email ||
-                                  track.referee.mobileNumber ||
-                                  "-"}
-                              </p>
-                            </div>
-                          ) : (
-                            <span className="text-gray-400">
-                              ID: {track.refereeUserId || "-"}
-                            </span>
-                          )}
+                          {getUserLabel(track.referee, track.refereeUserId)}
                         </td>
+
+                        {/* Status */}
                         <td className="py-3 px-4">
                           <span
-                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border capitalize ${track.status === "rewarded" ||
+                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border capitalize ${
+                              track.status === "rewarded" ||
                               track.status === "converted"
-                              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                              : track.status === "applied"
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                : track.status === "applied"
                                 ? "bg-blue-50 text-blue-700 border-blue-200"
                                 : "bg-amber-50 text-amber-700 border-amber-200"
-                              }`}
+                            }`}
                           >
                             {track.status || "registered"}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-[#718096]">
+
+                        {/* Date */}
+                        <td className="py-3 px-4 text-[#718096] whitespace-nowrap">
                           {formatDate(track.createdAt)}
                         </td>
                       </tr>

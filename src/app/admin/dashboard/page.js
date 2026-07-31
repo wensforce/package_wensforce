@@ -208,10 +208,10 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                Total Bookings
+                Total Orders
               </p>
               <h3 className="text-2xl font-bold text-[#0B1E3F] mt-1">
-                {stats.totalBookings}
+                {stats.totalOrders}
               </h3>
             </div>
             <div className="p-3 bg-emerald-50 text-emerald-600 rounded-lg">
@@ -219,7 +219,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="mt-4 text-xs text-gray-500">
-            Pending / In-progress client bookings
+            Pending / In-progress client orders
           </div>
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-emerald-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
         </div>
