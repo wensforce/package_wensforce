@@ -16,7 +16,7 @@ import { useAuth } from "@/app/context/AuthContext";
 
 const CATEGORY_OPTIONS = [
   { label: "Membership", value: "membership" },
-  { label: "Welcome India", value: "welcome india" },
+  { label: "Welcome India", value: "welcome_india" },
 ];
 
 const formatDate = (value) => {
