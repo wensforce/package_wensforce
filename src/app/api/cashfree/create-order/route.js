@@ -6,148 +6,20 @@ const CF_BASE_URL =
     ? "https://api.cashfree.com/pg/orders"
     : "https://sandbox.cashfree.com/pg/orders";
 
-// Currencies supported for international payments via Cashfree
 const SUPPORTED_CURRENCIES = new Set([
-  "INR",
-  "USD",
-  "GBP",
-  "THB",
-  "AED",
-  "EUR",
-  "AUD",
-  "CNY",
-  "LKR",
-  "MYR",
-  "VND",
-  "SGD",
-  "SAR",
-  "ZAR",
-  "CHF",
-  "CAD",
-  "NPR",
-  "OMR",
-  "HKD",
-  "BDT",
-  "JPY",
-  "SEK",
-  "QAR",
-  "NZD",
-  "ILS",
-  "KWD",
-  "BHD",
-  "DKK",
-  "KES",
-  "MUR",
-  "NOK",
-  "PHP",
-  "RUB",
-  "AFN",
-  "ALL",
-  "DZD",
-  "AOA",
-  "XCD",
-  "ARS",
-  "AMD",
-  "AWG",
-  "AZN",
-  "BSD",
-  "BBD",
-  "BZD",
-  "XOF",
-  "BMD",
-  "BTN",
-  "BOB",
-  "BWP",
-  "BAM",
-  "BRL",
-  "BND",
-  "BGN",
-  "BIF",
-  "KHR",
-  "XAF",
-  "CVE",
-  "KYD",
-  "CLP",
-  "COP",
-  "KMF",
-  "CRC",
-  "CZK",
-  "DJF",
-  "EGP",
-  "ERN",
-  "ETB",
-  "FJD",
-  "GMD",
-  "GEL",
-  "GHS",
-  "GIP",
-  "GTQ",
-  "GNF",
-  "GYD",
-  "HTG",
-  "HNL",
-  "HUF",
-  "ISK",
-  "IDR",
-  "IQD",
-  "JMD",
-  "JOD",
-  "KZT",
-  "KGS",
-  "LAK",
-  "LBP",
-  "LRD",
-  "LYD",
-  "MAD",
-  "MZN",
-  "NAD",
-  "NGN",
-  "PGK",
-  "PYG",
-  "PEN",
-  "PLN",
-  "TRY",
-  "UAH",
-  "UYU",
-  "UZS",
-  "VUV",
-  "YER",
-  "ZMW",
-  "CDF",
-  "DOP",
-  "FKP",
-  "KRW",
-  "MDL",
-  "MGA",
-  "MKD",
-  "MNT",
-  "MOP",
-  "MRU",
-  "MVR",
-  "MWK",
-  "MXN",
-  "NIO",
-  "RON",
-  "RSD",
-  "RWF",
-  "SBD",
-  "SCR",
-  "SHP",
-  "SLL",
-  "SOS",
-  "SRD",
-  "SZL",
-  "TJS",
-  "TMT",
-  "TND",
-  "TOP",
-  "TTD",
-  "TWD",
-  "TZS",
-  "UGX",
-  "WST",
-  "XPF",
+  "INR","USD","GBP","THB","AED","EUR","AUD","CNY","LKR","MYR","VND","SGD","SAR","ZAR",
+  "CHF","CAD","NPR","OMR","HKD","BDT","JPY","SEK","QAR","NZD","ILS","KWD","BHD","DKK",
+  "KES","MUR","NOK","PHP","RUB","AFN","ALL","DZD","AOA","XCD","ARS","AMD","AWG","AZN",
+  "BSD","BBD","BZD","XOF","BMD","BTN","BOB","BWP","BAM","BRL","BND","BGN","BIF","KHR",
+  "XAF","CVE","KYD","CLP","COP","KMF","CRC","CZK","DJF","EGP","ERN","ETB","FJD","GMD",
+  "GEL","GHS","GIP","GTQ","GNF","GYD","HTG","HNL","HUF","ISK","IDR","IQD","JMD","JOD",
+  "KZT","KGS","LAK","LBP","LRD","LYD","MAD","MZN","NAD","NGN","PGK","PYG","PEN","PLN",
+  "TRY","UAH","UYU","UZS","VUV","YER","ZMW","CDF","DOP","FKP","KRW","MDL","MGA","MKD",
+  "MNT","MOP","MRU","MVR","MWK","MXN","NIO","RON","RSD","RWF","SBD","SCR","SHP","SLL",
+  "SOS","SRD","SZL","TJS","TMT","TND","TOP","TTD","TWD","TZS","UGX","WST","XPF",
 ]);
+
+const BASE_URL ="http://localhost:3000";
 
 export async function POST(req) {
   try {
@@ -157,41 +29,29 @@ export async function POST(req) {
       customerName,
       customerPhone,
       customerEmail,
-      planId,
+      planId="25",
       planName,
       currency = "INR",
+      // advance-payment extras
+      paymentType,
+      totalAmount,
+      advPercentage,
     } = body;
 
-    // Server-side validation
     if (!customerName || !customerPhone || !amount || !planId || !planName) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
     if (!SUPPORTED_CURRENCIES.has(currency)) {
-      return NextResponse.json(
-        { error: "Unsupported currency" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Unsupported currency" }, { status: 400 });
     }
     if (currency === "INR" && !/^\d{10}$/.test(customerPhone)) {
-      return NextResponse.json(
-        { error: "Invalid phone number" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Invalid phone number" }, { status: 400 });
     }
 
-    // Sanitise email if provided
     const safeEmail =
-      typeof customerEmail === "string"
-        ? customerEmail.trim().slice(0, 254)
-        : undefined;
+      typeof customerEmail === "string" ? customerEmail.trim().slice(0, 254) : undefined;
     if (safeEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(safeEmail)) {
-      return NextResponse.json(
-        { error: "Invalid email address" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
     }
 
     const orderId = `WENS_${planId.toUpperCase()}_${Date.now()}`;
@@ -202,6 +62,18 @@ export async function POST(req) {
       customer_phone: customerPhone,
       ...(safeEmail && { customer_email: safeEmail }),
     };
+
+    // Build the return URL based on payment type
+    let returnUrl;
+    if (paymentType === "advance") {
+      const extraParams = new URLSearchParams({
+        planId: String(planId),
+        ...(customerName && { customerName: customerName.trim() }),
+      });
+      returnUrl = `${BASE_URL}/rail-payment/confirmation?order_id={order_id}&${extraParams.toString()}`;
+    } else {
+      returnUrl = `${BASE_URL}/booking/confirmation?order_id={order_id}&plan=${planId}`;
+    }
 
     const response = await fetch(CF_BASE_URL, {
       method: "POST",
@@ -216,20 +88,43 @@ export async function POST(req) {
         order_amount: amount,
         order_currency: currency,
         order_tags: {
-          plan_id: planId,
-          source: "subscription_website",
+          plan_id: String(planId),
+          source: paymentType === "advance" ? "rail_advance" : "subscription_website",
         },
         customer_details: customerDetails,
         order_meta: {
-          return_url: `${process.env.NEXT_PUBLIC_URL}/booking/confirmation?order_id={order_id}&plan=${planId}`,
-          notify_url: `${process.env.NEXT_PUBLIC_URL}/api/cashfree/webhook`,
+          return_url: returnUrl,
         },
-        order_note: `WENS Force ${planId} Membership`,
+        order_note:
+          paymentType === "advance"
+            ? `WENS Force Rail Advance — Plan ${planId}`
+            : `WENS Force ${planId} Membership`,
       }),
     });
 
     if (!response.ok) {
       const text = await response.text();
+
+      // Sandbox bug: order created but 500 returned — recover via GET
+      const fetchOrder = await fetch(`${CF_BASE_URL}/${orderId}`, {
+        method: "GET",
+        headers: {
+          "x-client-id": process.env.CASHFREE_APP_ID,
+          "x-client-secret": process.env.CASHFREE_SECRET_KEY,
+          "x-api-version": "2023-08-01",
+        },
+      });
+
+      if (fetchOrder.ok) {
+        const orderData = await fetchOrder.json();
+        if (orderData.payment_session_id) {
+          return NextResponse.json({
+            order_id: orderData.order_id,
+            payment_session_id: orderData.payment_session_id,
+          });
+        }
+      }
+
       console.error("Cashfree order creation failed:", text);
       return NextResponse.json(
         { error: "Failed to create payment order" },
@@ -243,12 +138,8 @@ export async function POST(req) {
       order_id: data.order_id,
       payment_session_id: data.payment_session_id,
     });
-    
   } catch (err) {
     console.error("create-order error:", err);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
