@@ -212,22 +212,28 @@ function RailPaymentContent() {
   const finalAmount = searchParams.get("finalAmount") || "5000";
   const customerPhone = searchParams.get("customerPhone") || "9999999999";
   const customerName = searchParams.get("customerName") || "John Doe";
+  
+  const directAmount = searchParams.get("directAmount") || "0";
 
+  const parsedDirectAmount = parseFloat(directAmount) || 0;
   const parsedAmount = parseFloat(finalAmount) || 0;
   const minAmount = parseFloat(((parsedAmount * 10) / 100).toFixed(2));
+  const initialPercentage = Math.min(
+    100,
+    Math.max(10, parseFloat(searchParams.get("advPercentage") || "30"))
+  );
 
   /* ── Mode state ── */
-  const [mode, setMode] = useState("percentage"); // "percentage" | "amount"
-
-  /* ── Percentage mode state ── */
-  const [advPercentage, setAdvPercentage] = useState(
-    Math.min(100, Math.max(10, parseFloat(searchParams.get("advPercentage") || "30")))
+  const [mode, setMode] = useState(
+    directAmount && parsedDirectAmount > 0 ? "amount" : "percentage"
   );
-
-  /* ── Amount mode state ── */
-  const [advAmount, setAdvAmount] = useState(
-    parseFloat(((parsedAmount * 30) / 100).toFixed(2))
-  );
+  const [advPercentage, setAdvPercentage] = useState(initialPercentage);
+  const [advAmount, setAdvAmount] = useState(() => {
+    if (parsedDirectAmount > 0) return parsedDirectAmount;
+    return parsedAmount > 0
+      ? parseFloat(((parsedAmount * initialPercentage) / 100).toFixed(2))
+      : 0;
+  });
 
   /* ── Derived values ── */
   let payableAmount, derivedPercentage;
@@ -290,7 +296,7 @@ function RailPaymentContent() {
           amount: payableAmount,
           customerName: customerName.trim(),
           customerPhone: sanitisedPhone,
-          planName: "Rail Advance",
+          
           currency: "INR",
           paymentType: "advance",
           totalAmount: parsedAmount,

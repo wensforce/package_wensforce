@@ -30,7 +30,7 @@ export async function POST(req) {
       customerPhone,
       customerEmail,
       planId="25",
-      planName,
+      planName="Rail Advance — Plan 25",
       currency = "INR",
       // advance-payment extras
       paymentType,
