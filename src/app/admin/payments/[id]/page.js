@@ -27,14 +27,12 @@ export default function PaymentDetailPage() {
 
       try {
         const cacheKey = `payment_${paymentId}`;
-        if (!silent) {
-          const cached = sessionStorage.getItem(cacheKey);
-          if (cached) {
-            setPayment(JSON.parse(cached));
-            sessionStorage.removeItem(cacheKey);
-            setLoading(false);
-            return;
-          }
+        const cached = sessionStorage.getItem(cacheKey);
+        if (cached && !silent) {
+          setPayment(JSON.parse(cached));
+          sessionStorage.removeItem(cacheKey);
+          if (!silent) setLoading(false);
+          return;
         }
 
         const data = await paymentApi.getPaymentById(paymentId);

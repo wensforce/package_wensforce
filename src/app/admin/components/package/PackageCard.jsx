@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Car, Clock, Route, Shield, Pencil, Eye } from "lucide-react";
+import { formatPackageValidity } from "@/app/utils/formatPackageValidity";
 
 function formatPrice(value) {
   if (value == null) return "—";
@@ -87,7 +88,7 @@ export default function PackageCard({ pkg }) {
           </div>
           <div className="flex items-center gap-2">
             <Clock size={13} className="shrink-0 text-neutral-400" />
-            <span>{pkg.validity ? `${pkg.validity} months` : "—"}</span>
+            <span>{formatPackageValidity(pkg.validity)}</span>
           </div>
           <div className="flex items-center gap-2">
             <Shield size={13} className="shrink-0 text-neutral-400" />

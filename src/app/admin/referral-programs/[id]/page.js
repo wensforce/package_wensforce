@@ -10,7 +10,6 @@ import {
   Pencil,
   Trash2,
   AlertTriangle,
-  CheckCircle2,
   Clock,
   Ban,
   Layers,
@@ -82,6 +81,24 @@ function getUserLabel(user, userId) {
         {user.mobileNumber || "-"}
       </p>
     </div>
+  );
+}
+
+function TriggerPackageChip({ pkg }) {
+  const pkgName =
+    pkg.name || pkg.packageNameSnapshot || `Package #${pkg.packageId}`;
+  const pkgPrice = pkg.discountedPrice ?? pkg.regularPrice ?? null;
+
+  return (
+    <span className="inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg bg-purple-50 border border-purple-200 text-[#0B1E3F]">
+      <PackageCheck size={12} className="text-purple-600 shrink-0" />
+      <span>{pkgName}</span>
+      {pkgPrice != null ? (
+        <span className="text-[#718096]">
+          (₹{Number(pkgPrice).toLocaleString("en-IN")})
+        </span>
+      ) : null}
+    </span>
   );
 }
 
@@ -453,9 +470,14 @@ export default function ReferralProgramDetailPage() {
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-md bg-purple-50 text-purple-700 border border-purple-200">
-                      <PackageCheck size={14} /> On Package Purchase
+                      <PackageCheck size={14} /> On Referee Package Purchase
                     </span>
                   )}
+                  <p className="mt-2 text-[11px] leading-relaxed text-[#718096]">
+                    {program.rewardOnSignup
+                      ? "Referrer and referee rewards are created when the referee applies a referral code during registration."
+                      : "Referrer and referee rewards are created only after the referee completes payment for a qualifying trigger package."}
+                  </p>
                 </div>
 
                 <div>
@@ -491,6 +513,94 @@ export default function ReferralProgramDetailPage() {
 
             {/* Column 2 & 3: Referrer and Referee Rules */}
             <div className="lg:col-span-2 space-y-6">
+              {/* Reward generation trigger — purchase-based programs */}
+              {!program.rewardOnSignup ? (
+                <div className="bg-white border border-purple-200 p-5 rounded-2xl space-y-4 shadow-sm">
+                  <div className="flex items-center justify-between border-b border-[#CBD5E0] pb-3">
+                    <h3 className="font-bold text-[#0B1E3F] text-sm flex items-center gap-2">
+                      <PackageCheck size={16} className="text-purple-600" />
+                      Referee Purchase Trigger
+                    </h3>
+                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-800 border border-purple-200">
+                      Purchase required
+                    </span>
+                  </div>
+
+                  <p className="text-xs leading-relaxed text-[#4A5568]">
+                    Rewards for this program are{" "}
+                    <strong className="text-[#0B1E3F]">not</strong> issued on
+                    signup. They are generated when a referred user (referee)
+                    successfully purchases one of the packages listed below.
+                  </p>
+
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-[#0B1E3F] flex items-center gap-1.5">
+                      <Sparkles size={13} className="text-[#C9A24B]" />
+                      Qualifying trigger packages
+                    </h4>
+                    {Array.isArray(program.referrerTriggerPackages) &&
+                    program.referrerTriggerPackages.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {program.referrerTriggerPackages.map((pkg) => (
+                          <TriggerPackageChip key={pkg.id || pkg.packageId} pkg={pkg} />
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                        No trigger packages configured. Rewards will not be
+                        generated until at least one qualifying package is
+                        added to this program.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                    <div className="rounded-xl border border-[#CBD5E0] bg-[#FAF6EC] p-3 text-xs">
+                      <p className="font-semibold text-[#718096] mb-1">
+                        Referrer receives on trigger
+                      </p>
+                      <p className="font-bold text-[#0B1E3F] text-sm">
+                        {formatReward(
+                          program.referrerRewardType,
+                          program.referrerRewardCalcType,
+                          program.referrerRewardValue,
+                        )}
+                      </p>
+                    </div>
+                    <div className="rounded-xl border border-[#CBD5E0] bg-[#FAF6EC] p-3 text-xs">
+                      <p className="font-semibold text-[#718096] mb-1">
+                        Referee receives on trigger
+                      </p>
+                      <p className="font-bold text-[#0B1E3F] text-sm">
+                        {formatReward(
+                          program.refereeRewardType,
+                          program.refereeRewardCalcType,
+                          program.refereeRewardValue,
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white border border-blue-200 p-5 rounded-2xl space-y-3 shadow-sm">
+                  <div className="flex items-center justify-between border-b border-[#CBD5E0] pb-3">
+                    <h3 className="font-bold text-[#0B1E3F] text-sm flex items-center gap-2">
+                      <Zap size={16} className="text-blue-600" />
+                      Signup Reward Trigger
+                    </h3>
+                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200">
+                      Instant on code apply
+                    </span>
+                  </div>
+                  <p className="text-xs leading-relaxed text-[#4A5568]">
+                    Referrer and referee rewards are created immediately when
+                    the referee applies a valid referral code during registration
+                    (within the allowed window). No package purchase is required
+                    to generate rewards.
+                  </p>
+                </div>
+              )}
+
               {/* Referrer Rules Card */}
               <div className="bg-white border border-[#CBD5E0] p-5 rounded-2xl space-y-4">
                 <div className="flex items-center justify-between border-b border-[#CBD5E0] pb-3">
@@ -543,49 +653,8 @@ export default function ReferralProgramDetailPage() {
                 {program.referrerPackageScope === "custom" && (
                   <div className="space-y-3 pt-2">
                     <h4 className="text-xs font-bold text-[#0B1E3F] flex items-center gap-1.5">
-                      <Sparkles size={13} className="text-[#C9A24B]" />
-                      Trigger Packages (Packages referrer must purchase to earn)
-                    </h4>
-                    {Array.isArray(program.referrerTriggerPackages) &&
-                      program.referrerTriggerPackages.length > 0 ? (
-                      <div className="flex flex-wrap gap-2">
-                        {program.referrerTriggerPackages.map((pkg) => {
-                          const pkgName =
-                            pkg.name ||
-                            pkg.packageNameSnapshot ||
-                            `Package #${pkg.packageId}`;
-                          const pkgPrice =
-                            pkg.discountedPrice ?? pkg.regularPrice ?? null;
-                          return (
-                            <span
-                              key={pkg.id}
-                              className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-lg bg-gray-50 border border-gray-200 text-[#0B1E3F]"
-                            >
-                              <CheckCircle2
-                                size={12}
-                                className="text-emerald-600"
-                              />
-                              {pkgName}
-                              {pkgPrice != null && (
-                                <span className="text-[#718096]">
-                                  {" "}
-                                  (₹{Number(pkgPrice).toLocaleString("en-IN")})
-                                </span>
-                              )}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <p className="text-xs text-[#718096] italic">
-                        No specific trigger packages selected (Applies to any
-                        package).
-                      </p>
-                    )}
-
-                    <h4 className="text-xs font-bold text-[#0B1E3F] flex items-center gap-1.5 pt-2">
                       <ShieldCheck size={13} className="text-blue-600" />
-                      Allowed Packages for Discount Application
+                      Allowed Packages for Referrer Reward Redemption
                     </h4>
                     {Array.isArray(program.referrerAllowedPackages) &&
                       program.referrerAllowedPackages.length > 0 ? (

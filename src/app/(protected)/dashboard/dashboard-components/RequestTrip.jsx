@@ -61,6 +61,36 @@ function toArray(res) {
   return [];
 }
 
+function getServiceLabel(svc) {
+  if (!svc) return "Unnamed service";
+  return (
+    svc.title ??
+    svc.name ??
+    svc.service?.title ??
+    svc.service?.name ??
+    "Unnamed service"
+  );
+}
+
+function enrichPackageService(svc, subServices = []) {
+  const matchedSubSvc = subServices.find(
+    (subSvc) => String(subSvc.id) === String(svc.id),
+  );
+  const title =
+    svc.title ??
+    svc.name ??
+    matchedSubSvc?.title ??
+    matchedSubSvc?.name ??
+    svc.service?.title ??
+    svc.service?.name;
+
+  return {
+    ...svc,
+    ...(title && { title }),
+    count: matchedSubSvc?.count ?? svc.count ?? 0,
+  };
+}
+
 // ── Add Service Drawer ────────────────────────────────────────────────────────
 function AddServiceDrawer({ packageId, onAdd, onClose, existingIds }) {
   const [search, setSearch] = useState("");
@@ -395,15 +425,13 @@ export default function RequestTripModal({ plan, onClose }) {
       .then((rows) => {
         if (cancelled) return;
         const subServices = Array.isArray(plan.services) ? plan.services : [];
-        const list = toArray(rows).map((svc) => {
-          const matchedSubSvc = subServices.find(
-            (subSvc) => Number(subSvc.id) === Number(svc.id),
-          );
-          return {
-            ...svc,
-            count: matchedSubSvc ? matchedSubSvc.count : (svc.count ?? 0),
-          };
-        });
+        const apiList = toArray(rows).map((svc) =>
+          enrichPackageService(svc, subServices),
+        );
+        const list =
+          apiList.length > 0 || debouncedServiceQuery
+            ? apiList
+            : subServices.map((svc) => enrichPackageService(svc, subServices));
         setPackageServices(list);
         // Pre-select all on first load (no search active)
         if (!debouncedServiceQuery) {
@@ -486,7 +514,7 @@ export default function RequestTripModal({ plan, onClose }) {
         .filter((svc) => selectedServices.includes(svc.id))
         .map((svc) => ({
           id: svc.id,
-          name: svc.title ?? svc.name ?? `Service #${svc.id}`,
+          name: getServiceLabel(svc),
         }));
 
       const addedSvcs = extraServices.map((svc) => ({
@@ -495,13 +523,16 @@ export default function RequestTripModal({ plan, onClose }) {
       }));
 
       const payload = {
-        subscriptionId: plan.id,
+        subscriptionId: String(plan.id),
         planName: plan.package?.name,
         pickupLocation: pickupLocation.trim(),
         dropLocation: dropLocation.trim(),
         tripDate: new Date(tripDate).toISOString(),
         tripType,
-        services: [...includedSvcs, ...addedSvcs],
+        services: [...includedSvcs, ...addedSvcs].map((svc) => ({
+          ...svc,
+          id: String(svc.id),
+        })),
         ...(extraServices.length > 0 && {
           additionalAmount: parseFloat(additionalAmount.toFixed(2)),
         }),
@@ -833,7 +864,7 @@ export default function RequestTripModal({ plan, onClose }) {
                   >
                     {packageServices.map((svc) => {
                       const id = svc.id;
-                      const label = svc.title ?? svc.name ?? `Service #${id}`;
+                      const label = getServiceLabel(svc);
                       const isSelected = selectedServices.includes(id);
                       const svcImg = getImageUrl(
                         svc.thumbnailUrl ?? svc.thumbnailUrlKey,
@@ -884,9 +915,6 @@ export default function RequestTripModal({ plan, onClose }) {
                                 {formatPrice(price)?.replace("₹", "")}
                               </span>
                             ) : null}
-                            <span className="text-[10px] text-slate-300">
-                              #{id}
-                            </span>
                           </div>
                         </label>
                       );

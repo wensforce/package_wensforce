@@ -10,6 +10,7 @@ const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
  * the full packageServices structure — this covers the most common shapes.
  */
 import React from "react";
+import { formatPackageValidity } from "@/app/utils/formatPackageValidity";
 
 function getService(packageServices = [], ...keywords) {
   if (!Array.isArray(packageServices)) return null;
@@ -81,7 +82,7 @@ const STATIC_ROWS = [
   },
   {
     label: "Validity",
-    render: (pkg) => (pkg.validity ? `${pkg.validity} months` : "—"),
+    render: (pkg) => formatPackageValidity(pkg.validity),
   },
   {
     label: "Vehicle Class",

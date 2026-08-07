@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { CheckCircle } from 'lucide-react';
+import { formatPackageValidity } from '@/app/utils/formatPackageValidity';
 
 const INR = (n) => '₹' + Number(n).toLocaleString('en-IN');
 
@@ -8,7 +9,7 @@ export default function BreakdownSection({ plan, waUrl }) {
   const hasDiscount = plan.regularPrice && plan.regularPrice > plan.discountedPrice;
 
   const summaryRows = [
-    { label: 'Validity', val: `${plan.validity} Month${plan.validity > 1 ? 's' : ''}` },
+    { label: 'Validity', val: formatPackageValidity(plan.validity) },
     { label: 'Curated Journeys', val: `${plan.trips} per year` },
     { label: 'Vehicle', val: [plan.vehicleType, plan.vehicleModel].filter(Boolean).join(' · ') },
     { label: 'Security', val: plan.bodyguardType || 'Standard' },

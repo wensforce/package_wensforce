@@ -142,7 +142,7 @@ export default function CreateTripModal({
       );
 
       const preSelected = Array.isArray(trip.services)
-        ? new Set(trip.services.filter((s) => s?.id).map((s) => Number(s.id)))
+        ? new Set(trip.services.filter((s) => s?.id).map((s) => String(s.id)))
         : new Set();
       setSelectedServiceIds(preSelected);
 
@@ -154,7 +154,7 @@ export default function CreateTripModal({
         const map = new Map(
           trip.additionalServices
             .filter((s) => s?.id)
-            .map((s) => [Number(s.id), s]),
+            .map((s) => [String(s.id), s]),
         );
         setSelectedAdditionalServices(map);
       } else {
@@ -298,7 +298,7 @@ export default function CreateTripModal({
             : [];
           const list = (rows ?? []).map((svc) => {
             const matchedSubSvc = subServices.find(
-              (subSvc) => Number(subSvc.id) === Number(svc.id),
+              (subSvc) => String(subSvc.id) === String(svc.id),
             );
             return {
               ...svc,
@@ -385,12 +385,12 @@ export default function CreateTripModal({
     if (selectedServiceIds.size === packageServices.length) {
       setSelectedServiceIds(new Set());
     } else {
-      setSelectedServiceIds(new Set(packageServices.map((s) => Number(s.id))));
+      setSelectedServiceIds(new Set(packageServices.map((s) => String(s.id))));
     }
   }
 
   function toggleAdditionalService(svc) {
-    const id = Number(svc.id);
+    const id = String(svc.id);
     setSelectedAdditionalServices((prev) => {
       const next = new Map(prev);
       if (next.has(id)) next.delete(id);
@@ -402,7 +402,7 @@ export default function CreateTripModal({
   function removeAdditionalService(id) {
     setSelectedAdditionalServices((prev) => {
       const next = new Map(prev);
-      next.delete(Number(id));
+      next.delete(String(id));
       return next;
     });
   }
@@ -456,29 +456,29 @@ export default function CreateTripModal({
 
     try {
       const services = packageServices
-        .filter((svc) => selectedServiceIds.has(Number(svc.id)))
+        .filter((svc) => selectedServiceIds.has(String(svc.id)))
         .map((svc) => ({
-          id: Number(svc.id),
+          id: String(svc.id),
           name: svc.title || svc.name || `Service #${svc.id}`,
         }));
 
       const additionalServices = Array.from(
         selectedAdditionalServices.values(),
       ).map((svc) => ({
-        id: Number(svc.id),
+        id: String(svc.id),
         name: svc.title || svc.name || `Service #${svc.id}`,
       }));
 
       const payload = {
         assignmentId: form.assignmentId.trim(),
-        subscriptionId: Number(selectedSubscription.id),
+        subscriptionId: String(selectedSubscription.id),
         pickupLocation: form.pickupLocation.trim(),
         dropLocation: form.dropLocation.trim(),
         tripDate: form.tripDate,
         tripType: form.tripType,
         services,
         packageName: selectedSubscription.package?.name ?? null,
-        userId: Number(selectedUser.id),
+        userId: String(selectedUser.id),
         ...(additionalServices.length > 0 && {
           additionalServices,
           additionalAmount: parseFloat(additionalAmount.toFixed(2)),
@@ -868,7 +868,7 @@ export default function CreateTripModal({
                       </label>
                       <div className="max-h-52 overflow-y-auto divide-y divide-[#EDF2F7]">
                         {packageServices.map((service) => {
-                          const id = Number(service.id);
+                          const id = String(service.id);
                           const label =
                             service.title ||
                             service.name ||
@@ -995,7 +995,7 @@ export default function CreateTripModal({
                     <div className="rounded-lg border border-[#CBD5E0] bg-white overflow-hidden">
                       <div className="max-h-52 overflow-y-auto divide-y divide-[#EDF2F7]">
                         {additionalServicesOptions.map((service) => {
-                          const id = Number(service.id);
+                          const id = String(service.id);
                           const label =
                             service.title ||
                             service.name ||

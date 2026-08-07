@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { setPackages } from "@/app/membership/slices/package-slice"; 
 import { usePackages } from "../../hooks/usePackages";
+import { formatPackageValidity } from "@/app/utils/formatPackageValidity";
 const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
 
 export default function PlansSection({ category, welcomeIndia }) {
@@ -241,7 +242,7 @@ export default function PlansSection({ category, welcomeIndia }) {
                   label: "Security",
                   value: pkg.bodyguardType || "Not Included",
                 },
-                { label: "Validity", value: `${pkg.validity} Months` },
+                { label: "Validity", value: formatPackageValidity(pkg.validity) },
               ];
 
               return (

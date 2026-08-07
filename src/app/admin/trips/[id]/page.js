@@ -35,6 +35,14 @@ function formatDate(iso) {
   });
 }
 
+function getServiceLabel(service) {
+  return service?.name ?? service?.title ?? "Unnamed service";
+}
+
+function getSubscriptionPackageName(trip) {
+  return trip?.subscription?.package?.name || "-";
+}
+
 function getStatusUI(status) {
   const s = String(status || "pending").toUpperCase();
 
@@ -157,7 +165,7 @@ export default function TripDetailPage() {
           trip?.subscription?.package?.name ||
           trip?.subscription?.package?.name ||
           "",
-        tripId: trip?.id ? Number(trip.id) : Number(tripId),
+        tripId: trip?.id ? String(trip.id) : String(tripId),
         phone: trip?.user?.mobileNumber || "",
       };
       await tripApi.approveTrip(tripId, payload);
@@ -546,7 +554,7 @@ export default function TripDetailPage() {
                   <Repeat size={14} className="text-[#C9A24B]" /> Subscription
                 </h3>
                 <p className="text-sm font-semibold text-[#1A202C]">
-                  #{trip.subscription?.id || trip.subscriptionId || "-"}
+                  {getSubscriptionPackageName(trip)}
                 </p>
                 <p className="text-xs text-[#4A5568] mt-1 uppercase">
                   {trip.subscription?.status || "-"}
@@ -575,12 +583,12 @@ export default function TripDetailPage() {
 
               {Array.isArray(trip.services) && trip.services.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
-                  {trip.services.map((service) => (
+                  {trip.services.map((service, index) => (
                     <span
-                      key={service.id}
+                      key={service.id ?? index}
                       className="inline-flex items-center rounded-full border border-[#CBD5E0] bg-[#FAF6EC] px-3 py-1.5 text-xs font-medium text-[#1A202C]"
                     >
-                      #{service.id} {service.name || "Service"}
+                      {getServiceLabel(service)}
                     </span>
                   ))}
                 </div>

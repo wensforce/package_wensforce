@@ -314,26 +314,18 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
     if (!form.discountedPrice || Number(form.discountedPrice) <= 0)
       return "Discounted price must be a positive number.";
 
-    const vehicleModelStr =
-      typeof form.vehicleModel === "string"
-        ? form.vehicleModel
-        : Array.isArray(form.vehicleModel)
-          ? form.vehicleModel.join(", ")
-          : "";
-
     if (!form.vehicleType.trim()) return "Vehicle type is required.";
-    if (!vehicleModelStr.trim()) return "Vehicle model is required.";
     if (!form.bodyguardType.trim()) return "Bodyguard type is required.";
     if (!form.trips || Number(form.trips) <= 0)
       return "Trips must be a positive integer.";
-    if (!form.validity || Number(form.validity) <= 0)
-      return "Validity must be a positive integer.";
+    if (form.validity && Number(form.validity) <= 0)
+      return "Validity must be a positive integer when provided.";
     if (!form.category) return "Category is required.";
     const serviceItems = form.services.filter((item) => item.id !== "");
     if (serviceItems.length === 0) return "At least one service is required.";
     for (const item of serviceItems) {
-      if (!item.id || Number(item.id) <= 0)
-        return "Each service ID must be a positive integer.";
+      if (!item.id || !String(item.id).trim())
+        return "Each service ID is required.";
       if (item.count && Number(item.count) <= 0)
         return "Service count must be a positive integer.";
     }
@@ -389,14 +381,14 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
         vehicleModel: vehicleModelArray,
         bodyguardType: form.bodyguardType.trim(),
         trips: Number(form.trips),
-        validity: Number(form.validity),
+        validity: form.validity ? Number(form.validity) : null,
         isActive: form.isActive,
         category: form.category.toLowerCase().trim(),
         tags: form.tags.trim(),
         services: form.services
           .filter((item) => item.id !== "")
           .map((item) => ({
-            id: Number(item.id),
+            id: String(item.id),
             count: item.count ? Number(item.count) : undefined,
           })),
         existingPhotoKeys: existingPhotos.map((p) => p.key),
@@ -1188,7 +1180,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
               </div>
               <div className="space-y-1.5">
                 <label className="block text-sm font-semibold text-[#0B1E3F]">
-                  Vehicle model <span className="text-red-500">*</span>
+                  Vehicle model
                 </label>
                 <input
                   name="vehicleModel"
@@ -1230,7 +1222,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                 </div>
                 <div className="space-y-1.5">
                   <label className="block text-sm font-semibold text-[#0B1E3F]">
-                    Validity (months) <span className="text-red-500">*</span>
+                    Validity (months, optional — leave empty for Single Trip)
                   </label>
                   <input
                     name="validity"

@@ -13,6 +13,7 @@ import {
   Lock,
 } from "lucide-react";
 import { INR } from "@/app/(protected)/booking/booking-helpers";
+import { formatPackageValidity } from "@/app/utils/formatPackageValidity";
 
 /* ── Helpers (local to this panel) ───────────────────────────────────── */
 
@@ -42,10 +43,15 @@ const buildCapsules = (pkg) => {
       Icon: RotateCcw,
       text: `${pkg.trips} Trip${pkg.trips !== 1 ? "s" : ""}`,
     });
-  if (pkg.validity)
+  if (pkg.validity != null && pkg.validity !== "")
     items.push({
       Icon: Calendar,
-      text: `${pkg.validity} Month${pkg.validity !== 1 ? "s" : ""} Validity`,
+      text: `${formatPackageValidity(pkg.validity)} Validity`,
+    });
+  else
+    items.push({
+      Icon: Calendar,
+      text: "Single Trip Validity",
     });
   if (pkg.vehicleModel && pkg.vehicleType)
     items.push({
@@ -104,16 +110,7 @@ export default function PackageSummaryPanel({
                 paddingTop: "clamp(48px, 10vw, 90px)",
               }}
             >
-              <p
-                className="font-semibold uppercase tracking-[0.45em]"
-                style={{
-                  color: "#C9A24B",
-                  fontSize: "clamp(7.5px, 1.1vw, 10px)",
-                  marginBottom: "clamp(3px, 0.6vw, 6px)",
-                }}
-              >
-                Membership {String(packageData.id || "01").padStart(2, "0")}
-              </p>
+              
               <h2
                 className="font-black text-white uppercase leading-none"
                 style={{
@@ -148,10 +145,10 @@ export default function PackageSummaryPanel({
             </span>
             <span className="text-gray-400 text-xs mb-1">
               {isWelcomeIndia
-                ? `All Inclusive · ${packageData.validity || "Single Trip"}`
+                ? `All Inclusive · ${formatPackageValidity(packageData.validity)}`
                 : packageData.gst === null || packageData.gst === undefined
-                  ? `GST Inclusive · ${packageData.validity || "12 Months"} Validity`
-                  : `GST ${packageData.gst}% Extra · ${packageData.validity || "12 Months"} Validity`}
+                  ? `GST Inclusive · ${formatPackageValidity(packageData.validity ?? 12)} Validity`
+                  : `GST ${packageData.gst}% Extra · ${formatPackageValidity(packageData.validity ?? 12)} Validity`}
             </span>
             {hasDiscount && (
               <span

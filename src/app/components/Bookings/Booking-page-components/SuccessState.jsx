@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Check, ArrowLeft } from "lucide-react";
 import { INR, WA_NUMBER } from "@/app/(protected)/booking/booking-helpers";
+import { isSingleTripValidity } from "@/app/utils/formatPackageValidity";
 
 export default function SuccessState({
   packageData,
@@ -11,7 +12,7 @@ export default function SuccessState({
   matchedLocalPlan,
 }) {
   const price = packageData.discountedPrice;
-  const validitySuffix = packageData.validity === "Single Trip" ? "" : "/yr";
+  const validitySuffix = isSingleTripValidity(packageData.validity) ? "" : "/yr";
   const waMsg = encodeURIComponent(
     `Hi WENS Force! I just reserved the ${packageData.name} Package (${INR(price)}${validitySuffix}).\n\nName: ${form.name}\nMobile: ${form.phone}\nCity: ${form.city || "Not specified"}\n\nPlease send the payment link.`,
   );

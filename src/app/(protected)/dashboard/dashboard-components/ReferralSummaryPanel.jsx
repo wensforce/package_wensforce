@@ -9,6 +9,7 @@ import {
   Sparkles,
   Users,
   Coins,
+  Info,
 } from "lucide-react";
 import { toast } from "sonner";
 import { authApiUser } from "@/app/user-apis/auth.api";
@@ -18,6 +19,57 @@ const CATEGORY_OPTIONS = [
   { label: "Membership", value: "membership" },
   { label: "Welcome India", value: "welcome_india" },
 ];
+
+const formatCategoryLabel = (value) =>
+  CATEGORY_OPTIONS.find((o) => o.value === value)?.label ||
+  value.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+const isNoActiveProgramError = (message) =>
+  /no active referral program/i.test(message || "");
+
+function NoActiveProgramState({ category, onCategoryChange }) {
+  const categoryLabel = formatCategoryLabel(category);
+  const otherCategory = CATEGORY_OPTIONS.find((o) => o.value !== category);
+
+  return (
+    <div className="mt-6 rounded-2xl border border-dashed border-[#CBD5E0] bg-[#FAF6EC]/30 px-6 py-10 text-center sm:px-10">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-[#C9A24B]/30 bg-white shadow-sm">
+        <Gift size={24} className="text-[#C9A24B]" />
+      </div>
+      <h3
+        className="mt-5 text-lg font-bold text-[#0B1E3F]"
+        style={{ fontFamily: "var(--font-playfair)" }}
+      >
+        No active referral program
+      </h3>
+      <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-[#4A5568]">
+        There isn&apos;t an active referral program for{" "}
+        <span className="font-semibold text-[#0B1E3F]">{categoryLabel}</span> at
+        the moment. Referral codes and rewards for this category will appear here
+        once a program is live.
+      </p>
+      
+    </div>
+  );
+}
+
+function ReferralLoadError({ message }) {
+  return (
+    <div className="mt-6 rounded-2xl border border-[#CBD5E0] bg-[#FAF6EC]/40 px-5 py-6">
+      <div className="flex items-start gap-3">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white border border-[#CBD5E0]">
+          <Info size={16} className="text-[#C9A24B]" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-[#0B1E3F]">
+            Unable to load referral summary
+          </p>
+          <p className="mt-1 text-sm text-[#4A5568]">{message}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const formatDate = (value) => {
   if (!value) return "—";
@@ -56,6 +108,14 @@ export default function ReferralSummaryPanel({ onBack }) {
       try {
         const res = await authApiUser.getReferralSummary(category);
         if (isMounted) {
+          if (res?.success === false) {
+            setError(
+              res?.message ||
+                "No referral program is available for this category.",
+            );
+            setSummary(null);
+            return;
+          }
           setSummary(res?.data ?? null);
         }
       } catch (err) {
@@ -146,16 +206,21 @@ export default function ReferralSummaryPanel({ onBack }) {
             Loading referral summary...
           </div>
         ) : error ? (
-          <div className="mt-6 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </div>
+          isNoActiveProgramError(error) ? (
+            <NoActiveProgramState
+              category={category}
+              onCategoryChange={setCategory}
+            />
+          ) : (
+            <ReferralLoadError message={error} />
+          )
         ) : (
           <div className="mt-6 space-y-5">
             <div className="rounded-2xl border border-[#CBD5E0] bg-[#FAF6EC]/40 p-4 sm:p-5">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wider text-[#4A5568]">
-                    Your referral code
+                    Your referral code · {formatCategoryLabel(summary?.category || category)}
                   </p>
                   <div className="mt-2 inline-flex items-center gap-2 rounded-xl bg-[#0B1E3F] px-4 py-2.5 text-lg font-semibold text-white">
                     <Sparkles size={16} className="text-[#C9A24B]" />

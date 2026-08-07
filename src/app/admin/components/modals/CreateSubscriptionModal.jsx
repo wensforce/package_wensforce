@@ -267,8 +267,8 @@ export default function CreateSubscriptionModal({ open, onClose, onCreated }) {
       }
 
       const payload = {
-        userId: Number(finalUserId),
-        packageId: Number(selectedPackage.id),
+        userId: String(finalUserId),
+        packageId: String(selectedPackage.id),
         startDate: new Date(form.startDate).toISOString(),
         paymentId: form.paymentId.trim(),
       };

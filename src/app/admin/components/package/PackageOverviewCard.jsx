@@ -17,6 +17,7 @@ import {
   AlertCircle,
   FileText,
 } from "lucide-react";
+import { formatPackageValidity } from "@/app/utils/formatPackageValidity";
 
 function Row({ label, value, mono = false }) {
   return (
@@ -109,9 +110,6 @@ export default function PackageOverviewCard({ packageData }) {
             <h2 className="text-2xl font-bold text-[#0B1E3F]">
               {packageData.name || "Unnamed Package"}
             </h2>
-            <p className="text-xs text-[#4A5568] mt-1 font-mono">
-              ID: {packageData.id}
-            </p>
           </div>
         </div>
 

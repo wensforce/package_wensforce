@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Navigation, Car, Shield, ShieldCheck } from 'lucide-react';
+import { formatPackageValidity } from '@/app/utils/formatPackageValidity';
 
 const INR = (n) => '₹' + Number(n).toLocaleString('en-IN');
 
@@ -21,7 +22,7 @@ export default function HeroSection({ plan, waUrl }) {
     savings > 0
       ? { num: `₹${Math.round(savings / 1000)}K+`, label: 'You Save' }
       : { num: INR(plan.regularPrice || plan.discountedPrice), label: 'Privileges Worth' },
-    { num: `${plan.validity} Mo`, label: 'Membership Validity' },
+    { num: formatPackageValidity(plan.validity), label: 'Membership Validity' },
     { num: '24×7', label: 'Concierge Support' },
   ];
 
@@ -46,20 +47,7 @@ export default function HeroSection({ plan, waUrl }) {
           style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 35%)' }}
         />
 
-        {/* watermark plan number */}
-        <div
-          className="absolute select-none pointer-events-none font-black text-white leading-none hidden sm:block"
-          style={{
-            fontSize: 'clamp(180px, 30vw, 340px)',
-            opacity: 0.045,
-            right: '-1vw',
-            top: '8%',
-            letterSpacing: '-0.05em',
-            lineHeight: 0.85,
-          }}
-        >
-          {String(plan.id).padStart(2, '0')}
-        </div>
+        
 
         <div
           className="relative max-w-6xl mx-auto px-6 sm:px-10 pt-12 pb-16 flex flex-col justify-end"
@@ -130,8 +118,7 @@ export default function HeroSection({ plan, waUrl }) {
                   GST 18% Extra
                 </div>
                 <div className="text-white/35 text-xs font-light mb-5">
-                  per year, all-inclusive · valid {plan.validity} month
-                  {plan.validity > 1 ? 's' : ''}
+                  per year, all-inclusive · valid {formatPackageValidity(plan.validity).toLowerCase()}
                 </div>
 
                 <Link

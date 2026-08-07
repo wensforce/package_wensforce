@@ -15,6 +15,7 @@ import AdminTable from "../components/AdminTable";
 import ExportModal from "../components/modals/ExportModal";
 import SequenceModal from "../components/modals/SequenceModal";
 import { useFetchList } from "../hooks/useFetchList";
+import { formatPackageValidity } from "@/app/utils/formatPackageValidity";
 const PAGE_LIMIT = 10;
 
 function formatAmount(val, currency) {
@@ -136,9 +137,7 @@ export default function PackagesPage() {
       case "duration":
         return (
           <span className="text-[#4A5568] text-sm">
-            {row.validity
-              ? `${row.validity} month${row.validity !== 1 ? "s" : ""}`
-              : "—"}
+            {formatPackageValidity(row.validity)}
           </span>
         );
       case "status":

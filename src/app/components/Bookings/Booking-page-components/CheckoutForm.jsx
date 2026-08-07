@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { formatPackageValidityForBooking, isSingleTripValidity } from "../../../utils/formatPackageValidity";
 import { load } from "@cashfreepayments/cashfree-js";
 import {
   Check,
@@ -121,52 +122,49 @@ export default function CheckoutForm({
   const [referralRewardLoading, setReferralRewardLoading] = useState(false);
   const [showReferralRewardPanel, setShowReferralRewardPanel] = useState(false);
 
+  const isMembershipGroupCategory = (cat) => {
+    const normalized = String(cat || "").trim().toLowerCase();
+    return (
+      normalized === "membership" ||
+      normalized === "welcome_india" ||
+      normalized === "welcome india"
+    );
+  };
+
   useEffect(() => {
     if (!user?.id || !packageData?.category) return;
     let isMounted = true;
     setReferralRewardLoading(true);
+    setSelectedReferralReward(null);
 
-    // Categories that should be treated as interchangeable with each other.
-    const MEMBERSHIP_GROUP = new Set(["membership", "welcome_india"]);
+    const packageCategory = String(packageData.category || "")
+      .trim()
+      .toLowerCase();
 
-    // Two categories are considered a match if they're identical, or if
-    // both belong to the membership group (membership <-> welcome_india).
-    const inSameGroup = (a, b) =>
-      a === b || (MEMBERSHIP_GROUP.has(a) && MEMBERSHIP_GROUP.has(b));
+    // At checkout only: membership ↔ welcome_india rewards are cross-usable.
+    const categoriesToFetch = isMembershipGroupCategory(packageCategory)
+      ? ["membership", "welcome_india"]
+      : [packageCategory];
 
-    authApiUser
-      .getReferralSummary(packageData.category)
-      .then((res) => {
+    Promise.all(
+      categoriesToFetch.map((cat) => authApiUser.getReferralSummary(cat)),
+    )
+      .then((results) => {
         if (!isMounted) return;
-        const allRewards = res?.data?.rewards || [];
-        const packageId = Number(packageData.id);
-        const packageCategory = String(
-          packageData.category || "",
-        ).toLowerCase();
 
-        const eligible = allRewards.filter((r) => {
-          if (r.isRedeemed) return false;
-
-          const ids = r.eligiblePackageIds || [];
-
-          // Empty eligiblePackageIds means scope = "any" — reward is valid for all packages.
-          if (ids.length === 0) return true;
-
-          // Explicit package id match.
-          const matchesPackage =
-            ids.includes(packageId) || ids.includes(packageData.id);
-          if (matchesPackage) return true;
-
-          // Also accept if the reward belongs to the same package group
-          // (e.g. membership ↔ welcome_india).
-          const rewardCategory = String(r.category || "").toLowerCase();
-          return inSameGroup(packageCategory, rewardCategory);
-        });
-
-        setAvailableReferralRewards(eligible);
-        if (eligible.length > 0) {
-          setShowReferralRewardPanel(true);
+        const rewardsById = new Map();
+        for (const res of results) {
+          if (res?.success === false) continue;
+          for (const reward of res?.data?.rewards || []) {
+            if (!reward.isRedeemed) {
+              rewardsById.set(reward.id, reward);
+            }
+          }
         }
+
+        const eligible = [...rewardsById.values()];
+        setAvailableReferralRewards(eligible);
+        setShowReferralRewardPanel(eligible.length > 0);
       })
       .catch((err) =>
         console.error("Error loading referral rewards for checkout:", err),
@@ -369,23 +367,12 @@ export default function CheckoutForm({
 
       const res = await paymentApiUser.createOrder(payload);
       const data = res.data;
-      console.log(data, "data");
       if (!data?.paymentSessionId)
         throw new Error(
           data?.error || "Could not initiate payment. Please try again.",
         );
 
       await Promise.all([
-        bookingApiUser.createBooking({
-          packageName: packageData.name,
-          packageId: packageData.id,
-          validity: packageData.validity.toString(),
-          serviceCity: form.city || "Not specified",
-          cashfreeId: data.order_id,
-          currency: isIndia ? "INR" : selectedCurrency,
-          purchaseAmount: isIndia ? indiaTotalINR : intlTotalForeign,
-          purchaseDate: new Date().toISOString(),
-        }),
         !user?.name || !user?.email || (!user?.city && form.city)
           ? authApiUser.updateProfile({
               name: form.name.trim(),
@@ -393,6 +380,16 @@ export default function CheckoutForm({
               city: form.city || "Not specified",
             })
           : Promise.resolve(),
+        bookingApiUser.createBooking({
+          packageName: packageData.name,
+          packageId: packageData.id,
+          validity: formatPackageValidityForBooking(packageData.validity),
+          serviceCity: form.city || "Not specified",
+          cashfreeId: data.order_id,
+          currency: isIndia ? "INR" : selectedCurrency,
+          purchaseAmount: isIndia ? indiaTotalINR : intlTotalForeign,
+          purchaseDate: new Date().toISOString(),
+        }),
       ]);
 
       const cashfree = await load({
@@ -447,7 +444,7 @@ export default function CheckoutForm({
                 {displayPrice}
               </p>
               <p className="text-gray-400 text-[10px] mt-0.5">
-                {packageData.validity === "Single Trip"
+                {isSingleTripValidity(packageData.validity)
                   ? "single trip"
                   : "per year"}
               </p>
@@ -668,9 +665,7 @@ export default function CheckoutForm({
                               <p className="text-xs font-bold text-[#0B1E3F]">
                                 {getReferralRewardDisplay(reward)}
                               </p>
-                              <p className="text-[10px] text-gray-500">
-                                Reward #{reward.id}
-                              </p>
+                              
                             </div>
                             <button
                               type="button"

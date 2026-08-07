@@ -32,14 +32,12 @@ export default function SubscriptionDetailPage() {
 
       try {
         const cacheKey = `subscription_${subscriptionId}`;
-        if (!silent) {
-          const cached = sessionStorage.getItem(cacheKey);
-          if (cached) {
-            setSubscription(JSON.parse(cached));
-            sessionStorage.removeItem(cacheKey);
-            setLoading(false);
-            return;
-          }
+        const cached = sessionStorage.getItem(cacheKey);
+        if (cached && !silent) {
+          setSubscription(JSON.parse(cached));
+          sessionStorage.removeItem(cacheKey);
+          if (!silent) setLoading(false);
+          return;
         }
 
         const data = await subscriptionApi.getSubscriptionById(subscriptionId);
