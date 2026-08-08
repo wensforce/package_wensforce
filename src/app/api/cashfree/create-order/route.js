@@ -19,7 +19,7 @@ const SUPPORTED_CURRENCIES = new Set([
   "SOS","SRD","SZL","TJS","TMT","TND","TOP","TTD","TWD","TZS","UGX","WST","XPF",
 ]);
 
-const BASE_URL ="http://localhost:3000";
+const BASE_URL = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
 
 export async function POST(req) {
   try {
