@@ -240,11 +240,11 @@ function RailPaymentContent() {
 
   if (mode === "percentage") {
     payableAmount = parsedAmount > 0
-      ? parseFloat(((parsedAmount * advPercentage) / 100).toFixed(2))
+      ? Math.ceil((parsedAmount * advPercentage) / 100)
       : 0;
     derivedPercentage = advPercentage;
   } else {
-    payableAmount = advAmount;
+    payableAmount = Math.ceil(advAmount);
     derivedPercentage = parsedAmount > 0
       ? parseFloat(((advAmount / parsedAmount) * 100).toFixed(1))
       : 0;
