@@ -26,7 +26,6 @@ import FoundingMemberBanner from "./components/FoundingMemberBanner";
 import JsonLd from "./components/JsonLd";
 import WelcomeIndiaCard from "./components/WelcomeIndiaCard";
 import ServicesVideoSection from "./components/ServicesVideoSection";
-import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export const metadata = {
   title: "WENS Force — India's Only Luxury Travel + Armed Protection + Darshan Subscription",
@@ -396,7 +395,6 @@ export default async function HomePage({ searchParams }) {
 
   return (
     <div className="min-h-screen relative">
-      <SpeedInsights />
       <JsonLd data={faqSchema} />
       <JsonLd data={itemListSchema} />
       <Suspense fallback={null}>
