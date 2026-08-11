@@ -10,7 +10,7 @@ import { Analytics } from "@vercel/analytics/next";
 import MetaPixelInit from "./components/MetaPixelInit";
 import { AuthProvider } from "./context/AuthContext";
 import { Toaster } from "sonner";
-import { SpeedInsights } from "@vercel/speed-insights/next"
+import { SpeedInsights } from "@vercel/speed-insights/react"
 
 
 const playfair = Playfair_Display({
@@ -157,7 +157,6 @@ export default function RootLayout({ children }) {
         {/* <GTMPageTracker /> */}
         <AuthProvider>
           {children}
-          <SpeedInsights />
           <MetaPixelInit />
           <FloatingWhatsApp />
           <LiveActivityTicker />
@@ -171,6 +170,7 @@ export default function RootLayout({ children }) {
             }}
           />
         </AuthProvider>
+        <SpeedInsights />
         <Analytics />
       </body>
     </html>
