@@ -1,12 +1,40 @@
 "use client";
 
-import { Shield, ArrowRight, Phone, ChevronLeft } from "lucide-react";
+import { useState } from "react";
+import {
+  Shield,
+  ArrowRight,
+  Phone,
+  ChevronLeft,
+  Sparkles,
+  Gift,
+  Loader2,
+  CheckCircle2,
+} from "lucide-react";
 
 import { useAuthFlow } from "../../hooks/useAuthFlow";
+import { useAuth } from "../../context/AuthContext";
+import { authApiUser } from "../../user-apis/auth.api";
+import TermsAcceptanceStep from "./TermsAcceptanceStep";
 
 export default function LoginModal({ onSuccess }) {
+  const { user, login } = useAuth();
+  const [registrationToken, setRegistrationToken] = useState(null);
+  const [showTermsStep, setShowTermsStep] = useState(false);
+  const [termsLoading, setTermsLoading] = useState(false);
+  const [termsError, setTermsError] = useState("");
+  const [showReferralStep, setShowReferralStep] = useState(false);
+  const [pendingUser, setPendingUser] = useState(null);
+  const [referralCode, setReferralCode] = useState("");
+  const [referralLoading, setReferralLoading] = useState(false);
+  const [referralMessage, setReferralMessage] = useState("");
+  const [referralError, setReferralError] = useState("");
+
+  const finishOnboarding = () => {
+    onSuccess?.();
+  };
+
   const {
-    // State
     step,
     phone,
     setPhone,
@@ -17,8 +45,6 @@ export default function LoginModal({ onSuccess }) {
     countdown,
     otpRefs,
     COUNTRY_CODES,
-
-    // Handlers
     handleSendOtp,
     handleVerifyOtp,
     handleOtpChange,
@@ -27,15 +53,105 @@ export default function LoginModal({ onSuccess }) {
     handleResendViaSms,
     handleResendViaWhatsapp,
     handleBack,
-  } = useAuthFlow();
+    newUser,
+  } = useAuthFlow({
+    onSuccess: (authUser, isNewUser, token) => {
+      if (isNewUser && token) {
+        setRegistrationToken(token);
+        setShowReferralStep(false);
+        setShowTermsStep(true);
+        setTermsError("");
+        return;
+      }
+
+      setPendingUser(authUser);
+      finishOnboarding();
+    },
+  });
+
+  const handleTermsAccept = async () => {
+    if (!registrationToken) {
+      setTermsError("Registration session expired. Please verify OTP again.");
+      return;
+    }
+
+    setTermsLoading(true);
+    setTermsError("");
+
+    try {
+      const res = await authApiUser.acceptTerms(registrationToken);
+      if (res?.success && res?.data) {
+        const { accessToken, user: createdUser } = res.data;
+        login(accessToken, createdUser);
+        setRegistrationToken(null);
+        setPendingUser(createdUser);
+        setShowTermsStep(false);
+        setShowReferralStep(true);
+        setReferralCode("");
+        setReferralMessage("");
+        setReferralError("");
+      } else {
+        setTermsError(res?.message || "Unable to accept terms. Please try again.");
+      }
+    } catch (error) {
+      setTermsError(
+        error?.response?.data?.message ||
+          "Unable to accept terms. Please try again.",
+      );
+    } finally {
+      setTermsLoading(false);
+    }
+  };
+
+  const handleReferralSubmit = async (skip = false) => {
+    if (skip) {
+      setShowReferralStep(false);
+      finishOnboarding();
+      return;
+    }
+
+    if (!referralCode.trim()) {
+      setReferralError("Please enter a referral code to continue.");
+      return;
+    }
+
+    setReferralLoading(true);
+    setReferralError("");
+    setReferralMessage("");
+
+    try {
+      const res = await authApiUser.applyReferralCode(
+        referralCode.trim(),
+        "membership",
+      );
+
+      if (res?.success) {
+        setReferralMessage("Referral code applied successfully.");
+        window.setTimeout(() => {
+          setShowReferralStep(false);
+          finishOnboarding();
+        }, 700);
+      } else {
+        setReferralError(res?.message || "Unable to apply referral code.");
+      }
+    } catch (error) {
+      setReferralError(
+        error?.response?.data?.message || "Unable to apply referral code.",
+      );
+    } finally {
+      setReferralLoading(false);
+    }
+  };
+
+  const shouldShowTermsStep = showTermsStep && !!registrationToken;
+  const shouldShowReferralStep = showReferralStep && !!user;
+  const onboardingActive = shouldShowTermsStep || shouldShowReferralStep;
 
   return (
-    /* Backdrop */
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4"
       style={{ background: "rgba(11,30,63,0.55)", backdropFilter: "blur(4px)" }}
     >
-      {/* Modal card */}
       <div
         className="w-full max-w-md rounded-2xl shadow-2xl flex flex-col max-h-[92dvh] overflow-hidden"
         style={{
@@ -43,7 +159,6 @@ export default function LoginModal({ onSuccess }) {
           border: "1px solid var(--color-border)",
         }}
       >
-        {/* Header */}
         <div
           className="flex items-center gap-3 px-4 py-4 sm:px-7 sm:py-5 border-b shrink-0"
           style={{
@@ -76,28 +191,27 @@ export default function LoginModal({ onSuccess }) {
           </div>
         </div>
 
-        {/* Body */}
         <div
           className="px-4 py-5 sm:px-7 sm:py-6 space-y-5 sm:space-y-6 overflow-y-auto"
           style={{ background: "var(--color-cream)" }}
         >
-          {/* Step dots */}
-          <div className="flex items-center gap-2">
-            <div
-              className="w-2 h-2 rounded-full"
-              style={{ background: "var(--color-navy)" }}
-            />
-            <div
-              className="w-2 h-2 rounded-full transition-all duration-300"
-              style={{
-                background:
-                  step === "otp" ? "var(--color-navy)" : "var(--color-border)",
-              }}
-            />
-          </div>
+          {!onboardingActive && (
+            <div className="flex items-center gap-2">
+              <div
+                className="w-2 h-2 rounded-full"
+                style={{ background: "var(--color-navy)" }}
+              />
+              <div
+                className="w-2 h-2 rounded-full transition-all duration-300"
+                style={{
+                  background:
+                    step === "otp" ? "var(--color-navy)" : "var(--color-border)",
+                }}
+              />
+            </div>
+          )}
 
-          {/* ── STEP 1 — Phone ── */}
-          {step === "phone" && (
+          {step === "phone" && !onboardingActive && (
             <div className="space-y-5 animate-fade-in">
               <div className="space-y-1">
                 <h2
@@ -143,7 +257,6 @@ export default function LoginModal({ onSuccess }) {
                           borderRight: "none",
                         }}
                       >
-                        {/* Visual label — shows only flag + code */}
                         <div
                           className="absolute inset-0 flex items-center justify-center gap-1 text-sm font-medium pointer-events-none select-none"
                           style={{ color: "var(--color-text-secondary)" }}
@@ -151,7 +264,6 @@ export default function LoginModal({ onSuccess }) {
                           <span>{selectedCountry.flag}</span>
                           <span>{selectedCountry.code}</span>
                         </div>
-                        {/* Native select — invisible but fully interactive; shows country names in OS picker */}
                         <select
                           value={`${selectedCountry.name}||${selectedCountry.code}`}
                           onChange={(e) => {
@@ -230,8 +342,7 @@ export default function LoginModal({ onSuccess }) {
             </div>
           )}
 
-          {/* ── STEP 2 — OTP ── */}
-          {step === "otp" && (
+          {step === "otp" && !onboardingActive && (
             <div className="space-y-5 animate-fade-in">
               <div className="space-y-1">
                 <button
@@ -342,7 +453,6 @@ export default function LoginModal({ onSuccess }) {
                     Didn't receive it?
                   </p>
                   <div className="grid grid-cols-2 gap-2">
-                    {/* WhatsApp */}
                     <button
                       type="button"
                       onClick={handleResendViaWhatsapp}
@@ -360,19 +470,9 @@ export default function LoginModal({ onSuccess }) {
                             : "#128C4B",
                       }}
                     >
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                      >
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
-                        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.555 4.126 1.526 5.856L.057 23.625a.75.75 0 00.918.918l5.77-1.469A11.953 11.953 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.699-.504-5.25-1.385l-.376-.22-3.895.991.991-3.894-.22-.377A9.953 9.953 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
-                      </svg>
                       {countdown > 0 ? `${countdown}s` : "via WhatsApp"}
                     </button>
 
-                    {/* SMS */}
                     <button
                       type="button"
                       onClick={handleResendViaSms}
@@ -394,18 +494,6 @@ export default function LoginModal({ onSuccess }) {
                             : "var(--color-navy)",
                       }}
                     >
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                      </svg>
                       {countdown > 0 ? `${countdown}s` : "via SMS"}
                     </button>
                   </div>
@@ -414,16 +502,179 @@ export default function LoginModal({ onSuccess }) {
             </div>
           )}
 
-          {/* Trust line */}
-          <div className="flex items-center justify-center gap-2">
-            <Shield size={12} style={{ color: "var(--color-text-tertiary)" }} />
-            <span
-              className="text-xs"
-              style={{ color: "var(--color-text-tertiary)" }}
-            >
-              PSARA compliant
-            </span>
-          </div>
+          {shouldShowTermsStep && (
+            <TermsAcceptanceStep
+              compact
+              onAccept={handleTermsAccept}
+              loading={termsLoading}
+              error={termsError}
+            />
+          )}
+
+          {shouldShowReferralStep && (
+            <div className="space-y-5 animate-fade-in">
+              <div className="space-y-1">
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center mb-3"
+                  style={{
+                    background: "rgba(201,162,75,0.12)",
+                    border: "1px solid rgba(201,162,75,0.3)",
+                  }}
+                >
+                  <Gift size={17} style={{ color: "var(--color-gold)" }} />
+                </div>
+                <h2
+                  className="text-xl font-bold"
+                  style={{
+                    color: "var(--color-navy)",
+                    fontFamily: "var(--font-playfair)",
+                  }}
+                >
+                  Have a referral?
+                </h2>
+                <p
+                  className="text-xs"
+                  style={{ color: "var(--color-text-secondary)" }}
+                >
+                  Enter a referral code to unlock membership benefits, or skip
+                  and continue.
+                </p>
+              </div>
+
+              <div
+                className="rounded-xl p-4 sm:p-6 space-y-5 shadow-sm"
+                style={{
+                  background: "var(--color-white)",
+                  border: "1px solid var(--color-border)",
+                }}
+              >
+                <div className="space-y-1.5">
+                  <label
+                    className="text-xs font-semibold uppercase tracking-widest"
+                    style={{ color: "var(--color-text-secondary)" }}
+                  >
+                    Referral Code
+                  </label>
+                  <div className="relative flex">
+                    <div
+                      className="flex items-center justify-center px-3.5 rounded-l-xl shrink-0"
+                      style={{
+                        background: "var(--color-cream)",
+                        border: "1px solid var(--color-border)",
+                        borderRight: "none",
+                      }}
+                    >
+                      <Sparkles
+                        size={14}
+                        style={{ color: "var(--color-gold)" }}
+                      />
+                    </div>
+                    <input
+                      type="text"
+                      value={referralCode}
+                      onChange={(e) => {
+                        setReferralCode(e.target.value.toUpperCase());
+                        setReferralError("");
+                      }}
+                      placeholder="e.g. WENS2026"
+                      autoFocus
+                      className="flex-1 pl-4 pr-4 py-3 rounded-r-xl text-sm font-mono outline-none transition-all duration-150 focus:ring-2 tracking-widest uppercase"
+                      style={{
+                        background: "var(--color-cream)",
+                        border: "1px solid var(--color-border)",
+                        color: "var(--color-text-primary)",
+                        "--tw-ring-color": "var(--color-gold)",
+                      }}
+                    />
+                  </div>
+
+                  {referralError && (
+                    <p className="text-xs pl-0.5 mt-1" style={{ color: "#C53030" }}>
+                      {referralError}
+                    </p>
+                  )}
+
+                  {referralMessage && (
+                    <div
+                      className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs mt-1"
+                      style={{
+                        background: "#F0FFF4",
+                        border: "1px solid #9AE6B4",
+                        color: "#276749",
+                      }}
+                    >
+                      <CheckCircle2 size={13} />
+                      {referralMessage}
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleReferralSubmit(false)}
+                  disabled={referralLoading}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold tracking-wide transition-all duration-200 hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, var(--color-navy) 0%, var(--color-navy-light) 100%)",
+                    color: "var(--color-white)",
+                  }}
+                >
+                  {referralLoading ? (
+                    <Loader2 size={15} className="animate-spin" />
+                  ) : (
+                    <>
+                      Apply & Continue
+                      <ArrowRight size={15} />
+                    </>
+                  )}
+                </button>
+
+                <div className="flex items-center gap-3">
+                  <div
+                    className="flex-1 h-px"
+                    style={{ background: "var(--color-border)" }}
+                  />
+                  <span
+                    className="text-xs"
+                    style={{ color: "var(--color-text-tertiary)" }}
+                  >
+                    or
+                  </span>
+                  <div
+                    className="flex-1 h-px"
+                    style={{ background: "var(--color-border)" }}
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleReferralSubmit(true)}
+                  disabled={referralLoading}
+                  className="w-full flex items-center justify-center py-2.5 rounded-xl text-sm font-medium transition-all duration-200 hover:opacity-70 disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{
+                    color: "var(--color-text-secondary)",
+                    background: "var(--color-cream)",
+                    border: "1px solid var(--color-border)",
+                  }}
+                >
+                  Skip for now
+                </button>
+              </div>
+            </div>
+          )}
+
+          {!onboardingActive && (
+            <div className="flex items-center justify-center gap-2">
+              <Shield size={12} style={{ color: "var(--color-text-tertiary)" }} />
+              <span
+                className="text-xs"
+                style={{ color: "var(--color-text-tertiary)" }}
+              >
+                PSARA compliant
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>

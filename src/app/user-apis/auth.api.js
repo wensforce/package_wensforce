@@ -82,4 +82,14 @@ export const authApiUser = {
     );
     return res.data;
   },
+
+  /**
+   * Accept terms and complete registration for a new user.
+   * @param {string} registrationToken
+   * @returns {Promise<object>}
+   */
+  acceptTerms: async (registrationToken) => {
+    const res = await api.post("/auth/accept-terms", { registrationToken });
+    return res.data;
+  },
 };

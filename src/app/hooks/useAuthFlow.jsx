@@ -87,8 +87,14 @@ export const useAuthFlow = ({ onSuccess } = {}) => {
       const isNewUser =
         response?.status === 201 || response?.statusCode === 201;
       setNewUser(isNewUser);
+
+      if (isNewUser) {
+        onSuccess?.(null, true, response.data?.registrationToken);
+        return;
+      }
+
       await login(response.data.accessToken, response.data.user);
-      onSuccess?.(response.data.user, isNewUser);
+      onSuccess?.(response.data.user, false);
     } catch (error) {
       console.error("handleVerifyOtp error:", error);
       toast.error(

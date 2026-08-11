@@ -19,10 +19,18 @@ import { useRouter } from "next/navigation";
 import { useAuthFlow } from "../hooks/useAuthFlow";
 import { useAuth } from "../context/AuthContext";
 import { authApiUser } from "../user-apis/auth.api";
+import TermsAcceptanceStep from "../components/Auth/TermsAcceptanceStep";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, login } = useAuth();
+
+  const [registrationToken, setRegistrationToken] = useState(null);
+
+  // Terms step state
+  const [showTermsStep, setShowTermsStep] = useState(false);
+  const [termsLoading, setTermsLoading] = useState(false);
+  const [termsError, setTermsError] = useState("");
 
   // Referral step state
   const [showReferralStep, setShowReferralStep] = useState(false);
@@ -53,17 +61,18 @@ export default function LoginPage() {
     handleBack,
     newUser,
   } = useAuthFlow({
-    onSuccess: (authUser, isNewUser) => {
-      setPendingUser(authUser);
-      if (isNewUser) {
-        setShowReferralStep(true);
-        setReferralCode("");
-        setReferralMessage("");
-        setReferralError("");
-      } else {
-        if (authUser?.role === "admin") router.push("/admin/dashboard");
-        else router.push("/dashboard");
+    onSuccess: (authUser, isNewUser, token) => {
+      if (isNewUser && token) {
+        setRegistrationToken(token);
+        setShowReferralStep(false);
+        setShowTermsStep(true);
+        setTermsError("");
+        return;
       }
+
+      setPendingUser(authUser);
+      if (authUser?.role === "admin") router.push("/admin/dashboard");
+      else router.push("/dashboard");
     },
   });
 
@@ -83,11 +92,10 @@ export default function LoginPage() {
   }, []);
 
   useEffect(() => {
-    // Skip redirect if new user referral step is active or pending
-    if (user && !showReferralStep && !newUser) {
+    if (user && !showReferralStep && !showTermsStep && !newUser) {
       router.replace("/");
     }
-  }, [user, router, showReferralStep, newUser]);
+  }, [user, router, showReferralStep, showTermsStep, newUser]);
 
   const filteredCountries = COUNTRY_CODES.filter(
     (c) =>
@@ -100,6 +108,40 @@ export default function LoginPage() {
       router.push("/admin/dashboard");
     } else {
       router.push("/dashboard");
+    }
+  };
+
+  const handleTermsAccept = async () => {
+    if (!registrationToken) {
+      setTermsError("Registration session expired. Please verify OTP again.");
+      return;
+    }
+
+    setTermsLoading(true);
+    setTermsError("");
+
+    try {
+      const res = await authApiUser.acceptTerms(registrationToken);
+      if (res?.success && res?.data) {
+        const { accessToken, user: createdUser } = res.data;
+        login(accessToken, createdUser);
+        setRegistrationToken(null);
+        setPendingUser(createdUser);
+        setShowTermsStep(false);
+        setShowReferralStep(true);
+        setReferralCode("");
+        setReferralMessage("");
+        setReferralError("");
+      } else {
+        setTermsError(res?.message || "Unable to accept terms. Please try again.");
+      }
+    } catch (error) {
+      setTermsError(
+        error?.response?.data?.message ||
+          "Unable to accept terms. Please try again.",
+      );
+    } finally {
+      setTermsLoading(false);
     }
   };
 
@@ -143,10 +185,19 @@ export default function LoginPage() {
     }
   };
 
-  const shouldShowReferralStep = showReferralStep && newUser;
+  const shouldShowTermsStep = showTermsStep && !!registrationToken;
+  const shouldShowReferralStep = showReferralStep && !!user;
 
-  // 0 = phone, 1 = otp, 2 = referral
-  const currentStepIndex = shouldShowReferralStep ? 2 : step === "otp" ? 1 : 0;
+  // 0 = phone, 1 = otp, 2 = terms, 3 = referral
+  const currentStepIndex = shouldShowTermsStep
+    ? 2
+    : shouldShowReferralStep
+      ? 3
+      : step === "otp"
+        ? 1
+        : 0;
+
+  const stepCount = shouldShowTermsStep || shouldShowReferralStep || newUser ? 4 : 2;
 
   return (
     <div
@@ -263,9 +314,9 @@ export default function LoginPage() {
         </div>
 
         <div className="w-full max-w-[420px] space-y-7">
-          {/* ── Step indicator — 3 dots ── */}
+          {/* ── Step indicator ── */}
           <div className="flex items-center gap-2">
-            {[0, 1, 2].map((i) => (
+            {Array.from({ length: stepCount }).map((_, i) => (
               <div
                 key={i}
                 className="rounded-full transition-all duration-300"
@@ -282,7 +333,7 @@ export default function LoginPage() {
           </div>
 
           {/* ── STEP 1 — Phone ────────────────────────────────────── */}
-          {step === "phone" && !shouldShowReferralStep && (
+          {step === "phone" && !shouldShowTermsStep && !shouldShowReferralStep && (
             <div className="space-y-7 animate-fade-in">
               <div className="space-y-1.5">
                 <h1
@@ -484,7 +535,7 @@ export default function LoginPage() {
           )}
 
           {/* ── STEP 2 — OTP ──────────────────────────────────────── */}
-          {step === "otp" && !shouldShowReferralStep && (
+          {step === "otp" && !shouldShowTermsStep && !shouldShowReferralStep && (
             <div className="space-y-7 animate-fade-in">
               <div className="space-y-1.5">
                 <button
@@ -669,7 +720,16 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* ── STEP 3 — Referral (inline, same card style) ───────── */}
+          {/* ── STEP 3 — Terms (required) ─────────────────────────── */}
+          {shouldShowTermsStep && (
+            <TermsAcceptanceStep
+              onAccept={handleTermsAccept}
+              loading={termsLoading}
+              error={termsError}
+            />
+          )}
+
+          {/* ── STEP 4 — Referral (inline, same card style) ───────── */}
           {shouldShowReferralStep && (
             <div className="space-y-7 animate-fade-in">
               <div className="space-y-1.5">
@@ -834,8 +894,8 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Explore link — hidden on referral step */}
-          {!shouldShowReferralStep && (
+          {/* Explore link — hidden on onboarding steps */}
+          {!shouldShowReferralStep && !shouldShowTermsStep && (
             <p
               className="text-center text-sm"
               style={{ color: "var(--color-text-secondary)" }}
