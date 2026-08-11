@@ -10,7 +10,7 @@ import { Analytics } from "@vercel/analytics/next";
 import MetaPixelInit from "./components/MetaPixelInit";
 import { AuthProvider } from "./context/AuthContext";
 import { Toaster } from "sonner";
-import { SpeedInsights } from "@vercel/speed-insights/react"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 
 const playfair = Playfair_Display({
