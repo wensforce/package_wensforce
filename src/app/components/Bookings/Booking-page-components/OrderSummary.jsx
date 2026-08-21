@@ -22,7 +22,6 @@ export default function OrderSummary({
   toForeign,
   fmtForeign,
   isWelcomeIndia,
-  isFixedUSD,
   packageData,
 }) {
   return (
@@ -172,9 +171,7 @@ export default function OrderSummary({
               </span>
               {!currencyRateLoading && intlTotalForeign !== null && (
                 <p className="text-gray-400 text-[10px] mt-0.5 tabular-nums">
-                  {isFixedUSD
-                    ? `Fixed package price: $${intlTotalForeign} USD`
-                    : `≈ ${INR(intlTotalINR)} · live rate`}
+                  ≈ {INR(intlTotalINR)} · live rate
                 </p>
               )}
             </>

@@ -25,7 +25,7 @@ function formatAmount(val, currency) {
 }
 
 const COLUMNS = [
-  { key: "id", label: "#", className: "w-16" },
+  { key: "id", label: "ID", className: "w-16" },
   { key: "thumbnail", label: "Thumbnail", className: "w-20" },
   { key: "name", label: "Name" },
   { key: "price", label: "Price" },
@@ -88,7 +88,7 @@ export default function PackagesPage() {
       case "id":
         return (
           <span className="font-mono text-xs font-medium text-[#0B1E3F]">
-            #{row.id}
+            {row.id}
           </span>
         );
       case "thumbnail":

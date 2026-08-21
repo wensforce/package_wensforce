@@ -11,7 +11,7 @@ import { useFetchList } from "../hooks/useFetchList";
 import { useModal } from "../hooks/useModal";
 const PAGE_LIMIT = 10;
 const COLUMNS = [
-  { key: "id", label: "#" },
+  { key: "id", label: "ID" },
   { key: "name", label: "Name" },
   { key: "email", label: "Email" },
   { key: "mobileNumber", label: "Mobile" },
@@ -87,7 +87,7 @@ export default function UsersPage() {
       case "id":
         return (
           <span className="font-mono text-xs font-medium text-[#0B1E3F]">
-            #{user.id}
+            {user.id}
           </span>
         );
       case "name":

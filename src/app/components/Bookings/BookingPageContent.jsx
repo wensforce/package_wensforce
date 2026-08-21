@@ -21,16 +21,6 @@ import { plans as welcomePlans } from "../../data/welcomeIndia";
 
 const welcomePlanIds = new Set(welcomePlans.map((p) => p.id));
 
-const WELCOME_USD_PRICES = {
-  "comfortable-arrival": 100,
-  "arrive-in-style": 150,
-  "arrival-in-grandeur": 370,
-  "ultimate-convoy-matrix": 900,
-  "end-to-end-concierge": 2100,
-  "touch-red-carpet": 72,
-  "maharani-maharaja": 215,
-};
-
 const plans = [...mainPlans, ...welcomePlans];
 /* ── Pricing display helper (only needed here for displayPrice) ─────── */
 
@@ -73,8 +63,6 @@ export default function BookingPageContent({ packageData }) {
     toForeign,
   } = useCurrency(initCurrency);
 
-  const isFixedUSD = selectedCurrency === "USD" && isWelcomeIndia;
-
   /* Loading state */
   if (!packageData || !packageData.id) {
     return (
@@ -103,17 +91,15 @@ export default function BookingPageContent({ packageData }) {
   const displayPrice =
     selectedCurrency === "INR"
       ? INR(packageData.discountedPrice)
-      : isFixedUSD && matchedWelcomeId
-        ? fmtForeign(WELCOME_USD_PRICES[matchedWelcomeId], "USD")
-        : currencyRateLoading
-          ? "…"
-          : fmtForeign(
-              roundForeign(
-                packageData.discountedPrice / currencyRate,
-                selectedCurrency,
-              ),
+      : currencyRateLoading
+        ? "…"
+        : fmtForeign(
+            roundForeign(
+              packageData.discountedPrice / currencyRate,
               selectedCurrency,
-            );
+            ),
+            selectedCurrency,
+          );
 
   return (
     <div>
@@ -178,10 +164,8 @@ export default function BookingPageContent({ packageData }) {
             currencyRateLoading={currencyRateLoading}
             toForeign={toForeign}
             isWelcomeIndia={isWelcomeIndia}
-            isFixedUSD={isFixedUSD}
             matchedWelcomeId={matchedWelcomeId}
             welcomePlanIds={welcomePlanIds}
-            WELCOME_USD_PRICES={WELCOME_USD_PRICES}
           />
         </div>
 

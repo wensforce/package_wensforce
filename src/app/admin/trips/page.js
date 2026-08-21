@@ -19,7 +19,7 @@ import { useModal } from "../hooks/useModal";
 const PAGE_LIMIT = 10;
 
 const COLUMNS = [
-  { key: "id", label: "#" },
+  { key: "id", label: "ID" },
   { key: "assignmentId", label: "Assignment" },
   { key: "user", label: "User" },
   { key: "route", label: "Route" },
@@ -140,7 +140,7 @@ export default function TripsPage() {
       case "id":
         return (
           <span className="font-mono text-xs font-medium text-[#0B1E3F]">
-            #{trip.id}
+            {trip.id}
           </span>
         );
       case "assignmentId":

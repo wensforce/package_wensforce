@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   XCircle,
   CalendarClock,
-  Hash,
   Eye,
 } from "lucide-react";
 import { couponApi } from "./apis/coupons.api";
@@ -18,7 +17,7 @@ import { useModal } from "../hooks/useModal";
 const PAGE_LIMIT = 10;
 
 const COLUMNS = [
-  { key: "id", label: "#" },
+  { key: "id", label: "ID" },
   { key: "code", label: "Code" },
   { key: "discount", label: "Discount" },
   { key: "usage", label: "Usage" },
@@ -100,8 +99,8 @@ export default function CouponsPage() {
     switch (key) {
       case "id":
         return (
-          <span className="font-mono text-xs font-medium text-[#0B1E3F] inline-flex items-center gap-1">
-            <Hash size={11} /> {coupon.id}
+          <span className="font-mono text-xs font-medium text-[#0B1E3F]">
+            {coupon.id}
           </span>
         );
       case "code":

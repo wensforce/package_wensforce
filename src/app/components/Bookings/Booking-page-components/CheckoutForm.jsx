@@ -81,10 +81,8 @@ export default function CheckoutForm({
   currencyRateLoading,
   toForeign,
   isWelcomeIndia,
-  isFixedUSD,
   matchedWelcomeId,
   welcomePlanIds,
-  WELCOME_USD_PRICES,
 }) {
   const { trackLead } = useMetaEvents();
 
@@ -222,27 +220,18 @@ export default function CheckoutForm({
   const totalDiscount = discountAmount + referralDiscountAmount;
   const discountedBasePrice = Math.max(1, price - totalDiscount);
   const effectiveGstRate =
-    isWelcomeIndia || packageData.gst === null || packageData.gst === undefined
+    packageData.gst === null || packageData.gst === undefined
       ? 0
       : Number(packageData.gst) / 100;
   const gstAmount = Math.ceil(discountedBasePrice * effectiveGstRate);
   const indiaTotalINR = discountedBasePrice + gstAmount;
   const intlGstAmount = Math.ceil(discountedBasePrice * effectiveGstRate);
   const intlTotalINR = discountedBasePrice + intlGstAmount;
-  const intlTotalForeign = isFixedUSD
-    ? (WELCOME_USD_PRICES[matchedWelcomeId] ?? null)
-    : currencyRateLoading
-      ? null
-      : roundForeign(intlTotalINR / currencyRate, selectedCurrency);
+  const intlTotalForeign = currencyRateLoading
+    ? null
+    : roundForeign(intlTotalINR / currencyRate, selectedCurrency);
 
-  const customToForeign = (inrAmount) => {
-    if (isFixedUSD && matchedWelcomeId) {
-      const usdBase = WELCOME_USD_PRICES[matchedWelcomeId] ?? 0;
-      const scaled = Math.round((inrAmount / (price || 1)) * usdBase);
-      return fmtForeign(scaled, "USD");
-    }
-    return toForeign(inrAmount);
-  };
+  const customToForeign = (inrAmount) => toForeign(inrAmount);
 
   /* ── Coupon Handlers ── */
   const handleApplyCoupon = async () => {
@@ -324,32 +313,16 @@ export default function CheckoutForm({
     setLoading(true);
 
     try {
-      const payload = isIndia
-        ? {
-            amount: indiaTotalINR,
-            currency: "INR",
-            customerName: form.name.trim(),
-            customerPhone: form.phone,
-            customerEmail: form.email.trim(),
-            packageId: packageData.id,
-            planName: packageData.name,
-            couponCode: appliedCoupon?.code || undefined,
-            referralRewardId: selectedReferralReward?.id || undefined,
-          }
-        : {
-            amount: intlTotalForeign,
-            currency: selectedCurrency,
-            customerName: form.name.trim(),
-            customerPhone: form.phone,
-            customerEmail: form.email.trim(),
-            packageId: packageData.id,
-            planName: packageData.name,
-            couponCode: appliedCoupon?.code || undefined,
-            referralRewardId: selectedReferralReward?.id || undefined,
-          };
+      const payload = {
+        packageId: packageData.id,
+        couponCode: appliedCoupon?.code || undefined,
+        referralRewardId: selectedReferralReward?.id || undefined,
+        currency: isIndia ? "INR" : selectedCurrency,
+      };
 
       await trackLead({
         value: isIndia ? indiaTotalINR : intlTotalForeign,
+        currency: isIndia ? "INR" : selectedCurrency,
         phone: form.phone,
         userData: { fullName: form.name, email: form.email, city: form.city },
       });
@@ -385,9 +358,9 @@ export default function CheckoutForm({
           packageId: packageData.id,
           validity: formatPackageValidityForBooking(packageData.validity),
           serviceCity: form.city || "Not specified",
-          cashfreeId: data.order_id,
-          currency: isIndia ? "INR" : selectedCurrency,
-          purchaseAmount: isIndia ? indiaTotalINR : intlTotalForeign,
+          cashfreeId: data.cashfreeOrderId,
+          currency: data.currency || (isIndia ? "INR" : selectedCurrency),
+          purchaseAmount: data.amount,
           purchaseDate: new Date().toISOString(),
         }),
       ]);
@@ -462,7 +435,6 @@ export default function CheckoutForm({
               currencyRateLoading={currencyRateLoading}
               onMethodChange={handleMethodChange}
               onCurrencyChange={setSelectedCurrency}
-              isFixedUSD={isFixedUSD}
             />
 
             {/* Row 1: Name + Phone */}
@@ -807,7 +779,6 @@ export default function CheckoutForm({
               toForeign={customToForeign}
               fmtForeign={fmtForeign}
               isWelcomeIndia={isWelcomeIndia}
-              isFixedUSD={isFixedUSD}
               packageData={packageData}
             />
 

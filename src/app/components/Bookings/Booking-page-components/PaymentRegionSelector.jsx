@@ -11,7 +11,6 @@ export default function PaymentRegionSelector({
   currencyRateLoading,
   onMethodChange,
   onCurrencyChange,
-  isFixedUSD,
 }) {
   return (
     <div>
@@ -119,11 +118,7 @@ export default function PaymentRegionSelector({
             </span>
           </div>
 
-          {isFixedUSD ? (
-            <p className="text-[10px] text-amber-600 mt-1 font-medium">
-              Fixed USD package rate applied
-            </p>
-          ) : currencyRateLoading ? (
+          {currencyRateLoading ? (
             <p className="text-[10px] text-amber-600 mt-1">
               Fetching live rate…
             </p>

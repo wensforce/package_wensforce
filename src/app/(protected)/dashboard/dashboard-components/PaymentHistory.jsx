@@ -39,13 +39,26 @@ function formatDateTime(dateStr) {
   return `${formattedDate}, ${formattedTime}`;
 }
 
-function formatPaymentId(id) {
-  return `#PAY${String(id).padStart(4, "0")}`;
+const ZERO_DECIMAL = new Set(["JPY", "KRW", "VND", "IDR"]);
+
+function formatMoney(amount, currency = "INR") {
+  if (amount === null || amount === undefined) return "—";
+  const code = (currency || "INR").toUpperCase();
+  const value = Number(amount);
+
+  if (code === "INR") {
+    return `₹${value.toLocaleString("en-IN")}`;
+  }
+
+  const decimals = ZERO_DECIMAL.has(code) ? 0 : 2;
+  return `${code} ${value.toLocaleString("en-US", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  })}`;
 }
 
-function formatCurrency(amount) {
-  if (amount === null || amount === undefined) return "—";
-  return `₹${Number(amount).toLocaleString("en-IN")}`;
+function formatInr(amount) {
+  return formatMoney(amount, "INR");
 }
 
 // ── Status Config ─────────────────────────────────────────────────────────────
@@ -140,7 +153,6 @@ function SkeletonCard() {
 
 // ── Payment Card ──────────────────────────────────────────────────────────────
 function PaymentCard({ payment }) {
-  const displayId = formatPaymentId(payment.id);
   const formattedCreatedDateTime = formatDateTime(payment.createdAt);
   const hasDiscount = (payment.discountAmount ?? 0) > 0;
 
@@ -155,13 +167,7 @@ function PaymentCard({ payment }) {
         {/* Top Header section: IDs & Status */}
         <div className="flex items-start justify-between gap-2">
           <div className="flex flex-col min-w-0">
-            <span
-              className="text-sm font-bold tracking-tight"
-              style={{ color: "var(--color-navy)" }}
-            >
-              {displayId}
-            </span>
-            <span className="text-[10px] text-slate-400 font-semibold mt-0.5 break-all">
+            <span className="text-[10px] text-slate-400 font-semibold break-all">
               Order ID:{" "}
               <span className="font-mono">
                 {payment.cashfreeOrderId ?? "—"}
@@ -194,7 +200,7 @@ function PaymentCard({ payment }) {
               className="font-bold leading-tight mt-0.5 block truncate"
               style={{ color: "var(--color-navy)" }}
             >
-              {formatCurrency(payment.amount)}
+              {formatInr(payment.amount)}
             </span>
           </div>
           <div>
@@ -206,7 +212,7 @@ function PaymentCard({ payment }) {
               style={{ color: hasDiscount ? "#1a7a4a" : "var(--color-navy)" }}
             >
               {hasDiscount
-                ? `- ${formatCurrency(payment.discountAmount)}`
+                ? `- ${formatInr(payment.discountAmount)}`
                 : "—"}
             </span>
           </div>
@@ -218,7 +224,7 @@ function PaymentCard({ payment }) {
               className="font-bold leading-tight mt-0.5 block truncate"
               style={{ color: "var(--color-navy)" }}
             >
-              {formatCurrency(payment.finalAmount)}
+              {formatMoney(payment.finalAmount, payment.currency)}
             </span>
           </div>
         </div>

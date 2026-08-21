@@ -51,7 +51,6 @@ export const useCurrency = (initialCurrency = "INR") => {
       .finally(() => setRateLoading(false));
   }, [currency]);
 
-  // INR amount → formatted foreign string
   const toForeign = (inrAmount) => {
     if (currency === "INR") return INR(inrAmount);
     if (rateLoading) return "…";

@@ -19,7 +19,7 @@ import { useFetchList } from "../hooks/useFetchList";
 const PAGE_LIMIT = 10;
 
 const COLUMNS = [
-  { key: "id", label: "#" },
+  { key: "id", label: "ID" },
   { key: "user", label: "User" },
   { key: "package", label: "Package" },
   { key: "amount", label: "Amount" },
@@ -134,7 +134,7 @@ export default function PaymentsPage() {
       case "id":
         return (
           <span className="font-mono text-xs font-medium text-[#0B1E3F]">
-            #{payment.id}
+            {payment.id}
           </span>
         );
       case "user":

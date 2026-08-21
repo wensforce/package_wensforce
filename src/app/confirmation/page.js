@@ -8,7 +8,7 @@ import api from "../axios/axios";
 import { packageApiUser } from "../user-apis/package.api";
 import PackageSummaryPanel from "../components/Bookings/Booking-page-components/PackageSummaryPanel";
 import { plans as welcomePlans } from "../data/welcomeIndia";
-import { INR } from "../(protected)/booking/booking-helpers";
+import { INR, fmtForeign } from "../hooks/useCurrency";
 
 const welcomePlanIds = new Set(welcomePlans.map((p) => p.id));
 const WA_NUMBER = "917304607954";
@@ -95,6 +95,15 @@ function ConfirmationContent() {
   const isSuccess = status === "success";
   const isWelcomeIndia = packageData ? welcomePlanIds.has(packageData.id) || welcomePlanIds.has(packageData.slug) : false;
   const displayPrice = packageData ? INR(packageData.discountedPrice) : "…";
+  const paymentCurrency = orderData?.currency || "INR";
+  const formatPaidAmount = (amount, currency) => {
+    if (amount == null) return null;
+    if (currency === "INR") {
+      return `₹${Number(amount).toLocaleString("en-IN")}`;
+    }
+    return fmtForeign(amount, currency);
+  };
+  const formattedPaidAmount = formatPaidAmount(orderData?.amount, paymentCurrency);
   let homepageUrl = "/";
 
   if (packageData?.category) { homepageUrl = packageData.category === "membership" ? "/" : `/${packageData.category}`; }
@@ -233,11 +242,16 @@ function ConfirmationContent() {
                   <span className="text-gray-400">Order ID</span>
                   <span className="font-mono font-semibold text-gray-700 text-[11px]">{orderId}</span>
                 </div>
-                {orderData?.amount && (
+                {formattedPaidAmount && (
                   <div className="flex justify-between items-center border-b border-gray-100 pb-2">
                     <span className="text-gray-400">Amount Paid</span>
                     <span className="font-semibold text-[#0B1E3F]">
-                      ₹{orderData.amount.toLocaleString("en-IN")}
+                      {formattedPaidAmount}
+                      {paymentCurrency !== "INR" && (
+                        <span className="ml-1.5 text-[10px] font-normal text-gray-400">
+                          ({paymentCurrency})
+                        </span>
+                      )}
                     </span>
                   </div>
                 )}

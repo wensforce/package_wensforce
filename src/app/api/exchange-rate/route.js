@@ -1,355 +1,43 @@
-// app/api/exchange-rate/route.js
+// Proxies exchange rates from backend (ExchangeRate-API → Redis cache)
 import { NextResponse } from "next/server";
-
-// Supported currencies — keep in sync with CURRENCIES in BookingPageContent.jsx
-const SUPPORTED_CURRENCIES = new Set([
-  "USD",
-  "GBP",
-  "THB",
-  "AED",
-  "EUR",
-  "AUD",
-  "CNY",
-  "LKR",
-  "MYR",
-  "VND",
-  "SGD",
-  "SAR",
-  "ZAR",
-  "CHF",
-  "CAD",
-  "NPR",
-  "OMR",
-  "HKD",
-  "BDT",
-  "JPY",
-  "SEK",
-  "QAR",
-  "NZD",
-  "ILS",
-  "KWD",
-  "BHD",
-  "DKK",
-  "KES",
-  "MUR",
-  "NOK",
-  "PHP",
-  "RUB",
-  "AFN",
-  "ALL",
-  "DZD",
-  "AOA",
-  "XCD",
-  "ARS",
-  "AMD",
-  "AWG",
-  "AZN",
-  "BSD",
-  "BBD",
-  "BZD",
-  "XOF",
-  "BMD",
-  "BTN",
-  "BOB",
-  "BWP",
-  "BAM",
-  "BRL",
-  "BND",
-  "BGN",
-  "BIF",
-  "KHR",
-  "XAF",
-  "CVE",
-  "KYD",
-  "CLP",
-  "COP",
-  "KMF",
-  "CRC",
-  "CZK",
-  "DJF",
-  "EGP",
-  "ERN",
-  "ETB",
-  "FJD",
-  "GMD",
-  "GEL",
-  "GHS",
-  "GIP",
-  "GTQ",
-  "GNF",
-  "GYD",
-  "HTG",
-  "HNL",
-  "HUF",
-  "ISK",
-  "IDR",
-  "IQD",
-  "JMD",
-  "JOD",
-  "KZT",
-  "KGS",
-  "LAK",
-  "LBP",
-  "LRD",
-  "LYD",
-  "MAD",
-  "MZN",
-  "NAD",
-  "NGN",
-  "PGK",
-  "PYG",
-  "PEN",
-  "PLN",
-  "TRY",
-  "UAH",
-  "UYU",
-  "UZS",
-  "VUV",
-  "YER",
-  "ZMW",
-  "CDF",
-  "DOP",
-  "FKP",
-  "KRW",
-  "MDL",
-  "MGA",
-  "MKD",
-  "MNT",
-  "MOP",
-  "MRU",
-  "MVR",
-  "MWK",
-  "MXN",
-  "NIO",
-  "RON",
-  "RSD",
-  "RWF",
-  "SBD",
-  "SCR",
-  "SHP",
-  "SLL",
-  "SOS",
-  "SRD",
-  "SZL",
-  "TJS",
-  "TMT",
-  "TND",
-  "TOP",
-  "TTD",
-  "TWD",
-  "TZS",
-  "UGX",
-  "WST",
-  "XPF",
-]);
-
-// Fallback INR-per-unit rates (used when live API is unavailable)
-const FALLBACK_RATES = {
-  // Common
-  USD: 84,
-  GBP: 107,
-  THB: 2.4,
-  AED: 23,
-  EUR: 91,
-  AUD: 55,
-  CNY: 11.5,
-  LKR: 0.28,
-  MYR: 19,
-  VND: 0.0033,
-  SGD: 62,
-  SAR: 22,
-  ZAR: 4.7,
-  CHF: 95,
-  CAD: 62,
-  NPR: 0.63,
-  OMR: 218,
-  HKD: 11,
-  BDT: 0.7,
-  JPY: 0.57,
-  SEK: 8.1,
-  QAR: 23,
-  NZD: 51,
-  ILS: 22,
-  KWD: 275,
-  BHD: 223,
-  DKK: 12,
-  KES: 0.65,
-  MUR: 1.9,
-  NOK: 7.9,
-  PHP: 1.5,
-  RUB: 1.0,
-  // A
-  AFN: 1.2,
-  ALL: 0.93,
-  DZD: 0.63,
-  AOA: 0.091,
-  XCD: 31,
-  ARS: 0.097,
-  AMD: 0.21,
-  AWG: 47,
-  AZN: 49,
-  // B
-  BSD: 84,
-  BBD: 42,
-  BZD: 42,
-  XOF: 0.14,
-  BMD: 84,
-  BTN: 1.0,
-  BOB: 12,
-  BWP: 6.0,
-  BAM: 45,
-  BRL: 15,
-  BND: 62,
-  BGN: 46,
-  BIF: 0.029,
-  // C-D
-  KHR: 0.021,
-  XAF: 0.14,
-  CVE: 0.83,
-  KYD: 101,
-  CLP: 0.087,
-  COP: 0.021,
-  KMF: 0.19,
-  CRC: 0.16,
-  CZK: 3.5,
-  CDF: 0.03,
-  DJF: 0.47,
-  DOP: 1.5,
-  // E-G
-  EGP: 1.7,
-  ERN: 5.6,
-  ETB: 1.4,
-  FJD: 37,
-  FKP: 107,
-  GMD: 1.2,
-  GEL: 30,
-  GHS: 5.5,
-  GIP: 107,
-  GTQ: 11,
-  GNF: 0.0098,
-  GYD: 0.4,
-  // H-I
-  HTG: 0.64,
-  HNL: 3.4,
-  HUF: 0.22,
-  ISK: 0.61,
-  IDR: 0.0052,
-  IQD: 0.064,
-  // J-L
-  JMD: 0.54,
-  JOD: 118,
-  KZT: 0.17,
-  KGS: 0.97,
-  KRW: 0.061,
-  LAK: 0.0039,
-  LBP: 0.00056,
-  LRD: 0.43,
-  LYD: 17,
-  // M
-  MAD: 8.3,
-  MDL: 4.7,
-  MGA: 0.019,
-  MKD: 1.5,
-  MNT: 0.025,
-  MOP: 10.5,
-  MRU: 2.3,
-  MVR: 5.5,
-  MWK: 0.048,
-  MXN: 4.3,
-  MZN: 1.3,
-  // N-P
-  NAD: 4.7,
-  NGN: 0.055,
-  NIO: 2.3,
-  PGK: 21,
-  PYG: 0.011,
-  PEN: 22,
-  PLN: 21,
-  // R-S
-  RON: 18,
-  RSD: 0.77,
-  RWF: 0.059,
-  SBD: 10,
-  SCR: 6.0,
-  SHP: 107,
-  SLL: 0.0039,
-  SOS: 0.15,
-  SRD: 2.5,
-  SZL: 4.7,
-  // T
-  TJS: 7.7,
-  TMT: 24,
-  TND: 27,
-  TOP: 35,
-  TTD: 12,
-  TRY: 2.4,
-  TWD: 2.6,
-  TZS: 0.032,
-  // U-Z
-  UAH: 2.0,
-  UGX: 0.022,
-  UYU: 2.1,
-  UZS: 0.0066,
-  VUV: 0.7,
-  WST: 31,
-  XPF: 0.76,
-  YER: 0.34,
-  ZMW: 3.0,
-};
-
-// In-memory cache for all INR-based rates (1 INR = X foreign)
-const CACHE = { rates: null, timestamp: null, TTL: 3_600_000 };
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const currency = (searchParams.get("currency") || "USD").toUpperCase();
 
-  if (!SUPPORTED_CURRENCIES.has(currency)) {
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  if (!baseUrl) {
     return NextResponse.json(
-      { error: "Unsupported currency" },
-      { status: 400 },
+      { error: "API base URL not configured" },
+      { status: 500 },
     );
   }
 
   try {
-    const now = Date.now();
-
-    // Return cached rate if still valid
-    if (CACHE.rates && CACHE.timestamp && now - CACHE.timestamp < CACHE.TTL) {
-      const rate = 1 / CACHE.rates[currency]; // INR per 1 unit of currency
-      return NextResponse.json({ rate, currency, source: "cache" });
-    }
-
-    // Fetch all rates relative to INR
     const response = await fetch(
-      "https://api.exchangerate-api.com/v4/latest/INR",
-      { headers: { Accept: "application/json" } },
+      `${baseUrl}/payment/exchange-rate?currency=${currency}`,
+      { headers: { Accept: "application/json" }, next: { revalidate: 300 } },
     );
 
-    if (!response.ok) throw new Error("Failed to fetch exchange rates");
+    const body = await response.json();
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: body.message || "Failed to fetch exchange rate" },
+        { status: response.status },
+      );
+    }
 
-    const data = await response.json();
-    CACHE.rates = data.rates;
-    CACHE.timestamp = now;
-
-    const rate = 1 / data.rates[currency]; // how many INR = 1 unit of currency
+    const data = body.data ?? body;
     return NextResponse.json({
-      rate,
-      currency,
-      source: "live",
-      timestamp: new Date(now).toISOString(),
+      rate: data.rate,
+      currency: data.currency ?? currency,
+      source: data.source ?? "exchangerate-api",
     });
   } catch (error) {
-    console.error("Exchange rate API error:", error);
-
+    console.error("Exchange rate proxy error:", error);
     return NextResponse.json(
-      {
-        rate: FALLBACK_RATES[currency] ?? 84,
-        currency,
-        source: "fallback",
-        error: "Using default rate",
-      },
-      { status: 200 },
+      { error: "Failed to fetch exchange rate" },
+      { status: 502 },
     );
   }
 }

@@ -12,7 +12,7 @@ import { useModal } from "../hooks/useModal";
 const PAGE_LIMIT = 10;
 
 const COLUMNS = [
-  { key: "id", label: "#" },
+  { key: "id", label: "ID" },
   { key: "user", label: "User" },
   { key: "package", label: "Package" },
   { key: "trips", label: "Trips" },
@@ -160,7 +160,7 @@ export default function SubscriptionsPage() {
       case "id":
         return (
           <span className="font-mono text-xs font-medium text-[#0B1E3F]">
-            #{sub.id}
+            {sub.id}
           </span>
         );
       case "user":

@@ -30,7 +30,11 @@ const INITIAL_FORM = {
   tripType: "airport-transfer",
 };
 
-const TRIP_TYPE_OPTIONS = ["airport-transfer", "8Hour/80Km", "Full day"];
+const TRIP_TYPE_OPTIONS = [
+  { value: "airport-transfer", label: "Airport Transfer" },
+  { value: "8Hr/80Km", label: "Local 8Hr/80Km" },
+  { value: "Full day", label: "Full day" },
+];
 
 function toDateInputValue(value) {
   if (!value) return "";
@@ -47,6 +51,18 @@ function formatPrice(price) {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
+}
+
+function formatUserDisplay(user) {
+  if (!user) return "";
+  const name = user.name?.trim();
+  const phone = user.mobileNumber?.trim();
+  const parts = [];
+  if (name) parts.push(name);
+  if (phone) parts.push(phone);
+  if (parts.length > 0) return parts.join(" · ");
+  if (user.email?.trim()) return user.email.trim();
+  return "Unknown user";
 }
 
 export default function CreateTripModal({
@@ -125,10 +141,10 @@ export default function CreateTripModal({
       setSelectedSubscription(
         trip.subscription
           ? {
-              ...trip.subscription,
-              packageId,
-              id: trip.subscription.id ?? trip.subscriptionId,
-            }
+            ...trip.subscription,
+            packageId,
+            id: trip.subscription.id ?? trip.subscriptionId,
+          }
           : trip.subscriptionId
             ? { id: trip.subscriptionId, packageId }
             : null,
@@ -497,7 +513,7 @@ export default function CreateTripModal({
     } catch (err) {
       setError(
         err?.response?.data?.message ||
-          (isEditMode ? "Failed to update trip." : "Failed to create trip."),
+        (isEditMode ? "Failed to update trip." : "Failed to create trip."),
       );
     } finally {
       setSubmitting(false);
@@ -611,8 +627,8 @@ export default function CreateTripModal({
               className="w-full text-sm rounded-lg border border-[#CBD5E0] bg-[#FAF6EC] px-3 py-2.5 text-[#1A202C] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 disabled:opacity-60"
             >
               {TRIP_TYPE_OPTIONS.map((type) => (
-                <option key={type} value={type}>
-                  {type}
+                <option key={type.value} value={type.value}>
+                  {type.label}
                 </option>
               ))}
             </select>
@@ -725,7 +741,7 @@ export default function CreateTripModal({
                     type="text"
                     value={userSearch}
                     onChange={(e) => setUserSearch(e.target.value)}
-                    placeholder="Type name, email or mobile"
+                    placeholder="Type name or mobile"
                     disabled={submitting}
                     className="w-full rounded-lg border border-[#CBD5E0] bg-white pl-9 pr-3 py-2 text-sm text-[#1A202C] placeholder:text-[#A0AEC0] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 disabled:opacity-60"
                   />
@@ -755,15 +771,7 @@ export default function CreateTripModal({
                         disabled={submitting}
                         className="w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left text-sm text-[#1A202C] hover:bg-[#FAF6EC] transition-colors disabled:opacity-60"
                       >
-                        <span className="truncate">
-                          {user.name ||
-                            user.email ||
-                            user.mobileNumber ||
-                            `User #${user.id}`}
-                        </span>
-                        <span className="text-xs text-[#4A5568] shrink-0">
-                          #{user.id}
-                        </span>
+                        <span className="truncate">{formatUserDisplay(user)}</span>
                       </button>
                     ))
                   )}
@@ -773,17 +781,9 @@ export default function CreateTripModal({
                     <UserRound size={12} />
                     <span
                       className="max-w-[160px] truncate"
-                      title={
-                        selectedUser.name ||
-                        selectedUser.email ||
-                        selectedUser.mobileNumber ||
-                        `User #${selectedUser.id}`
-                      }
+                      title={formatUserDisplay(selectedUser)}
                     >
-                      {selectedUser.name ||
-                        selectedUser.email ||
-                        selectedUser.mobileNumber ||
-                        `User #${selectedUser.id}`}
+                      {formatUserDisplay(selectedUser)}
                     </span>
                     <button
                       type="button"
@@ -1005,11 +1005,10 @@ export default function CreateTripModal({
                           return (
                             <label
                               key={service.id}
-                              className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors select-none ${
-                                isSelected
+                              className={`flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors select-none ${isSelected
                                   ? "bg-[#FAF6EC]"
                                   : "hover:bg-[#FAF6EC]"
-                              }`}
+                                }`}
                             >
                               <input
                                 type="checkbox"

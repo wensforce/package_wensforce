@@ -19,7 +19,7 @@ import { useModal } from "../hooks/useModal";
 const PAGE_LIMIT = 10;
 
 const COLUMNS = [
-  { key: "id", label: "#" },
+  { key: "id", label: "ID" },
   { key: "thumbnail", label: "Thumbnail" },
   { key: "title", label: "Title" },
   { key: "description", label: "Description" },
@@ -101,7 +101,7 @@ export default function ServicesPage() {
       case "id":
         return (
           <span className="font-mono text-xs font-medium text-[#0B1E3F]">
-            #{s.id}
+            {s.id}
           </span>
         );
       case "thumbnail":
