@@ -18,6 +18,7 @@ import {
   Gift,
   Route,
   Share2,
+  CalendarDays,
 } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
@@ -26,6 +27,7 @@ const navItems = [
   { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { label: "Payments", href: "/admin/payments", icon: CreditCard },
   { label: "Packages", href: "/admin/packages", icon: Package },
+  { label: "Expos", href: "/admin/expos", icon: CalendarDays },
   { label: "Services", href: "/admin/services", icon: Wrench },
   { label: "Users", href: "/admin/users", icon: Users },
   { label: "Coupons", href: "/admin/coupons", icon: Hash },

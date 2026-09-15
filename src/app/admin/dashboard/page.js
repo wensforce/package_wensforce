@@ -13,6 +13,7 @@ import {
   AlertCircle,
   Package as PackageIcon,
 } from "lucide-react";
+import ExpoDashboardPanel from "./components/ExpoDashboardPanel";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -245,6 +246,8 @@ export default function DashboardPage() {
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-purple-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
         </div>
       </div>
+
+      <ExpoDashboardPanel />
 
       {/* Grid: Revenue Trend & User Growth */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

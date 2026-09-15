@@ -64,6 +64,7 @@ export default function Header() {
             >
               Plans
             </a>
+            
             {pathname === "/welcome_india" && (
               <a
                 href="#plans"
@@ -118,6 +119,16 @@ export default function Header() {
             >
               Offer
             </a>
+            <Link
+              href="/expo"
+              className={`text-sm font-medium transition-colors ${
+                scrolled
+                  ? "text-gray-600 hover:text-gray-900"
+                  : "text-white/70 hover:text-white"
+              }`}
+            >
+              Expo
+            </Link>
           </nav>
 
           {/* Desktop CTA */}
@@ -256,6 +267,17 @@ export default function Header() {
               >
                 Offer
               </a>
+              <Link
+                href="/expo"
+                className={`block text-sm font-medium transition-colors ${
+                  scrolled
+                    ? "text-gray-600 hover:text-gray-900"
+                    : "text-white/70 hover:text-white"
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Expo
+              </Link>
               {mounted && isLoggedIn && (
                 <Link
                   href="/dashboard"
