@@ -156,8 +156,8 @@ export default function ExpoHub() {
       return;
     }
     carouselDrag.current.isDragging = false;
-    trackExpoCardClick(expo.slug, expo.name, "hub_carousel");
-    router.push(`/expo/${expo.slug}`);
+    trackExpoCardClick(expo.id, expo.name, "hub_carousel");
+    router.push(`/expo/${expo.id}`);
   };
 
   const scrollCarousel = (dir) => {

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { fetchExpoBySlug } from "../../lib/expoApi";
+import { fetchExpoById } from "../../lib/expoApi";
 import { EXPO_FAQS } from "../../data/expoContent";
 import {
   generateEventSchema,
@@ -16,14 +16,14 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }) {
-  const { slug } = await params;
-  const expo = await fetchExpoBySlug(slug);
+  const { id } = await params;
+  const expo = await fetchExpoById(id);
 
   if (!expo) return {};
 
   const title = `${expo.name} – WENS Force Expo Arrival`;
   const description = `Attend ${expo.name} (${expo.city}, ${expo.eventStart}) with flight-tracked pickup, executive chauffeur, close protection officer & dedicated support. From ₹8,399. Book now.`;
-  const url = `https://subscription.wensforce.com/expo/${slug}`;
+  const url = `https://subscription.wensforce.com/expo/${id}`;
 
   return {
     title,
@@ -51,8 +51,8 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function ExpoDetailPage({ params }) {
-  const { slug } = await params;
-  const expo = await fetchExpoBySlug(slug);
+  const { id } = await params;
+  const expo = await fetchExpoById(id);
 
   if (!expo) {
     notFound();
@@ -67,7 +67,7 @@ export default async function ExpoDetailPage({ params }) {
     { name: "Expo Arrival", url: "https://subscription.wensforce.com/expo" },
     {
       name: expo.name,
-      url: `https://subscription.wensforce.com/expo/${slug}`,
+      url: `https://subscription.wensforce.com/expo/${id}`,
     },
   ]);
 

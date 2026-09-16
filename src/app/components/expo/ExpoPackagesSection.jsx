@@ -22,7 +22,7 @@ export default function ExpoPackagesSection({ expo, packages }) {
   }
 
   const handlePackageClick = (pkg) => {
-    trackExpoPackageClick(expo.slug, expo.name, pkg.id, pkg.name, pkg.price);
+    trackExpoPackageClick(expo.id, expo.name, pkg.id, pkg.name, pkg.price);
   };
 
   return (
@@ -461,7 +461,7 @@ export default function ExpoPackagesSection({ expo, packages }) {
 
                 {/* CTA */}
                 <Link
-                  href={`/booking/${pkg.id}?expo=${expo.slug}`}
+                  href={`/booking/${pkg.id}?expo=${expo.id}`}
                   className="expo-pkg-cta"
                   onClick={() => handlePackageClick(pkg)}
                 >

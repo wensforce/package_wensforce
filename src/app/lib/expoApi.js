@@ -45,8 +45,8 @@ export async function fetchPublicExposClient() {
 /**
  * @returns {Promise<object|null>}
  */
-export async function fetchExpoBySlug(slug) {
-  const url = `${apiBase()}/expo/by-slug/${encodeURIComponent(slug)}`;
+export async function fetchExpoById(id) {
+  const url = `${apiBase()}/expo/by-id/${encodeURIComponent(id)}`;
   if (!apiBase()) return null;
 
   try {
@@ -55,7 +55,7 @@ export async function fetchExpoBySlug(slug) {
     const json = await res.json();
     return json.data ?? null;
   } catch (err) {
-    console.error("fetchExpoBySlug:", err);
+    console.error("fetchExpoById:", err);
     return null;
   }
 }

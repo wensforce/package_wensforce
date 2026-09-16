@@ -19,8 +19,8 @@ export default function ExpoDetailClient({ expo, packages }) {
   const [activeTab, setActiveTab] = useState('packages');
 
   useEffect(() => {
-    trackExpoDetailView(expo.slug, expo.name, expo.city);
-  }, [expo.slug, expo.name, expo.city]);
+    trackExpoDetailView(expo.id, expo.name, expo.city);
+  }, [expo.id, expo.name, expo.city]);
 
   return (
     <>

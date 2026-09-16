@@ -9,7 +9,7 @@ import CountdownBadge from './CountDownBadge';
 
 export default function ExpoCard({ expo }) {
   const handleClick = () => {
-    trackExpoCardClick(expo.slug, expo.name, 'hub_card');
+    trackExpoCardClick(expo.id, expo.name, 'hub_card');
   };
 
   return (
@@ -24,10 +24,17 @@ export default function ExpoCard({ expo }) {
           display: flex;
           flex-direction: column;
           height: 100%;
+          text-decoration: none;
+          color: inherit;
+          cursor: pointer;
         }
         .card:hover { 
           box-shadow: 0 14px 34px rgba(11, 31, 58, 0.10);
           transform: translateY(-2px);
+        }
+        .card:focus-visible {
+          outline: 2px solid #C9A227;
+          outline-offset: 2px;
         }
         .card-image { 
           display:flex;
@@ -101,7 +108,11 @@ export default function ExpoCard({ expo }) {
         }
       `}</style>
 
-      <div className="card">
+      <Link
+        href={`/expo/${expo.id}`}
+        className="card"
+        onClick={handleClick}
+      >
         {expo.cardImage ? (
           <img
             src={expo.cardImage}
@@ -129,15 +140,11 @@ export default function ExpoCard({ expo }) {
           <div className="card-countdown">
             <CountdownBadge expo={expo} />
           </div>
-          <Link
-            href={`/expo/${expo.slug}`}
-            className="card-cta"
-            onClick={handleClick}
-          >
+          <span className="card-cta">
             View Packages <ChevronRight size={14} />
-          </Link>
+          </span>
         </div>
-      </div>
+      </Link>
     </>
   );
 }

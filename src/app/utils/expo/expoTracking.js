@@ -65,8 +65,8 @@ export function fireExpoEvent(eventName, params = {}) {
   
   /**
    * Track expo detail page view.
-   * Fired once on detail page (/expo/[slug]) mount.
-   * @param {string} expoSlug - Expo slug.
+   * Fired once on detail page (/expo/[id]) mount.
+   * @param {string} expoSlug - Expo id (legacy param name for GTM).
    * @param {string} expoName - Expo name.
    * @param {string} city - Expo city.
    */

@@ -66,7 +66,7 @@ export function generateFaqSchema(faqs, context = {}) {
         url: baseUrl,
       },
       image: expo.cardImage ? `${baseUrl}${expo.cardImage}` : undefined,
-      url: `${baseUrl}/expo/${expo.slug}`,
+      url: `${baseUrl}/expo/${expo.id}`,
     };
   }
   
