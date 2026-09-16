@@ -399,7 +399,7 @@ function PackageCard({ plan, onRequestTrip }) {
                   : formatDate(plan.endDate)}
               </span>
             </p>
-            {plan.status === "active" && (
+            {/* {plan.status === "active" && (
               <button
                 onClick={() => onRequestTrip(plan)}
                 className="flex cursor-pointer items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
@@ -412,7 +412,7 @@ function PackageCard({ plan, onRequestTrip }) {
                 <MapPin size={14} />
                 Request a Trip
               </button>
-            )}
+            )} */}
           </div>
         </div>
       </div>
