@@ -60,6 +60,22 @@ export async function fetchExpoById(id) {
   }
 }
 
+/** Client components (booking checkout with ?expo=). */
+export async function fetchExpoByIdClient(id) {
+  const url = `${apiBase()}/expo/by-id/${encodeURIComponent(id)}`;
+  if (!apiBase()) return null;
+
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.data ?? null;
+  } catch (err) {
+    console.error("fetchExpoByIdClient:", err);
+    return null;
+  }
+}
+
 /** Non-ended expos for hub (list API already filters; client-side safety net). */
 export function getActiveExposFromList(expos) {
   return (expos || []).filter(isExpoVisibleOnHub);

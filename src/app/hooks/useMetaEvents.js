@@ -33,12 +33,21 @@ export function useMetaEvents() {
     });
   }
 
-  async function trackLead({ value = 0, phone, userData = {} }) {
+  async function trackLead({ value = 0, currency, phone, userData = {} }) {
     const nameParts = (userData.fullName || "").trim().split(" ");
     const firstName = nameParts[0] || "";
     const lastName = nameParts.slice(1).join(" ") || "";
-    const eventId = pixelLead({ value });
-    await sendCapi({ eventName: "Lead", eventId, value, firstName, lastName, phone, ...userData });
+    const eventId = pixelLead({ value, currency });
+    await sendCapi({
+      eventName: "Lead",
+      eventId,
+      value,
+      currency,
+      firstName,
+      lastName,
+      phone,
+      ...userData,
+    });
   }
 
   async function trackPurchase({

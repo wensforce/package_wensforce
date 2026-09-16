@@ -72,6 +72,8 @@ export default function PackageSummaryPanel({
   packageData,
   displayPrice,
   isWelcomeIndia,
+  expoId,
+  expoName,
 }) {
   const { regularPrice: anchorPrice, discountedPrice: price } = packageData;
   const hasDiscount = anchorPrice > price;
@@ -80,6 +82,28 @@ export default function PackageSummaryPanel({
   return (
     <div className="flex flex-col flex-shrink-0 w-full lg:w-[44%] overflow-y-auto">
       <div className="flex flex-col">
+        {expoId && (
+          <div
+            className="mx-4 sm:mx-5 mt-4 mb-1 p-4 rounded-xl border"
+            style={{
+              backgroundColor: "rgba(201,162,75,0.08)",
+              borderColor: "rgba(201,162,75,0.25)",
+            }}
+          >
+            <span className="text-[9px] font-bold tracking-[0.3em] uppercase text-[#C9A24B]">
+              Expo Arrival
+            </span>
+            <h2 className="font-serif-display font-bold text-xl sm:text-2xl text-[#0B1E3F] mt-1 mb-1">
+              {expoName ? `Welcome to ${expoName}` : "Expo booking"}
+            </h2>
+            <p className="text-[#0B1E3F]/60 text-xs font-light leading-relaxed">
+              You arrived from an expo landing page. Complete checkout to
+              activate your{" "}
+              <strong className="font-semibold">{packageData.name}</strong>{" "}
+              package for this event.
+            </p>
+          </div>
+        )}
         {/* ── Thumbnail ── */}
         <div className="px-4 sm:px-5 pt-4 w-full">
           <div

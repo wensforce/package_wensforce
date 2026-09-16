@@ -35,6 +35,7 @@ import { paymentApiUser } from "@/app/user-apis/payment.api";
 import { bookingApiUser } from "@/app/user-apis/booking.api";
 import { couponApiUser } from "@/app/user-apis/coupon.api";
 import { authApiUser } from "@/app/user-apis/auth.api";
+import { extendBookingEventWithExpo } from "@/app/utils/expo/expoTracking";
 
 /* ── Pricing helpers (pure functions, no state) ───────────────────────── */
 
@@ -73,6 +74,8 @@ export default function CheckoutForm({
   packageData,
   user,
   searchParams,
+  expoId,
+  expoName,
   displayPrice,
   onSuccess,
   selectedCurrency,
@@ -324,11 +327,17 @@ export default function CheckoutForm({
         value: isIndia ? indiaTotalINR : intlTotalForeign,
         currency: isIndia ? "INR" : selectedCurrency,
         phone: form.phone,
-        userData: { fullName: form.name, email: form.email, city: form.city },
+        userData: {
+          fullName: form.name,
+          email: form.email,
+          city: form.city,
+          expoSlug: expoId || undefined,
+          expoName: expoName || undefined,
+        },
       });
 
       window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({
+      const payClickPayload = {
         event: "pay_button_click",
         conversion_value: "0",
         currency: isIndia ? "INR" : selectedCurrency,
@@ -336,7 +345,18 @@ export default function CheckoutForm({
         customer_phone: form.phone || "Unknown",
         service_city: form.city || "Unknown",
         plan_name: packageData.name || "Unknown",
-      });
+        package_id: packageData.id,
+      };
+      window.dataLayer.push(
+        expoId
+          ? extendBookingEventWithExpo(
+              "Lead",
+              payClickPayload,
+              expoId,
+              expoName || "",
+            )
+          : payClickPayload,
+      );
 
       const res = await paymentApiUser.createOrder(payload);
       const data = res.data;
@@ -354,7 +374,11 @@ export default function CheckoutForm({
             })
           : Promise.resolve(),
         bookingApiUser.createBooking({
-          packageName: packageData.name,
+          packageName:
+            packageData.name +
+            (expoId
+              ? ` (${expoName || expoId})`
+              : ""),
           packageId: packageData.id,
           validity: formatPackageValidityForBooking(packageData.validity),
           serviceCity: form.city || "Not specified",

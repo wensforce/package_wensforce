@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, useRouter, useParams } from "next/navigation";
+import MetaViewTracker from "../MainPage/MetaViewTracker";
+import { fetchExpoByIdClient } from "@/app/lib/expoApi";
 import { ArrowLeft, Shield } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -41,6 +43,9 @@ export default function BookingPageContent({ packageData }) {
 
   const [submitted, setSubmitted] = useState(false);
   const [successForm, setSuccessForm] = useState(null);
+  const [expoInfo, setExpoInfo] = useState(null);
+
+  const expoId = searchParams.get("expo");
 
   const slug = params?.id;
   const isWelcomeIndia =
@@ -62,6 +67,33 @@ export default function BookingPageContent({ packageData }) {
     rateLoading: currencyRateLoading,
     toForeign,
   } = useCurrency(initCurrency);
+
+  useEffect(() => {
+    if (!expoId) {
+      setExpoInfo(null);
+      return;
+    }
+    let cancelled = false;
+    fetchExpoByIdClient(expoId).then((data) => {
+      if (!cancelled) setExpoInfo(data);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [expoId]);
+
+  useEffect(() => {
+    if (!packageData?.id || typeof window === "undefined") return;
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: "booking_page_view",
+      package_id: packageData.id,
+      plan_name: packageData.name,
+      expo_slug: expoId || undefined,
+      expo_name: expoInfo?.name,
+      event_category: expoId ? "expo_arrival" : "checkout",
+    });
+  }, [packageData?.id, packageData?.name, expoId, expoInfo?.name]);
 
   /* Loading state */
   if (!packageData || !packageData.id) {
@@ -103,6 +135,15 @@ export default function BookingPageContent({ packageData }) {
 
   return (
     <div>
+      {packageData?.id && (
+        <MetaViewTracker
+          plan={{
+            id: packageData.id,
+            name: packageData.name,
+            discountedPrice: packageData.discountedPrice,
+          }}
+        />
+      )}
       {/* Header bar */}
       <div
         className="flex items-center justify-between gap-2 px-3 sm:px-6 py-3 border-b"
@@ -147,12 +188,16 @@ export default function BookingPageContent({ packageData }) {
             packageData={packageData}
             displayPrice={displayPrice}
             isWelcomeIndia={isWelcomeIndia}
+            expoId={expoId}
+            expoName={expoInfo?.name}
           />
 
           <CheckoutForm
             packageData={packageData}
             user={user}
             searchParams={searchParams}
+            expoId={expoId}
+            expoName={expoInfo?.name}
             displayPrice={displayPrice}
             onSuccess={(form) => {
               setSuccessForm(form);

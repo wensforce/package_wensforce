@@ -110,6 +110,13 @@ export default function RootLayout({ children }) {
           }}
         />
         {/* End Microsoft Clarity */}
+        {/* Zoho PageSense */}
+        <Script
+          id="pagesense-script"
+          src="https://cdn-in.pagesense.io/js/60087999785/69625c382dd14ba385dd84e1075afa41.js"
+          strategy="afterInteractive"
+        />
+        {/* End Zoho PageSense */}
       </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <JsonLd

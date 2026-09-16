@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Shield, Check, XCircle, RefreshCw } from "lucide-react";
 import api from "../axios/axios";
 import { packageApiUser } from "../user-apis/package.api";
+import { useMetaEvents } from "../hooks/useMetaEvents";
+import { extendBookingEventWithExpo } from "../utils/expo/expoTracking";
 import PackageSummaryPanel from "../components/Bookings/Booking-page-components/PackageSummaryPanel";
 import { plans as welcomePlans } from "../data/welcomeIndia";
 import { INR, fmtForeign } from "../hooks/useCurrency";
@@ -62,6 +64,8 @@ const WaIcon = () => (
 function ConfirmationContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order_id") || searchParams.get("token");
+  const { trackPurchase } = useMetaEvents();
+  const purchaseTracked = useRef(false);
 
   const [loading, setLoading] = useState(true);
   const [orderData, setOrderData] = useState(null);
@@ -83,6 +87,57 @@ function ConfirmationContent() {
       finally { setLoading(false); }
     })();
   }, [orderId]);
+
+  useEffect(() => {
+    if (
+      loading ||
+      status !== "success" ||
+      !orderData ||
+      purchaseTracked.current
+    ) {
+      return;
+    }
+    purchaseTracked.current = true;
+
+    const amount = Number(orderData.amount);
+    const currency = orderData.currency || "INR";
+    const packageName = packageData?.name || orderData.packageName || "";
+
+    trackPurchase({
+      value: Number.isFinite(amount) ? amount : 0,
+      orderId: orderId || orderData.cashfreeOrderId,
+      currency,
+      phone: orderData.customerPhone || orderData.phone,
+      userData: {
+        fullName: orderData.customerName || orderData.name,
+        email: orderData.customerEmail || orderData.email,
+      },
+    });
+
+    if (typeof window !== "undefined") {
+      window.dataLayer = window.dataLayer || [];
+      const purchasePayload = {
+        event: "purchase",
+        transaction_id: orderId,
+        value: Number.isFinite(amount) ? amount : 0,
+        currency,
+        plan_name: packageName,
+        package_id: packageData?.id || orderData.packageId,
+      };
+      const expoMatch = packageName.match(/\(([^)]+)\)\s*$/);
+      const expoRef = expoMatch?.[1];
+      window.dataLayer.push(
+        expoRef
+          ? extendBookingEventWithExpo(
+              "Purchase",
+              purchasePayload,
+              expoRef,
+              expoRef,
+            )
+          : purchasePayload,
+      );
+    }
+  }, [loading, status, orderData, packageData, orderId, trackPurchase]);
 
   /* ── Loading ── */
   if (loading) return (
