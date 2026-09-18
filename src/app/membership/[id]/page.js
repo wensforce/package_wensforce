@@ -24,7 +24,7 @@ import TermsAndConditionsSection from "../sections/TermsAndConditionsSection";
 
 const WA_NUMBER = "917304607954";
 const S3_BASE =
-  "https://subscription-package-images.s3.ap-south-1.amazonaws.com";
+  process.env.NEXT_PUBLIC_S3_BASE_URL;
 
 const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
 
