@@ -188,6 +188,26 @@ export default function LoginPage() {
   const shouldShowTermsStep = showTermsStep && !!registrationToken;
   const shouldShowReferralStep = showReferralStep && !!user;
 
+  const handlePageBack = () => {
+    if (shouldShowTermsStep || shouldShowReferralStep) {
+      if (typeof window !== "undefined" && window.history.length > 1) {
+        router.back();
+      } else {
+        router.push("/");
+      }
+      return;
+    }
+    if (step === "otp") {
+      handleBack();
+      return;
+    }
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/");
+    }
+  };
+
   // 0 = phone, 1 = otp, 2 = terms, 3 = referral
   const currentStepIndex = shouldShowTermsStep
     ? 2
@@ -298,7 +318,25 @@ export default function LoginPage() {
       </div>
 
       {/* ── Right panel ───────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col justify-center items-center px-4 py-10 sm:px-8 sm:py-12">
+      <div className="flex-1 flex flex-col justify-center items-center px-4 pt-20 pb-10 sm:px-8 sm:pt-24 sm:pb-12 lg:pt-28 relative w-full min-w-0">
+        {/* Back — always visible, all breakpoints */}
+        <div className="absolute top-0 left-0 right-0 z-30 px-4 pt-4 sm:px-8 sm:pt-6 lg:pt-8">
+          <button
+            type="button"
+            onClick={handlePageBack}
+            aria-label="Go back"
+            className="inline-flex items-center justify-center gap-1 sm:gap-1.5 min-h-11 px-3 sm:px-4 py-2 rounded-full text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.98] shadow-sm"
+            style={{
+              color: "var(--color-navy)",
+              background: "var(--color-white)",
+              border: "1px solid var(--color-border)",
+            }}
+          >
+            <ChevronLeft size={18} strokeWidth={2.5} className="shrink-0" />
+            <span>Back</span>
+          </button>
+        </div>
+
         {/* Mobile logo */}
         <div className="flex lg:hidden items-center gap-2 mb-8">
           <Shield size={20} style={{ color: "var(--color-navy)" }} />

@@ -43,16 +43,30 @@ export const packageApi = {
    * @returns {Promise<Array>} - Up to 5 matching package rows
    */
   searchPackages: async (query) => {
+    const trimmed = String(query || "").trim();
     const res = await api.get("/package", {
-      params: { search: query, page: 1, limit: 5 },
+      params: { search: trimmed, page: 1, limit: 5 },
     });
     const data = res.data?.data ?? res.data ?? {};
-    const rows =
+    let rows =
       data.packages ||
       data.data ||
       data.items ||
       (Array.isArray(data) ? data : []);
-    return Array.isArray(rows) ? rows.slice(0, 5) : [];
+    rows = Array.isArray(rows) ? rows.slice(0, 5) : [];
+
+    if (rows.length === 0 && trimmed) {
+      try {
+        const byId = await packageApi.getPackageById(trimmed);
+        if (byId?.id) {
+          return [byId];
+        }
+      } catch {
+        // no exact id match
+      }
+    }
+
+    return rows;
   },
   /**
    * Fetch a single package by ID, including associated services.

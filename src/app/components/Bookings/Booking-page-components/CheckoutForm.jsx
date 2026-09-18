@@ -96,6 +96,7 @@ export default function CheckoutForm({
 
   const [paymentMethod, setPaymentMethod] = useState(initMethod);
   const isIndia = paymentMethod === "india";
+  const phoneLocked = Boolean(user?.mobileNumber?.trim());
 
   /* ── Form ── */
   const [form, setForm] = useState({
@@ -280,7 +281,11 @@ export default function CheckoutForm({
   /* ── Handlers ── */
   const handleMethodChange = (method) => {
     setPaymentMethod(method);
-    if (method !== "india") setSelectedCurrency("USD");
+    if (method === "india") {
+      setSelectedCurrency("INR");
+    } else {
+      setSelectedCurrency((prev) => (prev === "INR" ? "USD" : prev));
+    }
     setErrors({});
     setPayError("");
   };
@@ -492,10 +497,15 @@ export default function CheckoutForm({
                 <label className="block text-[10px] font-bold text-gray-400 mb-1.5 tracking-[0.22em] uppercase">
                   {isIndia ? "Mobile No." : "WhatsApp No."}{" "}
                   <span className="text-red-400">*</span>
+                  {phoneLocked && (
+                    <span className="normal-case tracking-normal font-medium text-gray-400 ml-1">
+                      (from your account)
+                    </span>
+                  )}
                 </label>
                 {isIndia ? (
                   <div
-                    className={`flex items-center border rounded-xl overflow-hidden transition-all ${errors.phone ? "border-red-300 bg-red-50" : "border-gray-200 focus-within:border-[#C9A24B] focus-within:ring-2 focus-within:ring-[#C9A24B]/10"}`}
+                    className={`flex items-center border rounded-xl overflow-hidden transition-all ${errors.phone ? "border-red-300 bg-red-50" : phoneLocked ? "border-gray-200 bg-gray-50/80" : "border-gray-200 focus-within:border-[#C9A24B] focus-within:ring-2 focus-within:ring-[#C9A24B]/10"}`}
                   >
                     <span className="px-2.5 py-2.5 text-xs text-gray-400 font-semibold border-r border-gray-200 bg-gray-50/80 shrink-0">
                       +91
@@ -503,6 +513,8 @@ export default function CheckoutForm({
                     <input
                       type="tel"
                       value={form.phone}
+                      readOnly={phoneLocked}
+                      disabled={phoneLocked}
                       onChange={(e) =>
                         setForm({
                           ...form,
@@ -510,12 +522,16 @@ export default function CheckoutForm({
                         })
                       }
                       placeholder="98765 43210"
-                      className="flex-1 px-2.5 py-2.5 text-sm text-gray-800 outline-none bg-transparent placeholder:text-gray-300"
+                      className={`flex-1 px-2.5 py-2.5 text-sm outline-none placeholder:text-gray-300 ${
+                        phoneLocked
+                          ? "text-gray-600 cursor-not-allowed bg-transparent"
+                          : "text-gray-800 bg-transparent"
+                      }`}
                     />
                   </div>
                 ) : (
                   <div
-                    className={`flex items-center border rounded-xl overflow-hidden transition-all ${errors.phone ? "border-red-300 bg-red-50" : "border-gray-200 focus-within:border-[#C9A24B] focus-within:ring-2 focus-within:ring-[#C9A24B]/10 bg-white"}`}
+                    className={`flex items-center border rounded-xl overflow-hidden transition-all ${errors.phone ? "border-red-300 bg-red-50" : phoneLocked ? "border-gray-200 bg-gray-50/80" : "border-gray-200 focus-within:border-[#C9A24B] focus-within:ring-2 focus-within:ring-[#C9A24B]/10 bg-white"}`}
                   >
                     <span className="pl-3 shrink-0">
                       <svg
@@ -531,11 +547,17 @@ export default function CheckoutForm({
                     <input
                       type="tel"
                       value={form.phone}
+                      readOnly={phoneLocked}
+                      disabled={phoneLocked}
                       onChange={(e) =>
                         setForm({ ...form, phone: e.target.value })
                       }
                       placeholder="+1 555 123 4567"
-                      className="flex-1 px-2.5 py-2.5 text-sm text-gray-800 outline-none bg-transparent placeholder:text-gray-300"
+                      className={`flex-1 px-2.5 py-2.5 text-sm outline-none placeholder:text-gray-300 ${
+                        phoneLocked
+                          ? "text-gray-600 cursor-not-allowed bg-transparent"
+                          : "text-gray-800 bg-transparent"
+                      }`}
                     />
                   </div>
                 )}

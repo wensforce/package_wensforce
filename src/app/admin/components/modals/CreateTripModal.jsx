@@ -65,6 +65,25 @@ function formatUserDisplay(user) {
   return "Unknown user";
 }
 
+function subscriptionPackageLabel(sub) {
+  return sub?.package?.name?.trim() || "Unknown package";
+}
+
+function subscriptionMetaLabel(sub) {
+  const parts = [];
+  const phone = sub?.user?.mobileNumber?.trim();
+  if (phone) parts.push(phone);
+  if (sub?.status) parts.push(sub.status);
+  return parts.join(" · ");
+}
+
+function subscriptionSelectedLabel(sub) {
+  const pkg = subscriptionPackageLabel(sub);
+  const phone = sub?.user?.mobileNumber?.trim();
+  if (phone) return `${pkg} · ${phone}`;
+  return pkg;
+}
+
 export default function CreateTripModal({
   open,
   onClose,
@@ -116,6 +135,8 @@ export default function CreateTripModal({
   const [error, setError] = useState(null);
   const [inactiveModalOpen, setInactiveModalOpen] = useState(false);
   const [inactivePackageName, setInactivePackageName] = useState("");
+  const [userLockedFromSubscription, setUserLockedFromSubscription] =
+    useState(false);
 
   // ── Derived: total additional cost ───────────────────────────────────────
   const additionalAmount = Array.from(
@@ -156,6 +177,7 @@ export default function CreateTripModal({
             ? { id: trip.userId }
             : null,
       );
+      setUserLockedFromSubscription(Boolean(trip.user || trip.userId));
 
       const preSelected = Array.isArray(trip.services)
         ? new Set(trip.services.filter((s) => s?.id).map((s) => String(s.id)))
@@ -180,6 +202,7 @@ export default function CreateTripModal({
       setForm(INITIAL_FORM);
       setSelectedSubscription(null);
       setSelectedUser(null);
+      setUserLockedFromSubscription(false);
       setSelectedServiceIds(new Set());
       setSelectedAdditionalServices(new Map());
     }
@@ -254,9 +277,13 @@ export default function CreateTripModal({
     let cancelled = false;
     setLoadingSubscriptions(true);
     subscriptionApi
-      .searchSubscriptions(query)
+      .searchSubscriptionById(query)
       .then((rows) => {
-        if (!cancelled) setSubscriptionOptions(rows);
+        if (cancelled) return;
+        setSubscriptionOptions(rows);
+        if (rows.length === 1 && String(rows[0].id) === query) {
+          handleSelectSubscription(rows[0]);
+        }
       })
       .catch(() => {
         if (!cancelled) setSubscriptionOptions([]);
@@ -269,9 +296,9 @@ export default function CreateTripModal({
     };
   }, [debouncedSubscriptionSearch, open]);
 
-  // ── Fetch users ──────────────────────────────────────────────────────────
+  // ── Fetch users (manual search disabled when member is linked to subscription) ──
   useEffect(() => {
-    if (!open) return;
+    if (!open || userLockedFromSubscription) return;
     const query = debouncedUserSearch;
     if (!query) {
       setUserOptions([]);
@@ -294,7 +321,7 @@ export default function CreateTripModal({
     return () => {
       cancelled = true;
     };
-  }, [debouncedUserSearch, open]);
+  }, [debouncedUserSearch, open, userLockedFromSubscription]);
 
   // ── Fetch included package services ──────────────────────────────────────
   useEffect(() => {
@@ -423,6 +450,41 @@ export default function CreateTripModal({
     });
   }
 
+  async function applyUserFromSubscription(sub) {
+    const nested = sub.user;
+    const userId = nested?.id ?? sub.userId;
+    if (!userId) return;
+
+    if (nested?.mobileNumber || nested?.name || nested?.email) {
+      setSelectedUser({
+        id: userId,
+        name: nested.name ?? "",
+        email: nested.email ?? "",
+        mobileNumber: nested.mobileNumber ?? "",
+      });
+      setUserLockedFromSubscription(true);
+      setUserSearch("");
+      setUserOptions([]);
+      return;
+    }
+
+    try {
+      const full = await userApi.getUserById(userId);
+      if (full?.id) {
+        setSelectedUser(full);
+        setUserLockedFromSubscription(true);
+        setUserSearch("");
+        setUserOptions([]);
+      } else {
+        setSelectedUser({ id: userId });
+        setUserLockedFromSubscription(true);
+      }
+    } catch {
+      setSelectedUser({ id: userId });
+      setUserLockedFromSubscription(true);
+    }
+  }
+
   function handleSelectSubscription(sub) {
     if (sub.status !== "active") {
       setInactivePackageName(sub.package?.name || "");
@@ -436,6 +498,7 @@ export default function CreateTripModal({
       setSelectedAdditionalServices(new Map());
     }
     setSelectedSubscription(enrichedSub);
+    void applyUserFromSubscription(sub);
     setSubscriptionSearch("");
     setSubscriptionOptions([]);
     setServiceQuery("");
@@ -651,7 +714,7 @@ export default function CreateTripModal({
                     type="text"
                     value={subscriptionSearch}
                     onChange={(e) => setSubscriptionSearch(e.target.value)}
-                    placeholder="Type user, package, status..."
+                    placeholder="Enter subscription ID"
                     disabled={submitting}
                     className="w-full rounded-lg border border-[#CBD5E0] bg-white pl-9 pr-3 py-2 text-sm text-[#1A202C] placeholder:text-[#A0AEC0] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 disabled:opacity-60"
                   />
@@ -678,14 +741,14 @@ export default function CreateTripModal({
                         disabled={submitting}
                         className="w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left text-sm text-[#1A202C] hover:bg-[#FAF6EC] transition-colors disabled:opacity-60"
                       >
-                        <span className="truncate">
-                          #{sub.id}
-                          {sub.user?.name ? ` - ${sub.user.name}` : ""}
+                        <span className="truncate font-medium">
+                          {subscriptionPackageLabel(sub)}
                         </span>
-                        <span className="text-xs text-[#4A5568] shrink-0">
-                          {sub.package?.name ||
-                            `Pkg #${sub.packageId ?? sub.package?.id ?? "-"}`}
-                        </span>
+                        {subscriptionMetaLabel(sub) && (
+                          <span className="text-xs text-[#4A5568] shrink-0 tabular-nums">
+                            {subscriptionMetaLabel(sub)}
+                          </span>
+                        )}
                       </button>
                     ))
                   )}
@@ -694,18 +757,19 @@ export default function CreateTripModal({
                   <div className="inline-flex items-center gap-2 rounded-full border border-[#CBD5E0] bg-white px-3 py-1.5 text-xs text-[#1A202C]">
                     <Repeat size={12} />
                     <span
-                      className="max-w-[160px] truncate"
-                      title={`Subscription #${selectedSubscription.id}`}
+                      className="max-w-[200px] truncate"
+                      title={subscriptionSelectedLabel(selectedSubscription)}
                     >
-                      Sub #{selectedSubscription.id}
-                      {selectedSubscription.package?.name
-                        ? ` · ${selectedSubscription.package.name}`
-                        : ""}
+                      {subscriptionSelectedLabel(selectedSubscription)}
                     </span>
                     <button
                       type="button"
                       onClick={() => {
                         setSelectedSubscription(null);
+                        setSelectedUser(null);
+                        setUserLockedFromSubscription(false);
+                        setUserSearch("");
+                        setUserOptions([]);
                         setPackageServices([]);
                         setSelectedServiceIds(new Set());
                         setSelectedAdditionalServices(new Map());
@@ -726,74 +790,51 @@ export default function CreateTripModal({
               </div>
             </div>
 
-            {/* User search */}
+            {/* Member (from subscription — single user, read-only) */}
             <div className="space-y-1.5">
               <label className="block text-sm font-semibold text-[#0B1E3F]">
-                Search User <span className="text-red-500">*</span>
+                Member <span className="text-red-500">*</span>
               </label>
-              <div className="rounded-xl border border-[#CBD5E0] bg-[#FAF6EC] p-3 space-y-3">
-                <div className="relative">
-                  <Search
-                    size={14}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A0AEC0]"
-                  />
-                  <input
-                    type="text"
-                    value={userSearch}
-                    onChange={(e) => setUserSearch(e.target.value)}
-                    placeholder="Type name or mobile"
-                    disabled={submitting}
-                    className="w-full rounded-lg border border-[#CBD5E0] bg-white pl-9 pr-3 py-2 text-sm text-[#1A202C] placeholder:text-[#A0AEC0] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 disabled:opacity-60"
-                  />
-                </div>
-                <div
-                  className={`rounded-lg ${loadingUsers || userSearch.trim() ? "border" : ""} border-[#CBD5E0] bg-white max-h-44 overflow-y-auto`}
-                >
-                  {loadingUsers ? (
-                    <div className="flex items-center gap-2 text-xs text-[#4A5568] px-3 py-2.5">
-                      <Loader2 size={14} className="animate-spin" /> Searching
-                      users...
+              <div className="rounded-xl border border-[#CBD5E0] bg-[#FAF6EC] p-3 space-y-3 min-h-[220px] flex flex-col justify-start">
+                {!selectedSubscription ? (
+                  <p className="text-xs text-[#718096] px-1 py-2">
+                    Enter a subscription ID to load the member automatically.
+                  </p>
+                ) : userLockedFromSubscription && selectedUser ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-xs text-[#718096]">
+                      <UserRound size={14} className="text-[#C9A24B] shrink-0" />
+                      <span>Linked to subscription (view only)</span>
                     </div>
-                  ) : !userSearch.trim() ? null : userOptions.length === 0 ? (
-                    <p className="text-xs text-[#4A5568] px-3 py-2.5">
-                      No users found.
-                    </p>
-                  ) : (
-                    userOptions.map((user) => (
-                      <button
-                        key={user.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedUser(user);
-                          setUserSearch("");
-                          setUserOptions([]);
-                        }}
-                        disabled={submitting}
-                        className="w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left text-sm text-[#1A202C] hover:bg-[#FAF6EC] transition-colors disabled:opacity-60"
-                      >
-                        <span className="truncate">{formatUserDisplay(user)}</span>
-                      </button>
-                    ))
-                  )}
-                </div>
-                {selectedUser && (
-                  <div className="inline-flex items-center gap-2 rounded-full border border-[#CBD5E0] bg-white px-3 py-1.5 text-xs text-[#1A202C]">
-                    <UserRound size={12} />
-                    <span
-                      className="max-w-[160px] truncate"
-                      title={formatUserDisplay(selectedUser)}
-                    >
-                      {formatUserDisplay(selectedUser)}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedUser(null)}
-                      disabled={submitting}
-                      className="text-[#718096] hover:text-red-600 transition-colors"
-                      aria-label="Remove selected user"
-                    >
-                      <X size={12} />
-                    </button>
+                    <div className="space-y-1.5">
+                      <label className="block text-[10px] font-bold text-[#4A5568] uppercase tracking-wider">
+                        Name
+                      </label>
+                      <input
+                        type="text"
+                        readOnly
+                        disabled
+                        value={selectedUser.name?.trim() || "—"}
+                        className="w-full rounded-lg border border-[#CBD5E0] bg-white/80 px-3 py-2 text-sm text-[#4A5568] cursor-not-allowed"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="block text-[10px] font-bold text-[#4A5568] uppercase tracking-wider">
+                        Mobile
+                      </label>
+                      <input
+                        type="tel"
+                        readOnly
+                        disabled
+                        value={selectedUser.mobileNumber?.trim() || "—"}
+                        className="w-full rounded-lg border border-[#CBD5E0] bg-white/80 px-3 py-2 text-sm text-[#4A5568] tabular-nums cursor-not-allowed"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-xs text-[#4A5568] px-1 py-2">
+                    <Loader2 size={14} className="animate-spin text-[#C9A24B]" />
+                    Loading member from subscription…
                   </div>
                 )}
               </div>

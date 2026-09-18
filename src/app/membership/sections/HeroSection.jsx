@@ -58,7 +58,7 @@ export default function HeroSection({ plan, waUrl }) {
             <div>
               <div className="flex items-center gap-3 mb-5 flex-wrap">
                 <span className="text-[10px] font-bold tracking-[0.45em] uppercase text-[#C9A24B]">
-                  WENS Force · Membership {String(plan.id).padStart(2, '0')}
+                  WENS Force · Membership
                 </span>
               </div>
 

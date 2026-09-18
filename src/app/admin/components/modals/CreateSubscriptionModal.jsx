@@ -44,6 +44,29 @@ const INITIAL_FORM = {
   paymentId: "",
 };
 
+function userPrimaryLabel(user) {
+  return (
+    user?.name?.trim() ||
+    user?.email?.trim() ||
+    user?.mobileNumber?.trim() ||
+    "User"
+  );
+}
+
+function userPhoneLabel(user) {
+  const phone = user?.mobileNumber?.trim();
+  if (!phone) return null;
+  if (userPrimaryLabel(user) === phone) return null;
+  return phone;
+}
+
+function userSelectedLabel(user) {
+  const name = user?.name?.trim();
+  const phone = user?.mobileNumber?.trim();
+  if (name && phone) return `${name} · ${phone}`;
+  return userPrimaryLabel(user);
+}
+
 function toLocalDateTimeValue(date) {
   const d = new Date(date);
   if (Number.isNaN(d.getTime())) return "";
@@ -392,15 +415,14 @@ export default function CreateSubscriptionModal({ open, onClose, onCreated }) {
                           disabled={submitting}
                           className="w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left text-sm text-[#1A202C] hover:bg-[#FAF6EC] transition-colors disabled:opacity-60"
                         >
-                          <span className="truncate">
-                            {user.name ||
-                              user.email ||
-                              user.mobileNumber ||
-                              `User #${user.id}`}
+                          <span className="truncate font-medium">
+                            {userPrimaryLabel(user)}
                           </span>
-                          <span className="text-xs text-[#4A5568] shrink-0">
-                            #{user.id}
-                          </span>
+                          {userPhoneLabel(user) && (
+                            <span className="text-xs text-[#4A5568] shrink-0 tabular-nums">
+                              {userPhoneLabel(user)}
+                            </span>
+                          )}
                         </button>
                       ))
                     )}
@@ -410,18 +432,10 @@ export default function CreateSubscriptionModal({ open, onClose, onCreated }) {
                     <div className="inline-flex items-center gap-2 rounded-full border border-[#CBD5E0] bg-white px-3 py-1.5 text-xs text-[#1A202C] self-start mt-2">
                       <UserRound size={12} className="text-[#C9A24B]" />
                       <span
-                        className="max-w-[150px] truncate"
-                        title={
-                          selectedUser.name ||
-                          selectedUser.email ||
-                          selectedUser.mobileNumber ||
-                          `User #${selectedUser.id}`
-                        }
+                        className="max-w-[200px] truncate"
+                        title={userSelectedLabel(selectedUser)}
                       >
-                        {selectedUser.name ||
-                          selectedUser.email ||
-                          selectedUser.mobileNumber ||
-                          `User #${selectedUser.id}`}
+                        {userSelectedLabel(selectedUser)}
                       </span>
                       <button
                         type="button"
@@ -528,7 +542,7 @@ export default function CreateSubscriptionModal({ open, onClose, onCreated }) {
                   type="text"
                   value={packageSearch}
                   onChange={(e) => setPackageSearch(e.target.value)}
-                  placeholder="Type package name"
+                  placeholder="Type package name or ID"
                   disabled={submitting}
                   className="w-full rounded-lg border border-[#CBD5E0] bg-white pl-9 pr-3 py-2 text-sm text-[#1A202C] placeholder:text-[#A0AEC0] outline-none focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/20 disabled:opacity-60"
                 />
@@ -560,12 +574,14 @@ export default function CreateSubscriptionModal({ open, onClose, onCreated }) {
                       disabled={submitting}
                       className="w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left text-sm text-[#1A202C] hover:bg-[#FAF6EC] transition-colors disabled:opacity-60"
                     >
-                      <span className="truncate">
-                        {pkg.name || `Package #${pkg.id}`}
+                      <span className="truncate font-medium">
+                        {pkg.name?.trim() || "Unnamed package"}
                       </span>
-                      <span className="text-xs text-[#4A5568] shrink-0">
-                        #{pkg.id}
-                      </span>
+                      {pkg.category && (
+                        <span className="text-xs text-[#4A5568] shrink-0 capitalize">
+                          {pkg.category.replace(/_/g, " ")}
+                        </span>
+                      )}
                     </button>
                   ))
                 )}
@@ -575,12 +591,10 @@ export default function CreateSubscriptionModal({ open, onClose, onCreated }) {
                 <div className="inline-flex items-center gap-2 rounded-full border border-[#CBD5E0] bg-white px-3 py-1.5 text-xs text-[#1A202C] self-start mt-2">
                   <Package size={12} className="text-[#C9A24B]" />
                   <span
-                    className="max-w-[150px] truncate"
-                    title={
-                      selectedPackage.name || `Package #${selectedPackage.id}`
-                    }
+                    className="max-w-[200px] truncate"
+                    title={selectedPackage.name?.trim() || "Unnamed package"}
                   >
-                    {selectedPackage.name || `Package #${selectedPackage.id}`}
+                    {selectedPackage.name?.trim() || "Unnamed package"}
                   </span>
                   <button
                     type="button"

@@ -56,6 +56,18 @@ export const subscriptionApi = {
       (Array.isArray(data) ? data : []);
     return Array.isArray(rows) ? rows.slice(0, 5) : [];
   },
+
+  /** Create Trip: lookup by subscription id only (exact GET /subscription/:id). */
+  searchSubscriptionById: async (subscriptionId) => {
+    const trimmed = String(subscriptionId || "").trim();
+    if (!trimmed) return [];
+    try {
+      const sub = await subscriptionApi.getSubscriptionById(trimmed);
+      return sub?.id ? [sub] : [];
+    } catch {
+      return [];
+    }
+  },
   /**
    * Fetch a single subscription by ID.
    * @param {number|string} id - Subscription ID

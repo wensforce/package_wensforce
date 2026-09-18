@@ -21,6 +21,24 @@ import TiptapEditor from "./TiptapEditor";
 
 const emptyServiceItem = { id: "", title: "", query: "", count: 1 };
 
+const DISCOUNT_PRICE_ERROR =
+  "Discounted price cannot be higher than regular price. Lower the discounted price or raise the regular price.";
+
+function getApiErrorMessage(err, fallback) {
+  const data = err?.response?.data;
+  if (!data) return fallback;
+  if (typeof data.message === "string" && data.message.trim()) {
+    return data.message;
+  }
+  if (Array.isArray(data.errors) && data.errors.length > 0) {
+    const messages = data.errors
+      .map((e) => e.msg || e.message)
+      .filter(Boolean);
+    if (messages.length > 0) return messages.join(" ");
+  }
+  return fallback;
+}
+
 const initialFormState = {
   name: "",
   description: "",
@@ -313,6 +331,9 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
       return "Regular price must be a positive number.";
     if (!form.discountedPrice || Number(form.discountedPrice) <= 0)
       return "Discounted price must be a positive number.";
+    if (Number(form.discountedPrice) > Number(form.regularPrice)) {
+      return DISCOUNT_PRICE_ERROR;
+    }
 
     if (!form.vehicleType.trim()) return "Vehicle type is required.";
     if (!form.bodyguardType.trim()) return "Bodyguard type is required.";
@@ -415,7 +436,12 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
       }
       onSaved?.();
     } catch (err) {
-      setError(err?.response?.data?.message || "Failed to save package.");
+      setError(
+        getApiErrorMessage(
+          err,
+          isEditMode ? "Failed to update package." : "Failed to create package.",
+        ),
+      );
     } finally {
       setSaving(false);
     }
@@ -423,6 +449,13 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
 
   const totalPhotos = existingPhotos.length + photos.length;
   const totalVideos = existingVideos.length + videos.length;
+
+  const discountedExceedsRegular =
+    form.regularPrice !== "" &&
+    form.discountedPrice !== "" &&
+    Number(form.regularPrice) > 0 &&
+    Number(form.discountedPrice) > 0 &&
+    Number(form.discountedPrice) > Number(form.regularPrice);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -507,10 +540,19 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                     onChange={handleFieldChange}
                     disabled={saving}
                     placeholder="₹ 1499"
-                    className={`${inputCls} appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
+                    className={`${inputCls} appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none ${
+                      discountedExceedsRegular
+                        ? "border-red-400 focus:border-red-500 focus:ring-red-500/10"
+                        : ""
+                    }`}
                   />
                 </div>
               </div>
+              {discountedExceedsRegular && (
+                <p className="text-sm text-red-600" role="alert">
+                  {DISCOUNT_PRICE_ERROR}
+                </p>
+              )}
 
               {/* GST configuration */}
               <div className="border-t border-[#CBD5E0]/50 pt-4 space-y-4">

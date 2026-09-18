@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Crown, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
 export default function Header() {
   const [mounted, setMounted] = useState(false);
@@ -11,9 +11,27 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const isWelcomeIndia = pathname === "/welcome_india" || searchParams.get("welcome_india") === "true";
+  const isWelcomeIndia =
+    pathname === "/welcome_india" ||
+    searchParams.get("welcome_india") === "true";
+  const isMembershipCategoryPage =
+    pathname === "/" || pathname?.startsWith("/membership");
+  const isWelcomeIndiaCategoryPage =
+    pathname === "/welcome_india" || pathname?.startsWith("/welcome_india/");
 
   const { isLoggedIn, user } = useAuth();
+
+  const navLinkClass = scrolled
+    ? "text-gray-600 hover:text-gray-900"
+    : "text-white/70 hover:text-white";
+
+  const mobileOutlineBtnClass = scrolled
+    ? "border border-gray-300 text-gray-700 hover:bg-gray-100"
+    : "border border-white/30 text-white hover:bg-white/10";
+
+  const mobilePlansBtnClass = scrolled
+    ? "bg-[#BF9F00] text-black hover:bg-[#a88a00]"
+    : "bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm";
 
   useEffect(() => {
     setMounted(true);
@@ -65,17 +83,21 @@ export default function Header() {
               Plans
             </a>
             
-            {pathname === "/welcome_india" && (
-              <a
-                href="#plans"
-                className={`text-sm font-medium transition-colors ${
-                  scrolled
-                    ? "text-gray-600 hover:text-gray-900"
-                    : "text-white/70 hover:text-white"
-                }`}
+            {isMembershipCategoryPage && (
+              <Link
+                href="/welcome_india"
+                className={`text-sm font-medium transition-colors ${navLinkClass}`}
               >
                 Welcome India
-              </a>
+              </Link>
+            )}
+            {isWelcomeIndiaCategoryPage && (
+              <Link
+                href="/"
+                className={`text-sm font-medium transition-colors ${navLinkClass}`}
+              >
+                Membership
+              </Link>
             )}
             {!isWelcomeIndia && (
               <a
@@ -168,23 +190,43 @@ export default function Header() {
             </a>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? (
-              <X
-                size={20}
-                className={scrolled ? "text-gray-900" : "text-white"}
-              />
-            ) : (
-              <Menu
-                size={20}
-                className={scrolled ? "text-gray-900" : "text-white"}
-              />
-            )}
-          </button>
+          {/* Mobile: always-visible Login or View Plans + menu */}
+          <div className="flex items-center gap-2 md:hidden shrink-0">
+            {mounted &&
+              (isLoggedIn ? (
+                <a
+                  href="#plans"
+                  className={`inline-flex items-center font-semibold py-2 px-3.5 rounded-full text-xs whitespace-nowrap transition-all ${mobilePlansBtnClass}`}
+                >
+                  View Plans
+                </a>
+              ) : (
+                <Link
+                  href="/login"
+                  className={`inline-flex items-center font-semibold py-2 px-3.5 rounded-full text-xs whitespace-nowrap transition-all ${mobileOutlineBtnClass}`}
+                >
+                  Login
+                </Link>
+              ))}
+            <button
+              type="button"
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+              className="p-1.5 -mr-1"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? (
+                <X
+                  size={20}
+                  className={scrolled ? "text-gray-900" : "text-white"}
+                />
+              ) : (
+                <Menu
+                  size={20}
+                  className={scrolled ? "text-gray-900" : "text-white"}
+                />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
@@ -208,18 +250,23 @@ export default function Header() {
               >
                 Plans
               </a>
-              {pathname === "/welcome_india" && (
-                <a
-                  href="#plans"
-                  className={`block text-sm font-medium transition-colors ${
-                    scrolled
-                      ? "text-gray-600 hover:text-gray-900"
-                      : "text-white/70 hover:text-white"
-                  }`}
+              {isMembershipCategoryPage && (
+                <Link
+                  href="/welcome_india"
+                  className={`block text-sm font-medium transition-colors ${navLinkClass}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Welcome India
-                </a>
+                </Link>
+              )}
+              {isWelcomeIndiaCategoryPage && (
+                <Link
+                  href="/"
+                  className={`block text-sm font-medium transition-colors ${navLinkClass}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Membership
+                </Link>
               )}
               {!isWelcomeIndia && (
                 <a
@@ -280,7 +327,9 @@ export default function Header() {
               </Link>
               {mounted && isLoggedIn && (
                 <Link
-                  href="/dashboard"
+                  href={
+                    user?.role === "admin" ? "/admin/dashboard" : "/dashboard"
+                  }
                   className={`block text-sm font-semibold transition-colors ${
                     scrolled
                       ? "text-gray-700 hover:text-gray-900"
@@ -291,13 +340,6 @@ export default function Header() {
                   Dashboard
                 </Link>
               )}
-              <a
-                href="#plans"
-                className="block w-full bg-[#BF9F00] text-black font-semibold py-2.5 rounded-full text-sm hover:bg-[#a88a00] transition-all text-center mt-4"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                View Plans
-              </a>
             </nav>
           </div>
         )}
