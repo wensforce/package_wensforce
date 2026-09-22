@@ -163,7 +163,7 @@ export default function ScheduleCallModal({ open, onClose }) {
       />
 
       <div
-        className="relative bg-white rounded-3xl p-7 sm:p-9 max-w-md w-full shadow-2xl animate-scale-in max-h-[90vh] overflow-y-auto"
+        className="relative bg-white rounded-3xl max-w-md w-full shadow-2xl animate-scale-in max-h-[90vh] overflow-hidden flex flex-col"
         style={{ boxShadow: "0 24px 64px rgba(11,30,63,0.25)" }}
         role="dialog"
         aria-modal="true"
@@ -171,12 +171,13 @@ export default function ScheduleCallModal({ open, onClose }) {
       >
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 text-gray-300 hover:text-gray-500 text-xl leading-none"
+          className="absolute top-5 right-5 z-10 text-gray-300 hover:text-gray-500 text-xl leading-none"
           aria-label="Close"
         >
           <X size={18} />
         </button>
 
+        <div className="overflow-y-auto flex-1 min-h-0 p-7 sm:p-9">
         {success && submitted ? (
           <div className="text-center pt-2">
             <div
@@ -500,6 +501,7 @@ export default function ScheduleCallModal({ open, onClose }) {
             </form>
           </>
         )}
+        </div>
       </div>
     </div>
   );
