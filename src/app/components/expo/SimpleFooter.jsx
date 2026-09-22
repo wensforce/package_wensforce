@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { MessageCircle } from 'lucide-react';
+import FooterPhoneLink from '@/app/components/MainPage/FooterPhoneLink';
 
 export default function SimpleFooter() {
   const WA_PHONE = '917304607954';
@@ -129,7 +130,11 @@ export default function SimpleFooter() {
             <h3>Contact</h3>
             <ul>
               <li><a href={`https://wa.me/${WA_PHONE}`} target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
-              <li><a href="tel:+917304607954">+91 7304 607954</a></li>
+              <li>
+                <FooterPhoneLink href="tel:+917304607954">
+                  +91 7304 607954
+                </FooterPhoneLink>
+              </li>
               <li><a href="mailto:concierge@wensforce.com">concierge@wensforce.com</a></li>
             </ul>
           </div>

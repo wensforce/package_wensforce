@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -87,7 +87,9 @@ export default function CheckoutForm({
   matchedWelcomeId,
   welcomePlanIds,
 }) {
-  const { trackLead } = useMetaEvents();
+  const { trackInitiateCheckout, trackAddPaymentInfo, trackAddToCart } =
+    useMetaEvents();
+  const addToCartLock = useRef(false);
 
   /* ── Payment region & currency ── */
   const urlCurrency = searchParams.get("currency");
@@ -319,6 +321,28 @@ export default function CheckoutForm({
     setErrors({});
     setPayError("");
     setLoading(true);
+    addToCartLock.current = false;
+
+    const amount = isIndia ? indiaTotalINR : intlTotalForeign;
+    const currency = isIndia ? "INR" : selectedCurrency;
+    const eventUser = {
+      fullName: form.name.trim(),
+      email: form.email.trim(),
+    };
+    const eventBase = {
+      contentName: packageData.name,
+      contentId: packageData.id,
+      value: amount ?? 0,
+      currency,
+      phone: form.phone,
+      userData: eventUser,
+    };
+
+    const fireAddToCart = (extra = {}) => {
+      if (addToCartLock.current) return;
+      addToCartLock.current = true;
+      void trackAddToCart({ ...eventBase, ...extra });
+    };
 
     try {
       const payload = {
@@ -328,18 +352,8 @@ export default function CheckoutForm({
         currency: isIndia ? "INR" : selectedCurrency,
       };
 
-      await trackLead({
-        value: isIndia ? indiaTotalINR : intlTotalForeign,
-        currency: isIndia ? "INR" : selectedCurrency,
-        phone: form.phone,
-        userData: {
-          fullName: form.name,
-          email: form.email,
-          city: form.city,
-          expoSlug: expoId || undefined,
-          expoName: expoName || undefined,
-        },
-      });
+      void trackInitiateCheckout(eventBase);
+      void trackAddPaymentInfo(eventBase);
 
       window.dataLayer = window.dataLayer || [];
       const payClickPayload = {
@@ -365,6 +379,10 @@ export default function CheckoutForm({
 
       const res = await paymentApiUser.createOrder(payload);
       const data = res.data;
+      fireAddToCart({
+        value: data?.amount ?? amount ?? 0,
+        orderId: data?.cashfreeOrderId,
+      });
       if (!data?.paymentSessionId)
         throw new Error(
           data?.error || "Could not initiate payment. Please try again.",
@@ -405,6 +423,7 @@ export default function CheckoutForm({
         redirectTarget: "_self",
       });
     } catch (err) {
+      fireAddToCart();
       setPayError(err.message || "Payment failed. Please try again.");
       setLoading(false);
     }

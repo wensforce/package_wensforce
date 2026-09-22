@@ -16,6 +16,7 @@ import { ComparisonTable } from "../components/Comparison-Table/ComparisonTable"
 import PlansSection from "../components/MainPage/PlansSection";
 import FoundingMemberBanner from "../components/MainPage/Offer";
 import WelcomeIndiaCard from "../components/MainPage/WelcomeIndiaCard";
+import FooterPhoneLink from "../components/MainPage/FooterPhoneLink";
 // export const metadata = {
 //   title:
 //     "WENS Force — India's Only Luxury Travel + Armed Protection + VIP Darshan Subscription",
@@ -275,7 +276,7 @@ export default async function WelcomeIndiaPage({ searchParams }) {
             ))}
           </div>
           <div className="flex items-center justify-center gap-4 text-xs text-gray-700 mb-4">
-            <a
+            <FooterPhoneLink
               href={`https://wa.me/${WA_NUMBER}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -290,7 +291,7 @@ export default async function WelcomeIndiaPage({ searchParams }) {
                 <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.668 4.799 1.836 6.793L2 30l7.393-1.812A13.918 13.918 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2z" />
               </svg>
               +91-73046 07954
-            </a>
+            </FooterPhoneLink>
             <span className="text-gray-800">·</span>
             <a
               href="mailto:concierge@wensforce.com"

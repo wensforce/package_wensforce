@@ -5,8 +5,6 @@ import {
   sendWhatsAppTemplate,
   sendWhatsAppTemplateToBroadcast,
 } from "../../lib/whatsapp";
-import { sendCapiEvent } from "@/app/lib/metaCapi";
-import { generateEventId } from "@/app/lib/metaPixel";
 
 export async function POST(req) {
   const body = await req.text();
@@ -61,37 +59,6 @@ export async function POST(req) {
         : event.data?.error_details?.error_description || "N/A";
 
     if (isPaid) {
-      // Fire Meta CAPI Purchase event
-      try {
-        const nameParts = (customerName || "").trim().split(" ");
-        const firstName = nameParts[0] || "";
-        const lastName = nameParts.slice(1).join(" ") || "";
-        await sendCapiEvent({
-          eventName: "Purchase",
-          eventId: generateEventId("Purchase"),
-          userData: {
-            phone: phone,
-            ip:
-              req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-              req.headers.get("x-real-ip") ||
-              undefined,
-            userAgent: req.headers.get("user-agent") || undefined,
-            fn: firstName,
-            ln: lastName,
-            em: event.data?.customer_details?.customer_email || null,
-          },
-          customData: {
-            value: event.data?.payment?.payment_amount,
-            currency: event.data?.order?.order_currency || "INR",
-            orderId,
-            contentName: plan,
-          },
-          eventSourceUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/booking/${event.data?.order?.order_tags?.plan_id || ""}`,
-        });
-      } catch (err) {
-        console.error("CAPI Purchase webhook error:", err);
-      }
-
       // Send success template
       await Promise.all([
         sendWhatsAppTemplate({

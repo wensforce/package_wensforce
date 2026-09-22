@@ -2,8 +2,9 @@
 import { useState, useRef, useEffect } from "react";
 import { authApiUser } from "@/app/user-apis/auth.api";
 import { useAuth } from "@/app/context/AuthContext";
+import { useMetaEvents } from "@/app/hooks/useMetaEvents";
 import { toast } from "sonner";
-const COUNTRY_CODES = [
+export const COUNTRY_CODES = [
   { code: "+91", flag: "🇮🇳", name: "India" },
   { code: "+1", flag: "🇺🇸", name: "United States" },
   { code: "+1", flag: "🇨🇦", name: "Canada" },
@@ -35,6 +36,7 @@ export const useAuthFlow = ({ onSuccess } = {}) => {
   const otpRefs = useRef([]);
   const countdownIntervalRef = useRef(null);
   const { login } = useAuth();
+  const { trackCompleteRegistration } = useMetaEvents();
   const [newUser, setNewUser] = useState(false);
   useEffect(() => {
     return () => {
@@ -87,6 +89,15 @@ export const useAuthFlow = ({ onSuccess } = {}) => {
       const isNewUser =
         response?.status === 201 || response?.statusCode === 201;
       setNewUser(isNewUser);
+
+      const verifiedUser = response.data?.user;
+      void trackCompleteRegistration({
+        phone: selectedCountry.code + phone,
+        userData: {
+          fullName: verifiedUser?.name,
+          email: verifiedUser?.email,
+        },
+      });
 
       if (isNewUser) {
         onSuccess?.(null, true, response.data?.registrationToken);

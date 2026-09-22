@@ -6,7 +6,6 @@ import Link from "next/link";
 import { ArrowLeft, Shield, Check, XCircle, RefreshCw } from "lucide-react";
 import api from "../axios/axios";
 import { packageApiUser } from "../user-apis/package.api";
-import { useMetaEvents } from "../hooks/useMetaEvents";
 import { extendBookingEventWithExpo } from "../utils/expo/expoTracking";
 import PackageSummaryPanel from "../components/Bookings/Booking-page-components/PackageSummaryPanel";
 import { plans as welcomePlans } from "../data/welcomeIndia";
@@ -64,7 +63,6 @@ const WaIcon = () => (
 function ConfirmationContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order_id") || searchParams.get("token");
-  const { trackPurchase } = useMetaEvents();
   const purchaseTracked = useRef(false);
 
   const [loading, setLoading] = useState(true);
@@ -103,17 +101,6 @@ function ConfirmationContent() {
     const currency = orderData.currency || "INR";
     const packageName = packageData?.name || orderData.packageName || "";
 
-    trackPurchase({
-      value: Number.isFinite(amount) ? amount : 0,
-      orderId: orderId || orderData.cashfreeOrderId,
-      currency,
-      phone: orderData.customerPhone || orderData.phone,
-      userData: {
-        fullName: orderData.customerName || orderData.name,
-        email: orderData.customerEmail || orderData.email,
-      },
-    });
-
     if (typeof window !== "undefined") {
       window.dataLayer = window.dataLayer || [];
       const purchasePayload = {
@@ -137,7 +124,7 @@ function ConfirmationContent() {
           : purchasePayload,
       );
     }
-  }, [loading, status, orderData, packageData, orderId, trackPurchase]);
+  }, [loading, status, orderData, packageData, orderId]);
 
   /* ── Loading ── */
   if (loading) return (

@@ -1,4 +1,7 @@
+"use client";
+
 import Link from 'next/link';
+import FooterPhoneLink from '@/app/components/MainPage/FooterPhoneLink';
 
 export default function Footer() {
   return (
@@ -47,7 +50,14 @@ export default function Footer() {
             Contact
           </p>
           <ul className="space-y-2.5 text-xs text-white/35 font-light">
-            <li>+91-73046 07954</li>
+            <li>
+              <FooterPhoneLink
+                href="tel:+917304607954"
+                className="hover:text-white transition-colors"
+              >
+                +91-73046 07954
+              </FooterPhoneLink>
+            </li>
             <li>concierge@wensforce.com</li>
             <li>Mumbai, India</li>
           </ul>
