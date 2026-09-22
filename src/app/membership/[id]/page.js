@@ -410,7 +410,7 @@ export default async function PlanDetailPage({ params }) {
   const otherPlans = sourcePlans.filter((p) => p.id !== plan.id);
   const services = PLAN_SERVICES[plan.id] || PLAN_SERVICES[PLAN_SERVICES_FALLBACK[plan.id]] || [];
 
-  const waMsg = `Hi WENS Force, I'm interested in the ${plan.name} membership (${INR(plan.price)}/yr). Can you help me get started?`;
+  const waMsg = `Hi WENS Force, I'm interested in the ${plan.name} membership (${INR(plan.price)} ${isWelcomeIndia || isAirportConcierge ? '' : '/yr'}). Can you help me get started?`;
   const waUrl = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(waMsg)}`;
 
   return (
@@ -528,7 +528,7 @@ export default async function PlanDetailPage({ params }) {
               {/* Spec chips */}
               <div className="flex flex-wrap gap-2.5">
                 {[
-                  { Icon: Navigation, text: `${plan.trips} Curated Journeys /yr` },
+                  { Icon: Navigation, text: `${plan.trips} Curated Journeys ${isWelcomeIndia || isAirportConcierge ? '' : '/yr'}` },
                   { Icon: Car, text: plan.vehicleType },
                   {
                     Icon: plan.bodyguard.toLowerCase().includes('mma fighter') ? Shield : ShieldCheck,
@@ -635,7 +635,7 @@ export default async function PlanDetailPage({ params }) {
       <div style={{ backgroundColor: '#0B1E3F' }} className="py-10 px-6 border-b border-white/5">
         <div className="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-8 divide-x divide-white/[0.06]">
           {[
-            { num: plan.trips, suffix: '', label: isWelcomeIndia ? 'Curated Journeys' : 'Curated Journeys / Year' },
+            { num: plan.trips, suffix: '', label: isWelcomeIndia || isAirportConcierge ? 'Curated Journeys' : 'Curated Journeys / Year' },
             ...(!isWelcomeIndia ? [{ num: `₹${(plan.freePerksWorth / 1000).toFixed(0)}K+`, suffix: '', label: 'In Privileges' }] : []),
             { num: `${foundingSpots}/100`, suffix: '', label: 'Founding Spots Left' },
             { num: '24×7', suffix: '', label: 'Concierge Support' },
@@ -852,7 +852,7 @@ export default async function PlanDetailPage({ params }) {
                 <div className="p-5">
                   {[
                     { label: 'Validity', val: plan.validity },
-                    ...(!isWelcomeIndia ? [{ label: 'Curated Journeys', val: `${plan.trips} per year` }] : [{ label: 'Curated Journeys', val: `${plan.trips}` }]),
+                    ...(!isWelcomeIndia && !isAirportConcierge ? [{ label: 'Curated Journeys', val: `${plan.trips} per year` }] : [{ label: 'Curated Journeys', val: `${plan.trips}` }]),
                     { label: 'Privileges Worth', val: `₹${anchorPrice?.toLocaleString('en-IN')}` },
                     { label: 'Vehicle', val: plan.vehicleType },
                     { label: 'Security', val: plan.bodyguard },
@@ -1024,7 +1024,7 @@ export default async function PlanDetailPage({ params }) {
                         <br />
                         <span className='text-xs text-gray-400 font-semibold' >{isWelcomeIndia ? 'All Inclusive' : 'GST 18% Extra'}</span>
                       </div>
-                      <div className={`text-[9px] font-light mb-4 ${t.taglineTxt}`}>per year</div>
+                      <div className={`text-[9px] font-light mb-4 ${t.taglineTxt}`}>{isWelcomeIndia || isAirportConcierge ? '' : 'per year'}</div>
                       <div
                         className={`inline-flex items-center gap-1 text-[9px] font-bold px-2.5 py-1 rounded-full ${t.chipBg}`}
                       >
@@ -1122,7 +1122,7 @@ export default async function PlanDetailPage({ params }) {
             boxShadow: '0 6px 24px rgba(201,162,75,0.45)',
           }}
         >
-          Buy {plan.name} — {INR(plan.price)}/yr →
+          Buy {plan.name} — {INR(plan.price)} {isWelcomeIndia || isAirportConcierge ? '' : '/yr'} →
         </Link>
         <p className="text-center text-white/30 text-[10px] mt-2">
           {100 - foundingSpots} founding spots remaining · No payment now
