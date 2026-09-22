@@ -159,8 +159,8 @@ function ServiceCard({ item, index }) {
             {item.service.title}
           </h3>
 
-          {item.service.description && (
-            /* Expand on click (useful on mobile where hover doesn't exist) */
+          {item.service?.description && (
+            <>
             <div
               className="transition-all duration-300 overflow-hidden"
               style={{
@@ -174,10 +174,8 @@ function ServiceCard({ item, index }) {
                 </p>
               </div>
             </div>
-          )}
 
           {/* Read-more hint — hidden on lg where the card is always full-size */}
-          {item.service.description && (
             <button
               className="mt-3 text-[10px] font-semibold tracking-wide transition-colors lg:hidden"
               style={{ color: '#C9A24B' }}
@@ -185,6 +183,7 @@ function ServiceCard({ item, index }) {
             >
               {expanded ? 'Show less ↑' : 'Read more ↓'}
             </button>
+            </>
           )}
         </div>
       </div>

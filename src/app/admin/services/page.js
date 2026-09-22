@@ -227,7 +227,7 @@ export default function ServicesPage() {
         icon={<Layers size={18} className="text-[#C9A24B]" />}
         title="Services"
         subtitle={`${pagination.total} total service${pagination.total !== 1 ? "s" : ""}`}
-        searchPlaceholder="Search by title…"
+        searchPlaceholder="Search by title, description, or service ID…"
         searchValue={searchInput}
         onSearchChange={setSearchInput}
         columns={COLUMNS}

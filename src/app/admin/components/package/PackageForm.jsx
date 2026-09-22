@@ -19,7 +19,18 @@ import { useFormState } from "../../hooks/useFormState";
 import { useCustomCategory } from "../../hooks/useCustomCategory";
 import TiptapEditor from "./TiptapEditor";
 
-const emptyServiceItem = { id: "", title: "", query: "", count: 1 };
+const emptyServiceItem = {
+  id: "",
+  title: "",
+  description: "",
+  query: "",
+  count: 1,
+  mode: "search",
+  createTitle: "",
+  createDescription: "",
+  createPrice: "",
+  creating: false,
+};
 
 const DISCOUNT_PRICE_ERROR =
   "Discounted price cannot be higher than regular price. Lower the discounted price or raise the regular price.";
@@ -125,6 +136,12 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
               title: ps.service?.title ?? ps.service?.name ?? "",
               query: ps.service?.title ?? ps.service?.name ?? "",
               count: ps.count ?? 1,
+              description: ps.service?.description ?? "",
+              mode: "search",
+              createTitle: "",
+              createDescription: "",
+              createPrice: "",
+              creating: false,
             }))
             : [{ ...emptyServiceItem }],
         vehicleType: initialData.vehicleType ?? "",
@@ -265,7 +282,14 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
   function handleServiceQueryChange(index, value) {
     setForm((prev) => {
       const services = [...prev.services];
-      services[index] = { ...services[index], query: value, id: "", title: "" };
+      services[index] = {
+        ...services[index],
+        query: value,
+        id: "",
+        title: "",
+        description: "",
+        mode: "search",
+      };
       return { ...prev, services };
     });
     clearServiceSuggestions(index);
@@ -307,12 +331,99 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
         ...services[index],
         id: service.id,
         title: service.title ?? service.name ?? "",
+        description:
+          service.description != null ? String(service.description) : "",
         query: service.title ?? service.name ?? "",
+        mode: "search",
       };
       return { ...prev, services };
     });
     clearServiceSuggestions(index);
   }
+  function setServiceRowMode(index, mode) {
+    setForm((prev) => {
+      const services = [...prev.services];
+      services[index] = {
+        ...services[index],
+        mode,
+        ...(mode === "create"
+          ? {
+              id: "",
+              title: "",
+              query: "",
+              createTitle: services[index].query || "",
+            }
+          : {
+              createTitle: "",
+              createDescription: "",
+              createPrice: "",
+            }),
+      };
+      return { ...prev, services };
+    });
+    clearServiceSuggestions(index);
+  }
+
+  async function createServiceForRow(index) {
+    const row = form.services[index];
+    if (!row.createTitle?.trim()) {
+      setError("Service name is required to create a new service.");
+      return;
+    }
+    if (!row.createDescription?.trim()) {
+      setError("Service description is required to create a new service.");
+      return;
+    }
+    setForm((prev) => {
+      const services = [...prev.services];
+      services[index] = { ...services[index], creating: true };
+      return { ...prev, services };
+    });
+    setError(null);
+    try {
+      const created = await servicesApi.createService(
+        {
+          title: row.createTitle.trim(),
+          description: row.createDescription.trim(),
+          isActive: true,
+          price:
+            row.createPrice !== "" && row.createPrice != null
+              ? Number(row.createPrice)
+              : 0,
+        },
+        null,
+      );
+      if (!created?.id) {
+        throw new Error("Service was created but no ID was returned.");
+      }
+      const title = created.title ?? row.createTitle.trim();
+      setForm((prev) => {
+        const services = [...prev.services];
+        services[index] = {
+          ...services[index],
+          mode: "search",
+          id: created.id,
+          title,
+          query: title,
+          description:
+            created.description != null ? String(created.description) : "",
+          createTitle: "",
+          createDescription: "",
+          createPrice: "",
+          creating: false,
+        };
+        return { ...prev, services };
+      });
+    } catch (err) {
+      setError(getApiErrorMessage(err, "Failed to create service."));
+      setForm((prev) => {
+        const services = [...prev.services];
+        services[index] = { ...services[index], creating: false };
+        return { ...prev, services };
+      });
+    }
+  }
+
   function removeServiceRow(index) {
     setForm((prev) => {
       const services = prev.services.filter((_, idx) => idx !== index);
@@ -342,16 +453,26 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
     if (form.validity && Number(form.validity) <= 0)
       return "Validity must be a positive integer when provided.";
     if (!form.category) return "Category is required.";
-    const serviceItems = form.services.filter((item) => item.id !== "");
-    if (serviceItems.length === 0) return "At least one service is required.";
-    for (const item of serviceItems) {
+    const serviceItems = form.services.filter(
+      (item) => item.id !== "" || item.mode === "create",
+    );
+    const linkedItems = form.services.filter((item) => item.id !== "");
+    if (linkedItems.length === 0) {
+      return "At least one service is required. Search for an existing service or create a new one.";
+    }
+    for (const item of linkedItems) {
       if (!item.id || !String(item.id).trim())
         return "Each service ID is required.";
       if (item.count && Number(item.count) <= 0)
         return "Service count must be a positive integer.";
     }
+    for (const item of form.services) {
+      if (item.mode === "create" && !item.id) {
+        return "Finish creating new services (click “Create service”) or switch back to search.";
+      }
+    }
     const seenIds = new Set();
-    for (const item of serviceItems) {
+    for (const item of linkedItems) {
       const idKey = String(item.id);
       if (seenIds.has(idKey))
         return `Duplicate service: "${item.title || idKey}". Please remove it.`;
@@ -616,7 +737,7 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                   Package services <span className="text-red-500">*</span>
                 </h3>
                 <p className="mt-1 text-sm text-[#4A5568]">
-                  Add service items included in this package.
+                  Each row links one service record (name + description). Duplicate names are allowed if descriptions differ—pick the right row from search or create a new service.
                 </p>
               </div>
               <button
@@ -639,84 +760,234 @@ export default function PackageForm({ packageId, initialData, onSaved }) {
                 return (
                   <div
                     key={index}
-                    className="grid gap-4 rounded-xl border border-[#CBD5E0] bg-[#FAF6EC] p-4 sm:grid-cols-[2.4fr_0.9fr_auto] items-start"
+                    className="space-y-4 rounded-xl border border-[#CBD5E0] bg-[#FAF6EC] p-4"
                   >
-                    <div className="relative space-y-1.5">
-                      <label className="block text-sm font-semibold text-[#0B1E3F]">
-                        Service
-                      </label>
-                      <div className="relative">
-                        <div className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-[#A0AEC0]">
-                          <Search size={15} />
-                        </div>
-                        <input
-                          type="text"
-                          value={serviceItem.query}
-                          onChange={(e) =>
-                            handleServiceQueryChange(index, e.target.value)
-                          }
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="inline-flex rounded-full border border-[#CBD5E0] bg-white p-0.5 text-xs font-semibold">
+                        <button
+                          type="button"
                           disabled={saving}
-                          placeholder="Search service…"
-                          className={`${inputCls} pl-10 bg-white`}
-                        />
+                          onClick={() => setServiceRowMode(index, "search")}
+                          className={`rounded-full px-3 py-1.5 transition-colors ${
+                            serviceItem.mode !== "create"
+                              ? "bg-[#0B1E3F] text-white"
+                              : "text-[#4A5568]"
+                          }`}
+                        >
+                          Existing
+                        </button>
+                        <button
+                          type="button"
+                          disabled={saving}
+                          onClick={() => setServiceRowMode(index, "create")}
+                          className={`rounded-full px-3 py-1.5 transition-colors ${
+                            serviceItem.mode === "create"
+                              ? "bg-[#0B1E3F] text-white"
+                              : "text-[#4A5568]"
+                          }`}
+                        >
+                          Create new
+                        </button>
                       </div>
-                      {visibleSuggestions.length > 0 && (
-                        <div className="absolute left-0 right-0 z-20 mt-1 overflow-hidden rounded-xl border border-[#CBD5E0] bg-white shadow-lg">
-                          {visibleSuggestions.map((option) => (
-                            <button
-                              type="button"
-                              key={option.id}
-                              onClick={() =>
-                                selectServiceSuggestion(index, option)
-                              }
-                              className="w-full px-4 py-2.5 text-left text-sm text-[#1A202C] hover:bg-[#FAF6EC] transition-colors"
-                            >
-                              {option.title ??
-                                option.name ??
-                                `Service ${option.id}`}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                      {serviceItem.id && (
-                        <div className="mt-1 rounded-lg bg-[#F0F8FF] px-3 py-2 text-xs text-[#0B1E3F]">
-                          Selected: {serviceItem.title}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="block text-sm font-semibold text-[#0B1E3F]">
-                        Count
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        value={serviceItem.count}
-                        onChange={(e) =>
-                          handleServiceChange(index, "count", e.target.value)
-                        }
-                        disabled={saving}
-                        className={`${inputCls} appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
-                      />
-                    </div>
-
-                    <div className="flex flex-col space-y-1.5">
-                      <span
-                        className="block text-sm select-none invisible"
-                        aria-hidden="true"
-                      >
-                        Remove
-                      </span>
                       <button
                         type="button"
                         onClick={() => removeServiceRow(index)}
                         disabled={saving || form.services.length === 1}
-                        className="inline-flex h-[46px] w-full items-center justify-center gap-1.5 rounded-full bg-red-100 px-4 text-sm font-semibold text-red-700 hover:bg-red-200 transition-colors disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-200 transition-colors disabled:opacity-50"
                       >
-                        <Trash2 size={15} /> Remove
+                        <Trash2 size={14} /> Remove row
                       </button>
                     </div>
+
+                    {serviceItem.mode === "create" && !serviceItem.id ? (
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="space-y-1.5 sm:col-span-2">
+                          <label className="block text-sm font-semibold text-[#0B1E3F]">
+                            Service name <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={serviceItem.createTitle}
+                            onChange={(e) =>
+                              handleServiceChange(
+                                index,
+                                "createTitle",
+                                e.target.value,
+                              )
+                            }
+                            disabled={saving || serviceItem.creating}
+                            placeholder="Same name as another service is OK"
+                            className={`${inputCls} bg-white`}
+                          />
+                        </div>
+                        <div className="space-y-1.5 sm:col-span-2">
+                          <label className="block text-sm font-semibold text-[#0B1E3F]">
+                            Description <span className="text-red-500">*</span>
+                          </label>
+                          <textarea
+                            rows={3}
+                            value={serviceItem.createDescription}
+                            onChange={(e) =>
+                              handleServiceChange(
+                                index,
+                                "createDescription",
+                                e.target.value,
+                              )
+                            }
+                            disabled={saving || serviceItem.creating}
+                            placeholder="What makes this service record unique"
+                            className={`${inputCls} bg-white resize-none`}
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="block text-sm font-semibold text-[#0B1E3F]">
+                            Price (optional)
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={serviceItem.createPrice}
+                            onChange={(e) =>
+                              handleServiceChange(
+                                index,
+                                "createPrice",
+                                e.target.value,
+                              )
+                            }
+                            disabled={saving || serviceItem.creating}
+                            className={`${inputCls} bg-white`}
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="block text-sm font-semibold text-[#0B1E3F]">
+                            Count
+                          </label>
+                          <input
+                            type="number"
+                            min="1"
+                            value={serviceItem.count}
+                            onChange={(e) =>
+                              handleServiceChange(index, "count", e.target.value)
+                            }
+                            disabled={saving || serviceItem.creating}
+                            className={`${inputCls} bg-white appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
+                          />
+                        </div>
+                        <div className="flex items-end sm:col-span-2">
+                          <button
+                            type="button"
+                            onClick={() => createServiceForRow(index)}
+                            disabled={saving || serviceItem.creating}
+                            className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-[#C9A24B] px-6 py-2.5 text-sm font-semibold text-[#0B1E3F] hover:opacity-90 disabled:opacity-50"
+                          >
+                            {serviceItem.creating && (
+                              <Loader2 size={14} className="animate-spin" />
+                            )}
+                            Create service &amp; attach
+                          </button>
+                        </div>
+                      </div>
+                    ) : serviceItem.mode !== "create" ? (
+                      <div className="relative space-y-1.5">
+                        <label className="block text-sm font-semibold text-[#0B1E3F]">
+                          Search service
+                        </label>
+                        <div className="relative">
+                          <div className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-[#A0AEC0]">
+                            <Search size={15} />
+                          </div>
+                          <input
+                            type="text"
+                            value={serviceItem.query}
+                            onChange={(e) =>
+                              handleServiceQueryChange(index, e.target.value)
+                            }
+                            disabled={saving}
+                            placeholder="Search by title or service ID…"
+                            className={`${inputCls} pl-10 bg-white`}
+                          />
+                        </div>
+                        {visibleSuggestions.length > 0 && (
+                          <div className="absolute left-0 right-0 z-20 mt-1 overflow-hidden rounded-xl border border-[#CBD5E0] bg-white shadow-lg">
+                            {visibleSuggestions.map((option) => (
+                              <button
+                                type="button"
+                                key={option.id}
+                                onClick={() =>
+                                  selectServiceSuggestion(index, option)
+                                }
+                                className="w-full px-4 py-2.5 text-left hover:bg-[#FAF6EC] transition-colors"
+                              >
+                                <p className="text-sm font-medium text-[#1A202C]">
+                                  {option.title ??
+                                    option.name ??
+                                    `Service ${option.id}`}
+                                </p>
+                                {option.description && (
+                                  <p className="mt-0.5 text-xs text-[#718096] line-clamp-2">
+                                    {option.description}
+                                  </p>
+                                )}
+                                <p className="mt-0.5 text-[10px] text-[#A0AEC0]">
+                                  ID: {option.id}
+                                </p>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        {serviceItem.id && (
+                          <div className="mt-1 rounded-lg bg-[#F0F8FF] px-3 py-2 text-xs text-[#0B1E3F]">
+                            Linked service ID:{" "}
+                            <span className="font-mono text-[#718096]">
+                              {serviceItem.id}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    ) : null}
+
+                    {serviceItem.id ? (
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="space-y-1.5 sm:col-span-2">
+                          <label className="block text-sm font-semibold text-[#0B1E3F]">
+                            Service name
+                          </label>
+                          <input
+                            type="text"
+                            readOnly
+                            value={serviceItem.title}
+                            className={`${inputCls} bg-white text-[#0B1E3F] font-medium`}
+                          />
+                        </div>
+                        <div className="space-y-1.5 sm:col-span-2">
+                          <label className="block text-sm font-semibold text-[#0B1E3F]">
+                            Description
+                          </label>
+                          <textarea
+                            readOnly
+                            rows={3}
+                            value={serviceItem.description}
+                            placeholder="No description"
+                            className={`${inputCls} bg-[#FAF6EC] resize-none text-[#4A5568]`}
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="block text-sm font-semibold text-[#0B1E3F]">
+                            Count
+                          </label>
+                          <input
+                            type="number"
+                            min="1"
+                            value={serviceItem.count}
+                            onChange={(e) =>
+                              handleServiceChange(index, "count", e.target.value)
+                            }
+                            disabled={saving}
+                            className={`${inputCls} bg-white appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
+                          />
+                        </div>
+                      </div>
+                    ) : null}
                   </div>
                 );
               })}

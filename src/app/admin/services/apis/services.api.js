@@ -35,7 +35,7 @@ export const servicesApi = {
 
   /**
    * Search services by query string.
-   * @param {string} query - Search term (service name)
+   * @param {string} query - Search term (title, description, or service ID)
    * @returns {Promise<Array>} - Up to 5 matching service rows
    */
   searchServices: async (query) => {
@@ -93,7 +93,8 @@ export const servicesApi = {
     };
 
     try {
-      await api.post("/service/create", payload);
+      const res = await api.post("/service/create", payload);
+      return res.data?.data ?? null;
     } catch (err) {
       if (uploadedKey) await rollbackS3Upload(uploadedKey);
       throw err;
