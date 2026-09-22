@@ -6,7 +6,7 @@ import { Crown, Gem, Tag, AlertTriangle, CheckCircle, Star } from 'lucide-react'
 import { useSearchParams } from 'next/navigation';
 
 const WA_NUMBER = '917304607954';
-const DEADLINE = '2026-06-30T23:59:59+05:30';
+const DEADLINE = '2026-09-30T23:59:59+05:30';
 
 const TIER_PRICES = {
   essential: '₹24,999* + GST 18% Extra',
@@ -76,11 +76,64 @@ function CountdownBlock() {
   );
 }
 
+function MembershipUrgency() {
+  return (
+    <section id="founding" className="py-16 sm:py-20 px-6" style={{ backgroundColor: '#FAF6EC' }}>
+      <div className="max-w-xl mx-auto text-center">
+        <p className="text-[#C9A24B] text-[10px] tracking-[0.35em] uppercase font-semibold mb-3">
+          Limited membership
+        </p>
+        <h2 className="font-serif-display text-3xl sm:text-4xl font-bold text-[#060D1F] mb-3 leading-tight">
+          A few places are still open.
+        </h2>
+        <p className="text-[#060D1F]/55 text-sm font-light leading-relaxed mb-8">
+          Each tier has a fixed number of members for the year. Reserve yours and a concierge will set everything up.
+        </p>
+        <Link
+          href="/#plans"
+          className="inline-flex items-center justify-center font-semibold py-3.5 px-8 rounded-full text-sm transition-opacity hover:opacity-90"
+          style={{ backgroundColor: '#060D1F', color: '#FAF6EC' }}
+        >
+          View memberships
+        </Link>
+        <p className="text-[#060D1F]/35 text-xs mt-6">
+          <a
+            href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Hi WENS Force, I want to reserve a membership. Please guide me.')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2 hover:text-[#060D1F]/60"
+          >
+            Or message the concierge
+          </a>
+        </p>
+      </div>
+    </section>
+  );
+}
+
 export default function FoundingMemberBanner() {
   const tierList = ['essential', 'executive', 'premium', 'elite', 'sovereign'];
   const searchParams = useSearchParams();
   const isWelcomeIndia = searchParams.get('welcomeIndia') === 'true';
-  
+  const [expired, setExpired] = useState(() => Date.now() > new Date(DEADLINE).getTime());
+
+  useEffect(() => {
+    const target = new Date(DEADLINE).getTime();
+    if (Date.now() > target) {
+      setExpired(true);
+      return;
+    }
+    const id = setInterval(() => {
+      if (Date.now() > target) {
+        setExpired(true);
+        clearInterval(id);
+      }
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  if (expired) return <MembershipUrgency />;
+
   return (
     <section
       id="founding"
@@ -108,7 +161,7 @@ export default function FoundingMemberBanner() {
             style={{ backgroundColor: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.35)', color: '#f87171' }}
           >
             <AlertTriangle size={12} strokeWidth={2.5} />
-            Access Closes June 30, 2026 — 11:59 PM IST
+            Access Closes September 30, 2026 — 11:59 PM IST
           </div>
         </div>
 
@@ -129,7 +182,7 @@ export default function FoundingMemberBanner() {
         </h2>
 
         <p className="text-center text-white/40 text-sm font-light mb-10 max-w-lg mx-auto leading-relaxed">
-          After June 30, all new members pay the updated price for the next cycle.
+          After September 30, all new members pay the updated price for the next cycle.
           Join now and pay today&apos;s rate for your first membership year.
         </p>
 
@@ -147,7 +200,7 @@ export default function FoundingMemberBanner() {
         {/* Tier pricing pills */}
         <div className="mb-10">
           <p className="text-center text-white/30 text-[10px] uppercase tracking-[0.3em] font-medium mb-5">
-            Current founding rates — valid till June 30
+            Current founding rates — valid till September 30
           </p>
           <div className="grid grid-cols-5 gap-2 sm:gap-3">
             {tierList.map((id) => (
@@ -196,7 +249,7 @@ export default function FoundingMemberBanner() {
         >
           <AlertTriangle size={15} className="text-red-400 shrink-0 mt-0.5" strokeWidth={2} />
           <p className="text-red-300/70 text-xs font-light leading-relaxed">
-            <strong className="text-red-300 font-semibold">After June 30, 2026:</strong> New memberships will be onboarded at the updated pricing for the next financial year cycle. This window will not be extended.
+            <strong className="text-red-300 font-semibold">After September 30, 2026:</strong> New memberships will be onboarded at the updated pricing for the next financial year cycle. This window will not be extended.
           </p>
         </div>
 
@@ -211,7 +264,7 @@ export default function FoundingMemberBanner() {
             Claim Founding Rate — Premium
           </Link>
           <a
-            href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Hi WENS Force, I want to claim Founding Member pricing before June 30. Please guide me.')}`}
+            href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Hi WENS Force, I want to claim Founding Member pricing before September 30. Please guide me.')}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 font-medium py-4 px-8 rounded-full text-sm transition-all w-full sm:w-auto"
@@ -224,7 +277,7 @@ export default function FoundingMemberBanner() {
         </div>
 
         <p className="text-center text-white/15 text-xs mt-6">
-          wensforce.com &nbsp;·&nbsp; +91-73046 07954 &nbsp;·&nbsp; Founding access closes 30 June 2026
+          wensforce.com &nbsp;·&nbsp; +91-73046 07954 &nbsp;·&nbsp; Founding access closes 30 September 2026
         </p>
 
       </div>

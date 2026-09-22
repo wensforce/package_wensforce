@@ -10,10 +10,11 @@ import {
 } from 'lucide-react';
 import { plans as mainPlans } from '../../data/plans';
 import { plans as welcomePlans } from '../../data/welcomeIndia';
+import { plans as airportPlans } from '../../data/airportConcierge';
 import { useMetaEvents } from '@/app/hooks/useMetaEvents';
 import MetaViewTracker from '@/app/components/MetaViewTracker';
 
-const allPlans = [...mainPlans, ...welcomePlans];
+const allPlans = [...mainPlans, ...welcomePlans, ...airportPlans];
 const getPlanById = (id) => allPlans.find((p) => p.id === id);
 
 const INR = (n) => '₹' + Number(n).toLocaleString('en-IN');
@@ -392,8 +393,17 @@ export default async function PlanDetailPage({ params }) {
   const theme = TIER_THEMES[plan.id] || TIER_THEMES[TIER_THEME_FALLBACK[plan.id]] || TIER_THEMES.essential;
   const TierIcon = TIER_ICONS[plan.id] || Car;
   const isWelcomeIndia = welcomePlans.some((p) => p.id === plan.id);
-  const sourcePlans = isWelcomeIndia ? welcomePlans : mainPlans;
-  const backHref = isWelcomeIndia ? '/?welcomeIndia=true' : '/';
+  const isAirportConcierge = airportPlans.some((p) => p.id === plan.id);
+  const sourcePlans = isAirportConcierge
+    ? airportPlans
+    : isWelcomeIndia
+      ? welcomePlans
+      : mainPlans;
+  const backHref = isAirportConcierge
+    ? '/airport-concierge-bom'
+    : isWelcomeIndia
+      ? '/?welcomeIndia=true'
+      : '/';
   const anchorPrice = plan.anchorPrice;
   const foundingSpots = plan.confirmed;
   const notIncluded = NOT_INCLUDED[plan.id] || [];

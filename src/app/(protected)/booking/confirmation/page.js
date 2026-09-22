@@ -14,10 +14,11 @@ import {
 } from "lucide-react";
 import { plans as membershipPlans } from "@/app/data/plans";
 import { plans as welcomeIndiaPlans } from "@/app/data/welcomeIndia";
+import { plans as airportPlans } from "@/app/data/airportConcierge";
 
 const WA_NUMBER = "917304607954";
 
-const allPlans = [...membershipPlans, ...welcomeIndiaPlans];
+const allPlans = [...membershipPlans, ...welcomeIndiaPlans, ...airportPlans];
 const getPlanImage = (id) => allPlans.find((p) => p.id === id)?.image || membershipPlans.find((p) => p.id === "elite")?.image;
 
 // ── Loading Screen ────────────────────────────────────────────────────────────

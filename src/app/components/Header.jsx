@@ -112,12 +112,30 @@ export default function Header() {
             <Link
               href="/expo"
               className={`text-sm font-medium transition-colors ${
-                scrolled
-                  ? 'text-gray-600 hover:text-gray-900'
-                  : 'text-white/70 hover:text-white'
+                  pathname === '/expo' || pathname.startsWith('/expo/')
+                  ? scrolled
+                    ? 'text-[#BF9F00]'
+                    : 'text-[#C9A24B]'
+                  : scrolled
+                    ? 'text-gray-600 hover:text-gray-900'
+                    : 'text-white/70 hover:text-white'
               }`}
             >
               Expo
+            </Link>
+            <Link
+              href="/airport-concierge-bom"
+              className={`text-sm font-medium transition-colors ${
+                pathname === '/airport-concierge-bom'
+                  ? scrolled
+                    ? 'text-[#BF9F00]'
+                    : 'text-[#C9A24B]'
+                  : scrolled
+                    ? 'text-gray-600 hover:text-gray-900'
+                    : 'text-white/70 hover:text-white'
+              }`}
+            >
+              Airport Concierge
             </Link>
           </nav>
 
@@ -228,11 +246,32 @@ export default function Header() {
               <Link
                 href="/expo"
                 className={`block text-sm font-medium transition-colors ${
-                  scrolled ? 'text-gray-600 hover:text-gray-900' : 'text-white/70 hover:text-white'
+                  pathname === '/expo' || pathname.startsWith('/expo/')
+                    ? scrolled
+                      ? 'text-[#BF9F00]'
+                      : 'text-[#C9A24B]'
+                    : scrolled
+                      ? 'text-gray-600 hover:text-gray-900'
+                      : 'text-white/70 hover:text-white'
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Expo
+              </Link>
+              <Link
+                href="/airport-concierge-bom"
+                className={`block text-sm font-medium transition-colors ${
+                  pathname === '/airport-concierge-bom'
+                    ? scrolled
+                      ? 'text-[#BF9F00]'
+                      : 'text-[#C9A24B]'
+                    : scrolled
+                      ? 'text-gray-600 hover:text-gray-900'
+                      : 'text-white/70 hover:text-white'
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Airport Concierge
               </Link>
               {isLoggedIn && (
                 <Link

@@ -7,11 +7,12 @@ import { load } from "@cashfreepayments/cashfree-js";
 import { Check, Shield, ArrowLeft, Gem, Crown } from "lucide-react";
 import { plans as mainPlans } from "../data/plans";
 import { plans as welcomePlans } from "../data/welcomeIndia";
+import { plans as airportPlans } from "../data/airportConcierge";
 import { useMetaEvents } from "../hooks/useMetaEvents";
 import api from "../axios/axios";
 import { useAuth } from "../context/AuthContext";
 
-const plans = [...mainPlans, ...welcomePlans];
+const plans = [...mainPlans, ...welcomePlans, ...airportPlans];
 const welcomePlanIds = new Set(welcomePlans.map((p) => p.id));
 
 // Fixed USD prices for Welcome India plans (not exchange-rate based)

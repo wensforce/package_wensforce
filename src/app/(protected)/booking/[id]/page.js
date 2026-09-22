@@ -2,9 +2,10 @@ import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { plans as mainPlans, getPlanById as getMainPlanById } from '@/app/data/plans';
 import { plans as welcomePlans } from '@/app/data/welcomeIndia';
+import { plans as airportPlans } from '@/app/data/airportConcierge';
 import BookingPageContent from '@/app/components/BookingPageContent';
 
-const allPlans = [...mainPlans, ...welcomePlans];
+const allPlans = [...mainPlans, ...welcomePlans, ...airportPlans];
 const getPlanById = (id) => allPlans.find((p) => p.id === id);
 
 const INR = (n) => '₹' + Number(n).toLocaleString('en-IN');
