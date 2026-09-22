@@ -569,8 +569,9 @@ export default async function PlanDetailPage({ params }) {
                   {INR(plan.price)}*
                 </div>
                 <div className="text-white/50 text-[11px] font-semibold mb-1">{isWelcomeIndia ? 'All Inclusive' : 'GST 18% Extra'}</div>
-                <div className="text-white/35 text-xs font-light mb-5">per year, all-inclusive</div>
-
+                  {
+                   !isWelcomeIndia && !isAirportConcierge ? <div className="text-white/35 text-xs font-light mb-5">per year</div> : null
+                  }
                 <div className="space-y-2.5 mb-5 border-t pt-4" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
                   <div className="flex items-center gap-2 text-xs text-white/50">
                     <Gem size={11} strokeWidth={2} style={{ color: '#C9A24B' }} />
