@@ -26,5 +26,22 @@ export default function sitemap() {
     priority: 0.8,
   }));
 
-  return [...staticRoutes, ...membershipRoutes, ...bookingRoutes];
+  const expoRoutes=[
+    {
+      url: `${BASE_URL}/expo`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.7,
+    }
+  ]
+  const welcomeIndiaRoutes=[
+    {
+      url: `${BASE_URL}/welcome_india`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.7,
+    }
+  ]
+
+  return [...staticRoutes, ...membershipRoutes, ...bookingRoutes, ...expoRoutes, ...welcomeIndiaRoutes];
 }
