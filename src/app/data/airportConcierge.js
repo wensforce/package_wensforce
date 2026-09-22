@@ -632,9 +632,23 @@ const COMMON_TERMS = [
   "Above that limit, pro rata charges apply, or the 8/80 package applies based on distance. That amount should be paid before the assignment is closed.",
 ];
 
+const ENTRY_PLAN_IDS = new Set(["fearless-arrival", "luxury-arrival"]);
+const ENTRY_EXCLUDED_PRIVILEGES = new Set([
+  "Dedicated Concierge Manager",
+  "Buggy & Porter Service",
+  "Professional Team",
+  "Save Your Walk",
+]);
+
 export const plans = airportPlans.map((plan) => ({
   ...plan,
-  privileges: [...plan.privileges, ...COMMON_PRIVILEGES],
+  privileges: [
+    ...plan.privileges,
+    ...COMMON_PRIVILEGES.filter(
+      (priv) =>
+        !(ENTRY_PLAN_IDS.has(plan.id) && ENTRY_EXCLUDED_PRIVILEGES.has(priv.title)),
+    ),
+  ],
   termsAndConditions: [...plan.termsAndConditions, ...COMMON_TERMS],
 }));
 

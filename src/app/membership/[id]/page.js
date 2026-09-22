@@ -593,7 +593,7 @@ export default async function PlanDetailPage({ params }) {
                 >
                   {plan.id === 'elite' && <Gem size={14} strokeWidth={2.5} />}
                   {plan.id === 'sovereign' && <Crown size={14} strokeWidth={2.5} />}
-                  {isWelcomeIndia ? 'Book Now →' : `Buy ${plan.name} Membership →`}
+                  {isWelcomeIndia || isAirportConcierge ? 'Book Now →' : `Buy ${plan.name} Membership →`}
                 </Link>
 
                 {/* WhatsApp CTA */}
@@ -890,7 +890,7 @@ export default async function PlanDetailPage({ params }) {
                 >
                   {plan.id === 'elite' && <Gem size={14} strokeWidth={2.5} />}
                   {plan.id === 'sovereign' && <Crown size={14} strokeWidth={2.5} />}
-                  {isWelcomeIndia
+                  {isWelcomeIndia || isAirportConcierge
                     ? `Book Now — ${INR(plan.price)}`
                     : plan.id === 'sovereign'
                     ? 'Buy Sovereign Membership'
