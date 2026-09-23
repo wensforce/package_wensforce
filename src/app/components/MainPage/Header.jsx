@@ -34,6 +34,24 @@ export default function Header() {
     : "bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm";
 
   useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1100px)");
+    const onChange = () => {
+      if (mq.matches) setMobileMenuOpen(false);
+    };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1100px)");
+    const onChange = () => {
+      if (mq.matches) setMobileMenuOpen(false);
+    };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
     setMounted(true);
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
@@ -71,7 +89,7 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden min-[1100px]:flex items-center gap-8">
             <a
               href="#plans"
               className={`text-sm font-medium transition-colors ${
@@ -154,7 +172,7 @@ export default function Header() {
           </nav>
 
           {/* Desktop CTA */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden min-[1100px]:flex items-center gap-3">
             {mounted && isLoggedIn ? (
               <Link
                 href={user?.role === "admin" ? "/admin/dashboard" : "/dashboard"}
@@ -191,7 +209,7 @@ export default function Header() {
           </div>
 
           {/* Mobile: always-visible Login or View Plans + menu */}
-          <div className="flex items-center gap-2 md:hidden shrink-0">
+          <div className="flex items-center gap-2 min-[1100px]:hidden shrink-0">
             {mounted &&
               (isLoggedIn ? (
                 <a
@@ -232,7 +250,7 @@ export default function Header() {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div
-            className={`md:hidden border-t ${
+            className={`min-[1100px]:hidden border-t ${
               scrolled
                 ? "border-gray-100 bg-white"
                 : "border-white/10 bg-black/50 backdrop-blur"

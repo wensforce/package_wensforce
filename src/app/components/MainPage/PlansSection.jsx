@@ -567,23 +567,27 @@ export default function PlansSection({ category, welcomeIndia }) {
                     </div>
 
                     {/* ── CTA ── */}
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row items-stretch gap-2 sm:gap-3 min-w-0">
                       <Link
                         href={`/booking/${pkg.id}`}
                         onClick={(e) => e.stopPropagation()}
-                        className="pkg-cta flex-[1.3] flex items-center justify-center gap-2 h-11 rounded-xl text-[11px] tracking-[.20em] uppercase no-underline whitespace-nowrap transition-all duration-300 hover:scale-[1.03]"
+                        className="pkg-cta flex-1 min-w-0 flex items-center justify-center gap-1.5 sm:gap-2 h-11 px-3 sm:px-4 rounded-xl text-[clamp(10px,2.6vw,11px)] tracking-[0.08em] sm:tracking-[0.16em] md:tracking-[.20em] uppercase no-underline text-center leading-tight transition-all duration-300 hover:scale-[1.03]"
                         style={{ boxShadow: "0 4px 20px rgba(0,0,0,.22)" }}
                       >
-                        Book Now
-                        <ArrowRight size={11} strokeWidth={2.5} />
+                        <span className="min-w-0">Book Now</span>
+                        <ArrowRight
+                          size={11}
+                          strokeWidth={2.5}
+                          className="shrink-0"
+                        />
                       </Link>
 
                       <Link
                         onClick={(e) => e.stopPropagation()}
                         href={`/membership/${pkg.id}`}
-                        className="group relative overflow-hidden flex items-center justify-center px-7 h-11 rounded-xl bg-white text-black text-[11px] font-bold tracking-[.20em] uppercase shadow-[0_4px_20px_rgba(255,255,255,0.25)] transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_8px_35px_rgba(255,255,255,0.25)]"
+                        className="group relative overflow-hidden flex flex-1 sm:flex-none items-center justify-center px-4 sm:px-7 h-11 min-w-0 rounded-xl bg-white text-black text-[clamp(10px,2.4vw,11px)] font-bold tracking-[0.08em] sm:tracking-[0.16em] md:tracking-[.20em] uppercase shadow-[0_4px_20px_rgba(255,255,255,0.25)] transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_8px_35px_rgba(255,255,255,0.25)]"
                       >
-                        Details
+                        <span className="min-w-0">Details</span>
                       </Link>
                     </div>
                   </div>
