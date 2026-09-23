@@ -14,22 +14,26 @@ let isFetching = false;
 export function usePackages(category) {
   const dispatch = useDispatch();
   const packages = useSelector((state) =>
-    Array.isArray(state.packages.value) ? state.packages.value : []
+    Array.isArray(state.packages.value) ? state.packages.value : [],
   );
+  const loading = useSelector((state) => state.packages.loading ?? false);
   const error = useSelector((state) => state.packages.error ?? false);
-  const loading =
-    useSelector((state) => state.packages.loading ?? false) ||
-    (packages.length === 0 && !error);
 
   useEffect(() => {
     if (packages.length > 0) return;
     if (isFetching) return;
 
     isFetching = true;
+    dispatch(setPackagesLoading(true));
+    dispatch(setPackagesError(false));
+
     const run = async () => {
-      dispatch(setPackagesLoading(true));
       try {
-        const res = await packageApiUser.fetchUserPackages(category);
+        const normalizedCategory =
+          typeof category === "string" && category.trim()
+            ? category.trim().toLowerCase()
+            : "membership";
+        const res = await packageApiUser.fetchUserPackages(normalizedCategory);
         const data = res?.data ?? [];
         dispatch(setPackages(data));
       } catch (err) {
@@ -39,20 +43,22 @@ export function usePackages(category) {
         isFetching = false;
       }
     };
+
     run();
   }, [packages.length, dispatch]);
 
-  // ── derived — single source of truth for both PlansSection + ComparisonTable
-  //Can use api call for bestValueId
   const bestValueId =
     Array.isArray(packages) && packages.length > 0
       ? packages.find((p) => p.featured)?.id ??
-      packages.find((p) => p.id === "premium")?.id ??
-      packages[Math.floor(packages.length / 2)]?.id ??
-      null
+        packages.find((p) => p.id === "premium")?.id ??
+        packages[Math.floor(packages.length / 2)]?.id ??
+        null
       : null;
 
-
-  return { packages, loading, error, bestValueId };
-
+  return {
+    packages,
+    loading,
+    error,
+    bestValueId,
+  };
 }

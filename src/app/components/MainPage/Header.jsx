@@ -43,15 +43,6 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1100px)");
-    const onChange = () => {
-      if (mq.matches) setMobileMenuOpen(false);
-    };
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
-
-  useEffect(() => {
     setMounted(true);
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
@@ -102,20 +93,20 @@ export default function Header() {
             </a>
             
             {isMembershipCategoryPage && (
-              <Link
+              <a
                 href="/welcome_india"
                 className={`text-sm font-medium transition-colors ${navLinkClass}`}
               >
                 Welcome India
-              </Link>
+              </a>
             )}
             {isWelcomeIndiaCategoryPage && (
-              <Link
+              <a
                 href="/"
                 className={`text-sm font-medium transition-colors ${navLinkClass}`}
               >
                 Membership
-              </Link>
+              </a>
             )}
             {!isWelcomeIndia && (
               <a
@@ -269,22 +260,22 @@ export default function Header() {
                 Plans
               </a>
               {isMembershipCategoryPage && (
-                <Link
+                <a
                   href="/welcome_india"
                   className={`block text-sm font-medium transition-colors ${navLinkClass}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Welcome India
-                </Link>
+                </a>
               )}
               {isWelcomeIndiaCategoryPage && (
-                <Link
+                <a
                   href="/"
                   className={`block text-sm font-medium transition-colors ${navLinkClass}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Membership
-                </Link>
+                </a>
               )}
               {!isWelcomeIndia && (
                 <a
