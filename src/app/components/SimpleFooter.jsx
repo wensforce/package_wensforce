@@ -110,6 +110,7 @@ export default function SimpleFooter() {
               <li><Link href="/?welcomeIndia=true">Welcome India</Link></li>
               <li><Link href="/expo">Expo Arrival</Link></li>
               <li><Link href="/terms">Terms & Conditions</Link></li>
+              <li><Link href="/privacy-policy">Privacy Policy</Link></li>
             </ul>
           </div>
 

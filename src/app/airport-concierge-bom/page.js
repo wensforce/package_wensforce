@@ -199,7 +199,7 @@ export default function AirportConciergeBomPage() {
             {[
               {
                 name: "Privacy Policy",
-                href: "https://wensforce.com/privacy-policy/",
+                href: "/privacy-policy",
               },
               {
                 name: "Terms & Conditions",

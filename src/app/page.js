@@ -477,7 +477,7 @@ export default async function HomePage({ searchParams }) {
             {[
               {
                 name: "Privacy Policy",
-                href: "https://wensforce.com/privacy-policy/",
+                href: "/privacy-policy",
               },
               {
                 name: "Terms & Conditions",

@@ -326,7 +326,7 @@ export default function PrivacyPolicyPage() {
             <p className="relative text-[11px] font-semibold tracking-[0.42em] uppercase text-[#C9A24B] mb-4">
               WENS Force
             </p>
-            <h1 className="relative font-serif-display text-[1.7rem] leading-snug sm:text-4xl sm:leading-tight max-w-3xl [overflow-wrap:anywhere]">
+            <h1 className="relative font-serif-display text-[1.7rem] leading-snug sm:text-4xl sm:leading-tight max-w-3xl wrap-anywhere">
               This Privacy Policy applies to the subscription.wensforce.com
             </h1>
             <p className="relative mt-4 text-sm text-white/70">
@@ -352,7 +352,7 @@ export default function PrivacyPolicyPage() {
               </div>
             </nav>
 
-            <article className="min-w-0 bg-white rounded-3xl border border-[#E6DFD0] shadow-[0_12px_40px_rgba(11,30,63,0.05)] px-5 py-8 sm:px-8 sm:py-10 [overflow-wrap:anywhere]">
+            <article className="min-w-0 bg-white rounded-3xl border border-[#E6DFD0] shadow-[0_12px_40px_rgba(11,30,63,0.05)] px-5 py-8 sm:px-8 sm:py-10 wrap-anywhere">
               <div className="flex flex-col gap-4 text-[15px] leading-7 text-[#4A5568] mb-10">
                 <p>
                   subscription.wensforce.com recognizes the importance of
