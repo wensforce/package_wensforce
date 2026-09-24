@@ -1,6 +1,7 @@
 import { Playfair_Display, Inter } from "next/font/google";
 import { Geist_Mono } from "next/font/google";
 import Script from "next/script";
+import { Suspense } from "react";
 import "./globals.css";
 import FloatingWhatsApp from "./components/FloatingWhatsApp";
 import FloatingEnquiry from "./components/FloatingEnquiry";
@@ -167,7 +168,9 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           {children}
           <MetaPixelInit />
-          <FloatingEnquiry />
+          <Suspense fallback={null}>
+            <FloatingEnquiry />
+          </Suspense>
           <FloatingWhatsApp />
           <LiveActivityTicker />
           <Toaster

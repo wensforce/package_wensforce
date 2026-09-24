@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import CountryCodeSelect from "../../components/CountryCodeSelect";
 import DatePicker from "../../components/DatePicker";
@@ -325,7 +325,7 @@ function ChoicePills({ options, value, onChange }) {
 /* ---------------------------------------------------------------------- *
  * Main component
  * ---------------------------------------------------------------------- */
-export default function EnquiryForm({ routeOverride }) {
+function EnquiryForm({ routeOverride }) {
   const params = useParams();
   const searchParams = useSearchParams();
   const routeSlug =
@@ -1110,5 +1110,13 @@ function SuccessPanel({ onReset }) {
         Submit another enquiry
       </button>
     </div>
+  );
+}
+
+export default function EnquiryPage(props) {
+  return (
+    <Suspense fallback={null}>
+      <EnquiryForm {...props} />
+    </Suspense>
   );
 }
