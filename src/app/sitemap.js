@@ -1,6 +1,8 @@
 const BASE_URL = 'https://subscription.wensforce.com';
 
-const PLAN_IDS = ['essential', 'executive', 'premium', 'elite', 'sovereign'];
+const WELCOME_INDIA_PLAN_IDS = ['touch-red-carpet', 'comfortable-arrival', 'maharani-maharaja', 'arrive-in-style', 'arrival-in-grandeur', 'ultimate-convoy-matrix', 'end-to-end-concierge'];
+const AIRPORT_CONCIERGE_PLAN_IDS = ['fearless-arrival', 'luxury-arrival', 'aerobridge-welcome', 'doorstep-essential', 'signature-plane-to-doorstep', 'secure-signature', 'sovereign-arrival', 'ultimate-convoy-package']
+const PLAN_IDS = ['essential', 'executive', 'premium', 'elite', 'sovereign', ...WELCOME_INDIA_PLAN_IDS, ...AIRPORT_CONCIERGE_PLAN_IDS];
 
 export default function sitemap() {
   const staticRoutes = [

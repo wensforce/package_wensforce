@@ -665,12 +665,21 @@ export default function WelcomeIndiaCard() {
 
                   {/* CTA row */}
                   <div className="flex items-center justify-between gap-3 relative">
-                    <Link
+                    {/* TODO: RESUME WHEN BOOKING API IS READY */}
+                    {/* <Link
                       href={`/booking/${id}?currency=${currency}`}
                       className={`wi-${m.ctaClass} flex items-center justify-center gap-2 flex-1 min-h-[44px] py-2 rounded-lg text-[11px] font-extrabold tracking-[.14em] uppercase no-underline text-center`}
                       style={{ boxShadow: "0 4px 22px rgba(0,0,0,.2)" }}
                     >
                       {m.cta}
+                      <ArrowRight size={11} strokeWidth={2.5} />
+                    </Link> */}
+                    <Link
+                      href={`/enquiry/welcome-india/?serviceType=${plan.name.toLowerCase().replace(/ /g, "-")}`}
+                      className={`wi-${m.ctaClass} flex items-center justify-center gap-2 flex-1 min-h-[44px] py-2 rounded-lg text-[11px] font-extrabold tracking-[.14em] uppercase no-underline text-center`}
+                      style={{ boxShadow: "0 4px 22px rgba(0,0,0,.2)" }}
+                    >
+                      Enquire Now
                       <ArrowRight size={11} strokeWidth={2.5} />
                     </Link>
                     <Link

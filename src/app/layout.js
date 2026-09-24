@@ -3,6 +3,7 @@ import { Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import FloatingWhatsApp from "./components/FloatingWhatsApp";
+import FloatingEnquiry from "./components/FloatingEnquiry";
 import LiveActivityTicker from "./components/LiveActivityTicker";
 import JsonLd from "./components/JsonLd";
 // import GTMPageTracker from "./components/GTMPageTracker";
@@ -166,6 +167,7 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           {children}
           <MetaPixelInit />
+          <FloatingEnquiry />
           <FloatingWhatsApp />
           <LiveActivityTicker />
           <Toaster

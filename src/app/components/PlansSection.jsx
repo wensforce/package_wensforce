@@ -480,7 +480,8 @@ export default function PlansSection() {
 
                   {/* CTA row */}
                   <div className="flex items-center justify-between gap-3 relative">
-                    <Link
+                    {/* TODO: RESUME WHEN BOOKING API IS READY */}
+                    {/* <Link
                       href={`/booking/${id}`}
                       className={`${{ essential: "bronze-cta", executive: "silver-cta", premium: "platinum-cta", elite: "gold-cta", sovereign: "diamond-cta" }[id]} flex items-center justify-center gap-2 flex-1 h-11 rounded-lg text-[11px] font-extrabold tracking-[.20em] uppercase no-underline whitespace-nowrap`}
                       style={{
@@ -488,6 +489,16 @@ export default function PlansSection() {
                       }}
                     >
                       {m.cta}
+                      <ArrowRight size={11} strokeWidth={2.5} />
+                    </Link> */}
+                    <Link
+                      href={`/enquiry/membership/?serviceType=${plan.name.toLowerCase().replace(/ /g, "-")}`}
+                      className={`${{ essential: "bronze-cta", executive: "silver-cta", premium: "platinum-cta", elite: "gold-cta", sovereign: "diamond-cta" }[id]} flex items-center justify-center gap-2 flex-1 h-11 rounded-lg text-[11px] font-extrabold tracking-[.20em] uppercase no-underline whitespace-nowrap`}
+                      style={{
+                        boxShadow: id === "sovereign" ? "none" : "0 4px 22px rgba(0,0,0,.2)",
+                      }}
+                    >
+                      Enquire Now
                       <ArrowRight size={11} strokeWidth={2.5} />
                     </Link>
                     <Link

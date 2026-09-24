@@ -269,11 +269,19 @@ export default function AirportConciergePlans({ plans = [] }) {
                   </div>
 
                   <div className="flex items-center justify-between gap-3">
-                    <Link
+                    {/* TODO: RESUME WHEN BOOKING API IS READY */}
+                    {/* <Link
                       href={`/booking/${plan.id}`}
                       className="ac-cta flex items-center justify-center gap-2 flex-1 h-11 rounded-lg text-[11px] font-extrabold tracking-[.20em] uppercase no-underline whitespace-nowrap"
                     >
                       Book Now
+                      <ArrowRight size={11} strokeWidth={2.5} />
+                    </Link> */}
+                    <Link
+                      href={`/enquiry/airport-concierge/?serviceType=${plan.name.toLowerCase().replace(/ /g, "-")}`}
+                      className="ac-cta flex items-center justify-center gap-2 flex-1 h-11 rounded-lg text-[11px] font-extrabold tracking-[.20em] uppercase no-underline whitespace-nowrap"
+                    >
+                      Enquire Now
                       <ArrowRight size={11} strokeWidth={2.5} />
                     </Link>
                     <Link
