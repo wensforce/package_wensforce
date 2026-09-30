@@ -532,8 +532,8 @@ export default function AirportTransferPlans({ plans = [] }) {
           }
         }
         .at-swiper {
-          width: min(92vw, 380px);
-          max-width: 380px;
+          width: min(92vw, 340px);
+          max-width: 340px;
           margin: 0 auto;
           overflow: visible;
         }

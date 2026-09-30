@@ -13,6 +13,7 @@ import { useMetaEvents } from "../hooks/useMetaEvents";
 import api from "../axios/axios";
 import { useAuth } from "../context/AuthContext";
 import LoginModal from "./LoginModal";
+import { useRouter } from "next/navigation";
 
 const plans = [
   ...mainPlans,
@@ -1271,6 +1272,8 @@ export default function BookingPageContent({
   const initMethod =
     urlCurrency && urlCurrency !== "INR" ? "international" : "india";
 
+    const router = useRouter();
+
   const [paymentMethod, setPaymentMethod] = useState(initMethod);
   const [selectedCurrency, setSelectedCurrency] = useState(initCurrency);
   const [currencyRate, setCurrencyRate] = useState(94); // INR per 1 unit of selectedCurrency
@@ -1503,13 +1506,20 @@ export default function BookingPageContent({
         style={{ backgroundColor: "rgba(250,246,236,0.97)" }}
       >
         <div className="max-w-5xl mx-auto px-6 py-3.5 flex items-center justify-between">
-          <Link
-            href={document.referrer || `/membership/${plan.id}`}
+          <button
+            type="button"
+            onClick={() => {
+              if (typeof window !== "undefined" && window.history.length > 1) {
+                router.back();
+              } else {
+                router.push(`/membership/${plan.id}`);
+              }
+            }}
             className="flex items-center gap-2 text-gray-500 hover:text-gray-900 text-sm font-light transition-colors"
           >
             <ArrowLeft size={14} />
             Back
-          </Link>
+          </button>
           <span className="text-[#C9A24B] font-bold text-[10px] tracking-[0.35em] uppercase hidden sm:block">
             WENS Force · Secure Checkout
           </span>
