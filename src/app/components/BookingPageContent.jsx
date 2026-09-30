@@ -8,11 +8,18 @@ import { Check, Shield, ArrowLeft, Gem, Crown } from "lucide-react";
 import { plans as mainPlans } from "../data/plans";
 import { plans as welcomePlans } from "../data/welcomeIndia";
 import { plans as airportPlans } from "../data/airportConcierge";
+import { plans as airportTransferPlans } from "../data/airportTransfer";
 import { useMetaEvents } from "../hooks/useMetaEvents";
 import api from "../axios/axios";
 import { useAuth } from "../context/AuthContext";
+import LoginModal from "./LoginModal";
 
-const plans = [...mainPlans, ...welcomePlans, ...airportPlans];
+const plans = [
+  ...mainPlans,
+  ...welcomePlans,
+  ...airportPlans,
+  ...airportTransferPlans,
+];
 const welcomePlanIds = new Set(welcomePlans.map((p) => p.id));
 
 // Fixed USD prices for Welcome India plans (not exchange-rate based)
@@ -1245,7 +1252,7 @@ export default function BookingPageContent({
   anchorPrice,
   foundingSpots,
 }) {
-  const { user } = useAuth();
+  const { user, isLoggedIn, authLoading } = useAuth();
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -1270,6 +1277,8 @@ export default function BookingPageContent({
   const [currencyRateLoading, setCurrencyRateLoading] = useState(false);
 
   const isFixedUSD = selectedCurrency === "USD" && welcomePlanIds.has(plan.id);
+
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -1407,8 +1416,13 @@ export default function BookingPageContent({
           city: form.city,
           expoSlug: expoSlug || undefined,
         },
-      }); 
+      });
 
+      if (authLoading || !isLoggedIn) {
+        setShowModal(true);
+        setLoading(false);
+        return;
+      }
 
       const res = await fetch("/api/cashfree/create-order", {
         method: "POST",
@@ -1432,7 +1446,7 @@ export default function BookingPageContent({
           data.error || "Could not initiate payment. Please try again.",
         );
       }
-  
+
       await Promise.all([
         api.post("/booking", {
           packageName: plan.name + `${expoSlug ? ` (${expoSlug})` : ""}`,
@@ -1452,7 +1466,7 @@ export default function BookingPageContent({
             })
           : Promise.resolve(),
       ]);
-      
+
       const cashfree = await load({
         mode:
           process.env.NEXT_PUBLIC_CASHFREE_ENV === "production"
@@ -1542,7 +1556,7 @@ export default function BookingPageContent({
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={PLAN_IMAGES[plan.id]}
+              src={PLAN_IMAGES[plan.id] || plan.image}
               alt={plan.name}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               style={{ filter: "brightness(0.6) saturate(0.85)" }}
@@ -2289,6 +2303,7 @@ export default function BookingPageContent({
         </div>
       </div>
       <div className="h-20 lg:hidden" />
+      {showModal && <LoginModal onSuccess={() => setShowModal(false)} onClose={() => setShowModal(false)} phoneNumber={form.phone}/>}
     </div>
   );
 }

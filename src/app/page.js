@@ -420,7 +420,9 @@ export default async function HomePage({ searchParams }) {
       </section>
 
       {/* ── TIER QUIZ ── */}
-      <TierQuiz />
+      <TierQuiz
+        catalog={welcomeIndia === "true" ? "welcome-india" : "membership"}
+      />
 
       {/* ── ALL PLANS GRID ── */}
       {/* <AllPlansGrid plans={plans} /> */}

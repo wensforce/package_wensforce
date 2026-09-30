@@ -3,9 +3,10 @@ import { Suspense } from 'react';
 import { plans as mainPlans, getPlanById as getMainPlanById } from '@/app/data/plans';
 import { plans as welcomePlans } from '@/app/data/welcomeIndia';
 import { plans as airportPlans } from '@/app/data/airportConcierge';
+import { plans as airportTransferPlans } from '@/app/data/airportTransfer';
 import BookingPageContent from '@/app/components/BookingPageContent';
 
-const allPlans = [...mainPlans, ...welcomePlans, ...airportPlans];
+const allPlans = [...mainPlans, ...welcomePlans, ...airportPlans, ...airportTransferPlans];
 const getPlanById = (id) => allPlans.find((p) => p.id === id);
 
 const INR = (n) => '₹' + Number(n).toLocaleString('en-IN');

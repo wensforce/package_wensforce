@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 import { Phone } from "lucide-react";
-import { plans } from "../data/airportConcierge";
+import { plans } from "../data/airportTransfer";
 import Header from "../components/Header";
 import HowItWorks from "../components/HowItWorks";
-import AirportConciergePlans from "../components/AirportConciergePlans";
+import AirportTransferPlans from "../components/AirportTransferPlans";
 import TrustStrip from "../components/TrustStrip";
 import WedgeBlock from "../components/WedgeBlock";
 import TierQuiz from "../components/TierQuiz";
@@ -17,7 +17,7 @@ export const metadata = {
   title: "WENS Force — India's Only Luxury Travel + Armed Protection + Darshan Subscription",
   description:
     "Five tiers. One annual fee. Vehicle, bodyguard, and lifestyle privileges pre-arranged for the year. Darshan at Tirupati, Vaishno Devi, Mahakaleshwar. PSARA-licensed security. From ₹24,999/year.",
-  alternates: { canonical: "https://subscription.wensforce.com/airport-concierge-bom" },
+  alternates: { canonical: "https://subscription.wensforce.com/airport-transfer-bom-mb" },
 };
 
 const WA_NUMBER = "917304607954";
@@ -112,7 +112,7 @@ function FAQSection() {
   );
 }
 
-export default function AirportConciergeBomPage() {
+export default function AirportTransferBomMbPage() {
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -126,7 +126,7 @@ export default function AirportConciergeBomPage() {
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: "WENS Force Airport Concierge Mumbai",
+    name: "WENS Force Airport Transfer Mumbai",
     itemListElement: plans.map((plan, i) => ({
       "@type": "ListItem",
       position: i + 1,
@@ -160,11 +160,9 @@ export default function AirportConciergeBomPage() {
 
       <WedgeBlock />
 
-      <section style={{ backgroundColor: "#FAF6EC" }}>
-        <AirportConciergePlans plans={plans} />
-      </section>
+      <AirportTransferPlans plans={plans} />
 
-      <TierQuiz catalog="airport-concierge" />
+      <TierQuiz catalog="airport-transfer" />
 
       <HowItWorks />
 
