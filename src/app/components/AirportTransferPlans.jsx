@@ -16,9 +16,10 @@ import {
   Check,
 } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { EffectCards } from "swiper/modules";
+import { EffectCards, Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/effect-cards";
+import "swiper/css/navigation";
 
 const WA_NUMBER = "917304607954";
 const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
@@ -153,7 +154,7 @@ function AmenityChip({ privilege, theme }) {
 
   return (
     <div
-      className="flex items-center justify-between gap-2 rounded-lg px-3 py-2.5 min-h-[42px]"
+      className="flex items-center justify-between gap-2 rounded-lg px-3 py-2.5 min-h-10.5"
       style={{
         background: theme.amenityBg,
         border: `1px solid ${theme.amenityBorder}`,
@@ -248,7 +249,7 @@ function TransferPlanCard({ plan, tierIndex = 0 }) {
         </span>
       </div>
 
-      <div className="flex-1 flex flex-col px-4 pb-4 -mt-2 relative z-[1]">
+      <div className="flex-1 flex flex-col px-4 pb-4 -mt-2 relative z-1">
         {/* Category + title */}
         <p
           className="text-[9px] font-bold tracking-[.28em] uppercase mb-1"
@@ -476,7 +477,7 @@ export default function AirportTransferPlans({ plans = [] }) {
   return (
     <section
       id="plans"
-      className="bg-[#EDE8DF] px-5 pt-[88px] pb-[112px] overflow-x-clip"
+      className="bg-[#EDE8DF] pt-22 pb-28 overflow-x-clip"
     >
       <style>{`
         @keyframes atRegularPricePop {
@@ -509,12 +510,13 @@ export default function AirportTransferPlans({ plans = [] }) {
         .at-cta:hover{transform:translateY(-1px);filter:brightness(1.06);}
 
         .at-mobile-wrap {
+          position: relative;
           width: 100%;
           max-width: 100%;
-          overflow: hidden;
+          overflow: visible;
           display: flex;
           justify-content: center;
-          padding: 12px 0 28px;
+          padding: 12px 48px 28px;
           touch-action: pan-y;
         }
         .at-desktop-grid {
@@ -532,10 +534,57 @@ export default function AirportTransferPlans({ plans = [] }) {
           }
         }
         .at-swiper {
-          width: min(92vw, 340px);
+          --swiper-navigation-size: 12px;
+          --swiper-navigation-color: #C9A24B;
+          --swiper-navigation-sides-offset: 0px;
+          width: min(80vw, 340px);
           max-width: 340px;
           margin: 0 auto;
           overflow: visible;
+        }
+        .at-swiper .swiper-button-prev,
+        .at-swiper .swiper-button-next {
+          width: 40px;
+          height: 40px;
+          margin-top: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          border-radius: 9999px;
+          background: #0e1420;
+          border: 1px solid rgba(201, 162, 75, 0.5);
+          box-shadow: 0 6px 18px rgba(11, 30, 63, 0.22);
+          transition:
+            background .2s ease,
+            border-color .2s ease,
+            box-shadow .2s ease,
+            transform .2s cubic-bezier(.22,1,.36,1);
+        }
+        .at-swiper .swiper-button-prev {
+          left: -44px;
+        }
+        .at-swiper .swiper-button-next {
+          right: -44px;
+        }
+        .at-swiper .swiper-button-prev:after,
+        .at-swiper .swiper-button-next:after {
+          font-size: 12px;
+          font-weight: 800;
+        }
+        .at-swiper .swiper-button-prev:hover,
+        .at-swiper .swiper-button-next:hover {
+          background: #141c2c;
+          border-color: rgba(201, 162, 75, 0.8);
+          box-shadow: 0 8px 22px rgba(201, 162, 75, 0.18);
+          transform: translateY(-50%) scale(1.04);
+        }
+        .at-swiper .swiper-button-prev:active,
+        .at-swiper .swiper-button-next:active {
+          transform: translateY(-50%) scale(0.96);
+        }
+        .at-swiper .swiper-button-disabled {
+          opacity: 0.3;
+          pointer-events: none;
+          box-shadow: none;
         }
         .at-swiper .swiper-slide {
           width: 100% !important;
@@ -550,16 +599,16 @@ export default function AirportTransferPlans({ plans = [] }) {
         }
       `}</style>
 
-      <div className="max-w-[1280px] mx-auto overflow-x-clip">
-        <div className="text-center mb-[72px]">
-          <div className="inline-flex items-center gap-4 mb-[18px]">
+      <div className="max-w-7xl mx-auto overflow-x-clip">
+        <div className="text-center mb-18">
+          <div className="inline-flex items-center gap-4 mb-4.5">
             <div className="h-px w-12 bg-linear-to-r from-transparent to-[rgba(184,146,74,.45)]" />
             <span className="text-[9px] font-bold tracking-[.52em] uppercase text-[#a07838]">
               Mumbai Airport
             </span>
             <div className="h-px w-12 bg-linear-to-l from-transparent to-[rgba(184,146,74,.45)]" />
           </div>
-          <h2 className="font-serif text-[clamp(28px,3.6vw,44px)] font-bold text-[#0B1E3F] tracking-[-0.03em] leading-[1.08] mb-[14px]">
+          <h2 className="font-serif text-[clamp(28px,3.6vw,44px)] font-bold text-[#0B1E3F] tracking-[-0.03em] leading-[1.08] mb-3.5">
             Airport Transfer Packages
           </h2>
           <p className="text-[13px] font-light text-[#8a7e6e] leading-[1.75] max-w-85 mx-auto">
@@ -582,7 +631,8 @@ export default function AirportTransferPlans({ plans = [] }) {
             effect="cards"
             grabCursor
             initialSlide={Math.min(1, Math.max(0, plans.length - 1))}
-            modules={[EffectCards]}
+            modules={[EffectCards, Navigation]}
+            navigation
             className="at-swiper"
             cardsEffect={{
               perSlideOffset: 8,
