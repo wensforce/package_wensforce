@@ -547,6 +547,7 @@ export default function AirportTransferPlans({ plans = [] }) {
           width: 40px;
           height: 40px;
           margin-top: 0;
+          padding: 10px;
           top: 50%;
           transform: translateY(-50%);
           border-radius: 9999px;
