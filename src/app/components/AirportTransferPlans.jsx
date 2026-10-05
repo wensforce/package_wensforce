@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import Link from "next/link";
 import {
   ArrowUpRight,
@@ -14,14 +15,14 @@ import {
   Route,
   CalendarCheck,
   Check,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { EffectCards, Navigation } from "swiper/modules";
+import { EffectCards } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/effect-cards";
-import "swiper/css/navigation";
 
-const WA_NUMBER = "917304607954";
 const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
 
 function parsePaxCount(title = "") {
@@ -56,94 +57,79 @@ const FEATURE_ICONS = {
   VALIDITY: CalendarCheck,
 };
 
-/* Visual tiers only — no Basic/Pro/Ultra labels */
+/* Yellow, orange, teal — one palette per card */
 const TIER_THEMES = [
-  // Basic — cool steel
   {
-    bg: "#141820",
-    border: "rgba(148,163,184,.28)",
-    shadow: "0 8px 32px rgba(15,23,42,.28)",
-    hoverShadow: "0 16px 48px rgba(15,23,42,.38)",
-    category: "#94a3b8",
-    title: "#f1f5f9",
-    featureBg: "rgba(255,255,255,.04)",
-    featureBorder: "rgba(255,255,255,.07)",
-    featureLabel: "rgba(148,163,184,.55)",
-    featureValue: "#e2e8f0",
-    amenityBg: "rgba(255,255,255,.04)",
-    amenityBorder: "rgba(255,255,255,.07)",
-    amenityText: "rgba(203,213,225,.78)",
-    amenityIcon: "#94a3b8",
-    detailsLink: "#94a3b8",
-    priceBoxBg: "rgba(255,255,255,.03)",
-    priceBoxBorder: "rgba(148,163,184,.18)",
-    price: "#e2e8f0",
-    accent: "#94a3b8",
-    ctaSolidBg: "#64748b",
-    ctaSolidColor: "#f8fafc",
-    ctaOutlineBorder: "rgba(148,163,184,.45)",
-    ctaOutlineColor: "#94a3b8",
-    topBar: "linear-gradient(90deg, #64748b, #94a3b8)",
-    imgOverlay:
-      "linear-gradient(180deg, transparent 35%, #141820 100%)",
-  },
-  // Pro — brand gold
-  {
-    bg: "#0e1420",
-    border: "rgba(201,162,75,.36)",
-    shadow: "0 8px 32px rgba(11,30,63,.30)",
-    hoverShadow: "0 16px 48px rgba(201,162,75,.20)",
-    category: "#C9A24B",
+    bg: "linear-gradient(180deg, #152418 0%, #0c1410 42%, #080c0a 100%)",
+    border: "rgba(255,214,0,.42)",
+    shadow: "0 0 0 1px rgba(255,214,0,.08), 0 18px 40px rgba(0,0,0,.32)",
+    hoverShadow: "0 0 28px rgba(255,214,0,.16), 0 22px 48px rgba(0,0,0,.4)",
+    category: "#FFE699",
     title: "#ffffff",
-    featureBg: "rgba(255,255,255,.04)",
-    featureBorder: "rgba(255,255,255,.07)",
-    featureLabel: "rgba(200,206,220,.42)",
+    featureBg: "rgba(255,214,0,.06)",
+    featureBorder: "rgba(255,214,0,.14)",
+    featureLabel: "rgba(255,230,153,.55)",
     featureValue: "#ffffff",
     amenityBg: "rgba(255,255,255,.04)",
-    amenityBorder: "rgba(255,255,255,.07)",
-    amenityText: "rgba(220,210,185,.82)",
-    amenityIcon: "#C9A24B",
-    detailsLink: "#C9A24B",
-    priceBoxBg: "rgba(255,255,255,.03)",
-    priceBoxBorder: "rgba(201,162,75,.22)",
-    price: "#f0d878",
-    accent: "#C9A24B",
-    ctaSolidBg: "#C9A24B",
-    ctaSolidColor: "#0c0800",
-    ctaOutlineBorder: "rgba(201,162,75,.55)",
-    ctaOutlineColor: "#C9A24B",
-    topBar: "linear-gradient(90deg, #8a6a28, #C9A24B, #e0c070)",
-    imgOverlay:
-      "linear-gradient(180deg, transparent 35%, #0e1420 100%)",
+    amenityBorder: "rgba(255,214,0,.16)",
+    amenityText: "rgba(255,244,210,.86)",
+    amenityIcon: "#FFD600",
+    detailsLink: "#FFE699",
+    price: "#FFD600",
+    accent: "#FFD600",
+    ctaSolidBg: "#FFD600",
+    ctaSolidColor: "#141200",
+    ctaOutlineBorder: "rgba(255,214,0,.7)",
+    ctaOutlineColor: "#FFD600",
+    imgOverlay: "linear-gradient(180deg, rgba(20,36,24,.15) 0%, #0c1410 100%)",
   },
-  // Ultra — champagne on black
   {
-    bg: "#0a090c",
-    border: "rgba(232,200,160,.40)",
-    shadow: "0 8px 36px rgba(0,0,0,.42)",
-    hoverShadow: "0 18px 52px rgba(232,200,160,.16)",
-    category: "#e8c8a0",
-    title: "#faf6f0",
-    featureBg: "rgba(255,255,255,.04)",
-    featureBorder: "rgba(255,255,255,.07)",
-    featureLabel: "rgba(232,200,160,.48)",
-    featureValue: "#f5e6d0",
+    bg: "linear-gradient(180deg, #1c140c 0%, #10141c 46%, #0a0e16 100%)",
+    border: "rgba(255,149,0,.48)",
+    shadow: "0 0 0 1px rgba(255,149,0,.08), 0 18px 40px rgba(0,0,0,.32)",
+    hoverShadow: "0 0 28px rgba(255,149,0,.18), 0 22px 48px rgba(0,0,0,.4)",
+    category: "#FFB800",
+    title: "#ffffff",
+    featureBg: "rgba(255,149,0,.07)",
+    featureBorder: "rgba(255,149,0,.16)",
+    featureLabel: "rgba(255,184,0,.55)",
+    featureValue: "#ffffff",
     amenityBg: "rgba(255,255,255,.04)",
-    amenityBorder: "rgba(255,255,255,.07)",
-    amenityText: "rgba(240,224,200,.82)",
-    amenityIcon: "#e8c8a0",
-    detailsLink: "#e8c8a0",
-    priceBoxBg: "rgba(255,255,255,.03)",
-    priceBoxBorder: "rgba(232,200,160,.24)",
-    price: "#f5e6d0",
-    accent: "#e8c8a0",
-    ctaSolidBg: "linear-gradient(135deg, #e8c8a0 0%, #C9A24B 100%)",
-    ctaSolidColor: "#0c0800",
-    ctaOutlineBorder: "rgba(232,200,160,.55)",
-    ctaOutlineColor: "#e8c8a0",
-    topBar: "linear-gradient(90deg, #8a6040, #e8c8a0, #f5e6d0)",
-    imgOverlay:
-      "linear-gradient(180deg, transparent 35%, #0a090c 100%)",
+    amenityBorder: "rgba(255,149,0,.18)",
+    amenityText: "rgba(255,228,190,.88)",
+    amenityIcon: "#FF9500",
+    detailsLink: "#FFB800",
+    price: "#FF9500",
+    accent: "#FF9500",
+    ctaSolidBg: "#FF9500",
+    ctaSolidColor: "#1a0e00",
+    ctaOutlineBorder: "rgba(255,149,0,.75)",
+    ctaOutlineColor: "#FF9500",
+    imgOverlay: "linear-gradient(180deg, rgba(28,20,12,.12) 0%, #10141c 100%)",
+  },
+  {
+    bg: "linear-gradient(180deg, #062826 0%, #07141c 48%, #061016 100%)",
+    border: "rgba(0,213,204,.45)",
+    shadow: "0 0 0 1px rgba(0,213,204,.08), 0 18px 40px rgba(0,0,0,.32)",
+    hoverShadow: "0 0 28px rgba(0,213,204,.18), 0 22px 48px rgba(0,0,0,.4)",
+    category: "#7AF6EE",
+    title: "#ffffff",
+    featureBg: "rgba(0,213,204,.07)",
+    featureBorder: "rgba(0,213,204,.16)",
+    featureLabel: "rgba(122,246,238,.55)",
+    featureValue: "#ffffff",
+    amenityBg: "rgba(255,255,255,.04)",
+    amenityBorder: "rgba(0,213,204,.18)",
+    amenityText: "rgba(210,255,250,.88)",
+    amenityIcon: "#00D5CC",
+    detailsLink: "#7AF6EE",
+    price: "#00E5D6",
+    accent: "#00D5CC",
+    ctaSolidBg: "#00D5CC",
+    ctaSolidColor: "#042220",
+    ctaOutlineBorder: "rgba(0,213,204,.75)",
+    ctaOutlineColor: "#00D5CC",
+    imgOverlay: "linear-gradient(180deg, rgba(6,40,38,.12) 0%, #07141c 100%)",
   },
 ];
 
@@ -204,9 +190,6 @@ function TransferPlanCard({ plan, tierIndex = 0 }) {
     { label: "VALIDITY", value: plan.validity },
   ];
   const amenities = (plan.privileges || []).slice(0, 6);
-  const waMsg = encodeURIComponent(
-    `Hi WENS Force, I'm interested in the ${plan.name} airport transfer. Can you help?`,
-  );
 
   return (
     <div
@@ -240,10 +223,10 @@ function TransferPlanCard({ plan, tierIndex = 0 }) {
           alt={plan.name}
           className="at-pc-img absolute inset-0 w-full h-full object-cover"
         />
-        <div
+        {/* <div
           className="absolute inset-0 pointer-events-none"
           style={{ background: t.imgOverlay }}
-        />
+        /> */}
         <span className="absolute top-3.5 left-3.5 text-[11px] font-black tracking-[.18em] tabular-nums text-white/25">
           {plan.packageNo}
         </span>
@@ -347,85 +330,44 @@ function TransferPlanCard({ plan, tierIndex = 0 }) {
 
         {/* Pricing + note + CTAs pinned to bottom */}
         <div className="mt-auto">
-        {/* Pricing */}
-        <div
-          className="rounded-xl px-3 py-3.5 mb-3 "
-          style={{
-            background: t.priceBoxBg,
-            border: `1px solid ${t.priceBoxBorder}`,
-          }}
-        >
-          <div className="flex items-center justify-between gap-2 mb-2.5">
-            <div className="flex flex-col items-start gap-0.5 min-w-0">
-              <span
-                className="text-[7px] font-extrabold tracking-[.18em] uppercase"
-                style={{ color: t.featureLabel }}
-              >
-                Regular
-              </span>
-              <span
-                className="at-regular-price text-[13px] line-through font-bold"
-                style={{ color: t.accent }}
-              >
-                {INR(plan.anchorPrice || plan.price)}*
-              </span>
-            </div>
-
-            <div className="flex items-center gap-1.5 shrink-0">
-              <span className="text-[9px] font-bold tracking-[.12em] uppercase text-white/80 italic text-center leading-tight">
-                Now
-                <br />
-                Available
-              </span>
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 16 16"
-                fill="none"
-                style={{ color: t.accent }}
-              >
-                <path
-                  d="M2 8h10M8 4l4 4-4 4"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-
-            <div className="flex flex-col items-end gap-0.5 min-w-0">
-              <span
-                className="text-[7px] font-black tracking-[.14em] uppercase px-1.5 py-0.5 rounded mb-0.5"
-                style={{
-                  color: t.accent,
-                  background: `${t.accent}22`,
-                  border: `1px solid ${t.accent}55`,
-                }}
-              >
-                Limited
-              </span>
-              <span
-                className="text-[20px] font-black tracking-[-0.02em] leading-none"
-                style={{ color: t.price }}
-              >
-                {INR(plan.price)}*
-              </span>
-              <span
-                className="text-[8px] font-medium"
-                style={{ color: t.featureLabel }}
-              >
-                GST 18% Extra
+        <div className="flex items-end justify-between gap-3 mb-3 pt-1">
+          <div className="min-w-0">
+            <span className="block text-[9px] font-semibold tracking-[.18em] uppercase text-white/40 mb-1">
+              Regular
+            </span>
+            <span className="at-regular-price block text-[13px] line-through font-semibold text-white/45">
+              {INR(plan.anchorPrice || plan.price)}*
+            </span>
+            <div className="flex items-center gap-1.5 mt-2.5 text-[10px] text-white/75">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] shrink-0" />
+              <span className="font-semibold text-[#4ade80]">Selling Fast</span>
+              <span className="opacity-40">·</span>
+              <span className="font-medium text-white/60">
+                {available} Available
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 text-[9px] text-white/70">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] shrink-0" />
-            <span className="font-semibold">Selling Fast</span>
-            <span className="opacity-40">·</span>
-            <span className="font-medium opacity-80">
-              {available} Available
+          <div className="text-right shrink-0">
+            <div className="flex items-center justify-end gap-1.5 mb-1.5">
+              <span className="text-[10px] font-semibold tracking-[.14em] uppercase text-[#9BB0C9]">
+                Now Available
+              </span>
+              <span className="text-[#9BB0C9] text-[13px] leading-none" aria-hidden="true">
+                →
+              </span>
+              <span className="bg-[#E10600] text-white text-[9px] font-bold tracking-[.12em] uppercase px-1.5 py-0.5 rounded-[3px] leading-none">
+                Limited
+              </span>
+            </div>
+            <span
+              className="block text-[30px] font-black tracking-[-0.03em] leading-none"
+              style={{ color: t.price }}
+            >
+              {INR(plan.price)}*
+            </span>
+            <span className="block text-[8px] font-medium text-white/40 mt-1">
+              GST 18% Extra
             </span>
           </div>
         </div>
@@ -439,26 +381,17 @@ function TransferPlanCard({ plan, tierIndex = 0 }) {
           </p>
         )}
 
-        {/* CTAs */}
-        <div className="grid grid-cols-3 gap-1.5">
+        <div className="grid grid-cols-2 gap-2">
           <Link
             href={`/booking/${plan.id}`}
-            className="at-cta flex items-center justify-center h-10 rounded-lg text-[8px] sm:text-[9px] font-extrabold tracking-[.08em] uppercase no-underline text-center px-1"
+            className="at-cta flex items-center justify-center h-11 rounded-lg text-[11px] font-extrabold tracking-[.08em] uppercase no-underline text-center px-2"
             style={{ background: t.ctaSolidBg, color: t.ctaSolidColor }}
           >
             Book Now
           </Link>
-          <a
-            href={`https://wa.me/${WA_NUMBER}?text=${waMsg}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center h-10 rounded-lg text-[8px] sm:text-[9px] font-bold tracking-[.06em] uppercase no-underline text-center px-1 text-white/55 border border-white/10 hover:border-white/25 hover:text-white/80 transition-colors"
-          >
-            Talk to Concierge
-          </a>
           <Link
-            href={`/enquiry/membership/?serviceType=${enquirySlug}`}
-            className="flex items-center justify-center h-10 rounded-lg text-[8px] sm:text-[9px] font-extrabold tracking-[.08em] uppercase no-underline text-center px-1"
+            href={`/enquiry/airport-transfer/?serviceType=${enquirySlug}`}
+            className="flex items-center justify-center h-11 rounded-lg text-[11px] font-extrabold tracking-[.08em] uppercase no-underline text-center px-2 bg-transparent transition-colors hover:bg-white/5"
             style={{
               color: t.ctaOutlineColor,
               border: `1.5px solid ${t.ctaOutlineBorder}`,
@@ -474,6 +407,7 @@ function TransferPlanCard({ plan, tierIndex = 0 }) {
 }
 
 export default function AirportTransferPlans({ plans = [] }) {
+  const swiperRef = useRef(null);
   return (
     <section
       id="plans"
@@ -534,58 +468,10 @@ export default function AirportTransferPlans({ plans = [] }) {
           }
         }
         .at-swiper {
-          --swiper-navigation-size: 12px;
-          --swiper-navigation-color: #C9A24B;
-          --swiper-navigation-sides-offset: 0px;
           width: min(80vw, 340px);
           max-width: 340px;
           margin: 0 auto;
           overflow: visible;
-        }
-        .at-swiper .swiper-button-prev,
-        .at-swiper .swiper-button-next {
-          width: 40px;
-          height: 40px;
-          margin-top: 0;
-          padding: 10px;
-          top: 50%;
-          transform: translateY(-50%);
-          border-radius: 9999px;
-          background: #0e1420;
-          border: 1px solid rgba(201, 162, 75, 0.5);
-          box-shadow: 0 6px 18px rgba(11, 30, 63, 0.22);
-          transition:
-            background .2s ease,
-            border-color .2s ease,
-            box-shadow .2s ease,
-            transform .2s cubic-bezier(.22,1,.36,1);
-        }
-        .at-swiper .swiper-button-prev {
-          left: -44px;
-        }
-        .at-swiper .swiper-button-next {
-          right: -44px;
-        }
-        .at-swiper .swiper-button-prev:after,
-        .at-swiper .swiper-button-next:after {
-          font-size: 12px;
-          font-weight: 800;
-        }
-        .at-swiper .swiper-button-prev:hover,
-        .at-swiper .swiper-button-next:hover {
-          background: #141c2c;
-          border-color: rgba(201, 162, 75, 0.8);
-          box-shadow: 0 8px 22px rgba(201, 162, 75, 0.18);
-          transform: translateY(-50%) scale(1.04);
-        }
-        .at-swiper .swiper-button-prev:active,
-        .at-swiper .swiper-button-next:active {
-          transform: translateY(-50%) scale(0.96);
-        }
-        .at-swiper .swiper-button-disabled {
-          opacity: 0.3;
-          pointer-events: none;
-          box-shadow: none;
         }
         .at-swiper .swiper-slide {
           width: 100% !important;
@@ -628,12 +514,30 @@ export default function AirportTransferPlans({ plans = [] }) {
         </div>
 
         <div className="at-mobile-wrap">
+          <button
+            type="button"
+            aria-label="Previous plan"
+            onClick={() => swiperRef.current?.slidePrev()}
+            className="absolute left-2 top-1/2 z-30 -translate-y-1/2 w-12 h-12 rounded-full bg-[#C9A24B] text-[#0B1E3F] flex items-center justify-center shadow-[0_0_0_6px_rgba(11,30,63,0.55),0_8px_24px_rgba(201,162,75,0.45)] hover:scale-110 hover:bg-[#f0d878] active:scale-95 transition-transform"
+          >
+            <ChevronLeft size={26} strokeWidth={2.5} />
+          </button>
+          <button
+            type="button"
+            aria-label="Next plan"
+            onClick={() => swiperRef.current?.slideNext()}
+            className="absolute right-2 top-1/2 z-30 -translate-y-1/2 w-12 h-12 rounded-full bg-[#C9A24B] text-[#0B1E3F] flex items-center justify-center shadow-[0_0_0_6px_rgba(11,30,63,0.55),0_8px_24px_rgba(201,162,75,0.45)] hover:scale-110 hover:bg-[#f0d878] active:scale-95 transition-transform"
+          >
+            <ChevronRight size={26} strokeWidth={2.5} />
+          </button>
           <Swiper
             effect="cards"
             grabCursor
             initialSlide={Math.min(1, Math.max(0, plans.length - 1))}
-            modules={[EffectCards, Navigation]}
-            navigation
+            modules={[EffectCards]}
+            onSwiper={(swiper) => {
+              swiperRef.current = swiper;
+            }}
             className="at-swiper"
             cardsEffect={{
               perSlideOffset: 8,

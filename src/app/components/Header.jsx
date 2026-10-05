@@ -6,7 +6,19 @@ import Link from 'next/link';
 import { Crown, Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-export default function Header() {
+function resolveHref(href, pathname) {
+  if (typeof href === 'string' && href.startsWith('#')) {
+    return pathname === '/' ? href : `/${href}`;
+  }
+  return href;
+}
+
+function isNavActive(href, pathname) {
+  if (!href || href.startsWith('#')) return false;
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+export default function Header({ navItems = [], cta }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const searchParams = useSearchParams();
@@ -15,12 +27,21 @@ export default function Header() {
 
   const { isLoggedIn, user } = useAuth();
 
-  // Helper function to navigate to sections
-  const getNavLink = (sectionId) => {
-    if (pathname === '/') {
-      return `#${sectionId}`;
-    }
-    return `/#${sectionId}`;
+  const items = navItems.filter(
+    (item) => !(item.hideOnWelcomeIndia && isWelcomeIndia),
+  );
+  const ctaHref = cta?.href ? resolveHref(cta.href, pathname) : '';
+
+  const linkClass = (href, mobile = false) => {
+    const active = isNavActive(href, pathname);
+    const color = active
+      ? scrolled
+        ? 'text-[#BF9F00]'
+        : 'text-[#C9A24B]'
+      : scrolled
+        ? 'text-gray-600 hover:text-gray-900'
+        : 'text-white/70 hover:text-white';
+    return `${mobile ? 'block' : ''} text-sm font-medium transition-colors ${color}`;
   };
 
   useEffect(() => {
@@ -57,86 +78,22 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            <a
-              href={getNavLink('plans')}
-              className={`text-sm font-medium transition-colors ${
-                scrolled
-                  ? 'text-gray-600 hover:text-gray-900'
-                  : 'text-white/70 hover:text-white'
-              }`}
-            >
-              Plans
-            </a>
-            {!isWelcomeIndia && (
-            <a
-              href={getNavLink('compare')}
-              className={`text-sm font-medium transition-colors ${
-                scrolled
-                  ? 'text-gray-600 hover:text-gray-900'
-                  : 'text-white/70 hover:text-white'
-              }`}
-            >
-              Compare
-            </a>
-            )}
-            <a
-              href={getNavLink('how-it-works')}
-              className={`text-sm font-medium transition-colors ${
-                scrolled
-                  ? 'text-gray-600 hover:text-gray-900'
-                  : 'text-white/70 hover:text-white'
-              }`}
-            >
-              How It Works
-            </a>
-            <a
-              href={getNavLink('testimonials')}
-              className={`text-sm font-medium transition-colors ${
-                scrolled
-                  ? 'text-gray-600 hover:text-gray-900'
-                  : 'text-white/70 hover:text-white'
-              }`}
-            >
-              Testimonials
-            </a>
-            <a
-              href={getNavLink('founding')}
-              className={`text-sm font-medium transition-colors ${
-                scrolled
-                  ? 'text-gray-600 hover:text-gray-900'
-                  : 'text-white/70 hover:text-white'
-              }`}
-            >
-              Offer
-            </a>
-            <Link
-              href="/expo"
-              className={`text-sm font-medium transition-colors ${
-                  pathname === '/expo' || pathname.startsWith('/expo/')
-                  ? scrolled
-                    ? 'text-[#BF9F00]'
-                    : 'text-[#C9A24B]'
-                  : scrolled
-                    ? 'text-gray-600 hover:text-gray-900'
-                    : 'text-white/70 hover:text-white'
-              }`}
-            >
-              Expo
-            </Link>
-            <Link
-              href="/airport-concierge-bom"
-              className={`text-sm font-medium transition-colors ${
-                pathname === '/airport-concierge-bom'
-                  ? scrolled
-                    ? 'text-[#BF9F00]'
-                    : 'text-[#C9A24B]'
-                  : scrolled
-                    ? 'text-gray-600 hover:text-gray-900'
-                    : 'text-white/70 hover:text-white'
-              }`}
-            >
-              Airport Concierge
-            </Link>
+            {items.map((item) => {
+              const href = resolveHref(item.href, pathname);
+              const className = linkClass(item.href);
+              if (item.href?.startsWith('#')) {
+                return (
+                  <a key={item.label} href={href} className={className}>
+                    {item.label}
+                  </a>
+                );
+              }
+              return (
+                <Link key={item.label} href={href} className={className}>
+                  {item.label}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Desktop CTA */}
@@ -165,16 +122,18 @@ export default function Header() {
               </Link>
             )
             }
-            <a
-              href={getNavLink('plans')}
-              className={`inline-flex items-center gap-2 font-semibold py-2.5 px-6 rounded-full text-sm transition-all ${
-                scrolled
-                  ? 'bg-[#BF9F00] text-black hover:bg-[#a88a00]'
-                  : 'bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm'
-              }`}
-            >
-              View Plans
-            </a>
+            {cta?.label && cta?.href && (
+              <a
+                href={ctaHref}
+                className={`inline-flex items-center gap-2 font-semibold py-2.5 px-6 rounded-full text-sm transition-all ${
+                  scrolled
+                    ? 'bg-[#BF9F00] text-black hover:bg-[#a88a00]'
+                    : 'bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm'
+                }`}
+              >
+                {cta.label}
+              </a>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -196,83 +155,23 @@ export default function Header() {
             scrolled ? 'border-gray-100 bg-white' : 'border-white/10 bg-black/50 backdrop-blur'
           }`}>
             <nav className="px-6 py-4 space-y-3">
-              <a
-                href={getNavLink('plans')}
-                className={`block text-sm font-medium transition-colors ${
-                  scrolled ? 'text-gray-600 hover:text-gray-900' : 'text-white/70 hover:text-white'
-                }`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Plans
-              </a>
-              {!isWelcomeIndia && (
-              <a
-                href={getNavLink('compare')}
-                className={`block text-sm font-medium transition-colors ${
-                  scrolled ? 'text-gray-600 hover:text-gray-900' : 'text-white/70 hover:text-white'
-                }`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Compare
-              </a>
-              )}
-              <a
-                href="#how-it-works"
-                className={`block text-sm font-medium transition-colors ${
-                  scrolled ? 'text-gray-600 hover:text-gray-900' : 'text-white/70 hover:text-white'
-                }`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                How It Works
-              </a>
-              <a
-                href="#testimonials"
-                className={`block text-sm font-medium transition-colors ${
-                  scrolled ? 'text-gray-600 hover:text-gray-900' : 'text-white/70 hover:text-white'
-                }`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Testimonials
-              </a>
-              <a
-                href="#founding"
-                className={`block text-sm font-medium transition-colors ${
-                  scrolled ? 'text-gray-600 hover:text-gray-900' : 'text-white/70 hover:text-white'
-                }`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Offer
-              </a>
-              <Link
-                href="/expo"
-                className={`block text-sm font-medium transition-colors ${
-                  pathname === '/expo' || pathname.startsWith('/expo/')
-                    ? scrolled
-                      ? 'text-[#BF9F00]'
-                      : 'text-[#C9A24B]'
-                    : scrolled
-                      ? 'text-gray-600 hover:text-gray-900'
-                      : 'text-white/70 hover:text-white'
-                }`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Expo
-              </Link>
-              <Link
-                href="/airport-concierge-bom"
-                className={`block text-sm font-medium transition-colors ${
-                  pathname === '/airport-concierge-bom'
-                    ? scrolled
-                      ? 'text-[#BF9F00]'
-                      : 'text-[#C9A24B]'
-                    : scrolled
-                      ? 'text-gray-600 hover:text-gray-900'
-                      : 'text-white/70 hover:text-white'
-                }`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Airport Concierge
-              </Link>
+              {items.map((item) => {
+                const href = resolveHref(item.href, pathname);
+                const className = linkClass(item.href, true);
+                const close = () => setMobileMenuOpen(false);
+                if (item.href?.startsWith('#')) {
+                  return (
+                    <a key={item.label} href={href} className={className} onClick={close}>
+                      {item.label}
+                    </a>
+                  );
+                }
+                return (
+                  <Link key={item.label} href={href} className={className} onClick={close}>
+                    {item.label}
+                  </Link>
+                );
+              })}
               {isLoggedIn && (
                 <Link
                   href="/dashboard"
@@ -284,13 +183,15 @@ export default function Header() {
                   Dashboard
                 </Link>
               )}
-              <a
-                href={getNavLink('plans')}
-                className="block w-full bg-[#BF9F00] text-black font-semibold py-2.5 rounded-full text-sm hover:bg-[#a88a00] transition-all text-center mt-4"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                View Plans
-              </a>
+              {cta?.label && cta?.href && (
+                <a
+                  href={ctaHref}
+                  className="block w-full bg-[#BF9F00] text-black font-semibold py-2.5 rounded-full text-sm hover:bg-[#a88a00] transition-all text-center mt-4"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {cta.label}
+                </a>
+              )}
             </nav>
           </div>
         )}

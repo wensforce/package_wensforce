@@ -1,15 +1,40 @@
-'use client';
+"use client";
 
-const WA_NUMBER = '917304607954';
-import { plans } from '../data/plans.js';
-const HERO_VIDEO_URL = 'https://d2zcmp43lwd2kr.cloudfront.net/videos/hero_video.mp4';
+import { Fragment } from "react";
 
-export default function HeroSection({ welcomeIndia }) {
-  const heroWaMsg = encodeURIComponent(
-    "Hi WENS Force, I'm exploring your subscription. Can you help me find the right tier?"
+const ANNOUNCEMENT_STYLES = [
+  "text-white/70",
+  "text-white/90 font-medium",
+  "text-white/55 hidden sm:inline",
+];
+
+function WhatsAppIcon() {
+  return (
+    <svg
+      viewBox="0 0 32 32"
+      width="17"
+      height="17"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.668 4.799 1.836 6.793L2 30l7.393-1.812A13.918 13.918 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2z" />
+    </svg>
   );
-  const heroWaUrl = `https://wa.me/${WA_NUMBER}?text=${heroWaMsg}`;
+}
 
+export default function HeroSection({
+  videoUrl,
+  announcement = [],
+  eyebrow,
+  heading = [],
+  addon,
+  license,
+  subtitle,
+  ctas = [],
+  trustItems = [],
+}) {
+  const [leadLine, accentLine] = heading;
+  const showAddon = Boolean(addon?.value);
 
   return (
     <>
@@ -37,122 +62,201 @@ export default function HeroSection({ welcomeIndia }) {
         }
       `}</style>
 
-      {/* Announcement bar */}
-      <div style={{ backgroundColor: '#0B1E3F' }} className="text-white py-1 md:py-2.5 px-6 text-center relative z-10">
-        <div className="max-w-6xl mx-auto flex items-center justify-center gap-2 text-xs flex-wrap">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#C9A24B] inline-block" />
-          <span className="text-white/70">Founding 100 Programme</span>
-          <span className="text-[#C9A24B] font-semibold">·</span>
-          <span className="text-white/90 font-medium">Limited Sovereign spots available</span>
-          <span className="text-white/40 hidden sm:inline">—</span>
-          <span className="text-white/55 hidden sm:inline">Charter members locked at current pricing permanently</span>
+      {announcement.length > 0 && (
+        <div
+          style={{ backgroundColor: "#0B1E3F" }}
+          className="text-white py-1 md:py-2.5 px-6 text-center relative z-10"
+        >
+          <div className="max-w-6xl mx-auto flex items-center justify-center gap-2 text-xs flex-wrap">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C9A24B] inline-block" />
+            {announcement.map((item, index) => (
+              <Fragment key={`${item}-${index}`}>
+                {index > 0 && (
+                  <span
+                    className={
+                      index > 1
+                        ? "text-white/40 hidden sm:inline"
+                        : "text-[#C9A24B] font-semibold"
+                    }
+                  >
+                    {index > 1 ? "—" : "·"}
+                  </span>
+                )}
+                <span
+                  className={
+                    ANNOUNCEMENT_STYLES[
+                      Math.min(index, ANNOUNCEMENT_STYLES.length - 1)
+                    ]
+                  }
+                >
+                  {item}
+                </span>
+              </Fragment>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Full-screen video hero */}
       <section className="relative overflow-hidden min-h-screen flex items-center justify-center px-6 md:py-20 py-10 pt-1">
+        {videoUrl && (
+          <video
+            autoPlay
+            muted
+            loop
+            preload="auto"
+            className="absolute inset-0 w-full h-full object-cover"
+            src={videoUrl}
+          />
+        )}
 
-        {/* Background video — autoplay starts immediately as data arrives */}
-        <video
-          autoPlay
-          muted
-          loop
-          preload="auto"
-          className="absolute inset-0 w-full h-full object-cover"
-          src={HERO_VIDEO_URL}
-        />
-
-        {/* Dark overlay — deepens the video for text readability */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: 'linear-gradient(180deg, rgba(11,30,63,.82) 0%, rgba(11,30,63,.65) 50%, rgba(11,30,63,.88) 100%)',
+            background:
+              "linear-gradient(180deg, rgba(11,30,63,.82) 0%, rgba(11,30,63,.65) 50%, rgba(11,30,63,.88) 100%)",
           }}
         />
 
-        {/* Subtle gold dot grid on top of video */}
         <div
           className="absolute inset-0 opacity-[0.03] pointer-events-none"
           style={{
-            backgroundImage: 'radial-gradient(circle at 1px 1px, #C9A24B 1px, transparent 0)',
-            backgroundSize: '36px 36px',
+            backgroundImage:
+              "radial-gradient(circle at 1px 1px, #C9A24B 1px, transparent 0)",
+            backgroundSize: "36px 36px",
           }}
         />
 
-        {/* Bottom fade to next section */}
         <div
           className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
-          style={{ background: 'linear-gradient(to bottom, transparent, rgba(11,30,63,.6))' }}
+          style={{
+            background:
+              "linear-gradient(to bottom, transparent, rgba(11,30,63,.6))",
+          }}
         />
 
-        {/* Content */}
         <div className="relative z-10 max-w-4xl mx-auto text-center">
-          <p className="text-[#C9A24B] text-[10px] tracking-[0.45em] uppercase font-semibold mb-5">
-            Est. 2008 &nbsp;·&nbsp; India&apos;s Premium { welcomeIndia ? "Packages":"Subscription" }
-          </p>
+          {eyebrow && (
+            <p className="text-[#C9A24B] text-[10px] tracking-[0.45em] uppercase font-semibold mb-5">
+              {eyebrow}
+            </p>
+          )}
 
-          <h1 className="font-serif-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.08] mb-6 tracking-tight">
-            India&apos;s Only  {welcomeIndia ? "Package":"Subscription" }  for
-            <br />
-            <span
-              className="text-transparent bg-clip-text"
-              style={{ backgroundImage: 'linear-gradient(90deg, #C9A24B, #f0c940, #C9A24B)' }}
-            >
-              Luxury Travel + Close Protection
-            </span>
-            <span className="block text-[#C9A24B] text-[10px] tracking-[0.45em] uppercase mt-2">
-              Added
-            </span>
-            <span className="block text-white text-[18px] tracking-[0.45em] mt-2 uppercase">
-              Darshan
-            </span>
-          </h1>
+          {(leadLine || accentLine || showAddon) && (
+            <h1 className="font-serif-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.08] mb-6 tracking-tight">
+              {leadLine}
+              {accentLine && (
+                <>
+                  <br />
+                  <span
+                    className="text-transparent bg-clip-text"
+                    style={{
+                      backgroundImage:
+                        "linear-gradient(90deg, #C9A24B, #f0c940, #C9A24B)",
+                    }}
+                  >
+                    {accentLine}
+                  </span>
+                </>
+              )}
+              {showAddon && (
+                <>
+                  <span className="block text-[#C9A24B] text-[10px] tracking-[0.45em] uppercase mt-2">
+                    Added
+                  </span>
+                  <span className="block text-white text-[18px] tracking-[0.45em] mt-2 uppercase">
+                    {addon.value}
+                  </span>
+                </>
+              )}
+            </h1>
+          )}
 
-          <p className="text-[11px] tracking-[0.06em] text-white/35 -mt-4 mb-8 font-light">
-            PSARA LICENSE&nbsp;:&nbsp;<span className="text-[#C9A24B]/65 font-mono">PSA/L/21/MH/2026/MAY/3/6271</span>
-          </p>
+          {license?.value && (
+            <p className="text-[11px] tracking-[0.06em] text-white/35 -mt-4 mb-8 font-light">
+              {license.label}&nbsp;:&nbsp;
+              <span className="text-[#C9A24B]/65 font-mono">
+                {license.value}
+              </span>
+            </p>
+          )}
 
-          <p className="text-white/60 text-lg font-light mb-10 max-w-xl mx-auto">
-            Five tiers. One annual fee. Everything pre-arranged for the year.
-          </p>
+          {subtitle && (
+            <p className="text-white/60 text-lg font-light mb-10 max-w-4xl mx-auto">
+              {subtitle}
+            </p>
+          )}
 
-          {/* CTAs */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
-            <a
-              href={heroWaUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="golden-cta flex items-center gap-2.5 py-4 px-9 rounded-full font-semibold text-black text-sm"
-            >
-              <svg viewBox="0 0 32 32" width="17" height="17" fill="black">
-                <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.668 4.799 1.836 6.793L2 30l7.393-1.812A13.918 13.918 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2z"/>
-              </svg>
-              Talk to Our Concierge
-            </a>
-            <a
-              href="#plans"
-              className="flex items-center gap-2 border-2 border-white/20 text-white font-semibold py-4 px-9 rounded-full text-sm hover:border-[#C9A24B]/60 hover:text-[#C9A24B] transition-all"
-            >
-              View Plans
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </a>
-          </div>
+          {ctas.length > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+              {ctas.map((cta) => {
+                const isPrimary = cta.variant !== "secondary";
+                const isExternal = /^https?:\/\//.test(cta.url || "");
+                const showWhatsApp =
+                  Boolean(cta.showWhatsApp) ||
+                  /wa\.me|whatsapp/i.test(cta.url || "");
+                return (
+                  <a
+                    key={`${cta.text}-${cta.url}`}
+                    href={cta.url}
+                    target={isExternal ? "_blank" : undefined}
+                    rel={isExternal ? "noopener noreferrer" : undefined}
+                    className={
+                      isPrimary
+                        ? "golden-cta flex items-center gap-2.5 py-4 px-9 rounded-full font-semibold text-black text-sm"
+                        : "flex items-center gap-2 border-2 border-white/20 text-white font-semibold py-4 px-9 rounded-full text-sm hover:border-[#C9A24B]/60 hover:text-[#C9A24B] transition-all"
+                    }
+                  >
+                    {showWhatsApp && <WhatsAppIcon />}
+                    {cta.text}
+                    {!showWhatsApp && (
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 7l5 5m0 0l-5 5m5-5H6"
+                        />
+                      </svg>
+                    )}
+                  </a>
+                );
+              })}
+            </div>
+          )}
 
-          {/* Trust strip */}
-          <div className="flex items-center justify-center gap-5 text-white/60 text-xs flex-wrap">
-            <span>✓ Instant Activation</span>
-            <span>·</span>
-            <span>✓ No Hidden Fees</span>
-          </div>
+          {trustItems.length > 0 && (
+            <div className="flex items-center justify-center gap-5 text-white/60 text-xs flex-wrap">
+              {trustItems.map((item, index) => (
+                <Fragment key={`${item}-${index}`}>
+                  {index > 0 && <span>·</span>}
+                  <span>✓ {item}</span>
+                </Fragment>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 opacity-40">
-          <span className="text-white text-[9px] tracking-[0.3em] uppercase">Scroll</span>
-          <svg className="w-4 h-4 text-white animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+          <span className="text-white text-[9px] tracking-[0.3em] uppercase">
+            Scroll
+          </span>
+          <svg
+            className="w-4 h-4 text-white animate-bounce"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M19 9l-7 7-7-7"
+            />
           </svg>
         </div>
       </section>

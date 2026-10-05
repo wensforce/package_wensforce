@@ -1,9 +1,9 @@
 export const plans = [
   {
-    id: "transfer-fearless-arrival",
+    id: "transfer-classic-arrival",
     image: "/airport-transfer/fearless-arrival.png",
     packageNo: "01",
-    name: "FEARLESS ARRIVAL",
+    name: "CLASSIC ARRIVAL",
     tagline: "1 Mercedes-Benz E-Class Luxury Sedan with Chauffeur and 1 Unarmed Personal Security Officer",
     price: 15000,
     perMonth: 0,

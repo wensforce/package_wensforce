@@ -38,6 +38,9 @@ function getEnquiryCategory(pathname, searchParams) {
   if (searchParams.get("welcomeIndia") === "true") {
     return "welcome-india";
   }
+  if (pathname?.startsWith("/airport-transfer") || pathname?.includes("airport-transfer")) {
+    return "airport-transfer";
+  }
   return "membership";
 }
 

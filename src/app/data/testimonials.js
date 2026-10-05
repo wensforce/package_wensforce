@@ -1,0 +1,58 @@
+const testimonials = [
+  {
+    name: "Kartik Giri",
+    role: "Giri Zever Mahal Owner",
+    plan: "SOVEREIGN",
+    avatar: "/testimonials/kartik_profile.png",
+    profileUrl: "https://www.instagram.com/_kaartikgiri/",
+    bannerImage: "/testimonials/kartik_giri.png",
+    videoUrl: "https://d2zcmp43lwd2kr.cloudfront.net/videos/kartik_giri.mp4",
+  },
+  {
+    name: "Mark Rober",
+    role: "American YouTuber, engineer and inventor",
+    avatar: "/testimonials/mark_profile.png",
+    profileUrl: "https://www.instagram.com/markrober/",
+    plan: "ELITE",
+    bannerImage: "/testimonials/mark_robber.png",
+    videoUrl: "https://d2zcmp43lwd2kr.cloudfront.net/videos/Mark_Robber.mp4",
+  },
+  {
+    name: "Weronica Rodowicz",
+    role: "Film Director",
+    avatar: "/testimonials/weronica_profile.png",
+    profileUrl: "https://www.instagram.com/letsplantstories/",
+    plan: "ELITE",
+    bannerImage: "/testimonials/weronica_rodowicz.png",
+    videoUrl: "https://d2zcmp43lwd2kr.cloudfront.net/videos/Weronica.mp4",
+    videoObjectPosition: "center 25%",
+  },
+  {
+    name: "Pink Sweat",
+    role: "American R&B singer and songwriter",
+    avatar: "/testimonials/pink_profile.png",
+    profileUrl: "https://www.instagram.com/pinksweats/",
+    plan: "SOVEREIGN",
+    bannerImage: "/testimonials/pink_sweat.png",
+    videoUrl: "https://d2zcmp43lwd2kr.cloudfront.net/videos/Pink_Sweat.mp4",
+  },
+  {
+    name: "Turkey Princess",
+    role: "Princess",
+    avatar: "/testimonials/no_profile.png",
+    plan: "PREMIUM",
+    bannerImage: "/testimonials/turkey_princess.png",
+    videoUrl: "https://d2zcmp43lwd2kr.cloudfront.net/videos/your_highness.mp4",
+  },
+  {
+    name: "Mo Vlog",
+    role: "Dubai-based Iranian YouTuber and vlogger with 11M+ subscribers",
+    avatar: "/testimonials/mo_vlog_profile.png",
+    profileUrl: "https://www.instagram.com/movlogs/",
+    plan: "SOVEREIGN",
+    bannerImage: "/testimonials/mo_vlog.png",
+    videoUrl: "https://d2zcmp43lwd2kr.cloudfront.net/videos/Movlog_car.mp4",
+  },
+];
+
+export default testimonials;

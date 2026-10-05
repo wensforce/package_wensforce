@@ -25,6 +25,7 @@ import {
 import { getFeaturedExpos } from "../data/expos";
 import { trackExpoHubView, trackExpoFilterChange } from "../lib/expoTracking";
 import Header from "../components/Header";
+import { headerCta } from "../data/headerNav";
 import SimpleFooter from "../components/SimpleFooter";
 import ExpoHeroSlider from "../components/ExpoHeroSlider";
 import ExpoFilters from "../components/ExpoFilters";
@@ -32,6 +33,15 @@ import ExpoCard from "../components/ExpoCard";
 import { exposGallery } from "../data/expos.js";
 import CustomQuoteSection from "../components/CustomQuoteSection";
 const WA_PHONE = "917304607954";
+
+
+const headerNav = [
+  { label: "Expo", href: "/expo" },
+  { label: "Plans", href: "/#plans" },
+  { label: "Welcome India", href: "/?welcomeIndia=true" },
+  { label: "Mumbai Darshan", href: "/airport-concierge-bom" },
+  { label: "Airport Transfer", href: "/airport-transfer-bom-mb" },
+];
 
 export default function ExpoHub({ expos }) {
   const [selectedCity, setSelectedCity] = useState(null);
@@ -106,7 +116,7 @@ export default function ExpoHub({ expos }) {
 
   return (
     <>
-      <Header />
+      <Header navItems={headerNav} cta={headerCta} />
       <style>{`
         :root {
           --navy: #0B1F3A;

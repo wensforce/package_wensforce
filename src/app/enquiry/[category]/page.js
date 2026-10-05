@@ -6,6 +6,7 @@ import DatePicker from "../../components/DatePicker";
 import { plans as membershipPlans } from "../../data/plans";
 import { plans as welcomeIndiaPlans } from "../../data/welcomeIndia";
 import { plans as airportConciergePlans } from "../../data/airportConcierge";
+import { plans as airportTransferPlans } from "../../data/airportTransfer";
 import {
   User,
   Phone,
@@ -108,6 +109,12 @@ const ROUTE_CONFIG = {
     tagline: "Meet & assist packages for a seamless airport experience",
     packages: airportConciergePlans.map((p) => p.name),
     plans: airportConciergePlans,
+  },
+  "airport-transfer": {
+    label: "Airport Transfer",
+    tagline: "Airport Transfer packages for a seamless airport experience",
+    packages: airportTransferPlans.map((p) => p.name),
+    plans: airportTransferPlans,
   },
 };
 

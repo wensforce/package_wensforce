@@ -47,12 +47,12 @@ export default function PressPartnerWall() {
               <p className="text-gray-500 text-sm leading-relaxed font-light flex-1 mb-6">
                 {block.body}
               </p>
-              <Link
+              {/* <Link
                 href={block.href}
                 className="text-[#C9A24B] text-sm font-semibold hover:text-[#0B1E3F] transition-colors flex items-center gap-1.5"
               >
                 {block.cta}
-              </Link>
+              </Link> */}
             </div>
           ))}
         </div>

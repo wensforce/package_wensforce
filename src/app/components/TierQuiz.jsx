@@ -260,7 +260,7 @@ const CATALOGS = {
     questions: TRANSFER_QUESTIONS,
     tiers: buildTiers(airportTransferPlans, [
       {
-        id: "transfer-fearless-arrival",
+        id: "transfer-classic-arrival",
         min: 5,
         max: 8,
         tagline: "Mercedes E-Class with chauffeur and personal security.",

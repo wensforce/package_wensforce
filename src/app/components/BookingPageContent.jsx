@@ -1272,7 +1272,7 @@ export default function BookingPageContent({
   const initMethod =
     urlCurrency && urlCurrency !== "INR" ? "international" : "india";
 
-    const router = useRouter();
+  const router = useRouter();
 
   const [paymentMethod, setPaymentMethod] = useState(initMethod);
   const [selectedCurrency, setSelectedCurrency] = useState(initCurrency);
@@ -1313,11 +1313,12 @@ export default function BookingPageContent({
   const currencyData =
     CURRENCIES.find((c) => c.code === selectedCurrency) ?? CURRENCIES[0];
   const isWelcomeIndia = welcomePlanIds.has(plan.id);
+  const isMembership = mainPlans.some((p) => p.id === plan.id);
   const effectiveGstRate = isWelcomeIndia ? 0 : GST_RATE;
   const gstLabel = isWelcomeIndia ? "All Inclusive" : "GST 18% Extra";
   // India pricing
   const gstAmount = Math.ceil(plan.price * effectiveGstRate);
-  const indiaTotalINR = plan.price + gstAmount;
+  const indiaTotalINR = Math.ceil(plan.price + gstAmount);
 
   // International pricing
   const intlGstAmount = Math.ceil(plan.price * effectiveGstRate);
@@ -1604,12 +1605,6 @@ export default function BookingPageContent({
 
             {/* Plan identity overlay */}
             <div className="absolute bottom-0 left-0 right-0 px-6 pb-6">
-              <p
-                className="text-[9px] font-bold tracking-[0.5em] uppercase mb-1"
-                style={{ color: planAccent.color, opacity: 0.7 }}
-              >
-                Membership {String(plan.packageNo || "").padStart(2, "0")}
-              </p>
               <h1
                 className="font-serif-display font-bold text-white leading-none mb-1.5"
                 style={{
@@ -1645,15 +1640,12 @@ export default function BookingPageContent({
                   color: plan.id === "elite" ? "#C9A24B" : "#0B1E3F",
                 }}
               >
-                {isIndia
-                  ? `${INR(indiaTotalINR)}`
-                  : `${fmtForeign(intlTotalForeign, selectedCurrency)}`}
-                *
+                {isIndia ? `${INR(plan.price)}` : `${toForeign(plan.price)}`}
               </span>
               <span className="text-[11px] font-semibold text-gray-400 mb-1">
-                {gstLabel}
+                + {gstLabel}
               </span>
-              {!isWelcomeIndia && (
+              {isMembership && (
                 <span className="text-gray-400 text-sm font-light mb-1">
                   / year, all-inclusive
                 </span>
@@ -1778,9 +1770,12 @@ export default function BookingPageContent({
                 </div>
                 <div className="text-right">
                   <p className="text-xl font-black text-gray-900 tabular-nums">
-                    {displayPrice}
+                    {isIndia ? `${INR(plan.price)}` : `${toForeign(plan.price)}`}
                   </p>
-                  <p className="text-gray-400 text-[10px] mt-0.5">per year</p>
+                  {
+
+                   isMembership && <p className="text-gray-400 text-[10px] mt-0.5">per year</p>
+                  }
                 </div>
               </div>
             </div>
@@ -2060,7 +2055,7 @@ export default function BookingPageContent({
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 text-sm">
-                        {plan.name} Membership
+                        {plan.name} {isMembership ? "Membership" : ""}
                       </span>
                       <div className="text-right">
                         <span className="text-gray-700 text-sm font-semibold tabular-nums">
@@ -2313,7 +2308,13 @@ export default function BookingPageContent({
         </div>
       </div>
       <div className="h-20 lg:hidden" />
-      {showModal && <LoginModal onSuccess={() => setShowModal(false)} onClose={() => setShowModal(false)} phoneNumber={form.phone}/>}
+      {showModal && (
+        <LoginModal
+          onSuccess={() => setShowModal(false)}
+          onClose={() => setShowModal(false)}
+          phoneNumber={form.phone}
+        />
+      )}
     </div>
   );
 }

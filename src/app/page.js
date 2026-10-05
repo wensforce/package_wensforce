@@ -3,14 +3,18 @@ import { Suspense } from "react";
 import {
   Car,
   Users,
+  Shield,
   ShieldCheck,
+  Star,
   Gem,
   Crown,
   CheckCircle,
   Phone,
 } from "lucide-react";
 import { plans } from "./data/plans";
+import testimonials from "./data/testimonials";
 import Header from "./components/Header";
+import { headerNav, headerCta } from "./data/headerNav";
 import HowItWorks from "./components/HowItWorks";
 import PlansSection from "./components/PlansSection";
 import TrustStrip from "./components/TrustStrip";
@@ -21,6 +25,7 @@ import FounderStoryBlock from "./components/FounderStoryBlock";
 import ReferralBanner from "./components/ReferralBanner";
 import ExitIntentPopup from "./components/ExitIntentPopup";
 import TestimonialsSection from "./components/TestimonialsSection";
+import FAQSection from "./components/FAQSection";
 import HeroSection from "./components/HeroSection";
 import FoundingMemberBanner from "./components/FoundingMemberBanner";
 import JsonLd from "./components/JsonLd";
@@ -28,7 +33,8 @@ import WelcomeIndiaCard from "./components/WelcomeIndiaCard";
 import ServicesVideoSection from "./components/ServicesVideoSection";
 
 export const metadata = {
-  title: "WENS Force — India's Only Luxury Travel + Armed Protection + Darshan Subscription",
+  title:
+    "WENS Force — India's Only Luxury Travel + Armed Protection + Darshan Subscription",
   description:
     "Five tiers. One annual fee. Vehicle, bodyguard, and lifestyle privileges pre-arranged for the year. Darshan at Tirupati, Vaishno Devi, Mahakaleshwar. PSARA-licensed security. From ₹24,999/year.",
   alternates: { canonical: "https://subscription.wensforce.com" },
@@ -299,95 +305,44 @@ function ComparisonTable() {
   );
 }
 
-function FAQSection() {
-  return (
-    <section className="max-w-3xl mx-auto px-6 py-16">
-      <div className="text-center mb-12">
-        <p className="text-[#C9A24B] text-[10px] tracking-[0.4em] uppercase font-semibold mb-3">
-          Your Questions
-        </p>
-        <h2 className="font-serif-display text-3xl sm:text-4xl font-bold text-[#0B1E3F] mb-3">
-          Honest Answers
-        </h2>
-        <p className="text-gray-500 text-base font-light max-w-md mx-auto">
-          The questions serious buyers ask — answered plainly.
-        </p>
-      </div>
-      <div className="space-y-3">
-        {faqs.map((faq, i) => (
-          <details
-            key={i}
-            className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300 transition-all duration-300 overflow-hidden"
-          >
-            <summary className="flex items-center justify-between px-6 py-4 cursor-pointer font-semibold text-gray-800 hover:text-[#0B1E3F] transition-colors list-none gap-4">
-              <span className="text-[15px] text-left">{faq.q}</span>
-              <span className="text-gray-400 text-xl shrink-0 group-open:rotate-180 transition-transform duration-300 inline-block leading-none font-light">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                  <path d="M12 16.5a1 1 0 0 1-.707-.293l-5-5a1 1 0 0 1 1.414-1.414L12 14.086l4.293-4.293a1 1 0 0 1 1.414 1.414l-5 5A1 1 0 0 1 12 16.5z" />
-                </svg>
-              </span>
-            </summary>
-            <div className="px-6 pb-5 text-gray-600 text-sm leading-relaxed border-t border-gray-100 pt-4 font-light bg-gray-50/30">
-              {faq.a}
-            </div>
-          </details>
-        ))}
-      </div>
-
-      <div className="mt-10 p-7 bg-[#FAF6EC] border border-[#C9A24B]/20 rounded-2xl text-center">
-        <p className="text-[#0B1E3F] font-semibold mb-1">
-          Still have a question?
-        </p>
-        <p className="text-gray-500 text-sm font-light mb-4">
-          Our concierge is available 24×7.
-        </p>
-        <a
-          href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent("Hi, I have a question about WENS Force membership.")}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 font-semibold text-sm transition-all hover:opacity-90"
-          style={{ color: "#25D366" }}
-        >
-          <svg viewBox="0 0 32 32" width="16" height="16" fill="#25D366">
-            <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.668 4.799 1.836 6.793L2 30l7.393-1.812A13.918 13.918 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2z" />
-          </svg>
-          Ask on WhatsApp
-        </a>
-      </div>
-    </section>
-  );
-}
+const DEFAULT_HERO_VIDEO =
+  "https://d2zcmp43lwd2kr.cloudfront.net/videos/hero_video.mp4";
 
 export default async function HomePage({ searchParams }) {
   const { welcomeIndia } = await searchParams;
+  const isWelcomeIndia = welcomeIndia === "true";
+  const offerWord = isWelcomeIndia ? "Package" : "Subscription";
+  const heroWaUrl = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
+    "Hi WENS Force, I'm exploring your subscription. Can you help me find the right tier?",
+  )}`;
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": faqs.map((f) => ({
+    mainEntity: faqs.map((f) => ({
       "@type": "Question",
-      "name": f.q,
-      "acceptedAnswer": { "@type": "Answer", "text": f.a },
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
     })),
   };
 
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": "WENS Force Membership Plans",
-    "itemListElement": plans.map((plan, i) => ({
+    name: "WENS Force Membership Plans",
+    itemListElement: plans.map((plan, i) => ({
       "@type": "ListItem",
-      "position": i + 1,
-      "item": {
+      position: i + 1,
+      item: {
         "@type": "Product",
-        "name": `WENS Force ${plan.name} Membership`,
-        "description": plan.tagline,
-        "url": `https://subscription.wensforce.com/membership/${plan.id}`,
-        "offers": {
+        name: `WENS Force ${plan.name} Membership`,
+        description: plan.tagline,
+        url: `https://subscription.wensforce.com/membership/${plan.id}`,
+        offers: {
           "@type": "Offer",
-          "priceCurrency": "INR",
-          "price": plan.price,
-          "availability": "https://schema.org/InStock",
-          "url": `https://subscription.wensforce.com/booking/${plan.id}`,
+          priceCurrency: "INR",
+          price: plan.price,
+          availability: "https://schema.org/InStock",
+          url: `https://subscription.wensforce.com/booking/${plan.id}`,
         },
       },
     })),
@@ -398,25 +353,92 @@ export default async function HomePage({ searchParams }) {
       <JsonLd data={faqSchema} />
       <JsonLd data={itemListSchema} />
       <Suspense fallback={null}>
-        <Header />
+        <Header navItems={headerNav} cta={headerCta} />
       </Suspense>
 
       {/* ── HERO (with announcement bar + full-screen video) ── */}
-      <HeroSection welcomeIndia={welcomeIndia} />
+      <HeroSection
+        videoUrl={DEFAULT_HERO_VIDEO}
+        announcement={[
+          "Founding 100 Programme",
+          "Limited Sovereign spots available",
+          "Charter members locked at current pricing permanently",
+        ]}
+        eyebrow={`Est. 2008\u00A0·\u00A0India's Premium ${isWelcomeIndia ? "Packages" : "Subscription"}`}
+        heading={[
+          `India's Only ${offerWord} for`,
+          "Luxury Travel + Close Protection",
+        ]}
+        addon={{ value: "Darshan" }}
+        license={{
+          label: "PSARA LICENSE",
+          value: "PSA/L/21/MH/2026/MAY/3/6271",
+        }}
+        subtitle="Five tiers. One annual fee. Everything pre-arranged for the year."
+        ctas={[
+          { text: "View Plans", url: "#plans" },
+          {
+            text: "Talk to Our Concierge",
+            url: heroWaUrl,
+            variant: "secondary",
+            showWhatsApp: true,
+          },
+        ]}
+        trustItems={["Instant Activation", "No Hidden Fees"]}
+      />
 
       {/* ── TRUST STRIP ── */}
       <TrustStrip />
 
-    {
-      welcomeIndia === 'true'&& <ServicesVideoSection />
-    }
+      {welcomeIndia === "true" && <ServicesVideoSection />}
 
       {/* ── WEDGE BLOCK ── */}
-      <WedgeBlock />
+      <WedgeBlock
+        eyebrow="India's Only"
+        heading="Three Things Only WENS Force Does in India."
+        subheading="Blacklane has chauffeurs. Wheely has chauffeurs. Uber Black has chauffeurs. Nobody else has this combination."
+        cards={[
+          {
+            icon: Star,
+            title: "Darshan, Booked For You",
+            description:
+              "Tirupati Suprabhatam. Vaishno Devi Helicopter. Mahakaleshwar Bhasm Aarti. Booked in your name within 48 hours by your personal concierge.",
+            link: {
+              text: "Available from Premium tier",
+              url: "/membership/premium",
+            },
+          },
+          {
+            icon: Shield,
+            title: "Armed Protection, Vetted & Trained",
+            description:
+              "Ex-Defence and ex-Police personnel. PSARA-Compliant under Indian law. NDA-bound. Briefed on your full itinerary 24 hours in advance.",
+            link: {
+              text: "Available from Premium tier",
+              url: "/membership/premium",
+            },
+          },
+          {
+            icon: Car,
+            title: "Luxury Vehicles, Ready in 10 Minutes",
+            description:
+              "Mercedes E-Class, BMW 7 Series, Audi Q7. Pre-positioned across cities. Average dispatch time under 12 minutes, guaranteed.",
+            link: {
+              text: "Available from Essential tier",
+              url: "/membership/essential",
+            },
+          },
+        ]}
+        note={{
+          title: "Family-Transferable.",
+          description:
+            "One subscription. Your spouse, children, and parents — all covered. Sovereign members get a dedicated booking line for their spouse.",
+        }}
+      />
 
       {/* ── PLANS SPOTLIGHT ── */}
       <section style={{ backgroundColor: "#FAF6EC" }}>
-        {welcomeIndia === 'true' ? <WelcomeIndiaCard /> : <PlansSection />}
+        {welcomeIndia === "true" ? <WelcomeIndiaCard /> : <PlansSection />}
       </section>
 
       {/* ── TIER QUIZ ── */}
@@ -428,15 +450,22 @@ export default async function HomePage({ searchParams }) {
       {/* <AllPlansGrid plans={plans} /> */}
 
       {/* ── COMPARISON TABLE ── */}
-      {welcomeIndia !== 'true' && <section style={{ backgroundColor: "#FAF6EC" }}>
-        <ComparisonTable />
-      </section>}
+      {welcomeIndia !== "true" && (
+        <section style={{ backgroundColor: "#FAF6EC" }}>
+          <ComparisonTable />
+        </section>
+      )}
 
       {/* ── HOW IT WORKS ── */}
       <HowItWorks />
 
       {/* ── TESTIMONIALS ── */}
-      <TestimonialsSection />
+      <TestimonialsSection
+        eyebrow="Member Stories"
+        heading="How Our Members Travel"
+        subheading="HNI members across India — in their own words. Click to watch their stories."
+        testimonials={testimonials}
+      />
 
       {/* ── PRESS & PARTNERS ── */}
       <PressPartnerWall />
@@ -448,7 +477,18 @@ export default async function HomePage({ searchParams }) {
       {/* <ReferralBanner /> */}
 
       {/* ── FAQ ── */}
-      <FAQSection />
+      <FAQSection
+        eyebrow="Your Questions"
+        heading="Honest Answers"
+        subheading="The questions serious buyers ask — answered plainly."
+        faqs={faqs}
+        cta={{
+          title: "Still have a question?",
+          description: "Our concierge is available 24×7.",
+          text: "Ask on WhatsApp",
+          url: `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent("Hi, I have a question about WENS Force membership.")}`,
+        }}
+      />
 
       {/* ── FOUNDING MEMBER BANNER ── */}
       <FoundingMemberBanner />
@@ -465,14 +505,20 @@ export default async function HomePage({ searchParams }) {
               WENS Force International Private Limited
             </span>
           </div>
-          <p className="text-sm text-[#C9A24B] mb-1">CIN : U80100MH2025PTC442268</p>
-          <p className="text-sm text-[#C9A24B] mb-2">PSARA Licence : PSA/L/21/MH/2026/MAY/3/6271</p>
+          <p className="text-sm text-[#C9A24B] mb-1">
+            CIN : U80100MH2025PTC442268
+          </p>
+          <p className="text-sm text-[#C9A24B] mb-2">
+            PSARA Licence : PSA/L/21/MH/2026/MAY/3/6271
+          </p>
           <p className="text-[#C9A24B] text-xs max-w-xs mx-auto mb-4 font-light">
             Where Every Journey Becomes an Arrival.
           </p>
           <p className="text-gray-600 text-xs max-w-sm mx-auto mb-6 font-light leading-relaxed">
-            89, 2nd Flr, 138/148, Mahendra Chamber, Empire Building,<br />
-            Dr. Dadabhai Nowroji Road, Stock Exchange,<br />
+            89, 2nd Flr, 138/148, Mahendra Chamber, Empire Building,
+            <br />
+            Dr. Dadabhai Nowroji Road, Stock Exchange,
+            <br />
             Opp. CSMT Fort, Mumbai – 400001
           </p>
           <div className="flex justify-center gap-6 text-xs text-gray-700 flex-wrap mb-6">
@@ -536,7 +582,7 @@ export default async function HomePage({ searchParams }) {
           </p>
         </div>
       </footer>
-      
+
       {/* Sticky mobile CTA */}
       {/* <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[#0B1E3F]/97 backdrop-blur border-t border-white/8 px-5 py-3">
         <div className="flex items-center gap-3">
