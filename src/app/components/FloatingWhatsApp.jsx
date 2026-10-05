@@ -1,16 +1,36 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 const WA_NUMBER = '917304607954';
 const DEFAULT_MSG = "Hi WENS Force, I'm exploring your subscription. Can you help me find the right tier?";
 
+const ROUTE_MESSAGES = [
+  {
+    path: '/airport-transfer-bom-mb',
+    message:
+      "Hi WENS Force, I'm exploring your Airport Transfer Bombay. Can you help me find the right tier?",
+  },
+  {
+    path: '/airport-concierge-bom',
+    message:
+      "Hi WENS Force, I'm exploring your Airport Concierge at Mumbai (BOM). Can you help me find the right package?",
+  },
+];
+
+function messageForPath(pathname) {
+  const match = ROUTE_MESSAGES.find((item) => pathname.startsWith(item.path));
+  return match?.message ?? DEFAULT_MSG;
+}
+
 export default function FloatingWhatsApp({ tierContext = '' }) {
+  const pathname = usePathname() || '/';
   const [showBubble, setShowBubble] = useState(false);
 
   const message = tierContext
     ? `Hi WENS Force, I'm interested in the ${tierContext} membership. Can you help?`
-    : DEFAULT_MSG;
+    : messageForPath(pathname);
   const waUrl = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`;
 
   return (
