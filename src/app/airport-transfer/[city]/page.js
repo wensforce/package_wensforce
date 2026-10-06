@@ -104,7 +104,10 @@ export default async function AirportTransferCityPage({
       <JsonLd data={faqSchema} />
       <JsonLd data={itemListSchema} />
       <Suspense fallback={null}>
-        <Header cta={headerCta} />
+        <Header
+          cta={headerCta}
+          showNavLinks={city.slug !== "mumbai"}
+        />
       </Suspense>
 
       <HeroSection

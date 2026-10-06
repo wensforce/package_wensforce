@@ -43,7 +43,7 @@ function isNavActive(href, pathname, isWelcomeIndia) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export default function Header({ cta }) {
+export default function Header({ cta, showNavLinks = true }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const searchParams = useSearchParams();
@@ -97,17 +97,19 @@ export default function Header({ cta }) {
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
-            {NAV_LINKS.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className={linkClass(item.href)}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          {showNavLinks && (
+            <nav className="hidden md:flex items-center gap-8">
+              {NAV_LINKS.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={linkClass(item.href)}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          )}
 
           <div className="hidden md:flex items-center gap-3">
             {isLoggedIn ? (
@@ -169,16 +171,17 @@ export default function Header({ cta }) {
             }`}
           >
             <nav className="px-6 py-4 space-y-3">
-              {NAV_LINKS.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className={linkClass(item.href, true)}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              ))}
+              {showNavLinks &&
+                NAV_LINKS.map((item) => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className={linkClass(item.href, true)}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
               {isLoggedIn && (
                 <Link
                   href={user.role === 'admin' ? '/admin/dashboard' : '/dashboard'}
