@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import "./globals.css";
 import FloatingWhatsApp from "./components/FloatingWhatsApp";
 import FloatingEnquiry from "./components/FloatingEnquiry";
+import CampaignCapture from "./components/CampaignCapture";
 import LiveActivityTicker from "./components/LiveActivityTicker";
 import JsonLd from "./components/JsonLd";
 // import GTMPageTracker from "./components/GTMPageTracker";
@@ -168,6 +169,9 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           {children}
           <MetaPixelInit />
+          <Suspense fallback={null}>
+            <CampaignCapture />
+          </Suspense>
           <Suspense fallback={null}>
             <FloatingEnquiry />
           </Suspense>

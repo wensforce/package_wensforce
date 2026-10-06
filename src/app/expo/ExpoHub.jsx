@@ -35,14 +35,6 @@ import CustomQuoteSection from "../components/CustomQuoteSection";
 const WA_PHONE = "917304607954";
 
 
-const headerNav = [
-  { label: "Expo", href: "/expo" },
-  { label: "Plans", href: "/#plans" },
-  { label: "Welcome India", href: "/?welcomeIndia=true" },
-  { label: "Mumbai Darshan", href: "/airport-concierge-bom" },
-  { label: "Airport Transfer", href: "/airport-transfer-bom-mb" },
-];
-
 export default function ExpoHub({ expos }) {
   const [selectedCity, setSelectedCity] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState(null);
@@ -116,7 +108,7 @@ export default function ExpoHub({ expos }) {
 
   return (
     <>
-      <Header navItems={headerNav} cta={headerCta} />
+      <Header cta={headerCta} />
       <style>{`
         :root {
           --navy: #0B1F3A;

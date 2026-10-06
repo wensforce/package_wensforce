@@ -14,7 +14,7 @@ import {
 import { plans } from "./data/plans";
 import testimonials from "./data/testimonials";
 import Header from "./components/Header";
-import { headerNav, headerCta } from "./data/headerNav";
+import { headerCta } from "./data/headerNav";
 import HowItWorks from "./components/HowItWorks";
 import PlansSection from "./components/PlansSection";
 import TrustStrip from "./components/TrustStrip";
@@ -353,7 +353,7 @@ export default async function HomePage({ searchParams }) {
       <JsonLd data={faqSchema} />
       <JsonLd data={itemListSchema} />
       <Suspense fallback={null}>
-        <Header navItems={headerNav} cta={headerCta} />
+        <Header cta={headerCta} />
       </Suspense>
 
       {/* ── HERO (with announcement bar + full-screen video) ── */}

@@ -8,7 +8,7 @@ const DEFAULT_MSG = "Hi WENS Force, I'm exploring your subscription. Can you hel
 
 const ROUTE_MESSAGES = [
   {
-    path: '/airport-transfer-bom-mb',
+    path: '/airport-transfer',
     message:
       "Hi WENS Force, I'm exploring your Airport Transfer Bombay. Can you help me find the right tier?",
   },

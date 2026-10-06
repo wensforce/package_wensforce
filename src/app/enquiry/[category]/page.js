@@ -29,6 +29,10 @@ import {
   RotateCcw,
 } from "lucide-react";
 import api from "../../axios/axios";
+import {
+  captureCampaignFromSearchParams,
+  getCampaignForSubmit,
+} from "../../lib/campaignAttribution";
 
 /* Matches enquiry links: plan.name.toLowerCase().replace(/ /g, "-") */
 function toServiceTypeSlug(value) {
@@ -47,45 +51,6 @@ function resolveServiceType(packages, plans, param) {
   if (byId && packages.includes(byId.name)) return byId.name;
 
   return "";
-}
-
-/* App-owned query keys — not campaign attribution */
-const APP_SEARCH_PARAMS = new Set(["serviceType"]);
-
-const CAMPAIGN_PARAM_KEYS = new Set([
-  "gclid",
-  "gbraid",
-  "wbraid",
-  "dclid",
-  "gclsrc",
-  "fbclid",
-  "msclkid",
-  "ttclid",
-  "twclid",
-  "li_fat_id",
-  "campaignid",
-  "adgroupid",
-  "creative",
-  "keyword",
-  "matchtype",
-  "network",
-  "device",
-  "placement",
-  "adposition",
-]);
-
-/** Pull gclid / UTMs / click ids from the URL when the enquiry is from a campaign. */
-function collectCampaignParams(searchParams) {
-  if (!searchParams) return null;
-  const campaign = {};
-  for (const [key, value] of searchParams.entries()) {
-    if (!value || APP_SEARCH_PARAMS.has(key)) continue;
-    const lower = key.toLowerCase();
-    if (lower.startsWith("utm_") || CAMPAIGN_PARAM_KEYS.has(lower)) {
-      campaign[key] = value;
-    }
-  }
-  return Object.keys(campaign).length > 0 ? campaign : null;
 }
 
 /* ---------------------------------------------------------------------- *
@@ -341,7 +306,6 @@ function EnquiryForm({ routeOverride }) {
     "";
   const route = ROUTE_CONFIG[routeSlug] ?? FALLBACK_ROUTE;
   const serviceTypeParam = searchParams.get("serviceType");
-  const campaignParams = collectCampaignParams(searchParams);
 
   const [form, setForm] = useState(() => ({
     ...INITIAL_STATE,
@@ -354,6 +318,11 @@ function EnquiryForm({ routeOverride }) {
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  // Persist any campaign params on this page into the attribution cookie
+  useEffect(() => {
+    captureCampaignFromSearchParams(searchParams);
+  }, [searchParams]);
 
   // Preselect when the option becomes available (e.g. route packages load / URL changes)
   useEffect(() => {
@@ -501,11 +470,14 @@ function EnquiryForm({ routeOverride }) {
         },
       }),
       additionalFacilities: form.additionalFacilities || null,
-      ...(campaignParams && {
-        fromCampaign: true,
-        campaign: campaignParams,
-      }),
     };
+
+    // Cookie (landing page ads) + current URL + Meta _fbc/_fbp
+    const campaign = getCampaignForSubmit(searchParams);
+    if (campaign) {
+      payload.fromCampaign = true;
+      payload.campaign = campaign;
+    }
 
     try {
       setSubmitting(true);

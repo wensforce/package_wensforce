@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import Header from '../../components/Header';
-import { headerNav, headerCta } from '../../data/headerNav';
+import { headerCta } from '../../data/headerNav';
 import SimpleFooter from '../../components/SimpleFooter';
 import { formatServiceWindow } from '../../lib/expoUtils';
 import { trackExpoDetailView } from '../../lib/expoTracking';
@@ -24,7 +24,7 @@ export default function ExpoDetailClient({ expo, packages, faqs }) {
 
   return (
     <>
-      <Header navItems={headerNav} cta={headerCta} />
+      <Header cta={headerCta} />
       <style>{`
         :root {
           --navy: #0B1F3A;

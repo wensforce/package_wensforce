@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Header from "../components/Header";
-import { headerNav, headerCta } from "../data/headerNav";
+import { headerCta } from "../data/headerNav";
 
 export const metadata = {
   title: "Privacy Policy — WENS Force",
@@ -309,7 +309,7 @@ export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen bg-[#F8F5EE] text-[#1A202C]">
       <Suspense fallback={null}>
-        <Header navItems={headerNav} cta={headerCta} />
+        <Header cta={headerCta} />
       </Suspense>
 
       <main className="pt-24 pb-20">

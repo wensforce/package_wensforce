@@ -260,19 +260,19 @@ const CATALOGS = {
     questions: TRANSFER_QUESTIONS,
     tiers: buildTiers(airportTransferPlans, [
       {
-        id: "transfer-classic-arrival",
+        id: "transfer-classic-arrival-mumbai",
         min: 5,
         max: 8,
         tagline: "Mercedes E-Class with chauffeur and personal security.",
       },
       {
-        id: "transfer-luxury-arrival",
+        id: "transfer-luxury-arrival-mumbai",
         min: 9,
         max: 11,
         tagline: "GLS SUV with escort car and 2 security officers.",
       },
       {
-        id: "transfer-aerobridge-welcome",
+        id: "transfer-aerobridge-welcome-mumbai",
         min: 12,
         max: 15,
         tagline: "Hands-free aerobridge welcome with V-Class transfer.",

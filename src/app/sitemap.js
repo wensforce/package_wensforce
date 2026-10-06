@@ -1,3 +1,5 @@
+import { getCitySlugs } from "./data/airportTransfer";
+
 const BASE_URL = "https://subscription.wensforce.com";
 
 const WELCOME_INDIA_PLAN_IDS = [
@@ -38,17 +40,17 @@ export default function sitemap() {
       priority: 1.0,
     },
     {
-      url: `${BASE_URL}/airport-transfer-bom-mb`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
       url: `${BASE_URL}/airport-concierge-bom`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.9,
     },
+    ...getCitySlugs().map((city) => ({
+      url: `${BASE_URL}/airport-transfer/${city}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    })),
   ];
 
   const membershipRoutes = PLAN_IDS.map((id) => ({

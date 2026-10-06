@@ -9,6 +9,12 @@ import { plans as mainPlans } from "../data/plans";
 import { plans as welcomePlans } from "../data/welcomeIndia";
 import { plans as airportPlans } from "../data/airportConcierge";
 import { plans as airportTransferPlans } from "../data/airportTransfer";
+import {
+  applyDiscount,
+  getApplicableCoupon,
+  getCouponCookie,
+  setCouponCookie,
+} from "../data/coupons";
 import { useMetaEvents } from "../hooks/useMetaEvents";
 import api from "../axios/axios";
 import { useAuth } from "../context/AuthContext";
@@ -1254,11 +1260,14 @@ export default function BookingPageContent({
   foundingSpots,
 }) {
   const { user, isLoggedIn, authLoading } = useAuth();
+  // City-specific packages (e.g. airport transfer) carry their city on the plan.
+  // When set, the Service City field is pre-selected and locked.
+  const lockedCity = plan.serviceCity || "";
   const [form, setForm] = useState({
     name: "",
     phone: "",
     email: "",
-    city: "",
+    city: lockedCity,
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -1278,10 +1287,22 @@ export default function BookingPageContent({
   const [selectedCurrency, setSelectedCurrency] = useState(initCurrency);
   const [currencyRate, setCurrencyRate] = useState(94); // INR per 1 unit of selectedCurrency
   const [currencyRateLoading, setCurrencyRateLoading] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
 
   const isFixedUSD = selectedCurrency === "USD" && welcomePlanIds.has(plan.id);
 
   const [showModal, setShowModal] = useState(false);
+
+  // Capture UTM_Coupon from URL → cookie, then resolve against coupon map
+  useEffect(() => {
+    const fromUrl =
+      searchParams.get("UTM_Coupon") || searchParams.get("utm_coupon");
+    if (fromUrl) {
+      setCouponCookie(fromUrl);
+    }
+    const raw = fromUrl || getCouponCookie();
+    setAppliedCoupon(getApplicableCoupon(raw, plan.id));
+  }, [searchParams, plan.id]);
 
   useEffect(() => {
     if (user) {
@@ -1316,15 +1337,30 @@ export default function BookingPageContent({
   const isMembership = mainPlans.some((p) => p.id === plan.id);
   const effectiveGstRate = isWelcomeIndia ? 0 : GST_RATE;
   const gstLabel = isWelcomeIndia ? "All Inclusive" : "GST 18% Extra";
+
+  // Coupon-adjusted base price (INR)
+  const originalPrice = plan.price;
+  const basePrice = appliedCoupon
+    ? applyDiscount(originalPrice, appliedCoupon.discountPercent)
+    : originalPrice;
+  const couponSaveINR = originalPrice - basePrice;
+
   // India pricing
-  const gstAmount = Math.ceil(plan.price * effectiveGstRate);
-  const indiaTotalINR = Math.ceil(plan.price + gstAmount);
+  const gstAmount = Math.ceil(basePrice * effectiveGstRate);
+  const indiaTotalINR = Math.ceil(basePrice + gstAmount);
 
   // International pricing
-  const intlGstAmount = Math.ceil(plan.price * effectiveGstRate);
-  const intlTotalINR = plan.price + intlGstAmount;
+  const intlGstAmount = Math.ceil(basePrice * effectiveGstRate);
+  const intlTotalINR = basePrice + intlGstAmount;
+  const fixedUsdBase = WELCOME_USD_PRICES[plan.id] ?? null;
+  const fixedUsdDiscounted =
+    isFixedUSD && fixedUsdBase != null
+      ? appliedCoupon
+        ? applyDiscount(fixedUsdBase, appliedCoupon.discountPercent)
+        : fixedUsdBase
+      : null;
   const intlTotalForeign = isFixedUSD
-    ? (WELCOME_USD_PRICES[plan.id] ?? null)
+    ? fixedUsdDiscounted
     : currencyRateLoading
       ? null
       : roundForeign(intlTotalINR / currencyRate, selectedCurrency);
@@ -1333,8 +1369,9 @@ export default function BookingPageContent({
   const toForeign = (inrAmount) => {
     if (isFixedUSD) {
       // For welcome plans with fixed USD, scale proportionally from plan base price
-      const usdBase = WELCOME_USD_PRICES[plan.id] ?? 0;
-      const scaled = Math.round((inrAmount / (plan.price || 1)) * usdBase);
+      const usdBase = fixedUsdDiscounted ?? fixedUsdBase ?? 0;
+      const scaleFrom = basePrice || originalPrice || 1;
+      const scaled = Math.round((inrAmount / scaleFrom) * usdBase);
       return fmtForeign(scaled, "USD");
     }
     return currencyRateLoading
@@ -1625,7 +1662,7 @@ export default function BookingPageContent({
             </div>
           </div>
 
-          {/* Price block */}
+          {/* Price block — always show package (list) price; coupon only in order summary */}
           <div className="mb-7">
             {anchorPrice && isIndia && (
               <span className="text-gray-400 text-sm line-through block mb-1">
@@ -1640,7 +1677,9 @@ export default function BookingPageContent({
                   color: plan.id === "elite" ? "#C9A24B" : "#0B1E3F",
                 }}
               >
-                {isIndia ? `${INR(plan.price)}` : `${toForeign(plan.price)}`}
+                {isIndia
+                  ? `${INR(originalPrice)}`
+                  : `${toForeign(originalPrice)}`}
               </span>
               <span className="text-[11px] font-semibold text-gray-400 mb-1">
                 + {gstLabel}
@@ -1650,7 +1689,18 @@ export default function BookingPageContent({
                   / year, all-inclusive
                 </span>
               )}
-              {anchorPrice && (
+              {appliedCoupon && (
+                <span
+                  className="mb-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full"
+                  style={{
+                    background: "rgba(34,197,94,0.15)",
+                    color: "#16a34a",
+                  }}
+                >
+                  {appliedCoupon.discountPercent}% coupon · {appliedCoupon.code}
+                </span>
+              )}
+              {!appliedCoupon && anchorPrice && (
                 <span
                   className="mb-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full"
                   style={{
@@ -1658,7 +1708,7 @@ export default function BookingPageContent({
                     color: "#C9A24B",
                   }}
                 >
-                  Save {INR(anchorPrice - plan.price)}
+                  Save {INR(anchorPrice - originalPrice)}
                 </span>
               )}
             </div>
@@ -1770,7 +1820,9 @@ export default function BookingPageContent({
                 </div>
                 <div className="text-right">
                   <p className="text-xl font-black text-gray-900 tabular-nums">
-                    {isIndia ? `${INR(plan.price)}` : `${toForeign(plan.price)}`}
+                    {isIndia
+                      ? `${INR(originalPrice)}`
+                      : `${toForeign(originalPrice)}`}
                   </p>
                   {
 
@@ -1828,7 +1880,7 @@ export default function BookingPageContent({
                           <div
                             className={`text-xs font-semibold tabular-nums ${isIndia ? "text-amber-600" : "text-gray-400"}`}
                           >
-                            {INR(plan.price)}* · INR
+                            {INR(originalPrice)}* · INR
                           </div>
                         </div>
                       </div>
@@ -2023,19 +2075,28 @@ export default function BookingPageContent({
                   </label>
                   <select
                     value={form.city}
+                    disabled={!!lockedCity}
                     onChange={(e) => setForm({ ...form, city: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/10 text-sm text-gray-700 outline-none transition-all bg-white appearance-none"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#C9A24B] focus:ring-2 focus:ring-[#C9A24B]/10 text-sm text-gray-700 outline-none transition-all bg-white appearance-none disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed"
                   >
                     <option value="">Select Service City…</option>
-                    {CITIES.map((c) => (
+                    {(lockedCity && !CITIES.includes(lockedCity)
+                      ? [lockedCity, ...CITIES]
+                      : CITIES
+                    ).map((c) => (
                       <option key={c} value={c}>
                         {c}
                       </option>
                     ))}
                   </select>
+                  {lockedCity && (
+                    <p className="text-gray-400 text-[11px] mt-1.5">
+                      This package is available for {lockedCity} only.
+                    </p>
+                  )}
                 </div>
 
-                {/* Order summary */}
+                {/* Order summary — standard checkout layout */}
                 <div
                   className="rounded-xl border p-4"
                   style={{
@@ -2046,41 +2107,91 @@ export default function BookingPageContent({
                   <p className="text-[9px] font-bold text-gray-400 tracking-[0.3em] uppercase mb-3">
                     Order Summary
                   </p>
-                  {/* {anchorPrice && (
-                      <div className="flex justify-between items-center text-xs text-gray-400">
-                        <span>Regular price</span>
-                        <span className="line-through tabular-nums">{INR(anchorPrice)}</span>
-                      </div>
-                    )} */}
-                  <div className="space-y-2">
+
+                  <div className="space-y-3">
+                    {/* 1. Package at list price */}
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600 text-sm">
+                      <span className="text-gray-700 text-sm font-medium">
                         {plan.name} {isMembership ? "Membership" : ""}
                       </span>
                       <div className="text-right">
-                        <span className="text-gray-700 text-sm font-semibold tabular-nums">
+                        <span className="text-gray-800 text-sm font-semibold tabular-nums">
                           {isIndia
-                            ? INR(plan.price) + "*"
-                            : toForeign(plan.price) + "*"}
+                            ? INR(originalPrice) + "*"
+                            : toForeign(originalPrice) + "*"}
                         </span>
-
                         {!isIndia && !currencyRateLoading && !isFixedUSD && (
                           <p className="text-gray-400 text-[10px] tabular-nums">
-                            {INR(plan.price)}*
+                            {INR(originalPrice)}*
                           </p>
                         )}
                       </div>
                     </div>
+
+                    {/* 2. Coupon discount */}
+                    {appliedCoupon && couponSaveINR > 0 && (
+                      <div
+                        className="rounded-lg overflow-hidden border"
+                        style={{
+                          borderColor: "rgba(22,163,74,0.4)",
+                          background:
+                            "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 50%, #fefce8 100%)",
+                        }}
+                      >
+                        <div className="flex items-center justify-between gap-3 px-3 py-2.5">
+                          <div className="flex items-start gap-2.5 min-w-0">
+                            <span
+                              className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-black"
+                              style={{
+                                backgroundColor: "#16a34a",
+                                color: "#fff",
+                              }}
+                              aria-hidden
+                            >
+                              %
+                            </span>
+                            <div className="min-w-0">
+                              <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-green-700">
+                                Coupon applied
+                              </p>
+                              <p className="text-sm font-bold text-green-900 truncate">
+                                {appliedCoupon.discountPercent}% off
+                                <span className="ml-1.5 text-[11px] font-semibold text-green-700/80">
+                                  · {appliedCoupon.code}
+                                </span>
+                              </p>
+                            </div>
+                          </div>
+                          <span className="text-base font-black text-green-700 tabular-nums shrink-0">
+                            −
+                            {isIndia
+                              ? INR(couponSaveINR)
+                              : toForeign(couponSaveINR)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 3. Subtotal (after discount, before tax) */}
+                    {appliedCoupon && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Subtotal</span>
+                        <span className="text-sm font-semibold text-gray-800 tabular-nums">
+                          {isIndia
+                            ? INR(basePrice) + "*"
+                            : toForeign(basePrice) + "*"}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* 4. GST */}
                     {!isWelcomeIndia && (
                       <div className="flex justify-between items-center">
-                        <span className="flex items-center gap-1.5 text-xs text-gray-500">
-                          <span className="bg-gray-100 text-gray-600 text-[9px] font-bold px-1.5 py-0.5 rounded-full">
-                            +18%
-                          </span>
-                          GST
+                        <span className="text-sm text-gray-600">
+                          GST (18%)
                         </span>
                         <div className="text-right">
-                          <span className="text-gray-600 text-sm font-semibold tabular-nums">
+                          <span className="text-gray-700 text-sm font-semibold tabular-nums">
                             +
                             {isIndia
                               ? INR(gstAmount)

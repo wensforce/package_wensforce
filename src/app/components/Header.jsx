@@ -3,8 +3,16 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Crown, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+
+const NAV_LINKS = [
+  { label: 'Membership', href: '/' },
+  { label: 'Expo', href: '/expo' },
+  { label: 'Welcome India', href: '/?welcomeIndia=true' },
+  { label: 'Mumbai Darshan', href: '/airport-concierge-bom' },
+  { label: 'Airport Transfer', href: '/airport-transfer/mumbai' },
+];
 
 function resolveHref(href, pathname) {
   if (typeof href === 'string' && href.startsWith('#')) {
@@ -13,27 +21,40 @@ function resolveHref(href, pathname) {
   return href;
 }
 
-function isNavActive(href, pathname) {
-  if (!href || href.startsWith('#')) return false;
+function isNavActive(href, pathname, isWelcomeIndia) {
+  if (!href) return false;
+
+  // Welcome India — home with ?welcomeIndia=true
+  if (href.includes('welcomeIndia=true')) {
+    return pathname === '/' && isWelcomeIndia;
+  }
+
+  // Membership / home — exact "/" only, never when Welcome India is on
+  if (href === '/') {
+    return pathname === '/' && !isWelcomeIndia;
+  }
+
+  if (href.startsWith('/airport-transfer')) {
+    return pathname.startsWith('/airport-transfer');
+  }
+  if (href.startsWith('/expo')) {
+    return pathname.startsWith('/expo');
+  }
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export default function Header({ navItems = [], cta }) {
+export default function Header({ cta }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const isWelcomeIndia = searchParams.get('welcomeIndia') === 'true';
-
   const { isLoggedIn, user } = useAuth();
 
-  const items = navItems.filter(
-    (item) => !(item.hideOnWelcomeIndia && isWelcomeIndia),
-  );
   const ctaHref = cta?.href ? resolveHref(cta.href, pathname) : '';
 
   const linkClass = (href, mobile = false) => {
-    const active = isNavActive(href, pathname);
+    const active = isNavActive(href, pathname, isWelcomeIndia);
     const color = active
       ? scrolled
         ? 'text-[#BF9F00]'
@@ -55,7 +76,6 @@ export default function Header({ navItems = [], cta }) {
 
   return (
     <>
-      {/* Sticky Header */}
       <header
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
           scrolled
@@ -64,44 +84,35 @@ export default function Header({ navItems = [], cta }) {
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all`}>
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center transition-all">
               <img src="/Logo.png" alt="WENS Force Logo" />
             </div>
-            <span className={`font-bold text-base tracking-wide transition-colors ${
-              scrolled ? 'text-gray-900' : 'text-white'
-            }`}>
+            <span
+              className={`font-bold text-base tracking-wide transition-colors ${
+                scrolled ? 'text-gray-900' : 'text-white'
+              }`}
+            >
               WENS Force
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            {items.map((item) => {
-              const href = resolveHref(item.href, pathname);
-              const className = linkClass(item.href);
-              if (item.href?.startsWith('#')) {
-                return (
-                  <a key={item.label} href={href} className={className}>
-                    {item.label}
-                  </a>
-                );
-              }
-              return (
-                <Link key={item.label} href={href} className={className}>
-                  {item.label}
-                </Link>
-              );
-            })}
+            {NAV_LINKS.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                className={linkClass(item.href)}
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
 
-          {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
-
             {isLoggedIn ? (
               <Link
-                href= { user.role === 'admin' ? '/admin/dashboard' : '/dashboard' }
+                href={user.role === 'admin' ? '/admin/dashboard' : '/dashboard'}
                 className={`inline-flex items-center gap-2 font-semibold py-2.5 px-5 rounded-full text-sm transition-all ${
                   scrolled
                     ? 'border border-gray-300 text-gray-700 hover:bg-gray-100'
@@ -114,14 +125,14 @@ export default function Header({ navItems = [], cta }) {
               <Link
                 href="/login"
                 className={`inline-flex items-center gap-2 font-semibold py-2.5 px-5 rounded-full text-sm transition-all ${
-                  scrolled                    ? 'border border-gray-300 text-gray-700 hover:bg-gray-100'
+                  scrolled
+                    ? 'border border-gray-300 text-gray-700 hover:bg-gray-100'
                     : 'border border-white/30 text-white hover:bg-white/10'
                 }`}
               >
                 Login
               </Link>
-            )
-            }
+            )}
             {cta?.label && cta?.href && (
               <a
                 href={ctaHref}
@@ -136,10 +147,10 @@ export default function Header({ navItems = [], cta }) {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
           <button
             className="md:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
           >
             {mobileMenuOpen ? (
               <X size={20} className={scrolled ? 'text-gray-900' : 'text-white'} />
@@ -149,34 +160,32 @@ export default function Header({ navItems = [], cta }) {
           </button>
         </div>
 
-        {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className={`md:hidden border-t ${
-            scrolled ? 'border-gray-100 bg-white' : 'border-white/10 bg-black/50 backdrop-blur'
-          }`}>
+          <div
+            className={`md:hidden border-t ${
+              scrolled
+                ? 'border-gray-100 bg-white'
+                : 'border-white/10 bg-black/50 backdrop-blur'
+            }`}
+          >
             <nav className="px-6 py-4 space-y-3">
-              {items.map((item) => {
-                const href = resolveHref(item.href, pathname);
-                const className = linkClass(item.href, true);
-                const close = () => setMobileMenuOpen(false);
-                if (item.href?.startsWith('#')) {
-                  return (
-                    <a key={item.label} href={href} className={className} onClick={close}>
-                      {item.label}
-                    </a>
-                  );
-                }
-                return (
-                  <Link key={item.label} href={href} className={className} onClick={close}>
-                    {item.label}
-                  </Link>
-                );
-              })}
+              {NAV_LINKS.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={linkClass(item.href, true)}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
               {isLoggedIn && (
                 <Link
-                  href="/dashboard"
+                  href={user.role === 'admin' ? '/admin/dashboard' : '/dashboard'}
                   className={`block text-sm font-semibold transition-colors ${
-                    scrolled ? 'text-gray-700 hover:text-gray-900' : 'text-white/80 hover:text-white'
+                    scrolled
+                      ? 'text-gray-700 hover:text-gray-900'
+                      : 'text-white/80 hover:text-white'
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -197,7 +206,6 @@ export default function Header({ navItems = [], cta }) {
         )}
       </header>
 
-      {/* Spacer */}
       <div className="h-16" />
     </>
   );

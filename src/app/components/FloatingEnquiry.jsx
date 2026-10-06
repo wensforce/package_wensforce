@@ -3,30 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
-
-const APP_PARAMS = new Set(["serviceType", "welcomeIndia"]);
-
-const CAMPAIGN_PARAM_KEYS = new Set([
-  "gclid",
-  "gbraid",
-  "wbraid",
-  "dclid",
-  "gclsrc",
-  "fbclid",
-  "msclkid",
-  "ttclid",
-  "twclid",
-  "li_fat_id",
-  "campaignid",
-  "adgroupid",
-  "creative",
-  "keyword",
-  "matchtype",
-  "network",
-  "device",
-  "placement",
-  "adposition",
-]);
+import { collectCampaignParams } from "../lib/campaignAttribution";
 
 function getEnquiryCategory(pathname, searchParams) {
   if (
@@ -38,7 +15,10 @@ function getEnquiryCategory(pathname, searchParams) {
   if (searchParams.get("welcomeIndia") === "true") {
     return "welcome-india";
   }
-  if (pathname?.startsWith("/airport-transfer") || pathname?.includes("airport-transfer")) {
+  if (
+    pathname?.startsWith("/airport-transfer") ||
+    pathname?.includes("airport-transfer")
+  ) {
     return "airport-transfer";
   }
   return "membership";
@@ -46,16 +26,9 @@ function getEnquiryCategory(pathname, searchParams) {
 
 function buildEnquiryHref(pathname, searchParams) {
   const category = getEnquiryCategory(pathname, searchParams);
-  const params = new URLSearchParams();
-
-  for (const [key, value] of searchParams.entries()) {
-    if (!value || APP_PARAMS.has(key)) continue;
-    const lower = key.toLowerCase();
-    if (lower.startsWith("utm_") || CAMPAIGN_PARAM_KEYS.has(lower)) {
-      params.set(key, value);
-    }
-  }
-
+  // Campaign params also live in wf_campaign cookie; forward current URL as backup.
+  const campaign = collectCampaignParams(searchParams);
+  const params = new URLSearchParams(campaign);
   const qs = params.toString();
   return qs ? `/enquiry/${category}/?${qs}` : `/enquiry/${category}`;
 }

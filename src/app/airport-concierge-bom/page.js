@@ -58,17 +58,6 @@ const faqs = [
   },
 ];
 
-const headerNav = [
-  { label: "Plans", href: "/airport-concierge-bom#plans" },
-  { label: "How It Works", href: "/airport-concierge-bom#how-it-works" },
-  { label: "Testimonials", href: "/airport-concierge-bom#testimonials" },
-  { label: "Membership", href: "/" },
-  { label: "Expo", href: "/expo" },
-  { label: "Welcome India", href: "/?welcomeIndia=true" },
-  { label: "Mumbai Darshan", href: "/airport-concierge-bom" },
-  { label: "Airport Transfer", href: "/airport-transfer-bom-mb" },
-];
-
 const headerCta = { label: "View Plans", href: "/airport-concierge-bom#plans" };
 
 const DEFAULT_HERO_VIDEO =
@@ -117,7 +106,7 @@ export default async function AirportConciergeBomPage({ searchParams }) {
       <JsonLd data={faqSchema} />
       <JsonLd data={itemListSchema} />
       <Suspense fallback={null}>
-        <Header navItems={headerNav} cta={headerCta} />
+        <Header cta={headerCta} />
       </Suspense>
 
       <HeroSection

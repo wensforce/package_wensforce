@@ -24,6 +24,7 @@ function WhatsAppIcon() {
 
 export default function HeroSection({
   videoUrl,
+  posterUrl,
   announcement = [],
   eyebrow,
   heading = [],
@@ -103,7 +104,9 @@ export default function HeroSection({
             autoPlay
             muted
             loop
-            preload="auto"
+            playsInline            
+            preload="metadata"     
+            poster={posterUrl}
             className="absolute inset-0 w-full h-full object-cover"
             src={videoUrl}
           />
@@ -181,7 +184,7 @@ export default function HeroSection({
           )}
 
           {subtitle && (
-            <p className="text-white/60 text-lg font-light mb-10 max-w-4xl mx-auto">
+            <p className="text-white/60 md:text-lg text-sm font-light mb-10 max-w-4xl mx-auto">
               {subtitle}
             </p>
           )}
