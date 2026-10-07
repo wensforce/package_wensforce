@@ -19,9 +19,9 @@ function isWensWhatsAppUrl(url) {
 }
 
 /**
- * For a WENS wa.me link: create a reference id, append it to the message,
- * and send that id plus the UTM cookie to /enquiry/whatsapp.
- * Other URLs are returned unchanged.
+ * For a WENS wa.me link that has gclid or fbclid: create a reference id,
+ * append it to the message, and send that id plus the UTM cookie to
+ * /enquiry/whatsapp. Other clicks open WhatsApp unchanged.
  */
 export function trackWhatsAppClick(href) {
   if (typeof window === "undefined" || !href) return href;
@@ -34,6 +34,13 @@ export function trackWhatsAppClick(href) {
   }
   if (!isWensWhatsAppUrl(url)) return href;
 
+  const campaign = getCampaignForSubmit(
+    new URLSearchParams(window.location.search),
+  );
+  const gclid = String(campaign?.gclid || "").trim();
+  const fbclid = String(campaign?.fbclid || "").trim();
+  if (!gclid && !fbclid) return href;
+
   const referenceId = createReferenceId();
   const text = url.searchParams.get("text");
   url.searchParams.set(
@@ -43,15 +50,13 @@ export function trackWhatsAppClick(href) {
       : `Hi WENS Force. Ref ID: ${referenceId}`,
   );
 
-  const payload = { referenceId };
-  const campaign = getCampaignForSubmit(
-    new URLSearchParams(window.location.search),
-  );
-  if (campaign) {
-    payload.fromCampaign = true;
-    payload.campaign = campaign;
-  }
-  api.post("/enquiry/whatsapp", payload).catch(() => {});
+  api
+    .post("/enquiry/whatsapp", {
+      referenceId,
+      fromCampaign: true,
+      campaign,
+    })
+    .catch(() => {});
 
   return url.toString();
 }
