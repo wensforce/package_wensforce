@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Crown, Gem, Tag, AlertTriangle, CheckCircle, Star } from 'lucide-react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const WA_NUMBER = '917304607954';
 const DEADLINE = '2026-09-30T23:59:59+05:30';
@@ -89,13 +89,14 @@ function MembershipUrgency() {
         <p className="text-[#060D1F]/55 text-sm font-light leading-relaxed mb-8">
           Each tier has a fixed number of members for the year. Reserve yours and a concierge will set everything up.
         </p>
-        <Link
-          href="/#plans"
-          className="inline-flex items-center justify-center font-semibold py-3.5 px-8 rounded-full text-sm transition-opacity hover:opacity-90"
+        <button
+          type="button"
+          onClick={() => handleCta('#plans')}
+          className="inline-flex items-center justify-center font-semibold py-3.5 px-8 rounded-full text-sm transition-opacity hover:opacity-90 cursor-pointer"
           style={{ backgroundColor: '#060D1F', color: '#FAF6EC' }}
         >
           View memberships
-        </Link>
+        </button>
         <p className="text-[#060D1F]/35 text-xs mt-6">
           <a
             href={`https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Hi WENS Force, I want to reserve a membership. Please guide me.')}`}
@@ -112,6 +113,16 @@ function MembershipUrgency() {
 }
 
 export default function FoundingMemberBanner() {
+  const router = useRouter();
+
+  function handleCta(href) {
+    if (href.startsWith('#')) {
+      document.getElementById(href.slice(1))?.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+    router.push(href);
+  }
+
   const tierList = ['essential', 'executive', 'premium', 'elite', 'sovereign'];
   const searchParams = useSearchParams();
   const isWelcomeIndia = searchParams.get('welcomeIndia') === 'true';

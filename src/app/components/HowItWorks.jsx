@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const STEPS = [
   {
@@ -31,8 +31,17 @@ const STEPS = [
 ];
 
 export default function HowItWorks() {
+  const router = useRouter();
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef(null);
+
+  function handleCta(href) {
+    if (href.startsWith('#')) {
+      document.getElementById(href.slice(1))?.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+    router.push(href);
+  }
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -109,13 +118,14 @@ export default function HowItWorks() {
 
         {/* CTA */}
         <div className="mt-14 text-center">
-          <Link
-            href="#plans"
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-white text-sm transition-all hover:opacity-90 hover:shadow-lg"
+          <button
+            type="button"
+            onClick={() => handleCta('#plans')}
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-white text-sm transition-all hover:opacity-90 hover:shadow-lg cursor-pointer"
             style={{ backgroundColor: '#0B1E3F' }}
           >
             Start with Step 1 — Choose Your Tier →
-          </Link>
+          </button>
           <p className="text-gray-400 text-xs mt-4 font-light">
             ✓ No long-term lock-in &nbsp;·&nbsp; ✓ Instant activation
           </p>

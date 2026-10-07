@@ -58,7 +58,7 @@ const faqs = [
   },
 ];
 
-const headerCta = { label: "View Plans", href: "/airport-concierge-bom#plans" };
+const headerCta = { label: "View Plans", href: "#plans" };
 
 const DEFAULT_HERO_VIDEO =
   "https://d2zcmp43lwd2kr.cloudfront.net/videos/hero_video.mp4";

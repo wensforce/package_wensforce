@@ -14,6 +14,7 @@ import api from "../axios/axios";
 import { useAuth } from "../context/AuthContext";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { getCampaignForSubmit } from "../lib/campaignAttribution";
 
 const COUNTRY_CODES = [
   { code: "+91", flag: "🇮🇳", name: "India" },
@@ -113,9 +114,31 @@ export default function LoginPage() {
         mobileNumber: selectedCountry.code + phone,
         otp: otp.join(""),
       });
-      await login(data.data.accessToken, data.data.user);
-      // navigate to dashboard using router.push or similar
-      if(data.data.user.role === "admin") {
+      const user = data.data.user;
+      await login(data.data.accessToken, user);
+
+      if (data.data.isNewUser && user.role !== "admin") {
+        const payload = {
+          name: user.name || null,
+          phone: selectedCountry.code + phone || user.mobileNumber || user.phone || null,
+          email: user.email || null,
+          event: "Website login",
+        };
+        const campaign = getCampaignForSubmit(
+          new URLSearchParams(window.location.search),
+        );
+        if (campaign) {
+          payload.fromCampaign = true;
+          payload.campaign = campaign;
+        }
+        try {
+          await api.post("/enquiry/login-lead", payload);
+        } catch {
+          // Lead sync should not block login.
+        }
+      }
+
+      if (user.role === "admin") {
         router.push("/admin/dashboard");
       } else {
         router.push("/dashboard");

@@ -48,14 +48,13 @@ export default async function AirportTransferCityPage({
   if (!city) notFound();
 
   const { videoUrl } = await searchParams;
-  const path = `/airport-transfer/${city.slug}`;
   const heroWaUrl = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
     city.whatsappMessage,
   )}`;
 
   const headerCta = {
     label: "View Plans",
-    href: `${path}#plans`,
+    href: "#plans",
   };
 
   const faqSchema = {

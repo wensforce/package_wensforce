@@ -6,6 +6,7 @@ import "./globals.css";
 import FloatingWhatsApp from "./components/FloatingWhatsApp";
 import FloatingEnquiry from "./components/FloatingEnquiry";
 import CampaignCapture from "./components/CampaignCapture";
+import WhatsAppClickTracker from "./components/WhatsAppClickTracker";
 import LiveActivityTicker from "./components/LiveActivityTicker";
 import JsonLd from "./components/JsonLd";
 // import GTMPageTracker from "./components/GTMPageTracker";
@@ -175,6 +176,7 @@ export default function RootLayout({ children }) {
           <Suspense fallback={null}>
             <FloatingEnquiry />
           </Suspense>
+          <WhatsAppClickTracker />
           <FloatingWhatsApp />
           <LiveActivityTicker />
           <Toaster

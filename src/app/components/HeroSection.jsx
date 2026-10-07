@@ -1,6 +1,8 @@
 "use client";
 
 import { Fragment } from "react";
+import { trackWhatsAppClick } from "../lib/whatsappLead";
+import { useRouter } from "next/navigation";
 
 const ANNOUNCEMENT_STYLES = [
   "text-white/70",
@@ -34,8 +36,23 @@ export default function HeroSection({
   ctas = [],
   trustItems = [],
 }) {
+  const router = useRouter();
   const [leadLine, accentLine] = heading;
   const showAddon = Boolean(addon?.value);
+
+  function handleCta(href) {
+    if (href.startsWith("#")) {
+      document.getElementById(href.slice(1))?.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+    if (/^https?:\/\//.test(href)) {
+      window.open(trackWhatsAppClick(href), "_blank", "noopener,noreferrer");
+      return;
+    }
+    router.push(href);
+  }
+
+
 
   return (
     <>
@@ -193,16 +210,14 @@ export default function HeroSection({
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
               {ctas.map((cta) => {
                 const isPrimary = cta.variant !== "secondary";
-                const isExternal = /^https?:\/\//.test(cta.url || "");
                 const showWhatsApp =
                   Boolean(cta.showWhatsApp) ||
                   /wa\.me|whatsapp/i.test(cta.url || "");
                 return (
-                  <a
+                  <button
+                    type="button"
                     key={`${cta.text}-${cta.url}`}
-                    href={cta.url}
-                    target={isExternal ? "_blank" : undefined}
-                    rel={isExternal ? "noopener noreferrer" : undefined}
+                    onClick={() => handleCta(cta.url)}
                     className={
                       isPrimary
                         ? "golden-cta flex items-center gap-2.5 py-4 px-9 rounded-full font-semibold text-black text-sm"
@@ -226,7 +241,7 @@ export default function HeroSection({
                         />
                       </svg>
                     )}
-                  </a>
+                  </button>
                 );
               })}
             </div>

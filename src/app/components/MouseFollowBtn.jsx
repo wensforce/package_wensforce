@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { trackWhatsAppClick } from "../lib/whatsappLead";
 import { ArrowUpRight } from "lucide-react";
 
 const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
@@ -16,9 +18,22 @@ export default function MouseFollowBtn({
   staticClassName = "bottom-8 left-1/2 -translate-x-1/2",
   children,
 }) {
+  const router = useRouter();
   const zoneRef = useRef(null);
   const btnRef = useRef(null);
   const [follow, setFollow] = useState(null);
+
+  function handleCta(href) {
+    if (href.startsWith("#")) {
+      document.getElementById(href.slice(1))?.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+    if (isExternal(href)) {
+      window.open(trackWhatsAppClick(href), "_blank", "noopener,noreferrer");
+      return;
+    }
+    router.push(href);
+  }
 
   useEffect(() => {
     const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
@@ -115,10 +130,6 @@ export default function MouseFollowBtn({
     };
   }, [follow]);
 
-  const linkProps = isExternal(url)
-    ? { target: "_blank", rel: "noopener noreferrer" }
-    : {};
-
   const labelClass =
     "items-center justify-center gap-2 rounded-full border border-white/20 bg-black px-7 py-3.5 text-sm font-semibold text-white whitespace-nowrap";
 
@@ -132,23 +143,23 @@ export default function MouseFollowBtn({
   return (
     <div ref={zoneRef} className={`relative h-full w-full ${className}`.trim()}>
       {children}
-      <a
-        href={url}
-        {...linkProps}
-        className={`inline-flex md:hidden absolute z-20 ${staticClassName} ${labelClass}`}
+      <button
+        type="button"
+        onClick={() => handleCta(url)}
+        className={`inline-flex md:hidden absolute z-20 cursor-pointer ${staticClassName} ${labelClass}`}
       >
         {label}
-      </a>
+      </button>
       {follow ? (
-        <a
+        <button
+          type="button"
           ref={btnRef}
-          href={url}
-          {...linkProps}
-          className={`pointer-events-none absolute left-0 top-0 z-20 hidden opacity-0 will-change-transform md:inline-flex ${labelClass}`}
+          onClick={() => handleCta(url)}
+          className={`pointer-events-none absolute left-0 top-0 z-20 hidden cursor-pointer opacity-0 will-change-transform md:inline-flex ${labelClass}`}
           style={{ transition: "opacity 0.28s ease" }}
         >
           {label}
-        </a>
+        </button>
       ) : null}
     </div>
   );

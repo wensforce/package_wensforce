@@ -72,7 +72,7 @@ export const mumbai = {
       name: "Customer 2",
       role: "Business Person",
       avatar: "/testimonials/no_profile.png",
-      bannerImage: "/testimonials/Business Person customer-2.png",
+      bannerImage: "/testimonials/Business Person Customer-2.png",
       videoUrl:
         "https://subscription-package.s3.ap-south-1.amazonaws.com/Packages+Videos/Testimonials/Business+Person+Customer-2.mp4",
     },
@@ -107,8 +107,8 @@ export const mumbai = {
       name: "Pakashi",
       role: "Business Person",
       plan: "LUXURY ARRIVAL",
-      bannerImage: "/testimonials/Pakashi Business person.jpeg",
-      avatar: "/testimonials/Pakashi Business person.jpeg",
+      bannerImage: "/testimonials/Pakashi Business Person.jpeg",
+      avatar: "/testimonials/Pakashi Business Person.jpeg",
       videoUrl:
         "https://subscription-package.s3.ap-south-1.amazonaws.com/Packages+Videos/Testimonials/Pakashi+Business+Person+.mp4",
     },

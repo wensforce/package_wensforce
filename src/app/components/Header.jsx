@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams, usePathname } from 'next/navigation';
+import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -13,13 +13,6 @@ const NAV_LINKS = [
   { label: 'Mumbai Darshan', href: '/airport-concierge-bom' },
   { label: 'Airport Transfer', href: '/airport-transfer/mumbai' },
 ];
-
-function resolveHref(href, pathname) {
-  if (typeof href === 'string' && href.startsWith('#')) {
-    return pathname === '/' ? href : `/${href}`;
-  }
-  return href;
-}
 
 function isNavActive(href, pathname, isWelcomeIndia) {
   if (!href) return false;
@@ -48,10 +41,22 @@ export default function Header({ cta, showNavLinks = true }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const router = useRouter();
   const isWelcomeIndia = searchParams.get('welcomeIndia') === 'true';
   const { isLoggedIn, user } = useAuth();
 
-  const ctaHref = cta?.href ? resolveHref(cta.href, pathname) : '';
+  function handleCta(href) {
+    if (href.startsWith('#')) {
+      const el = document.getElementById(href.slice(1));
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+      router.push(`/${href}`);
+      return;
+    }
+    router.push(href);
+  }
 
   const linkClass = (href, mobile = false) => {
     const active = isNavActive(href, pathname, isWelcomeIndia);
@@ -136,16 +141,17 @@ export default function Header({ cta, showNavLinks = true }) {
               </Link>
             )}
             {cta?.label && cta?.href && (
-              <a
-                href={ctaHref}
-                className={`inline-flex items-center gap-2 font-semibold py-2.5 px-6 rounded-full text-sm transition-all ${
+              <button
+                type="button"
+                onClick={() => handleCta(cta.href)}
+                className={`inline-flex items-center gap-2 font-semibold py-2.5 px-6 rounded-full text-sm transition-all cursor-pointer ${
                   scrolled
                     ? 'bg-[#BF9F00] text-black hover:bg-[#a88a00]'
                     : 'bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm'
                 }`}
               >
                 {cta.label}
-              </a>
+              </button>
             )}
           </div>
 
@@ -196,13 +202,16 @@ export default function Header({ cta, showNavLinks = true }) {
                 </Link>
               )}
               {cta?.label && cta?.href && (
-                <a
-                  href={ctaHref}
-                  className="block w-full bg-[#BF9F00] text-black font-semibold py-2.5 rounded-full text-sm hover:bg-[#a88a00] transition-all text-center mt-4"
-                  onClick={() => setMobileMenuOpen(false)}
+                <button
+                  type="button"
+                  className="block w-full bg-[#BF9F00] text-black font-semibold py-2.5 rounded-full text-sm hover:bg-[#a88a00] transition-all text-center mt-4 cursor-pointer"
+                  onClick={() => {
+                    handleCta(cta.href);
+                    setMobileMenuOpen(false);
+                  }}
                 >
                   {cta.label}
-                </a>
+                </button>
               )}
             </nav>
           </div>

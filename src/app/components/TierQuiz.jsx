@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from "react";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import { trackWhatsAppClick } from "../lib/whatsappLead";
 import { plans as membershipPlans } from "../data/plans";
 import { plans as welcomeIndiaPlans } from "../data/welcomeIndia";
 import { plans as airportConciergePlans } from "../data/airportConcierge";
@@ -333,7 +334,9 @@ function TierQuizInner({ catalog: catalogProp }) {
     const unit = catalog.priceUnit ? catalog.priceUnit : "";
     const msg = `Hi WENS Force, I just took your quiz and got ${recommended.name} (${recommended.price}${unit}). I'd like to know more about this ${catalog.productWord} and how to get started. Please advise.`;
     window.open(
-      `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`,
+      trackWhatsAppClick(
+        `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`,
+      ),
       "_blank",
     );
   };

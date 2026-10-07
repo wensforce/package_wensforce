@@ -18,6 +18,7 @@ import {
 import { useMetaEvents } from "../hooks/useMetaEvents";
 import api from "../axios/axios";
 import { useAuth } from "../context/AuthContext";
+import { getCampaignForSubmit } from "../lib/campaignAttribution";
 import LoginModal from "./LoginModal";
 import { useRouter } from "next/navigation";
 
@@ -1488,7 +1489,44 @@ export default function BookingPageContent({
         );
       }
 
+      const bookingLead = {
+        name: form.name.trim(),
+        email: form.email.trim(),
+        phone: form.phone,
+        serviceCity: form.city || plan.serviceCity || "Not specified",
+        event: "Website booking",
+        package: {
+          id: plan.id,
+          packageNo: plan.packageNo || null,
+          name: plan.name + (expoSlug ? ` (${expoSlug})` : ""),
+          tagline: plan.tagline || null,
+          price: plan.price,
+          validity: plan.validity || null,
+          vehicle: plan.vehicle || null,
+          vehicleType: plan.vehicleType || null,
+          bodyguard: plan.bodyguard || null,
+          trips: plan.trips ?? null,
+          serviceCity: plan.serviceCity || null,
+          citySlug: plan.citySlug || null,
+          expo: expoSlug || null,
+        },
+        currency: isIndia ? "INR" : selectedCurrency,
+        purchaseAmount: isIndia ? indiaTotalINR : intlTotalForeign,
+        coupon: appliedCoupon
+          ? {
+              code: appliedCoupon.code,
+              discountPercent: appliedCoupon.discountPercent,
+            }
+          : null,
+      };
+      const campaign = getCampaignForSubmit(searchParams);
+      if (campaign) {
+        bookingLead.fromCampaign = true;
+        bookingLead.campaign = campaign;
+      }
+
       await Promise.all([
+        api.post("/enquiry/booking-lead", bookingLead).catch(() => {}),
         api.post("/booking", {
           packageName: plan.name + `${expoSlug ? ` (${expoSlug})` : ""}`,
           packageId: plan.id,
